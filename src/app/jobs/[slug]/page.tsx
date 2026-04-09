@@ -6,6 +6,15 @@ import { generateJobMetadata } from "@/lib/metadata";
 import { generateJobPostingSchema, generateBreadcrumbSchema } from "@/lib/schema";
 import { Metadata } from "next";
 
+// 职位类型中文映射
+const employmentTypeMap: Record<string, string> = {
+  FULL_TIME: "全职",
+  PART_TIME: "兼职",
+  CONTRACT: "合同工",
+  INTERNSHIP: "实习",
+  FREELANCE: "自由职业",
+};
+
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
@@ -82,7 +91,7 @@ export default async function JobDetailPage({ params }: PageProps) {
               {job.company.name} 招聘 {job.title}，
               {job.salaryMin ? `年薪 ${job.salaryMin.toLocaleString()}-${job.salaryMax?.toLocaleString()} ${job.salaryCurrency}，` : "薪资面议，"}
               工作地点 {job.location}，
-              {job.employmentType === "FULL_TIME" ? "全职" : job.employmentType === "PART_TIME" ? "兼职" : job.employmentType} 岗位。
+              {employmentTypeMap[job.employmentType] || "其他"} 岗位。
               欢迎符合条件的候选人投递简历！
             </p>
           </div>
@@ -135,7 +144,7 @@ export default async function JobDetailPage({ params }: PageProps) {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">职位类型</p>
-                  <p className="font-semibold">{job.employmentType}</p>
+                  <p className="font-semibold">{employmentTypeMap[job.employmentType] || job.employmentType}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">薪资范围</p>

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { generateJobsListMetadata } from "@/lib/metadata";
 import { JobCard } from "@/components/job-card";
 import { Metadata } from "next";
+import { Prisma } from "@prisma/client";
 
 interface PageProps {
   searchParams: Promise<{
@@ -26,10 +27,10 @@ export default async function JobsPage({ searchParams }: PageProps) {
   const limit = 20;
   const skip = (page - 1) * limit;
 
-  const where: any = {
+  const where: Prisma.JobWhereInput = {
     status: "ACTIVE",
     ...(params.city && { city: params.city }),
-    ...(params.type && { employmentType: params.type }),
+    ...(params.type && { employmentType: params.type as Prisma.EnumEmploymentTypeFilter<"Job"> }),
   };
 
   const [jobs, total] = await Promise.all([

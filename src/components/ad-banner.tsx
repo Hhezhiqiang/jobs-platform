@@ -69,5 +69,6 @@ export async function AdBanner({ position, className = "" }: AdBannerProps) {
     );
   }
 
+  // 其他类型不显示
   return null;
 }

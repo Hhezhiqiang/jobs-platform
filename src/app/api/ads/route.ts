@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 // 获取广告列表
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const ads = await prisma.ad.findMany({
       include: { position: true },
