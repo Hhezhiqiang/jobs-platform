@@ -26,7 +26,7 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <!-- Header -->
+      {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
@@ -48,7 +48,7 @@ export default async function HomePage() {
         </div>
       </header>
 
-      <!-- Hero Banner -->
+      {/* Hero Banner */}
       <section className="bg-blue-600 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h1 className="text-4xl font-bold mb-4">发现理想工作</h1>
@@ -62,12 +62,12 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <!-- Ad Banner -->
+      {/* Ad Banner */}
       <section className="max-w-7xl mx-auto px-4 py-8">
-        <AdBanner position="HP_BANNER_01" className="w-full">/>
+        <AdBanner position="HP_BANNER_01" className="w-full" />
       </section>
 
-      <!-- Featured Jobs -->
+      {/* Featured Jobs */}
       {featuredJobs.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 py-12">
           <h2 className="text-2xl font-bold mb-6">精选职位</h2>
@@ -79,7 +79,7 @@ export default async function HomePage() {
         </section>
       )}
 
-      <!-- Latest Jobs -->
+      {/* Latest Jobs */}
       <section className="max-w-7xl mx-auto px-4 py-12">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold">最新职位</h2>
@@ -94,7 +94,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <!-- Footer -->
+      {/* Footer */}
       <footer className="bg-gray-800 text-white py-12 mt-16">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
