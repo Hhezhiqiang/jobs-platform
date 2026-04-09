@@ -11,7 +11,7 @@ export async function AdBanner({ position, className = "" }: AdBannerProps) {
   const ad = await prisma.ad.findFirst({
     where: {
       position: { name: position },
-      isActive: true,
+      status: "ACTIVE",
       startDate: { lte: new Date() },
       OR: [{ endDate: null }, { endDate: { gte: new Date() } }],
     },
@@ -33,7 +33,7 @@ export async function AdBanner({ position, className = "" }: AdBannerProps) {
         >
           <Image
             src={ad.imageUrl}
-            alt={ad.title}
+            alt={ad.altText || ad.title}
             width={1200}
             height={300}
             className="w-full h-auto object-cover"
@@ -56,8 +56,8 @@ export async function AdBanner({ position, className = "" }: AdBannerProps) {
         >
           {ad.title}
         </Link>
-        {ad.content && (
-          <p className="text-sm text-gray-600 mt-1">{ad.content}</p>
+        {ad.textContent && (
+          <p className="text-sm text-gray-600 mt-1">{ad.textContent}</p>
         )}
       </div>
     );

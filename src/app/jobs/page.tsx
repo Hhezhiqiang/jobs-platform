@@ -26,8 +26,8 @@ export default async function JobsPage({ searchParams }: PageProps) {
   const limit = 20;
   const skip = (page - 1) * limit;
 
-  const where = {
-    status: "ACTIVE" as const,
+  const where: any = {
+    status: "ACTIVE",
     ...(params.city && { city: params.city }),
     ...(params.type && { employmentType: params.type }),
   };
