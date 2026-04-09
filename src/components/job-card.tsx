@@ -1,39 +1,16 @@
 import Link from "next/link";
 import Image from "next/image";
-
-// 灵活的职位类型（支持 Prisma 和静态数据）
-interface JobData {
-  id: string;
-  slug: string;
-  title: string;
-  employmentType: string;
-  salaryMin?: number | null;
-  salaryMax?: number | null;
-  salaryCurrency?: string;
-  location: string;
-  isRemote?: boolean;
-  isHybrid?: boolean;
-  datePosted: Date | string;
-  imageUrl?: string | null;
-  company: {
-    name: string;
-    logo?: string | null;
-  };
-}
+import { Job, Company } from "@prisma/client";
 
 interface JobCardProps {
-  job: JobData;
+  job: Job & { company: Company };
   compact?: boolean;
 }
 
 export function JobCard({ job, compact = false }: JobCardProps) {
   const salaryText = job.salaryMin && job.salaryMax
-    ? `${job.salaryMin}-${job.salaryMax} ${job.salaryCurrency || 'CNY'}`
+    ? `${job.salaryMin}-${job.salaryMax} ${job.salaryCurrency}`
     : "薪资面议";
-
-  const dateStr = typeof job.datePosted === 'string' 
-    ? job.datePosted 
-    : job.datePosted.toLocaleDateString("zh-CN");
 
   if (compact) {
     return (
@@ -119,7 +96,9 @@ export function JobCard({ job, compact = false }: JobCardProps) {
         
         <div className="flex items-center justify-between">
           <span className="font-semibold text-blue-600">{salaryText}</span>
-          <span className="text-sm text-gray-400">{dateStr}</span>
+          <span className="text-sm text-gray-400">
+            {new Date(job.datePosted).toLocaleDateString("zh-CN")}
+          </span>
         </div>
       </div>
     </Link>

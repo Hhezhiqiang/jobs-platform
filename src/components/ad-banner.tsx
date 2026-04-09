@@ -1,54 +1,67 @@
 import Image from "next/image";
 import Link from "next/link";
+import { prisma } from "@/lib/prisma";
 
 interface AdBannerProps {
   position: string;
   className?: string;
 }
 
-// 静态广告数据
-const staticAds: Record<string, any> = {
-  HP_BANNER_01: {
-    title: "招聘平台推广",
-    type: "IMAGE",
-    imageUrl: null,
-    linkUrl: "https://example.com",
-    altText: "招聘平台广告",
-  },
-};
+export async function AdBanner({ position, className = "" }: AdBannerProps) {
+  const ad = await prisma.ad.findFirst({
+    where: {
+      position: { name: position },
+      isActive: true,
+      startDate: { lte: new Date() },
+      OR: [{ endDate: null }, { endDate: { gte: new Date() } }],
+    },
+  });
 
-export function AdBanner({ position, className = "" }: AdBannerProps) {
-  const ad = staticAds[position];
-  
   if (!ad) {
     return null;
   }
 
   // 图片广告
-  return (
-    <div className={`relative overflow-hidden rounded-lg ${className}`}>
-      <Link
-        href={ad.linkUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block"
-      >
-        {ad.imageUrl ? (
+  if (ad.type === "IMAGE" && ad.imageUrl) {
+    return (
+      <div className={`relative overflow-hidden rounded-lg ${className}`}>
+        <Link
+          href={ad.linkUrl || "#"}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block"
+        >
           <Image
             src={ad.imageUrl}
-            alt={ad.altText || ad.title}
+            alt={ad.title}
             width={1200}
             height={300}
             className="w-full h-auto object-cover"
             loading="lazy"
           />
-        ) : (
-          <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-8 text-center">
-            <h3 className="text-xl font-bold">{ad.title}</h3>
-            <p className="text-sm mt-2">广告位示例 - {position}</p>
-          </div>
+        </Link>
+      </div>
+    );
+  }
+
+  // 文字广告
+  if (ad.type === "TEXT") {
+    return (
+      <div className={`bg-gray-100 p-4 rounded-lg ${className}`}>
+        <Link
+          href={ad.linkUrl || "#"}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 hover:text-blue-800 font-medium"
+        >
+          {ad.title}
+        </Link>
+        {ad.content && (
+          <p className="text-sm text-gray-600 mt-1">{ad.content}</p>
         )}
-      </Link>
-    </div>
-  );
+      </div>
+    );
+  }
+
+  return null;
 }

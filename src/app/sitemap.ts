@@ -1,10 +1,10 @@
 import { MetadataRoute } from "next";
+import { prisma } from "@/lib/prisma";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
-// 静态 Sitemap（不查询数据库）
-export default function sitemap(): MetadataRoute.Sitemap {
-  // 基础页面
+  // 静态页面
   const staticPages = [
     { url: `${SITE_URL}/`, lastModified: new Date(), priority: 1.0 },
     { url: `${SITE_URL}/jobs`, lastModified: new Date(), priority: 0.9 },
@@ -13,5 +13,28 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE_URL}/contact`, lastModified: new Date(), priority: 0.5 },
   ];
 
-  return staticPages;
+  // 动态职位页面
+  const jobs = await prisma.job.findMany({
+    where: { status: "ACTIVE" },
+    select: { slug: true, updatedAt: true },
+  });
+
+  const jobPages = jobs.map((job) => ({
+    url: `${SITE_URL}/jobs/${job.slug}`,
+    lastModified: job.updatedAt,
+    priority: 0.8,
+  }));
+
+  // 动态公司页面
+  const companies = await prisma.company.findMany({
+    select: { slug: true, updatedAt: true },
+  });
+
+  const companyPages = companies.map((company) => ({
+    url: `${SITE_URL}/companies/${company.slug}`,
+    lastModified: company.updatedAt,
+    priority: 0.7,
+  }));
+
+  return [...staticPages, ...jobPages, ...companyPages];
 }

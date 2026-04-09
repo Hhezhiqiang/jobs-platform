@@ -1,40 +1,9 @@
 import { Metadata } from "next";
+import { Job, Company } from "@prisma/client";
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "招聘平台";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 const SITE_DESCRIPTION = process.env.NEXT_PUBLIC_SITE_DESCRIPTION || "专业的求职招聘平台";
-
-// 灵活的职位类型
-interface JobData {
-  title: string;
-  slug: string;
-  description?: string;
-  location: string;
-  city?: string | null;
-  salaryMin?: number | null;
-  salaryMax?: number | null;
-  salaryCurrency?: string;
-  datePosted: Date | string;
-  updatedAt?: Date | string;
-  imageUrl?: string | null;
-  metaTitle?: string | null;
-  metaDescription?: string | null;
-  status?: string;
-  company: {
-    name: string;
-  };
-}
-
-// 灵活的公司类型
-interface CompanyData {
-  name: string;
-  slug: string;
-  logo?: string | null;
-  description?: string | null;
-  industry?: string | null;
-  metaTitle?: string | null;
-  metaDescription?: string | null;
-}
 
 // 首页 Metadata
 export function generateHomeMetadata(): Metadata {
@@ -62,14 +31,12 @@ export function generateHomeMetadata(): Metadata {
 }
 
 // 职位详情页 Metadata
-export function generateJobMetadata(job: JobData): Metadata {
+export function generateJobMetadata(job: Job & { company: Company }): Metadata {
   const title = job.metaTitle || `${job.title} | ${job.company.name}招聘 | ${SITE_NAME}`;
   const description = job.metaDescription || 
     `${job.company.name}招聘${job.title}，工作地点：${job.location}，${job.salaryMin ? `薪资：${job.salaryMin}-${job.salaryMax}${job.salaryCurrency}` : "薪资面议"}。点击查看详情并申请。`;
   
   const url = `${SITE_URL}/jobs/${job.slug}`;
-  const datePosted = typeof job.datePosted === 'string' ? job.datePosted : job.datePosted.toISOString();
-  const updatedAt = job.updatedAt ? (typeof job.updatedAt === 'string' ? job.updatedAt : job.updatedAt.toISOString()) : datePosted;
 
   return {
     title,
@@ -81,8 +48,8 @@ export function generateJobMetadata(job: JobData): Metadata {
       url,
       siteName: SITE_NAME,
       type: "article",
-      publishedTime: datePosted,
-      modifiedTime: updatedAt,
+      publishedTime: job.datePosted.toISOString(),
+      modifiedTime: job.updatedAt.toISOString(),
       images: job.imageUrl ? [job.imageUrl] : [],
     },
     twitter: {
@@ -95,14 +62,14 @@ export function generateJobMetadata(job: JobData): Metadata {
       canonical: url,
     },
     robots: {
-      index: job.status !== "INACTIVE",
-      follow: job.status !== "INACTIVE",
+      index: job.status === "ACTIVE",
+      follow: job.status === "ACTIVE",
     },
   };
 }
 
 // 公司页 Metadata
-export function generateCompanyMetadata(company: CompanyData): Metadata {
+export function generateCompanyMetadata(company: Company): Metadata {
   const title = company.metaTitle || `${company.name} - 公司招聘主页 | ${SITE_NAME}`;
   const description = company.metaDescription || 
     `${company.name}${company.industry ? `，${company.industry}行业` : ""}招聘主页。查看最新职位信息，了解公司详情。`;

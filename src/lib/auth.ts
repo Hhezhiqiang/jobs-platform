@@ -1,18 +1,11 @@
 import { NextAuthOptions } from "next-auth";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-
-// 静态用户数据（快速部署模式）
-const ADMIN_USER = {
-  id: "1",
-  email: "admin@example.com",
-  name: "管理员",
-  // 密码: admin123
-  password: "$2a$10$8d1XzJ9KqQpP9qYrZrTGWu8QeZyJvBz7Dq0Q0vBvF6K9gH2LvJqOa",
-  role: "ADMIN",
-};
+import { prisma } from "@/lib/prisma";
 
 export const authOptions: NextAuthOptions = {
+  adapter: PrismaAdapter(prisma) as any,
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -25,14 +18,17 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        // 验证静态管理员账号
-        if (credentials.email !== ADMIN_USER.email) {
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email },
+        });
+
+        if (!user) {
           return null;
         }
 
         const isPasswordValid = await bcrypt.compare(
           credentials.password,
-          ADMIN_USER.password
+          user.password
         );
 
         if (!isPasswordValid) {
@@ -40,10 +36,10 @@ export const authOptions: NextAuthOptions = {
         }
 
         return {
-          id: ADMIN_USER.id,
-          email: ADMIN_USER.email,
-          name: ADMIN_USER.name,
-          role: ADMIN_USER.role,
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
         };
       },
     }),
