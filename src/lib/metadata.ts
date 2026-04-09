@@ -79,7 +79,7 @@ export function generateCompanyMetadata(company: Company): Metadata {
   return {
     title,
     description: description.slice(0, 160),
-    keywords: [company.name, "招聘", "公司", company.industry].filter(Boolean),
+    keywords: [company.name, "招聘", "公司", company.industry].filter((k): k is string => !!k),
     openGraph: {
       title,
       description: description.slice(0, 160),
