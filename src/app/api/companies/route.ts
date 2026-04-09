@@ -1,0 +1,76 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+
+// 获取公司列表
+export async function GET() {
+  try {
+    const companies = await prisma.company.findMany({
+      include: {
+        _count: {
+          select: { jobs: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return NextResponse.json({ companies });
+  } catch (error) {
+    console.error("Get companies error:", error);
+    return NextResponse.json({ error: "获取失败" }, { status: 500 });
+  }
+}
+
+// 创建新公司
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "未登录" }, { status: 401 });
+    }
+
+    const body = await request.json();
+
+    // 验证必填字段
+    if (!body.name || !body.slug) {
+      return NextResponse.json(
+        { error: "公司名称和标识为必填项" },
+        { status: 400 }
+      );
+    }
+
+    // 检查 slug 是否已存在
+    const existingCompany = await prisma.company.findUnique({
+      where: { slug: body.slug },
+    });
+
+    if (existingCompany) {
+      return NextResponse.json(
+        { error: "该URL标识已被使用，请更换" },
+        { status: 400 }
+      );
+    }
+
+    const company = await prisma.company.create({
+      data: {
+        name: body.name,
+        slug: body.slug,
+        website: body.website || null,
+        industry: body.industry || null,
+        size: body.size || null,
+        location: body.location || null,
+        logo: body.logo || null,
+        description: body.description || null,
+        metaTitle: body.metaTitle || null,
+        metaDescription: body.metaDescription || null,
+      },
+    });
+
+    return NextResponse.json({ company }, { status: 201 });
+  } catch (error) {
+    console.error("Create company error:", error);
+    return NextResponse.json({ error: "创建失败" }, { status: 500 });
+  }
+}

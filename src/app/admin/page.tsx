@@ -12,7 +12,7 @@ export default async function AdminPage() {
   }
 
   // 获取统计数据
-  const [jobCount, companyCount, blogCount, totalViews] = await Promise.all([
+  const [jobCount, companyCount, blogCount, totalViews, userCount] = await Promise.all([
     prisma.job.count(),
     prisma.company.count(),
     prisma.page.count({ where: { type: "BLOG" } }),
@@ -20,6 +20,7 @@ export default async function AdminPage() {
       where: { type: "BLOG" },
       _sum: { viewCount: true },
     }),
+    prisma.user.count(),
   ]);
 
   // 获取最近发布的职位和博客
@@ -55,7 +56,11 @@ export default async function AdminPage() {
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* 统计卡片 */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+          <div className="bg-white p-6 rounded-lg shadow">
+            <p className="text-gray-600">总用户数</p>
+            <p className="text-3xl font-bold text-purple-600">{userCount}</p>
+          </div>
           <div className="bg-white p-6 rounded-lg shadow">
             <p className="text-gray-600">总职位数</p>
             <p className="text-3xl font-bold">{jobCount}</p>
@@ -95,6 +100,12 @@ export default async function AdminPage() {
               className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700"
             >
               管理博客
+            </Link>
+            <Link
+              href="/admin/users"
+              className="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700"
+            >
+              用户管理
             </Link>
             <Link
               href="/admin/ads"

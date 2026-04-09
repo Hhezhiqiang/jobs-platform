@@ -95,17 +95,23 @@ export function generateCompanyMetadata(company: Company): Metadata {
 }
 
 // 职位列表页 Metadata
-export function generateJobsListMetadata(params?: { city?: string; type?: string }): Metadata {
+export function generateJobsListMetadata(params?: { city?: string; type?: string; query?: string }): Metadata {
   const cityText = params?.city ? `${params.city} ` : "";
   const typeText = params?.type ? `${params.type} ` : "";
+  const queryText = params?.query ? `${params.query} ` : "";
   
-  const title = `${cityText}${typeText}招聘信息 - 最新职位列表 | ${SITE_NAME}`;
-  const description = `查看${cityText}${typeText}最新招聘信息，包含各行业热门职位。高薪岗位实时更新，快速找到理想工作。`;
+  const title = queryText 
+    ? `${queryText}招聘信息 - 职位搜索结果 | ${SITE_NAME}`
+    : `${cityText}${typeText}招聘信息 - 最新职位列表 | ${SITE_NAME}`;
+  
+  const description = queryText
+    ? `搜索"${queryText}"相关职位，查看最新的${queryText}招聘信息。高薪岗位实时更新，快速找到理想工作。`
+    : `查看${cityText}${typeText}最新招聘信息，包含各行业热门职位。高薪岗位实时更新，快速找到理想工作。`;
 
   return {
     title,
     description,
-    keywords: ["招聘", "求职", cityText, typeText, "工作机会"].filter((k): k is string => !!k),
+    keywords: ["招聘", "求职", cityText, typeText, queryText, "工作机会"].filter((k): k is string => !!k),
     openGraph: {
       title,
       description,

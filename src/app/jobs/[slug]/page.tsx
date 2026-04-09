@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { generateJobMetadata } from "@/lib/metadata";
 import { generateJobPostingSchema, generateBreadcrumbSchema } from "@/lib/schema";
 import { Metadata } from "next";
+import { ApplyButton } from "@/components/apply-button";
 
 // 职位类型中文映射
 const employmentTypeMap: Record<string, string> = {
@@ -188,19 +189,13 @@ export default async function JobDetailPage({ params }: PageProps) {
 
               {/* 申请按钮 */}
               <div className="flex gap-4 mt-8">
-                <a
-                  href={job.applyUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex-1 bg-blue-600 text-white text-center py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-                >
-                  立即申请
-                </a>
+                <ApplyButton
+                  jobId={job.id}
+                  jobTitle={job.title}
+                  companyName={job.company.name}
+                  applyUrl={job.applyUrl}
+                />
               </div>
-
-              <p className="text-sm text-gray-500 mt-4 text-center">
-                点击申请将跳转到外部页面
-              </p>
             </div>
           </article>
         </main>

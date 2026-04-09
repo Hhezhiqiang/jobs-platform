@@ -1,0 +1,210 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
+
+// 获取当前用户的职位申请列表
+export async function GET(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "未登录" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get("status");
+
+    const where: Prisma.JobApplicationWhereInput = {
+      userId: session.user.id,
+    };
+
+    if (status) {
+      where.status = status as Prisma.EnumApplicationStatusFilter<"JobApplication">;
+    }
+
+    const applications = await prisma.jobApplication.findMany({
+      where,
+      include: {
+        job: {
+          include: { company: true },
+        },
+        resume: true,
+      },
+      orderBy: { appliedAt: "desc" },
+    });
+
+    return NextResponse.json({ applications });
+  } catch (error) {
+    console.error("Get applications error:", error);
+    return NextResponse.json({ error: "获取申请列表失败" }, { status: 500 });
+  }
+}
+
+// 创建新申请
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "未登录" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { jobId, resumeId, coverLetter } = body;
+
+    if (!jobId) {
+      return NextResponse.json({ error: "请提供职位ID" }, { status: 400 });
+    }
+
+    // 检查职位是否存在且活跃
+    const job = await prisma.job.findUnique({
+      where: { id: jobId },
+    });
+
+    if (!job) {
+      return NextResponse.json({ error: "职位不存在" }, { status: 404 });
+    }
+
+    if (job.status !== "ACTIVE") {
+      return NextResponse.json({ error: "该职位已停止招聘" }, { status: 400 });
+    }
+
+    // 检查是否已经申请过
+    const existingApplication = await prisma.jobApplication.findFirst({
+      where: {
+        jobId,
+        userId: session.user.id,
+        status: { not: "WITHDRAWN" },
+      },
+    });
+
+    if (existingApplication) {
+      return NextResponse.json(
+        { error: "您已经申请过该职位，请勿重复申请" },
+        { status: 400 }
+      );
+    }
+
+    // 创建申请
+    const application = await prisma.jobApplication.create({
+      data: {
+        jobId,
+        userId: session.user.id,
+        resumeId: resumeId || null,
+        coverLetter: coverLetter || null,
+        status: "PENDING",
+      },
+      include: {
+        job: {
+          include: { company: true },
+        },
+      },
+    });
+
+    return NextResponse.json(
+      { message: "申请成功", application },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error("Create application error:", error);
+    return NextResponse.json({ error: "申请失败" }, { status: 500 });
+  }
+}
+
+// 更新申请（撤回）
+export async function PATCH(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "未登录" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { applicationId, status } = body;
+
+    if (!applicationId || !status) {
+      return NextResponse.json(
+        { error: "请提供申请ID和状态" },
+        { status: 400 }
+      );
+    }
+
+    // 检查申请是否存在且属于当前用户
+    const application = await prisma.jobApplication.findFirst({
+      where: {
+        id: applicationId,
+        userId: session.user.id,
+      },
+    });
+
+    if (!application) {
+      return NextResponse.json({ error: "申请不存在" }, { status: 404 });
+    }
+
+    // 只能撤回待处理的申请
+    if (status === "WITHDRAWN" && application.status !== "PENDING") {
+      return NextResponse.json(
+        { error: "该申请已处理，无法撤回" },
+        { status: 400 }
+      );
+    }
+
+    const updatedApplication = await prisma.jobApplication.update({
+      where: { id: applicationId },
+      data: {
+        status,
+        ...(status === "WITHDRAWN" && { withdrewAt: new Date() }),
+      },
+    });
+
+    return NextResponse.json({
+      message: "操作成功",
+      application: updatedApplication,
+    });
+  } catch (error) {
+    console.error("Update application error:", error);
+    return NextResponse.json({ error: "操作失败" }, { status: 500 });
+  }
+}
+
+// 删除申请
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "未登录" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const applicationId = searchParams.get("id");
+
+    if (!applicationId) {
+      return NextResponse.json({ error: "请提供申请ID" }, { status: 400 });
+    }
+
+    // 检查申请是否存在且属于当前用户
+    const application = await prisma.jobApplication.findFirst({
+      where: {
+        id: applicationId,
+        userId: session.user.id,
+      },
+    });
+
+    if (!application) {
+      return NextResponse.json({ error: "申请不存在" }, { status: 404 });
+    }
+
+    await prisma.jobApplication.delete({
+      where: { id: applicationId },
+    });
+
+    return NextResponse.json({ message: "删除成功" });
+  } catch (error) {
+    console.error("Delete application error:", error);
+    return NextResponse.json({ error: "删除失败" }, { status: 500 });
+  }
+}
