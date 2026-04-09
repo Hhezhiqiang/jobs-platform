@@ -40,6 +40,9 @@ export default async function HomePage() {
               <Link href="/companies" className="text-gray-600 hover:text-blue-600">
                 公司
               </Link>
+              <Link href="/blog" className="text-gray-600 hover:text-blue-600">
+                博客
+              </Link>
               <Link href="/about" className="text-gray-600 hover:text-blue-600">
                 关于
               </Link>

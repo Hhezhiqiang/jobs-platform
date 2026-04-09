@@ -37,5 +37,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [...staticPages, ...jobPages, ...companyPages];
+  // 博客页面
+  const blogPosts = await prisma.page.findMany({
+    where: { type: "BLOG", status: "PUBLISHED" },
+    select: { slug: true, updatedAt: true },
+  });
+
+  const blogPages = blogPosts.map((post) => ({
+    url: `${SITE_URL}/blog/${post.slug}`,
+    lastModified: post.updatedAt,
+    priority: 0.8,
+  }));
+
+  return [...staticPages, ...jobPages, ...companyPages, ...blogPages];
 }

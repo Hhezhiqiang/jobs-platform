@@ -22,6 +22,7 @@ model User {
   jobs     Job[]
   ads      Ad[]
   sessions Session[]
+  pages    Page[]
 
   @@map("users")
 }
@@ -236,6 +237,7 @@ model Page {
   excerpt     String?  @db.Text
   type        PageType @default(PAGE)
   status      PageStatus @default(PUBLISHED)
+  viewCount   Int      @default(0)
 
   // SEO字段
   metaTitle       String?
@@ -246,7 +248,12 @@ model Page {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // 作者关联
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+
   @@index([type, status])
+  @@index([slug, status])
   @@map("pages")
 }
 
