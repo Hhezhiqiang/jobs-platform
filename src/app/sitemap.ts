@@ -2,7 +2,8 @@ import { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  // 强制使用生产域名
+  const SITE_URL = "https://jobs-platform-gold.vercel.app";
 
   // 静态页面
   const staticPages = [

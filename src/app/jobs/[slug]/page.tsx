@@ -75,6 +75,18 @@ export default async function JobDetailPage({ params }: PageProps) {
         </header>
 
         <main className="max-w-4xl mx-auto px-4 py-8">
+          {/* AI 友好的职位摘要 */}
+          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded-r-lg">
+            <p className="text-gray-800 leading-relaxed">
+              <strong>📋 职位速览：</strong>
+              {job.company.name} 招聘 {job.title}，
+              {job.salaryMin ? `年薪 ${job.salaryMin.toLocaleString()}-${job.salaryMax?.toLocaleString()} ${job.salaryCurrency}，` : "薪资面议，"}
+              工作地点 {job.location}，
+              {job.employmentType === "FULL_TIME" ? "全职" : job.employmentType === "PART_TIME" ? "兼职" : job.employmentType} 岗位。
+              欢迎符合条件的候选人投递简历！
+            </p>
+          </div>
+
           <article className="bg-white rounded-lg shadow-md overflow-hidden">
             {/* 职位图片 */}
             {job.imageUrl && (

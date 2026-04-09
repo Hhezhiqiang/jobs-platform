@@ -2,6 +2,8 @@ import { Job, Company } from "@prisma/client";
 
 // JobPosting Schema 生成（Google for Jobs 支持）
 export function generateJobPostingSchema(job: Job & { company: Company }) {
+  const siteUrl = "https://jobs-platform-gold.vercel.app";
+  
   const baseSalary = job.salaryMin && job.salaryMax ? {
     "@type": "MonetaryAmount",
     currency: job.salaryCurrency,
@@ -30,13 +32,20 @@ export function generateJobPostingSchema(job: Job & { company: Company }) {
     FREELANCE: "CONTRACTOR",
   };
 
+  // 清理 description 中的 HTML 标签
+  const cleanDescription = job.description
+    .replace(/<[^\u003e]*>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 500);
+
   return {
     "@context": "https://schema.org",
     "@type": "JobPosting",
     title: job.title,
-    description: job.description,
+    description: cleanDescription,
     datePosted: job.datePosted.toISOString(),
-    validThrough: job.validThrough?.toISOString(),
+    validThrough: job.validThrough?.toISOString() || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
     employmentType: employmentTypeMap[job.employmentType] || "FULL_TIME",
     hiringOrganization: {
       "@type": "Organization",
@@ -58,6 +67,7 @@ export function generateJobPostingSchema(job: Job & { company: Company }) {
     } : jobLocation,
     baseSalary,
     image: job.imageUrl,
+    url: `${siteUrl}/jobs/${job.slug}`,
     identifier: {
       "@type": "PropertyValue",
       name: "jobId",
@@ -105,5 +115,21 @@ export function generateWebsiteSchema(siteUrl: string, siteName: string) {
       target: `${siteUrl}/jobs?q={search_term_string}`,
       "query-input": "required name=search_term_string",
     },
+  };
+}
+
+// FAQ Schema 生成（用于职位页面常见问题）
+export function generateFAQSchema(questions: { question: string; answer: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: questions.map((q) => ({
+      "@type": "Question",
+      name: q.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: q.answer,
+      },
+    })),
   };
 }

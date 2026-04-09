@@ -1,6 +1,7 @@
 import { MetadataRoute } from "next";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+// 强制使用生产域名
+const SITE_URL = "https://jobs-platform-gold.vercel.app";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -28,28 +29,17 @@ export default function robots(): MetadataRoute.Robots {
           "/auth/*",
           "/_next",
           "/_next/*",
-          "/*.json",
-          "/*.xml",
-          "?*sort=",      // 排序参数页面
-          "?*page=999",   // 深分页
-          "?*filter=",    // 过滤参数
         ],
       },
       {
         userAgent: "Googlebot",
         allow: "/",
-        disallow: [
-          "/admin",
-          "/api",
-        ],
+        disallow: ["/admin", "/api"],
       },
       {
         userAgent: "Baiduspider",
         allow: "/",
-        disallow: [
-          "/admin",
-          "/api",
-        ],
+        disallow: ["/admin", "/api"],
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,

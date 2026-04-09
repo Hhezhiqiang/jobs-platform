@@ -1,16 +1,16 @@
 import { Metadata } from "next";
 import { Job, Company } from "@prisma/client";
 
-const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "招聘平台";
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-const SITE_DESCRIPTION = process.env.NEXT_PUBLIC_SITE_DESCRIPTION || "专业的求职招聘平台";
+const SITE_NAME = "招聘平台";
+const SITE_URL = "https://jobs-platform-gold.vercel.app";
+const SITE_DESCRIPTION = "专业的求职招聘平台，汇聚海量优质职位，为求职者和企业提供高效对接服务";
 
 // 首页 Metadata
 export function generateHomeMetadata(): Metadata {
   return {
     title: `${SITE_NAME} - 专业求职招聘平台`,
     description: SITE_DESCRIPTION,
-    keywords: ["招聘", "求职", "找工作", "人才网", "招聘信息"],
+    keywords: ["招聘", "求职", "找工作", "人才网", "招聘信息", "职位搜索"],
     openGraph: {
       title: `${SITE_NAME} - 专业求职招聘平台`,
       description: SITE_DESCRIPTION,
