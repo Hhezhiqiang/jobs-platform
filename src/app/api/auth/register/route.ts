@@ -1,0 +1,84 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import bcrypt from "bcryptjs";
+
+export async function POST(request: Request) {
+  try {
+    const { name, email, password, phone } = await request.json();
+
+    // 验证必填字段
+    if (!name || !email || !password) {
+      return NextResponse.json(
+        { error: "请填写所有必填字段" },
+        { status: 400 }
+      );
+    }
+
+    // 验证邮箱格式
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return NextResponse.json(
+        { error: "请输入有效的邮箱地址" },
+        { status: 400 }
+      );
+    }
+
+    // 验证密码强度
+    if (password.length < 8 || !/(?=.*[a-zA-Z])(?=.*\d)/.test(password)) {
+      return NextResponse.json(
+        { error: "密码至少8位，需包含字母和数字" },
+        { status: 400 }
+      );
+    }
+
+    // 检查邮箱是否已注册
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      return NextResponse.json(
+        { error: "该邮箱已注册，请直接登录" },
+        { status: 400 }
+      );
+    }
+
+    // 加密密码
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    // 创建用户
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        phone,
+        role: "USER",
+        status: "ACTIVE",
+      },
+    });
+
+    // 创建用户资料
+    await prisma.userProfile.create({
+      data: {
+        userId: user.id,
+        skills: [],
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: "注册成功",
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    console.error("Registration error:", error);
+    return NextResponse.json(
+      { error: "注册失败，请稍后重试" },
+      { status: 500 }
+    );
+  }
+}

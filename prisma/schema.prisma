@@ -15,16 +15,101 @@ model User {
   password  String
   role      UserRole @default(USER)
   avatar    String?
+  phone     String?      // 手机号（选填）
+  status    UserStatus   @default(ACTIVE) // 账号状态
+  
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // 关联
-  jobs     Job[]
-  ads      Ad[]
-  sessions Session[]
-  pages    Page[]
+  jobs          Job[]
+  ads           Ad[]
+  sessions      Session[]
+  pages         Page[]
+  profile       UserProfile?      // 个人详细资料
+  applications  JobApplication[]  // 职位申请
+  resumes       Resume[]          // 简历附件
 
   @@map("users")
+}
+
+// 用户详细资料
+model UserProfile {
+  id          String @id @default(cuid())
+  userId      String @unique
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // 基本信息
+  gender      String?   // 性别
+  birthday    DateTime? // 生日
+  location    String?   // 所在城市
+  
+  // 工作经历（JSON数组）
+  workExperience Json?
+  
+  // 教育背景（JSON数组）
+  education Json?
+  
+  // 技能标签
+  skills String[]
+  
+  // 自我介绍
+  bio String? @db.Text
+  
+  updatedAt DateTime @updatedAt
+  
+  @@map("user_profiles")
+}
+
+// 简历附件
+model Resume {
+  id        String @id @default(cuid())
+  userId    String
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  name      String // 简历名称
+  fileUrl   String // 文件URL
+  fileType  String // pdf/doc/docx
+  fileSize  Int    // 文件大小（字节）
+  isDefault Boolean @default(false) // 是否默认简历
+  
+  // 关联的申请
+  applications JobApplication[]
+  
+  createdAt DateTime @default(now())
+  
+  @@map("resumes")
+}
+
+// 职位申请
+model JobApplication {
+  id          String @id @default(cuid())
+  
+  // 关联
+  jobId       String
+  job         Job    @relation(fields: [jobId], references: [id])
+  userId      String
+  user        User   @relation(fields: [userId], references: [id])
+  resumeId    String? // 使用的简历
+  resume      Resume? @relation(fields: [resumeId], references: [id])
+  
+  // 申请信息
+  status      ApplicationStatus @default(PENDING)
+  coverLetter String? @db.Text  // 求职信
+  
+  // 时间线
+  appliedAt   DateTime @default(now())
+  viewedAt    DateTime? // HR查看时间
+  respondedAt DateTime? // HR回复时间
+  withdrewAt  DateTime? // 撤回时间
+  
+  // 回复信息
+  responseType String?  // INTERVIEW / REJECT / OFFER
+  responseNote String? @db.Text // 回复备注
+  
+  @@index([userId, status])
+  @@index([jobId, status])
+  @@map("job_applications")
 }
 
 model Session {
@@ -41,6 +126,20 @@ enum UserRole {
   ADMIN
   USER
   COMPANY
+}
+
+enum UserStatus {
+  ACTIVE
+  DISABLED
+}
+
+enum ApplicationStatus {
+  PENDING    // 待处理
+  VIEWED     // 已查看
+  INTERVIEW  // 面试邀请
+  REJECTED   // 已拒绝
+  OFFER      // 已录用
+  WITHDRAWN  // 已撤回
 }
 
 // 公司模型
@@ -123,6 +222,9 @@ model Job {
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
   authorId  String
   author    User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  
+  // 求职者申请
+  applications JobApplication[]
 
   // 索引
   @@index([status, datePosted])
