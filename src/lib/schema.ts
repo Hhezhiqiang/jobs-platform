@@ -1,10 +1,43 @@
-import { Job, Company } from "@prisma/client";
+// 灵活的职位类型
+interface JobData {
+  id: string;
+  title: string;
+  description: string;
+  employmentType: string;
+  salaryMin?: number | null;
+  salaryMax?: number | null;
+  salaryCurrency?: string;
+  salaryPeriod?: string;
+  location: string;
+  city?: string | null;
+  country?: string;
+  isRemote?: boolean;
+  isHybrid?: boolean;
+  datePosted: Date | string;
+  validThrough?: Date | string | null;
+  imageUrl?: string | null;
+  schemaOrganizationName?: string | null;
+  schemaOrganizationLogo?: string | null;
+  company: {
+    name: string;
+    logo?: string | null;
+    website?: string | null;
+  };
+}
+
+// 灵活的公司类型
+interface CompanyData {
+  name: string;
+  description?: string | null;
+  website?: string | null;
+  logo?: string | null;
+}
 
 // JobPosting Schema 生成（Google for Jobs 支持）
-export function generateJobPostingSchema(job: Job & { company: Company }) {
+export function generateJobPostingSchema(job: JobData) {
   const baseSalary = job.salaryMin && job.salaryMax ? {
     "@type": "MonetaryAmount",
-    currency: job.salaryCurrency,
+    currency: job.salaryCurrency || "CNY",
     value: {
       "@type": "QuantitativeValue",
       minValue: job.salaryMin,
@@ -18,7 +51,7 @@ export function generateJobPostingSchema(job: Job & { company: Company }) {
     address: {
       "@type": "PostalAddress",
       addressLocality: job.city || job.location,
-      addressCountry: job.country,
+      addressCountry: job.country || "CN",
     },
   };
 
@@ -30,13 +63,21 @@ export function generateJobPostingSchema(job: Job & { company: Company }) {
     FREELANCE: "CONTRACTOR",
   };
 
+  const datePosted = typeof job.datePosted === 'string' 
+    ? job.datePosted 
+    : job.datePosted.toISOString();
+
+  const validThrough = job.validThrough 
+    ? (typeof job.validThrough === 'string' ? job.validThrough : job.validThrough.toISOString())
+    : undefined;
+
   return {
     "@context": "https://schema.org",
     "@type": "JobPosting",
     title: job.title,
     description: job.description,
-    datePosted: job.datePosted.toISOString(),
-    validThrough: job.validThrough?.toISOString(),
+    datePosted,
+    validThrough,
     employmentType: employmentTypeMap[job.employmentType] || "FULL_TIME",
     hiringOrganization: {
       "@type": "Organization",
@@ -48,7 +89,7 @@ export function generateJobPostingSchema(job: Job & { company: Company }) {
       "@type": "Place",
       address: {
         "@type": "PostalAddress",
-        addressCountry: job.country,
+        addressCountry: job.country || "CN",
       },
       additionalProperty: {
         "@type": "PropertyValue",
@@ -67,7 +108,7 @@ export function generateJobPostingSchema(job: Job & { company: Company }) {
 }
 
 // Organization Schema 生成
-export function generateOrganizationSchema(company: Company) {
+export function generateOrganizationSchema(company: CompanyData) {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
