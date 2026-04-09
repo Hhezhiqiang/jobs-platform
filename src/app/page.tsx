@@ -1,270 +1,269 @@
 import Link from "next/link";
 import { getHomePageData } from "@/lib/optimized-queries";
 import { generateHomeMetadata } from "@/lib/metadata";
-import { JobCard } from "@/components/job-card";
-import { AdBanner } from "@/components/ad-banner";
 import { Metadata } from "next";
+import { Header } from "@/components/header";
+import { HeroSection } from "@/components/hero-section";
+import { StatsSection } from "@/components/stats-section";
+import { FeaturesSection } from "@/components/features-section";
+import { JobCardV2 } from "@/components/job-card-v2";
+import { AdBanner } from "@/components/ad-banner";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = generateHomeMetadata();
 
 export default async function HomePage() {
-  // 使用优化的批量查询（带缓存）
   const { featuredJobs, latestJobs, hotCompanies, stats } = await getHomePageData();
 
-  const { jobCount, companyCount, blogCount } = stats;
-
-  // 热门搜索词
-  const hotSearches = ["前端工程师", "产品经理", "Java开发", "数据分析师", "UI设计师", "运营"];
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="text-2xl font-bold text-blue-600">
-              招聘平台
-            </Link>
-            <nav className="hidden md:flex gap-6">
-              <Link href="/jobs" className="text-gray-600 hover:text-blue-600">
-                职位
-              </Link>
-              <Link href="/companies" className="text-gray-600 hover:text-blue-600">
-                公司
-              </Link>
-              <Link href="/blog" className="text-gray-600 hover:text-blue-600">
-                博客
-              </Link>
-              <Link href="/about" className="text-gray-600 hover:text-blue-600">
-                关于
-              </Link>
-            </nav>
-            <div className="flex items-center gap-4">
-              <Link
-                href="/auth/login"
-                className="text-gray-600 hover:text-blue-600"
-              >
-                登录
-              </Link>
-              <Link
-                href="/auth/register"
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-              >
-                注册
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Hero Section - SEO Optimized */}
-      <section className="bg-gradient-to-br from-blue-600 to-blue-800 text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            发现理想工作，开启职业新篇章
-          </h1>
-          <p className="text-xl md:text-2xl mb-10 text-blue-100 max-w-3xl mx-auto">
-            连接优秀人才与顶尖企业，{jobCount}+ 热招职位等你申请
-          </p>
-
-          {/* Search Box */}
-          <div className="max-w-2xl mx-auto mb-8">
-            <form action="/jobs" className="flex gap-2">
-              <div className="flex-1 relative">
-                <input
-                  type="search"
-                  name="q"
-                  placeholder="搜索职位、公司或关键词..."
-                  className="w-full px-6 py-4 rounded-lg text-gray-800 text-lg focus:outline-none focus:ring-4 focus:ring-blue-400"
-                  aria-label="搜索职位"
-                />
-              </div>
-              <button
-                type="submit"
-                className="bg-blue-500 hover:bg-blue-400 px-8 py-4 rounded-lg font-semibold text-lg transition"
-              >
-                搜索
-              </button>
-            </form>
-          </div>
-
-          {/* Hot Searches */}
-          <div className="flex flex-wrap justify-center gap-3 text-sm">
-            <span className="text-blue-200">热门搜索：</span>
-            {hotSearches.map((tag) => (
-              <Link
-                key={tag}
-                href={`/jobs?q=${encodeURIComponent(tag)}`}
-                className="text-blue-200 hover:text-white underline"
-              >
-                {tag}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Section - Social Proof */}
-      <section className="py-12 bg-white">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div className="stat-item">
-              <div className="text-4xl font-bold text-blue-600 mb-2">{jobCount.toLocaleString()}+</div>
-              <div className="text-gray-600">在招职位</div>
-            </div>
-            <div className="stat-item">
-              <div className="text-4xl font-bold text-blue-600 mb-2">{companyCount.toLocaleString()}+</div>
-              <div className="text-gray-600">合作企业</div>
-            </div>
-            <div className="stat-item">
-              <div className="text-4xl font-bold text-blue-600 mb-2">98%</div>
-              <div className="text-gray-600">简历通过率</div>
-            </div>
-            <div className="stat-item">
-              <div className="text-4xl font-bold text-blue-600 mb-2">4.9</div>
-              <div className="text-gray-600">用户评分</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Ad Banner */}
-      <section className="max-w-7xl mx-auto px-4 py-8">
-        <AdBanner position="HP_BANNER_01" className="w-full" />
-      </section>
+    <div className="min-h-screen bg-white">
+      <Header />
+      
+      <HeroSection jobCount={stats.jobCount} />
+      
+      <StatsSection jobCount={stats.jobCount} companyCount={stats.companyCount} />
 
       {/* Featured Jobs */}
       {featuredJobs.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 py-12">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold">🔥 热招职位</h2>
-            <Link href="/jobs" className="text-blue-600 hover:text-blue-800">
-              查看全部 →
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredJobs.map((job) => (
-              <JobCard key={job.id} job={job} />
-            ))}
+        <section className="py-20 bg-gray-50">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="flex items-center justify-between mb-10">
+              <div>
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">🔥 热招职位</h2>
+                <p className="text-gray-600">精选优质岗位，助你快速入职</p>
+              </div>
+              <Link
+                href="/jobs"
+                className="hidden md:inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 font-medium rounded-xl border border-blue-200 hover:border-blue-400 hover:shadow-lg transition-all"
+              >
+                查看全部
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {featuredJobs.slice(0, 6).map((job) => (
+                <JobCardV2 key={job.id} job={job} variant="featured" />
+              ))}
+            </div>
+
+            <div className="mt-8 text-center md:hidden">
+              <Link
+                href="/jobs"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-all"
+              >
+                查看全部职位
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
           </div>
         </section>
       )}
+
+      <FeaturesSection />
 
       {/* Hot Companies */}
-      <section className="max-w-7xl mx-auto px-4 py-12 bg-gray-50">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold">🏢 热门企业</h2>
-          <Link href="/companies" className="text-blue-600 hover:text-blue-800">
-            查看全部 →
-          </Link>
-        </div>
-        <div className="flex flex-wrap gap-4 justify-center">
-          {hotCompanies.map((company) => (
-            <Link
-              key={company.id}
-              href={`/companies/${company.slug}`}
-              className="bg-white px-6 py-4 rounded-lg shadow hover:shadow-md transition flex items-center gap-3"
-            >
-              {company.logo ? (
-                <img
-                  src={company.logo}
-                  alt={company.name}
-                  className="w-10 h-10 rounded object-cover"
-                  loading="lazy"
-                />
-              ) : (
-                <div className="w-10 h-10 bg-blue-100 rounded flex items-center justify-center text-blue-600 font-bold">
-                  {company.name.charAt(0)}
-                </div>
-              )}
-              <span className="font-medium">{company.name}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
+      {hotCompanies.length > 0 && (
+        <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-gray-900 mb-4">🏢 热门企业</h2>
+              <p className="text-gray-600">与一线大厂和创新企业直接对话</p>
+            </div>
 
-      {/* Latest Jobs */}
-      <section className="max-w-7xl mx-auto px-4 py-12">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold">🆕 最新职位</h2>
-          <Link href="/jobs" className="text-blue-600 hover:text-blue-800">
-            查看全部 →
-          </Link>
-        </div>
-        <div className="space-y-4">
-          {latestJobs.map((job) => (
-            <JobCard key={job.id} job={job} compact />
-          ))}
-        </div>
-      </section>
+            <div className="flex flex-wrap justify-center gap-4">
+              {hotCompanies.map((company) => (
+                <Link
+                  key={company.id}
+                  href={`/companies/${company.slug}`}
+                  className="group flex items-center gap-3 px-6 py-4 bg-white rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all"
+                >
+                  {company.logo ? (
+                    <img
+                      src={company.logo}
+                      alt={company.name}
+                      className="w-12 h-12 rounded-lg object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-lg">
+                      {company.name.charAt(0)}
+                    </div>
+                  )}
+                  <div>
+                    <p className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">{company.name}</p>
+                    <p className="text-sm text-gray-500">{company.industry || "互联网"}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
 
-      {/* Blog Section */}
-      {blogCount > 0 && (
-        <section className="max-w-7xl mx-auto px-4 py-12 bg-blue-50">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold">📝 职场干货</h2>
-            <Link href="/blog" className="text-blue-600 hover:text-blue-800">
-              更多文章 →
-            </Link>
-          </div>
-          <p className="text-gray-600 mb-6">{blogCount}+ 篇专业文章，助你职场进阶</p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Link href="/blog" className="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
-              <div className="text-3xl mb-4">🎯</div>
-              <h3 className="font-bold mb-2">求职技巧</h3>
-              <p className="text-gray-600 text-sm">简历优化、面试攻略、谈薪技巧</p>
-            </Link>
-            <Link href="/blog" className="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
-              <div className="text-3xl mb-4">💼</div>
-              <h3 className="font-bold mb-2">职业发展</h3>
-              <p className="text-gray-600 text-sm">行业洞察、技能提升、转型指南</p>
-            </Link>
-            <Link href="/blog" className="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
-              <div className="text-3xl mb-4">📊</div>
-              <h3 className="font-bold mb-2">薪资报告</h3>
-              <p className="text-gray-600 text-sm">各岗位薪资水平、行业趋势分析</p>
-            </Link>
+            <div className="mt-10 text-center">
+              <Link
+                href="/companies"
+                className="inline-flex items-center gap-2 text-blue-600 font-medium hover:gap-3 transition-all"
+              >
+                查看更多企业
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </Link>
+            </div>
           </div>
         </section>
       )}
 
-      {/* Footer - SEO Optimized */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <h3 className="font-bold text-lg mb-4">招聘平台</h3>
-              <p className="text-gray-400 text-sm">专业的求职招聘平台，连接优秀人才与顶尖企业</p>
+      {/* Latest Jobs */}
+      {latestJobs.length > 0 && (
+        <section className="py-20 bg-white">
+          <div className="max-w-5xl mx-auto px-4">
+            <div className="flex items-center justify-between mb-10">
+              <div>
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">🆕 最新职位</h2>
+                <p className="text-gray-600">实时更新，第一时间掌握机会</p>
+              </div>
+              <Link
+                href="/jobs"
+                className="hidden md:inline-flex items-center gap-2 text-blue-600 font-medium hover:gap-3 transition-all"
+              >
+                查看全部
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </Link>
             </div>
-            <div>
-              <h3 className="font-bold text-lg mb-4">快速链接</h3>
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li><Link href="/jobs" className="hover:text-white">职位列表</Link></li>
-                <li><Link href="/companies" className="hover:text-white">公司列表</Link></li>
-                <li><Link href="/blog" className="hover:text-white">职场博客</Link></li>
-                <li><Link href="/admin" className="hover:text-white">管理后台</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-bold text-lg mb-4">法律信息</h3>
-              <ul className="space-y-2 text-gray-400 text-sm">
-                <li><Link href="/terms" className="hover:text-white">用户协议</Link></li>
-                <li><Link href="/privacy" className="hover:text-white">隐私政策</Link></li>
-                <li><Link href="/about" className="hover:text-white">关于我们</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-bold text-lg mb-4">联系我们</h3>
-              <p className="text-gray-400 text-sm">邮箱：support@jobs-platform.com</p>
-              <p className="text-gray-400 text-sm mt-2">工作时间：周一至周五 9:00-18:00</p>
+
+            <div className="space-y-4">
+              {latestJobs.slice(0, 5).map((job) => (
+                <JobCardV2 key={job.id} job={job} variant="compact" />
+              ))}
             </div>
           </div>
-          
-          <div className="border-t border-gray-800 pt-8 text-center text-gray-500 text-sm">
-            <p>&copy; 2026 招聘平台. All rights reserved. | 
-              <Link href="/sitemap.xml" className="hover:text-gray-300">Sitemap</Link>
-            </p>
+        </section>
+      )}
+
+      {/* Blog Section */}
+      {stats.blogCount > 0 && (
+        <section className="py-20 bg-blue-600">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold text-white mb-4">📝 职场干货</h2>
+              <p className="text-blue-100 text-lg">{stats.blogCount}+ 篇专业文章，助你职场进阶</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                { icon: "🎯", title: "求职技巧", desc: "简历优化、面试攻略、谈薪技巧" },
+                { icon: "💼", title: "职业发展", desc: "行业洞察、技能提升、转型指南" },
+                { icon: "📊", title: "薪资报告", desc: "各岗位薪资水平、行业趋势分析" },
+              ].map((item) => (
+                <Link
+                  key={item.title}
+                  href="/blog"
+                  className="group bg-white/10 backdrop-blur-sm rounded-2xl p-8 hover:bg-white/20 transition-all"
+                >
+                  <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">{item.icon}</div>
+                  <h3 className="text-xl font-bold text-white mb-2">{item.title}</h3>
+                  <p className="text-blue-100">{item.desc}</p>
+                </Link>
+              ))}
+            </div>
+
+            <div className="mt-10 text-center">
+              <Link
+                href="/blog"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-white text-blue-600 font-semibold rounded-xl hover:bg-blue-50 transition-all"
+              >
+                阅读更多文章
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* CTA Section */}
+      <section className="py-20 bg-gray-900">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+            准备好开启新的职业旅程了吗？
+          </h2>
+          <p className="text-xl text-gray-400 mb-10">
+            立即注册，发现更多优质职位机会
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/auth/register"
+              className="px-8 py-4 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-all hover:shadow-lg hover:-translate-y-0.5"
+            >
+              免费注册
+            </Link>
+            <Link
+              href="/jobs"
+              className="px-8 py-4 bg-white/10 text-white font-semibold rounded-xl hover:bg-white/20 transition-all border border-white/20"
+            >
+              浏览职位
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-950 text-white py-16">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+            <div>
+              <div className="flex items-center gap-2 mb-6">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center text-white font-bold text-xl">
+                  J
+                </div>
+                <span className="text-xl font-bold">招聘平台</span>
+              </div>
+              <p className="text-gray-400 leading-relaxed">
+                专业的求职招聘平台，连接优秀人才与顶尖企业，让每一次职业选择都更有价值。
+              </p>
+            </div>
+
+            <div>
+              <h3 className="font-bold text-lg mb-6">快速链接</h3>
+              <ul className="space-y-3 text-gray-400">
+                <li><Link href="/jobs" className="hover:text-white transition-colors">职位列表</Link></li>
+                <li><Link href="/companies" className="hover:text-white transition-colors">公司列表</Link></li>
+                <li><Link href="/blog" className="hover:text-white transition-colors">职场博客</Link></li>
+                <li><Link href="/faq" className="hover:text-white transition-colors">常见问题</Link></li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-bold text-lg mb-6">法律信息</h3>
+              <ul className="space-y-3 text-gray-400">
+                <li><Link href="/terms" className="hover:text-white transition-colors">用户协议</Link></li>
+                <li><Link href="/privacy" className="hover:text-white transition-colors">隐私政策</Link></li>
+                <li><Link href="/about" className="hover:text-white transition-colors">关于我们</Link></li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-bold text-lg mb-6">联系我们</h3>
+              <ul className="space-y-3 text-gray-400">
+                <li>📧 support@jobs-platform.com</li>
+                <li>📞 400-123-4567</li>
+                <li>🕐 周一至周五 9:00-18:00</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-gray-500">&copy; 2026 招聘平台. All rights reserved.</p>
+            <Link href="/sitemap.xml" className="text-gray-500 hover:text-white transition-colors">
+              Sitemap
+            </Link>
           </div>
         </div>
       </footer>
