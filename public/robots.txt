@@ -1,0 +1,68 @@
+# robots.txt for Jobs Platform
+# https://jobs-platform-gold.vercel.app
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://jobs-platform-gold.vercel.app/sitemap.xml
+
+# Crawl rate optimization
+Crawl-delay: 1
+
+# Allow all major search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Googlebot-Mobile
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: MSNBot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+User-agent: Baiduspider
+Allow: /
+
+User-agent: Sogou Spider
+Allow: /
+
+User-agent: 360Spider
+Allow: /
+
+User-agent: YisouSpider
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+# Block specific paths that shouldn't be indexed
+User-agent: *
+Disallow: /api/
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /auth/
+Disallow: /_next/
+Disallow: /*?*q=*
+Disallow: /*?*page=*
+
+# Allow search result pages with specific filters
+Allow: /jobs/*q=*
+Allow: /jobs/*city=*
+Allow: /jobs/*type=*
+
+# Block non-public assets
+Disallow: /private/
+Disallow: /temp/
+Disallow: /draft/
+
+# Host
+Host: https://jobs-platform-gold.vercel.app
