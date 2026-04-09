@@ -5,6 +5,7 @@ import { JobCard } from "@/components/job-card";
 import { AdBanner } from "@/components/ad-banner";
 import { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
 export const metadata: Metadata = generateHomeMetadata();
 
 export default async function HomePage() {
