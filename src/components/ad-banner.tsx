@@ -17,8 +17,14 @@ export async function AdBanner({ position, className = "" }: AdBannerProps) {
     },
   });
 
+  // 如果没有广告，显示占位（开发调试用）
   if (!ad) {
-    return null;
+    return (
+      <div className={`bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center ${className}`}>
+        <p className="text-gray-400 text-sm">广告位: {position}</p>
+        <p className="text-gray-300 text-xs mt-1">暂无广告</p>
+      </div>
+    );
   }
 
   // 图片广告
