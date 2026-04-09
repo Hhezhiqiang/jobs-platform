@@ -9,6 +9,9 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+// ISR: 每7天重新生成页面
+export const revalidate = 604800;
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const post = await prisma.page.findUnique({
@@ -90,6 +93,22 @@ function generateBreadcrumbSchema(slug: string, title: string) {
   };
 }
 
+// 生成 FAQ Schema
+function generateFAQSchema(faqs: { question: string; answer: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  };
+}
+
 export default async function BlogDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const post = await prisma.page.findUnique({
@@ -101,8 +120,57 @@ export default async function BlogDetailPage({ params }: PageProps) {
     notFound();
   }
 
+  // 增加浏览量
+  await prisma.page.update({
+    where: { id: post.id },
+    data: { viewCount: { increment: 1 } },
+  });
+
+  // 获取相关职位（基于关键词匹配）
+  const relatedJobs = await prisma.job.findMany({
+    where: {
+      status: "ACTIVE",
+      OR: [
+        { title: { contains: post.keywords?.[0] || "", mode: "insensitive" } },
+        { description: { contains: post.keywords?.[0] || "", mode: "insensitive" } },
+      ],
+    },
+    include: { company: true },
+    take: 3,
+  });
+
+  // 如果没有匹配到，获取最新职位
+  const fallbackJobs = relatedJobs.length === 0 
+    ? await prisma.job.findMany({
+        where: { status: "ACTIVE" },
+        include: { company: true },
+        orderBy: { datePosted: "desc" },
+        take: 3,
+      })
+    : [];
+
+  const displayJobs = relatedJobs.length > 0 ? relatedJobs : fallbackJobs;
+
+  // 从文章内容提取 FAQ（简化版：查找 ## FAQ 或 ## 常见问题 部分）
+  const faqMatch = post.content.match(/## (FAQ|常见问题)[\\s\\S]*?(?=##|$)/i);
+  const faqs: { question: string; answer: string }[] = [];
+  
+  if (faqMatch) {
+    const faqContent = faqMatch[0];
+    const qaMatches = faqContent.matchAll(/\\*\\*Q[:：]?\\s*(.+?)\\*\\*[\\s\\S]*?A[:：]?\\s*(.+?)(?=\\*\\*Q[:：]?|$)/gi);
+    for (const match of qaMatches) {
+      if (match[1] && match[2]) {
+        faqs.push({
+          question: match[1].trim(),
+          answer: match[2].trim().replace(/\\n/g, " "),
+        });
+      }
+    }
+  }
+
   const articleSchema = generateArticleSchema(post);
   const breadcrumbSchema = generateBreadcrumbSchema(slug, post.title);
+  const faqSchema = faqs.length > 0 ? generateFAQSchema(faqs) : null;
 
   return (
     <>
@@ -114,6 +182,12 @@ export default async function BlogDetailPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
 
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
@@ -148,7 +222,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
                 {post.title}
               </h1>
 
-              {/* 作者信息 */}
+              {/* 作者信息 + 浏览量 */}
               <div className="flex items-center gap-4 text-gray-600 mb-8 pb-8 border-b">
                 <div className="flex items-center gap-2">
                   <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
@@ -164,6 +238,8 @@ export default async function BlogDetailPage({ params }: PageProps) {
                     day: "numeric",
                   })}
                 </time>
+                <span>·</span>
+                <span className="text-gray-500">{post.viewCount + 1} 次阅读</span>
               </div>
 
               {/* 摘要 */}
@@ -196,6 +272,47 @@ export default async function BlogDetailPage({ params }: PageProps) {
               )}
             </div>
           </article>
+
+          {/* 相关职位推荐 */}
+          {displayJobs.length > 0 && (
+            <div className="mt-8 bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">🔥 相关职位推荐</h2>
+              <div className="space-y-4">
+                {displayJobs.map((job) => (
+                  <Link
+                    key={job.id}
+                    href={`/jobs/${job.slug}`}
+                    className="block p-4 border rounded-lg hover:bg-blue-50 transition-colors"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-semibold text-gray-900">{job.title}</h3>
+                        <p className="text-sm text-gray-600">{job.company.name}</p>
+                        <div className="flex gap-2 mt-2 text-sm text-gray-500">
+                          <span>{job.location}</span>
+                          <span>·</span>
+                          <span className="text-blue-600">
+                            {job.salaryMin && job.salaryMax
+                              ? `${job.salaryMin}-${job.salaryMax} ${job.salaryCurrency}`
+                              : "薪资面议"}
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-blue-600 text-sm">查看详情 →</span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+              <div className="mt-4 text-center">
+                <Link
+                  href="/jobs"
+                  className="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  查看更多职位
+                </Link>
+              </div>
+            </div>
+          )}
         </main>
       </div>
     </>

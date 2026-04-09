@@ -3,6 +3,9 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { Metadata } from "next";
 
+// ISR: 每7天重新生成页面
+export const revalidate = 604800;
+
 export const metadata: Metadata = {
   title: "求职博客 - 薪资报告、面试攻略、行业趋势 | 招聘平台",
   description: "互联网求职干货：2026薪资报告、产品经理面试攻略、东京IT求职指南、简历优化技巧。专家级内容助你快速拿到理想Offer。",

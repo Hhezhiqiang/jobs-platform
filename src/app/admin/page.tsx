@@ -12,17 +12,30 @@ export default async function AdminPage() {
   }
 
   // 获取统计数据
-  const [jobCount, companyCount] = await Promise.all([
+  const [jobCount, companyCount, blogCount, totalViews] = await Promise.all([
     prisma.job.count(),
     prisma.company.count(),
+    prisma.page.count({ where: { type: "BLOG" } }),
+    prisma.page.aggregate({
+      where: { type: "BLOG" },
+      _sum: { viewCount: true },
+    }),
   ]);
 
-  // 获取最近发布的职位
-  const recentJobs = await prisma.job.findMany({
-    include: { company: true },
-    orderBy: { createdAt: "desc" },
-    take: 5,
-  });
+  // 获取最近发布的职位和博客
+  const [recentJobs, recentBlogs] = await Promise.all([
+    prisma.job.findMany({
+      include: { company: true },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+    }),
+    prisma.page.findMany({
+      where: { type: "BLOG" },
+      orderBy: { createdAt: "desc" },
+      take: 5,
+      include: { author: true },
+    }),
+  ]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -42,7 +55,7 @@ export default async function AdminPage() {
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* 统计卡片 */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow">
             <p className="text-gray-600">总职位数</p>
             <p className="text-3xl font-bold">{jobCount}</p>
@@ -51,17 +64,37 @@ export default async function AdminPage() {
             <p className="text-gray-600">公司数</p>
             <p className="text-3xl font-bold">{companyCount}</p>
           </div>
+          <div className="bg-white p-6 rounded-lg shadow">
+            <p className="text-gray-600">博客文章</p>
+            <p className="text-3xl font-bold">{blogCount}</p>
+          </div>
+          <div className="bg-white p-6 rounded-lg shadow">
+            <p className="text-gray-600">博客总浏览</p>
+            <p className="text-3xl font-bold">{totalViews._sum.viewCount || 0}</p>
+          </div>
         </div>
 
         {/* 快捷操作 */}
         <div className="bg-white p-6 rounded-lg shadow mb-8">
           <h2 className="text-xl font-bold mb-4">快捷操作</h2>
-          <div className="flex gap-4">
+          <div className="flex gap-4 flex-wrap">
             <Link
               href="/admin/jobs/new"
               className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
             >
               + 发布新职位
+            </Link>
+            <Link
+              href="/admin/blog/new"
+              className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700"
+            >
+              + 写文章
+            </Link>
+            <Link
+              href="/admin/blog"
+              className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700"
+            >
+              管理博客
             </Link>
             <Link
               href="/admin/ads"
@@ -93,6 +126,51 @@ export default async function AdminPage() {
                 >
                   {job.status}
                 </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 最近博客文章 */}
+        <div className="bg-white rounded-lg shadow mt-8">
+          <div className="p-6 border-b flex justify-between items-center">
+            <h2 className="text-xl font-bold">最近发布的博客</h2>
+            <Link href="/admin/blog" className="text-blue-600 hover:text-blue-800 text-sm">
+              查看全部 →
+            </Link>
+          </div>
+          <div className="divide-y">
+            {recentBlogs.map((blog) => (
+              <div key={blog.id} className="p-4 flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="font-semibold">{blog.title}</p>
+                  <p className="text-sm text-gray-600">
+                    {blog.author.name} · {blog.viewCount} 次浏览
+                  </p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm ${
+                      blog.status === "PUBLISHED"
+                        ? "bg-green-100 text-green-800"
+                        : blog.status === "DRAFT"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-gray-100 text-gray-800"
+                    }`}
+                  >
+                    {blog.status === "PUBLISHED"
+                      ? "已发布"
+                      : blog.status === "DRAFT"
+                      ? "草稿"
+                      : "已归档"}
+                  </span>
+                  <Link
+                    href={`/admin/blog/edit/${blog.id}`}
+                    className="text-indigo-600 hover:text-indigo-800 text-sm"
+                  >
+                    编辑
+                  </Link>
+                </div>
               </div>
             ))}
           </div>
