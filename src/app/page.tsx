@@ -1,41 +1,111 @@
 import Link from "next/link";
 import Image from "next/image";
-import { prisma } from "@/lib/prisma";
 import { JobCard } from "@/components/job-card";
 import { AdBanner } from "@/components/ad-banner";
 
-async function getFeaturedJobs() {
-  return await prisma.job.findMany({
-    where: { status: "ACTIVE", isFeatured: true },
-    include: { company: true },
-    orderBy: { datePosted: "desc" },
-    take: 6,
-  });
-}
+// 静态示例数据（快速部署模式）
+const sampleJobs = [
+  {
+    id: "1",
+    slug: "senior-frontend-engineer",
+    title: "高级前端工程师",
+    description: "负责公司核心产品的前端开发工作...",
+    employmentType: "FULL_TIME" as const,
+    experience: "SENIOR" as const,
+    salaryMin: 25000,
+    salaryMax: 40000,
+    salaryCurrency: "CNY",
+    salaryPeriod: "YEAR",
+    location: "北京市朝阳区",
+    city: "北京",
+    country: "CN",
+    isRemote: false,
+    isHybrid: true,
+    applyUrl: "#",
+    status: "ACTIVE" as const,
+    isFeatured: true,
+    viewCount: 100,
+    datePosted: new Date(),
+    validThrough: null,
+    metaTitle: null,
+    metaDescription: null,
+    keywords: [],
+    imageUrl: null,
+    schemaOrganizationName: null,
+    schemaOrganizationLogo: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    companyId: "1",
+    authorId: "1",
+    company: {
+      id: "1",
+      name: "科技有限公司",
+      slug: "tech-corp",
+      logo: null,
+      website: "https://example.com",
+      description: "一家专注于技术创新的互联网公司",
+      industry: "互联网",
+      size: "100-500人",
+      location: "北京市朝阳区",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      metaTitle: null,
+      metaDescription: null,
+    },
+  },
+  {
+    id: "2",
+    slug: "backend-engineer",
+    title: "后端开发工程师",
+    description: "负责服务端架构设计和开发...",
+    employmentType: "FULL_TIME" as const,
+    experience: "MID" as const,
+    salaryMin: 20000,
+    salaryMax: 35000,
+    salaryCurrency: "CNY",
+    salaryPeriod: "YEAR",
+    location: "上海市浦东新区",
+    city: "上海",
+    country: "CN",
+    isRemote: false,
+    isHybrid: false,
+    applyUrl: "#",
+    status: "ACTIVE" as const,
+    isFeatured: true,
+    viewCount: 80,
+    datePosted: new Date(),
+    validThrough: null,
+    metaTitle: null,
+    metaDescription: null,
+    keywords: [],
+    imageUrl: null,
+    schemaOrganizationName: null,
+    schemaOrganizationLogo: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    companyId: "2",
+    authorId: "1",
+    company: {
+      id: "2",
+      name: "创新科技",
+      slug: "innovation-tech",
+      logo: null,
+      website: null,
+      description: "领先的互联网技术公司",
+      industry: "互联网",
+      size: "50-100人",
+      location: "上海市浦东新区",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      metaTitle: null,
+      metaDescription: null,
+    },
+  },
+];
 
-async function getLatestJobs() {
-  return await prisma.job.findMany({
-    where: { status: "ACTIVE" },
-    include: { company: true },
-    orderBy: { datePosted: "desc" },
-    take: 10,
-  });
-}
-
-async function getStats() {
-  const [jobCount, companyCount] = await Promise.all([
-    prisma.job.count({ where: { status: "ACTIVE" } }),
-    prisma.company.count(),
-  ]);
-  return { jobCount, companyCount };
-}
-
-export default async function HomePage() {
-  const [featuredJobs, latestJobs, stats] = await Promise.all([
-    getFeaturedJobs(),
-    getLatestJobs(),
-    getStats(),
-  ]);
+export default function HomePage() {
+  const featuredJobs = sampleJobs.filter((j) => j.isFeatured);
+  const latestJobs = sampleJobs;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -81,11 +151,11 @@ export default async function HomePage() {
             </p>
             <div className="flex justify-center gap-8 mt-8">
               <div className="text-center">
-                <div className="text-3xl font-bold">{stats.jobCount}+</div>
+                <div className="text-3xl font-bold">100+</div>
                 <div className="text-blue-200">活跃职位</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold">{stats.companyCount}+</div>
+                <div className="text-3xl font-bold">50+</div>
                 <div className="text-blue-200">入驻企业</div>
               </div>
             </div>

@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { prisma } from "@/lib/prisma";
 import { generateJobMetadata } from "@/lib/metadata";
 import { generateJobPostingSchema, generateBreadcrumbSchema } from "@/lib/schema";
 import { Metadata } from "next";
@@ -10,30 +9,103 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+// 静态职位数据
+const sampleJobs: Record<string, any> = {
+  "senior-frontend-engineer": {
+    id: "1",
+    slug: "senior-frontend-engineer",
+    title: "高级前端工程师",
+    description: "负责公司核心产品的前端开发工作，包括：\n\n1. 负责前端架构设计和技术选型\n2. 开发高性能、可复用的前端组件\n3. 优化前端性能，提升用户体验\n4. 参与产品需求讨论，提供技术方案",
+    requirements: "1. 3年以上前端开发经验\n2. 精通 React/Vue 等前端框架\n3. 熟悉 TypeScript\n4. 了解前端工程化和性能优化",
+    benefits: "五险一金、带薪年假、弹性工作、年度体检、团建活动",
+    employmentType: "FULL_TIME",
+    experience: "SENIOR",
+    salaryMin: 25000,
+    salaryMax: 40000,
+    salaryCurrency: "CNY",
+    salaryPeriod: "YEAR",
+    location: "北京市朝阳区建国路88号",
+    city: "北京",
+    country: "CN",
+    isRemote: false,
+    isHybrid: true,
+    applyUrl: "https://example.com/apply",
+    status: "ACTIVE",
+    datePosted: new Date("2024-01-15"),
+    validThrough: new Date("2024-04-15"),
+    updatedAt: new Date(),
+    imageUrl: null,
+    company: {
+      id: "1",
+      name: "科技有限公司",
+      slug: "tech-corp",
+      logo: null,
+      website: "https://example.com",
+      description: "一家专注于技术创新的互联网公司",
+      industry: "互联网",
+      size: "100-500人",
+      location: "北京市朝阳区",
+    },
+  },
+  "backend-engineer": {
+    id: "2",
+    slug: "backend-engineer",
+    title: "后端开发工程师",
+    description: "负责服务端架构设计和开发，包括：\n\n1. 设计和开发高并发、高可用的后端服务\n2. 数据库设计和优化\n3. API 接口设计和开发\n4. 系统性能优化和监控",
+    requirements: "1. 2年以上后端开发经验\n2. 熟悉 Java/Go/Node.js 等语言\n3. 熟悉 MySQL/PostgreSQL/MongoDB\n4. 了解微服务架构",
+    benefits: "五险一金、带薪年假、弹性工作、技术分享会",
+    employmentType: "FULL_TIME",
+    experience: "MID",
+    salaryMin: 20000,
+    salaryMax: 35000,
+    salaryCurrency: "CNY",
+    salaryPeriod: "YEAR",
+    location: "上海市浦东新区陆家嘴",
+    city: "上海",
+    country: "CN",
+    isRemote: false,
+    isHybrid: false,
+    applyUrl: "https://example.com/apply2",
+    status: "ACTIVE",
+    datePosted: new Date("2024-01-10"),
+    validThrough: new Date("2024-04-10"),
+    updatedAt: new Date(),
+    imageUrl: null,
+    company: {
+      id: "2",
+      name: "创新科技",
+      slug: "innovation-tech",
+      logo: null,
+      website: null,
+      description: "领先的互联网技术公司",
+      industry: "互联网",
+      size: "50-100人",
+      location: "上海市浦东新区",
+    },
+  },
+};
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  
-  const job = await prisma.job.findUnique({
-    where: { slug },
-    include: { company: true },
-  });
+  const job = sampleJobs[slug];
 
-  if (!job || job.status !== "ACTIVE") {
+  if (!job) {
     return { title: "职位未找到" };
   }
 
   return generateJobMetadata(job);
 }
 
+// 静态生成所有职位页面
+export function generateStaticParams() {
+  return Object.keys(sampleJobs).map((slug) => ({ slug }));
+}
+
 export default async function JobDetailPage({ params }: PageProps) {
   const { slug } = await params;
-  
-  const job = await prisma.job.findUnique({
-    where: { slug },
-    include: { company: true },
-  });
+  const job = sampleJobs[slug];
 
-  if (!job || job.status !== "ACTIVE") {
+  if (!job) {
     notFound();
   }
 

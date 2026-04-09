@@ -2,7 +2,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
 
 export default async function AdminPage() {
   const session = await getServerSession(authOptions);
@@ -11,15 +10,16 @@ export default async function AdminPage() {
     redirect("/auth/login");
   }
 
-  const [jobCount, companyCount, recentJobs] = await Promise.all([
-    prisma.job.count(),
-    prisma.company.count(),
-    prisma.job.findMany({
-      take: 5,
-      orderBy: { createdAt: "desc" },
-      include: { company: true },
-    }),
-  ]);
+  // 静态数据（快速部署模式）
+  const stats = {
+    jobCount: 2,
+    companyCount: 2,
+  };
+
+  const recentJobs = [
+    { id: "1", title: "高级前端工程师", company: { name: "科技有限公司" }, status: "ACTIVE" },
+    { id: "2", title: "后端开发工程师", company: { name: "创新科技" }, status: "ACTIVE" },
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -32,7 +32,7 @@ export default async function AdminPage() {
               </Link>
               <h1 className="text-2xl font-bold">管理后台</h1>
             </div>
-            <p className="text-gray-600">欢迎, {session.user?.name}</p>
+            <p className="text-gray-600">欢迎, {session.user?.name || "管理员"}</p>
           </div>
         </div>
       </header>
@@ -42,11 +42,11 @@ export default async function AdminPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow">
             <p className="text-gray-600">总职位数</p>
-            <p className="text-3xl font-bold">{jobCount}</p>
+            <p className="text-3xl font-bold">{stats.jobCount}</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
             <p className="text-gray-600">公司数</p>
-            <p className="text-3xl font-bold">{companyCount}</p>
+            <p className="text-3xl font-bold">{stats.companyCount}</p>
           </div>
         </div>
 

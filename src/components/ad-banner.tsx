@@ -1,62 +1,27 @@
 import Image from "next/image";
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
 
 interface AdBannerProps {
   position: string;
   className?: string;
 }
 
-async function getAds(position: string) {
-  const now = new Date();
-  
-  return await prisma.ad.findMany({
-    where: {
-      position: {
-        name: position,
-      },
-      status: "ACTIVE",
-      OR: [
-        { startDate: null },
-        { startDate: { lte: now } },
-      ],
-      AND: [
-        {
-          OR: [
-            { endDate: null },
-            { endDate: { gte: now } },
-          ],
-        },
-      ],
-    },
-    take: 1,
-    orderBy: { createdAt: "desc" },
-  });
-}
+// 静态广告数据
+const staticAds: Record<string, any> = {
+  HP_BANNER_01: {
+    title: "招聘平台推广",
+    type: "IMAGE",
+    imageUrl: null,
+    linkUrl: "https://example.com",
+    altText: "招聘平台广告",
+  },
+};
 
-export async function AdBanner({ position, className = "" }: AdBannerProps) {
-  const ads = await getAds(position);
+export function AdBanner({ position, className = "" }: AdBannerProps) {
+  const ad = staticAds[position];
   
-  if (ads.length === 0) {
+  if (!ad) {
     return null;
-  }
-
-  const ad = ads[0];
-
-  // 文字链广告
-  if (ad.type === "TEXT") {
-    return (
-      <div className={`bg-gray-50 border border-gray-200 rounded-lg p-4 ${className}`}>
-        <Link
-          href={ad.linkUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-600 hover:text-blue-800 underline"
-        >
-          {ad.textContent || ad.title}
-        </Link>
-      </div>
-    );
   }
 
   // 图片广告
@@ -80,6 +45,7 @@ export async function AdBanner({ position, className = "" }: AdBannerProps) {
         ) : (
           <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-8 text-center">
             <h3 className="text-xl font-bold">{ad.title}</h3>
+            <p className="text-sm mt-2">广告位示例 - {position}</p>
           </div>
         )}
       </Link>
