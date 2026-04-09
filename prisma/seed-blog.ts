@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, PageType, PageStatus } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -66,7 +66,6 @@ A: 北京市场合理区间30-45万，如果掌握AI相关技术可达50万+。
 A: 3年内经验建议大厂镀金，5年+可考虑独角兽或创业拿期权。
 
 *本文作者：招聘平台数据团队 | 更新时间：2026-04-10*`,
-      type: "BLOG",
       featuredImage: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=630&fit=crop",
       keywords: ["2026薪资报告", "北京互联网薪资", "前端工程师薪资", "跳槽谈薪"],
     },
@@ -147,7 +146,6 @@ A: 可以！很多外企用英语工作。
 A: 技术经验全球通用。
 
 *本文作者：招聘平台国际团队 | 更新时间：2026-04-10*`,
-      type: "BLOG",
       featuredImage: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1200&h=630&fit=crop",
       keywords: ["东京IT求职", "日本工作签证", "东京租房", "东京IT薪资"],
     },
@@ -230,7 +228,6 @@ A: 技术经验全球通用。
 - [ ] Mock面试3次以上
 
 *本文作者：招聘平台产品团队 | 更新时间：2026-04-10*`,
-      type: "BLOG",
       featuredImage: "https://images.unsplash.com/photo-1553877522-43269d4ea984?w=1200&h=630&fit=crop",
       keywords: ["产品经理面试", "PM面试攻略", "产品思维题", "BAT面试"],
     },
@@ -241,9 +238,15 @@ A: 技术经验全球通用。
       where: { slug: blog.slug },
       update: {},
       create: {
-        ...blog,
+        slug: blog.slug,
+        title: blog.title,
+        excerpt: blog.excerpt,
+        content: blog.content,
+        type: PageType.BLOG,
+        featuredImage: blog.featuredImage,
+        keywords: blog.keywords,
         authorId: admin.id,
-        status: "PUBLISHED",
+        status: PageStatus.PUBLISHED,
       },
     });
     console.log("Created blog:", blog.title);
