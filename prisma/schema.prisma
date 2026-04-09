@@ -1,0 +1,264 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 用户模型
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      UserRole @default(USER)
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 关联
+  jobs     Job[]
+  ads      Ad[]
+  sessions Session[]
+
+  @@map("users")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+enum UserRole {
+  ADMIN
+  USER
+  COMPANY
+}
+
+// 公司模型
+model Company {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  logo        String?
+  website     String?
+  description String?  @db.Text
+  industry    String?
+  size        String?
+  location    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // SEO字段
+  metaTitle       String?
+  metaDescription String?
+
+  // 关联
+  jobs Job[]
+
+  @@map("companies")
+}
+
+// 职位模型（完整SEO支持）
+model Job {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String   @db.Text
+  requirements String? @db.Text
+  benefits    String?  @db.Text
+
+  // 职位类型
+  employmentType EmploymentType @default(FULL_TIME)
+  experience     ExperienceLevel @default(MID)
+
+  // 薪资信息
+  salaryMin     Int?
+  salaryMax     Int?
+  salaryCurrency String @default("CNY")
+  salaryPeriod  String @default("YEAR")
+
+  // 工作地点
+  location    String
+  city        String?
+  country     String @default("CN")
+  isRemote    Boolean @default(false)
+  isHybrid    Boolean @default(false)
+
+  // 外部申请链接
+  applyUrl    String
+
+  // 状态
+  status      JobStatus @default(ACTIVE)
+  isFeatured  Boolean   @default(false)
+  viewCount   Int       @default(0)
+
+  // 时间字段
+  datePosted   DateTime @default(now())
+  validThrough DateTime?
+
+  // SEO字段
+  metaTitle       String?
+  metaDescription String?
+  keywords        String[]
+  imageUrl        String?  // 职位图片URL
+
+  // 结构化数据字段
+  schemaOrganizationName String? // hiringOrganization.name
+  schemaOrganizationLogo String? // hiringOrganization.logo
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 关联
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  // 索引
+  @@index([status, datePosted])
+  @@index([city, status])
+  @@index([employmentType, status])
+  @@index([isFeatured, status])
+  @@map("jobs")
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+  FREELANCE
+}
+
+enum ExperienceLevel {
+  ENTRY
+  MID
+  SENIOR
+  EXECUTIVE
+}
+
+enum JobStatus {
+  ACTIVE
+  INACTIVE
+  EXPIRED
+  DRAFT
+}
+
+// 广告位模型
+model AdPosition {
+  id          String @id @default(cuid())
+  name        String @unique // 如: HP_BANNER_01
+  displayName String // 显示名称
+  description String?
+  width       Int?
+  height      Int?
+  maxAds      Int    @default(1)
+  isActive    Boolean @default(true)
+
+  // 关联
+  ads Ad[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("ad_positions")
+}
+
+// 广告模型
+model Ad {
+  id          String   @id @default(cuid())
+  title       String
+  type        AdType   @default(IMAGE)
+  imageUrl    String?
+  linkUrl     String
+  textContent String?  // 文字链内容
+  altText     String?  // 图片alt属性（SEO）
+
+  // 状态
+  status     AdStatus @default(PENDING)
+  startDate  DateTime?
+  endDate    DateTime?
+  clickCount Int      @default(0)
+  viewCount  Int      @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 关联
+  positionId String
+  position   AdPosition @relation(fields: [positionId], references: [id])
+  authorId   String
+  author     User       @relation(fields: [authorId], references: [id])
+
+  @@map("ads")
+}
+
+enum AdType {
+  IMAGE
+  TEXT
+  CAROUSEL
+}
+
+enum AdStatus {
+  PENDING
+  ACTIVE
+  INACTIVE
+  EXPIRED
+}
+
+// SEO设置模型
+model SEOSetting {
+  id          String @id @default(cuid())
+  key         String @unique
+  value       String
+  description String?
+
+  updatedAt DateTime @updatedAt
+
+  @@map("seo_settings")
+}
+
+// 页面内容模型（用于博客/内容页）
+model Page {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  content     String   @db.Text
+  excerpt     String?  @db.Text
+  type        PageType @default(PAGE)
+  status      PageStatus @default(PUBLISHED)
+
+  // SEO字段
+  metaTitle       String?
+  metaDescription String?
+  keywords        String[]
+  featuredImage   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([type, status])
+  @@map("pages")
+}
+
+enum PageType {
+  PAGE
+  BLOG
+  FAQ
+  GUIDE
+}
+
+enum PageStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
