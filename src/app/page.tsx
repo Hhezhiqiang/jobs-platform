@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
+import { getHomePageData } from "@/lib/optimized-queries";
 import { generateHomeMetadata } from "@/lib/metadata";
 import { JobCard } from "@/components/job-card";
 import { AdBanner } from "@/components/ad-banner";
@@ -9,34 +9,10 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = generateHomeMetadata();
 
 export default async function HomePage() {
-  // 获取精选职位
-  const featuredJobs = await prisma.job.findMany({
-    where: { status: "ACTIVE", isFeatured: true },
-    include: { company: true },
-    orderBy: { datePosted: "desc" },
-    take: 6,
-  });
+  // 使用优化的批量查询（带缓存）
+  const { featuredJobs, latestJobs, hotCompanies, stats } = await getHomePageData();
 
-  // 获取最新职位
-  const latestJobs = await prisma.job.findMany({
-    where: { status: "ACTIVE" },
-    include: { company: true },
-    orderBy: { datePosted: "desc" },
-    take: 10,
-  });
-
-  // 获取统计数据
-  const [jobCount, companyCount, blogCount] = await Promise.all([
-    prisma.job.count({ where: { status: "ACTIVE" } }),
-    prisma.company.count(),
-    prisma.page.count({ where: { type: "BLOG", status: "PUBLISHED" } }),
-  ]);
-
-  // 热门企业
-  const hotCompanies = await prisma.company.findMany({
-    take: 7,
-    orderBy: { createdAt: "desc" },
-  });
+  const { jobCount, companyCount, blogCount } = stats;
 
   // 热门搜索词
   const hotSearches = ["前端工程师", "产品经理", "Java开发", "数据分析师", "UI设计师", "运营"];
