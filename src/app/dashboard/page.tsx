@@ -56,7 +56,13 @@ export default async function DashboardPage() {
     },
   });
 
-  const interviewCount = recentApplications.filter((a) => a.status === "INTERVIEW").length;
+  // 过滤掉 job 或 company 没有 slug 的申请
+  const validApplications = recentApplications.filter(app => 
+    app.job?.slug && app.job.slug !== "" &&
+    app.job.company?.slug && app.job.company.slug !== ""
+  );
+
+  const interviewCount = validApplications.filter((a) => a.status === "INTERVIEW").length;
 
   const navItems = [
     { icon: LayoutDashboard, label: "概览", href: "/dashboard", active: true },
@@ -224,7 +230,7 @@ export default async function DashboardPage() {
               </div>
 
               <div className="divide-y divide-gray-100">
-                {recentApplications.length === 0 ? (
+                {validApplications.length === 0 ? (
                   <div className="p-12 text-center">
                     <div className="w-20 h-20 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
                       <Briefcase className="w-10 h-10 text-gray-400" />
@@ -239,7 +245,7 @@ export default async function DashboardPage() {
                     </Link>
                   </div>
                 ) : (
-                  recentApplications.map((app) => (
+                  validApplications.map((app) => (
                     <div key={app.id} className="p-6 hover:bg-gray-50 transition-colors">
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex items-start gap-4">

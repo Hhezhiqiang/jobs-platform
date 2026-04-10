@@ -35,7 +35,13 @@ export async function GET(request: NextRequest) {
       orderBy: { appliedAt: "desc" },
     });
 
-    return NextResponse.json({ applications });
+    // 过滤掉 job 或 company 没有 slug 的申请
+    const validApplications = applications.filter(app => 
+      app.job?.slug && app.job.slug !== "" &&
+      app.job.company?.slug && app.job.company.slug !== ""
+    );
+
+    return NextResponse.json({ applications: validApplications });
   } catch (error) {
     console.error("Get applications error:", error);
     return NextResponse.json({ error: "获取申请列表失败" }, { status: 500 });
