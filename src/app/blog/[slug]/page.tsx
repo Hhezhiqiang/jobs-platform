@@ -130,6 +130,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
   const relatedJobs = await prisma.job.findMany({
     where: {
       status: "ACTIVE",
+      slug: { not: "" }, // 确保有 slug
       OR: [
         { title: { contains: post.keywords?.[0] || "", mode: "insensitive" } },
         { description: { contains: post.keywords?.[0] || "", mode: "insensitive" } },
@@ -142,7 +143,10 @@ export default async function BlogDetailPage({ params }: PageProps) {
   // 如果没有匹配到，获取最新职位
   const fallbackJobs = relatedJobs.length === 0 
     ? await prisma.job.findMany({
-        where: { status: "ACTIVE" },
+        where: { 
+          status: "ACTIVE",
+          slug: { not: "" }, // 确保有 slug
+        },
         include: { company: true },
         orderBy: { datePosted: "desc" },
         take: 3,
@@ -278,7 +282,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
             <div className="mt-8 bg-white rounded-lg shadow-md p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">🔥 相关职位推荐</h2>
               <div className="space-y-4">
-                {displayJobs.map((job) => (
+                {displayJobs.filter(job => job.slug).map((job) => (
                   <Link
                     key={job.id}
                     href={`/jobs/${job.slug}`}
@@ -287,7 +291,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-semibold text-gray-900">{job.title}</h3>
-                        <p className="text-sm text-gray-600">{job.company.name}</p>
+                        <p className="text-sm text-gray-600">{job.company?.name}</p>
                         <div className="flex gap-2 mt-2 text-sm text-gray-500">
                           <span>{job.location}</span>
                           <span>·</span>
