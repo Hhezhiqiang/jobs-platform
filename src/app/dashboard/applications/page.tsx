@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { formatSalary } from "@/lib/utils";
 
 interface Application {
   id: string;
@@ -133,10 +134,7 @@ export default function ApplicationsPage() {
   };
 
   const getSalaryText = (app: Application) => {
-    if (app.job.salaryMin && app.job.salaryMax) {
-      return `${app.job.salaryMin.toLocaleString()}-${app.job.salaryMax.toLocaleString()} ${app.job.salaryCurrency}/年`;
-    }
-    return "薪资面议";
+    return formatSalary(app.job.salaryMin, app.job.salaryMax);
   };
 
   if (status === "loading" || loading) {

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Job, Company } from "@prisma/client";
+import { formatSalary } from "@/lib/utils";
 
 interface JobCardProps {
   job: Job & { company: Company };
@@ -8,9 +9,7 @@ interface JobCardProps {
 }
 
 export function JobCard({ job, compact = false }: JobCardProps) {
-  const salaryText = job.salaryMin && job.salaryMax
-    ? `${job.salaryMin}-${job.salaryMax} ${job.salaryCurrency}`
-    : "薪资面议";
+  const salaryText = formatSalary(job.salaryMin, job.salaryMax);
 
   // JobPosting Schema 数据
   const jobSchema = {

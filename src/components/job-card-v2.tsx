@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Job, Company } from "@prisma/client";
-import { formatDistanceToNow } from "@/lib/utils";
+import { formatDistanceToNow, formatSalary } from "@/lib/utils";
 
 interface JobCardV2Props {
   job: Job & { company: Company };
@@ -9,10 +9,7 @@ interface JobCardV2Props {
 }
 
 export function JobCardV2({ job, variant = "default" }: JobCardV2Props) {
-  const salaryText = job.salaryMin && job.salaryMax
-    ? `${job.salaryMin}-${job.salaryMax}K`
-    : "薪资面议";
-
+  const salaryText = formatSalary(job.salaryMin, job.salaryMax);
   const timeAgo = formatDistanceToNow(job.datePosted);
 
   if (variant === "compact") {

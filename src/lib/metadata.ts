@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { Job, Company } from "@prisma/client";
+import { formatSalary } from "./utils";
 
 const SITE_NAME = "JobsBro招聘平台";
 const SITE_URL = "https://jobs-platform-gold.vercel.app";
@@ -34,8 +35,9 @@ export function generateHomeMetadata(): Metadata {
 // 职位详情页 Metadata
 export function generateJobMetadata(job: Job & { company: Company }): Metadata {
   const title = job.metaTitle || `${job.title} | ${job.company.name}招聘 | ${SITE_NAME}`;
+  const salaryStr = formatSalary(job.salaryMin, job.salaryMax);
   const description = job.metaDescription || 
-    `${job.company.name}招聘${job.title}，工作地点：${job.location}，${job.salaryMin ? `薪资：${job.salaryMin}-${job.salaryMax}${job.salaryCurrency}` : "薪资面议"}。点击查看详情并申请。`;
+    `${job.company.name}招聘${job.title}，工作地点：${job.location}，薪资：${salaryStr}。点击查看详情并申请。`;
   
   const url = `${SITE_URL}/jobs/${job.slug}`;
 

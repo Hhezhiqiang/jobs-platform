@@ -10,7 +10,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { Metadata } from "next";
 import { MapPin, Briefcase, DollarSign, Clock, Building2, Share2, Heart, Calendar } from "lucide-react";
-import { formatDistanceToNow } from "@/lib/utils";
+import { formatDistanceToNow, formatSalary } from "@/lib/utils";
 
 const employmentTypeMap: Record<string, string> = {
   FULL_TIME: "全职",
@@ -92,9 +92,7 @@ export default async function JobDetailPage({ params }: PageProps) {
     { name: job.title, url: `/jobs/${job.slug}` },
   ]);
 
-  const salaryText = job.salaryMin && job.salaryMax
-    ? `${job.salaryMin}-${job.salaryMax}K`
-    : "薪资面议";
+  const salaryText = formatSalary(job.salaryMin, job.salaryMax);
 
   const timeAgo = formatDistanceToNow(job.datePosted);
 

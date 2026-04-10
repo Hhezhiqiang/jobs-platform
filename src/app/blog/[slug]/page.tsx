@@ -4,6 +4,7 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { Metadata } from "next";
 import ReactMarkdown from "react-markdown";
+import { formatSalary } from "@/lib/utils";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -296,9 +297,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
                           <span>{job.location}</span>
                           <span>·</span>
                           <span className="text-blue-600">
-                            {job.salaryMin && job.salaryMax
-                              ? `${job.salaryMin}-${job.salaryMax} ${job.salaryCurrency}`
-                              : "薪资面议"}
+                            {formatSalary(job.salaryMin, job.salaryMax)}
                           </span>
                         </div>
                       </div>
