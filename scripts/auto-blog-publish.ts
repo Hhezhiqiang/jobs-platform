@@ -5,9 +5,15 @@
  */
 
 import { PrismaClient } from "@prisma/client";
-import { blogTopics } from "../memory/blog-topics.json";
+import * as fs from "fs";
+import * as path from "path";
 
 const prisma = new PrismaClient();
+
+// 加载博客话题
+const blogTopicsPath = path.join(process.cwd(), "memory", "blog-topics.json");
+const blogTopicsData = JSON.parse(fs.readFileSync(blogTopicsPath, "utf-8"));
+const blogTopics = blogTopicsData.topics || blogTopicsData;
 
 // 模拟博客内容生成（实际应该调用AI API）
 async function generateBlogContent(topic: string, category: string): Promise<string> {
