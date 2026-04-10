@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { generateJobsListMetadata } from "@/lib/metadata";
-import { JobCard } from "@/components/job-card";
+import { JobCardV2 } from "@/components/job-card-v2";
+import { FilterSidebar } from "@/components/filter-sidebar";
+import { Header } from "@/components/header";
 import { Metadata } from "next";
 import { Prisma } from "@prisma/client";
-import { JobSearch } from "@/components/job-search";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PageProps {
   searchParams: Promise<{
@@ -37,7 +39,6 @@ export default async function JobsPage({ searchParams }: PageProps) {
     status: "ACTIVE",
   };
 
-  // 关键词搜索
   if (params.q) {
     where.OR = [
       { title: { contains: params.q, mode: "insensitive" } },
@@ -46,17 +47,14 @@ export default async function JobsPage({ searchParams }: PageProps) {
     ];
   }
 
-  // 城市筛选
   if (params.city) {
     where.city = params.city;
   }
 
-  // 职位类型筛选
   if (params.type) {
     where.employmentType = params.type as Prisma.EnumEmploymentTypeFilter<"Job">;
   }
 
-  // 薪资范围筛选
   if (params.minSalary || params.maxSalary) {
     where.AND = [];
     if (params.minSalary) {
@@ -71,8 +69,7 @@ export default async function JobsPage({ searchParams }: PageProps) {
     }
   }
 
-  // 获取职位列表和总数
-  const [jobs, total, cities, companies] = await Promise.all([
+  const [jobs, total, cities] = await Promise.all([
     prisma.job.findMany({
       where,
       include: { company: true },
@@ -81,21 +78,15 @@ export default async function JobsPage({ searchParams }: PageProps) {
       take: limit,
     }),
     prisma.job.count({ where }),
-    // 获取所有城市列表（用于筛选）
     prisma.job.findMany({
       where: { status: "ACTIVE" },
       select: { city: true },
       distinct: ["city"],
     }),
-    // 获取所有公司列表（用于筛选）
-    prisma.company.findMany({
-      select: { id: true, name: true },
-    }),
   ]);
 
   const totalPages = Math.ceil(total / limit);
 
-  // 构建筛选后的 URL
   const buildPageUrl = (pageNum: number) => {
     const searchParams = new URLSearchParams();
     if (params.q) searchParams.set("q", params.q);
@@ -109,22 +100,29 @@ export default async function JobsPage({ searchParams }: PageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="text-blue-600 hover:text-blue-800">
-              ← 首页
-            </Link>
-            <h1 className="text-2xl font-bold">职位列表</h1>
-          </div>
-        </div>
-      </header>
+      <Header />
 
-      <main className="max-w-6xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* 搜索和筛选侧边栏 */}
+      {/* Page Header */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 py-6">
+          <div className="flex items-center gap-4 text-sm text-gray-500 mb-2">
+            <Link href="/" className="hover:text-blue-600">首页</Link>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+            <span className="text-gray-900">职位列表</span>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {params.q ? `"${params.q}" 的搜索结果` : "全部职位"}
+          </h1>
+        </div>
+      </div>
+
+      <main className="max-w-7xl mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* 筛选侧边栏 */}
           <div className="lg:col-span-1">
-            <JobSearch
+            <FilterSidebar
               currentParams={{
                 q: params.q,
                 city: params.city,
@@ -133,71 +131,97 @@ export default async function JobsPage({ searchParams }: PageProps) {
                 maxSalary: params.maxSalary,
               }}
               cities={cities.map((c) => c.city).filter(Boolean) as string[]}
+              totalJobs={total}
+              onClear={() => window.location.href = "/jobs"}
             />
           </div>
 
           {/* 职位列表 */}
           <div className="lg:col-span-3">
-            <div className="flex items-center justify-between mb-6">
-              <p className="text-gray-600">
-                共找到 <span className="font-semibold">{total}</span> 个职位
-                {params.q && (
-                  <span className="ml-2">
-                    与 "<span className="font-semibold">{params.q}</span>" 相关
-                  </span>
-                )}
-              </p>
-              <Link
-                href="/jobs"
-                className="text-sm text-blue-600 hover:text-blue-800"
-              >
-                清除筛选
-              </Link>
-            </div>
-
-            <div className="space-y-4">
-              {jobs.length === 0 ? (
-                <div className="bg-white rounded-lg shadow p-12 text-center">
-                  <div className="text-6xl mb-4">🔍</div>
-                  <h3 className="text-lg font-semibold mb-2">未找到相关职位</h3>
-                  <p className="text-gray-600 mb-4">
-                    尝试调整搜索关键词或筛选条件
-                  </p>
-                  <Link
-                    href="/jobs"
-                    className="text-blue-600 hover:text-blue-800"
-                  >
-                    查看全部职位 →
-                  </Link>
+            {jobs.length === 0 ? (
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
+                <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
+                  <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
                 </div>
-              ) : (
-                jobs.map((job) => <JobCard key={job.id} job={job} compact />)
-              )}
-            </div>
-
-            {/* 分页 */}
-            {totalPages > 1 && (
-              <div className="flex justify-center gap-2 mt-8">
-                {page > 1 && (
-                  <Link
-                    href={buildPageUrl(page - 1)}
-                    className="px-4 py-2 bg-white rounded-lg shadow hover:bg-gray-50"
-                  >
-                    上一页
-                  </Link>
-                )}
-                <span className="px-4 py-2">
-                  {page} / {totalPages}
-                </span>
-                {page < totalPages && (
-                  <Link
-                    href={buildPageUrl(page + 1)}
-                    className="px-4 py-2 bg-white rounded-lg shadow hover:bg-gray-50"
-                  >
-                    下一页
-                  </Link>
-                )}
+                <h3 className="text-xl font-bold text-gray-900 mb-2">未找到相关职位</h3>
+                <p className="text-gray-500 mb-6">尝试调整搜索关键词或筛选条件</p>
+                <Link
+                  href="/jobs"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all"
+                >
+                  查看全部职位
+                </Link>
               </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between mb-6">
+                  <p className="text-gray-600">
+                    共 <span className="font-semibold text-gray-900">{total.toLocaleString()}</span> 个职位
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  {jobs.map((job) => (
+                    <JobCardV2 key={job.id} job={job} variant="compact" />
+                  ))}
+                </div>
+
+                {/* 分页 */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-2 mt-10">
+                    {page > 1 && (
+                      <Link
+                        href={buildPageUrl(page - 1)}
+                        className="flex items-center gap-1 px-4 py-2 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                        上一页
+                      </Link>
+                    )}
+
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        let pageNum: number;
+                        if (totalPages <= 5) {
+                          pageNum = i + 1;
+                        } else if (page <= 3) {
+                          pageNum = i + 1;
+                        } else if (page >= totalPages - 2) {
+                          pageNum = totalPages - 4 + i;
+                        } else {
+                          pageNum = page - 2 + i;
+                        }
+
+                        return (
+                          <Link
+                            key={pageNum}
+                            href={buildPageUrl(pageNum)}
+                            className={`w-10 h-10 flex items-center justify-center rounded-xl font-medium transition-all ${
+                              page === pageNum
+                                ? "bg-blue-600 text-white"
+                                : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+                            }`}
+                          >
+                            {pageNum}
+                          </Link>
+                        );
+                      })}
+                    </div>
+
+                    {page < totalPages && (
+                      <Link
+                        href={buildPageUrl(page + 1)}
+                        className="flex items-center gap-1 px-4 py-2 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all"
+                      >
+                        下一页
+                        <ChevronRight className="w-4 h-4" />
+                      </Link>
+                    )}
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>

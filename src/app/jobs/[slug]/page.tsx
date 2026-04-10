@@ -4,10 +4,12 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { generateJobMetadata } from "@/lib/metadata";
 import { generateJobPostingSchema, generateBreadcrumbSchema } from "@/lib/schema";
-import { Metadata } from "next";
+import { Header } from "@/components/header";
 import { ApplyButton } from "@/components/apply-button";
+import { Metadata } from "next";
+import { MapPin, Briefcase, DollarSign, Clock, Building2, Share2, Heart, Calendar } from "lucide-react";
+import { formatDistanceToNow } from "@/lib/utils";
 
-// 职位类型中文映射
 const employmentTypeMap: Record<string, string> = {
   FULL_TIME: "全职",
   PART_TIME: "兼职",
@@ -45,10 +47,7 @@ export default async function JobDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  // 生成 JobPosting Schema
   const jobSchema = generateJobPostingSchema(job);
-  
-  // 生成面包屑 Schema
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: "首页", url: "/" },
     { name: "职位", url: "/jobs" },
@@ -56,148 +55,218 @@ export default async function JobDetailPage({ params }: PageProps) {
   ]);
 
   const salaryText = job.salaryMin && job.salaryMax
-    ? `${job.salaryMin}-${job.salaryMax} ${job.salaryCurrency}/${job.salaryPeriod === "YEAR" ? "年" : "月"}`
+    ? `${job.salaryMin}-${job.salaryMax}K`
     : "薪资面议";
+
+  const timeAgo = formatDistanceToNow(job.datePosted);
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(jobSchema),
-        }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(breadcrumbSchema),
-        }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jobSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
 
       <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <header className="bg-white shadow-sm">
-          <div className="max-w-4xl mx-auto px-4 py-4">
-            <Link href="/" className="text-blue-600 hover:text-blue-800">
-              ← 返回首页
-            </Link>
-          </div>
-        </header>
+        <Header />
 
-        <main className="max-w-4xl mx-auto px-4 py-8">
-          {/* AI 友好的职位摘要 */}
-          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded-r-lg">
-            <p className="text-gray-800 leading-relaxed">
-              <strong>📋 职位速览：</strong>
-              {job.company.name} 招聘 {job.title}，
-              {job.salaryMin ? `年薪 ${job.salaryMin.toLocaleString()}-${job.salaryMax?.toLocaleString()} ${job.salaryCurrency}，` : "薪资面议，"}
-              工作地点 {job.location}，
-              {employmentTypeMap[job.employmentType] || "其他"} 岗位。
-              欢迎符合条件的候选人投递简历！
-            </p>
+        {/* Hero Banner */}
+        <div className="relative bg-gradient-to-br from-blue-600 to-blue-800 text-white">
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-white/5 rounded-full blur-3xl" />
+            <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-blue-400/10 rounded-full blur-3xl" />
           </div>
 
-          <article className="bg-white rounded-lg shadow-md overflow-hidden">
-            {/* 职位图片 */}
-            {job.imageUrl && (
-              <div className="relative h-64 w-full">
-                <Image
-                  src={job.imageUrl}
-                  alt={`${job.title} - 职位图片`}
-                  fill
-                  className="object-cover"
-                  priority
-                />
-              </div>
-            )}
+          <div className="relative max-w-5xl mx-auto px-4 py-12">
+            {/* Breadcrumb */}
+            <div className="flex items-center gap-2 text-sm text-blue-100 mb-6">
+              <Link href="/" className="hover:text-white">首页</Link>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+              <Link href="/jobs" className="hover:text-white">职位</Link>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+              <span className="text-white">{job.title}</span>
+            </div>
 
-            <div className="p-8">
-              {/* 职位标题 */}
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">{job.title}</h1>
-
-              {/* 公司信息 */}
-              <div className="flex items-center gap-4 mb-6">
-                {job.company.logo && (
-                  <Image
-                    src={job.company.logo}
-                    alt={`${job.company.name} Logo`}
-                    width={60}
-                    height={60}
-                    className="rounded-lg object-cover"
-                  />
-                )}
-                <div>
-                  <Link
+            {/* Job Title & Company */}
+            <div className="flex flex-col md:flex-row md:items-start gap-6">
+              <div className="flex-1">
+                <h1 className="text-3xl md:text-4xl font-bold mb-4">{job.title}</h1>
+                <div className="flex flex-wrap items-center gap-4 text-blue-100">
+                  <Link 
                     href={`/companies/${job.company.slug}`}
-                    className="text-lg font-semibold text-blue-600 hover:text-blue-800"
+                    className="flex items-center gap-2 hover:text-white transition-colors"
                   >
+                    <Building2 className="w-4 h-4" />
                     {job.company.name}
                   </Link>
-                  <p className="text-gray-600">{job.company.industry}</p>
+                  <span>·</span>
+                  <span className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4" />
+                    {job.location}
+                  </span>
+                  <span>·</span>
+                  <span>⏱️ {timeAgo}</span>
                 </div>
               </div>
 
-              {/* 基本信息 */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 p-4 bg-gray-50 rounded-lg">
-                <div>
-                  <p className="text-sm text-gray-500">工作地点</p>
-                  <p className="font-semibold">{job.location}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">职位类型</p>
-                  <p className="font-semibold">{employmentTypeMap[job.employmentType] || job.employmentType}</p>
-                </div>
-                <div>
+              <div className="flex items-center gap-3">
+                <button className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all">
+                  <Share2 className="w-5 h-5" />
+                </button>
+                <button className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all">
+                  <Heart className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <main className="max-w-5xl mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Main Content */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Quick Info Cards */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-white rounded-xl p-4 border border-gray-100">
+                  <DollarSign className="w-5 h-5 text-blue-600 mb-2" />
                   <p className="text-sm text-gray-500">薪资范围</p>
-                  <p className="font-semibold text-blue-600">{salaryText}</p>
+                  <p className="font-bold text-gray-900">{salaryText}</p>
                 </div>
-                <div>
+                <div className="bg-white rounded-xl p-4 border border-gray-100">
+                  <Briefcase className="w-5 h-5 text-green-600 mb-2" />
+                  <p className="text-sm text-gray-500">职位类型</p>
+                  <p className="font-bold text-gray-900">{employmentTypeMap[job.employmentType] || job.employmentType}</p>
+                </div>
+                <div className="bg-white rounded-xl p-4 border border-gray-100">
+                  <MapPin className="w-5 h-5 text-purple-600 mb-2" />
+                  <p className="text-sm text-gray-500">工作地点</p>
+                  <p className="font-bold text-gray-900">{job.location}</p>
+                </div>
+                <div className="bg-white rounded-xl p-4 border border-gray-100">
+                  <Calendar className="w-5 h-5 text-orange-600 mb-2" />
                   <p className="text-sm text-gray-500">发布日期</p>
-                  <p className="font-semibold">
-                    {new Date(job.datePosted).toLocaleDateString("zh-CN")}
-                  </p>
+                  <p className="font-bold text-gray-900">{new Date(job.datePosted).toLocaleDateString("zh-CN")}</p>
                 </div>
               </div>
 
-              {/* 职位描述 */}
-              <section className="mb-8">
-                <h2 className="text-xl font-bold mb-4">职位描述</h2>
-                <div className="prose max-w-none text-gray-700 whitespace-pre-wrap">
-                  {job.description}
+              {/* Job Description */}
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="p-6 md:p-8">
+                  <h2 className="text-xl font-bold text-gray-900 mb-4">职位描述</h2>
+                  <div className="prose prose-gray max-w-none text-gray-700 whitespace-pre-wrap leading-relaxed">
+                    {job.description}
+                  </div>
                 </div>
-              </section>
 
-              {/* 任职要求 */}
-              {job.requirements && (
-                <section className="mb-8">
-                  <h2 className="text-xl font-bold mb-4">任职要求</h2>
-                  <div className="prose max-w-none text-gray-700 whitespace-pre-wrap">
-                    {job.requirements}
-                  </div>
-                </section>
-              )}
+                {job.requirements && (
+                  <>
+                    <hr className="border-gray-100" />
+                    <div className="p-6 md:p-8">
+                      <h2 className="text-xl font-bold text-gray-900 mb-4">任职要求</h2>
+                      <div className="prose prose-gray max-w-none text-gray-700 whitespace-pre-wrap leading-relaxed">
+                        {job.requirements}
+                      </div>
+                    </div>
+                  </>
+                )}
 
-              {/* 福利待遇 */}
-              {job.benefits && (
-                <section className="mb-8">
-                  <h2 className="text-xl font-bold mb-4">福利待遇</h2>
-                  <div className="prose max-w-none text-gray-700 whitespace-pre-wrap">
-                    {job.benefits}
-                  </div>
-                </section>
-              )}
+                {job.benefits && (
+                  <>
+                    <hr className="border-gray-100" />
+                    <div className="p-6 md:p-8">
+                      <h2 className="text-xl font-bold text-gray-900 mb-4">福利待遇</h2>
+                      <div className="prose prose-gray max-w-none text-gray-700 whitespace-pre-wrap leading-relaxed">
+                        {job.benefits}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
 
-              {/* 申请按钮 */}
-              <div className="flex gap-4 mt-8">
+            {/* Sidebar */}
+            <div className="space-y-6">
+              {/* Apply Card */}
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sticky top-24">
                 <ApplyButton
                   jobId={job.id}
                   jobTitle={job.title}
                   companyName={job.company.name}
                   applyUrl={job.applyUrl}
                 />
+
+                <p className="text-sm text-gray-500 text-center mt-4">
+                  申请后，HR将在3-5个工作日内回复
+                </p>
+              </div>
+
+              {/* Company Card */}
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <h3 className="font-bold text-gray-900 mb-4">关于公司</h3>
+                <div className="flex items-center gap-4 mb-4">
+                  {job.company.logo ? (
+                    <Image
+                      src={job.company.logo}
+                      alt={job.company.name}
+                      width={60}
+                      height={60}
+                      className="rounded-xl"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-2xl">
+                      {job.company.name.charAt(0)}
+                    </div>
+                  )}
+                  <div>
+                    <Link 
+                      href={`/companies/${job.company.slug}`}
+                      className="font-bold text-gray-900 hover:text-blue-600 transition-colors"
+                    >
+                      {job.company.name}
+                    </Link>
+                    <p className="text-sm text-gray-500">{job.company.industry}</p>
+                  </div>
+                </div>
+
+                {job.company.description && (
+                  <p className="text-gray-600 text-sm line-clamp-4 mb-4">
+                    {job.company.description}
+                  </p>
+                )}
+
+                <div className="space-y-2 text-sm">
+                  {job.company.size && (
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Building2 className="w-4 h-4" />
+                      {job.company.size}
+                    </div>
+                  )}
+                  {job.company.website && (
+                    <Link 
+                      href={job.company.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-2 text-blue-600 hover:text-blue-700"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                      访问官网
+                    </Link>
+                  )}
+                </div>
+
+                <Link
+                  href={`/companies/${job.company.slug}`}
+                  className="mt-4 block w-full py-2.5 text-center border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-all font-medium"
+                >
+                  查看公司主页
+                </Link>
               </div>
             </div>
-          </article>
+          </div>
         </main>
       </div>
     </>
