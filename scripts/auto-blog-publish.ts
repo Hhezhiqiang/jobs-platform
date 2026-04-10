@@ -13,7 +13,7 @@ const prisma = new PrismaClient();
 // 加载博客话题
 const blogTopicsPath = path.join(process.cwd(), "memory", "blog-topics.json");
 const blogTopicsData = JSON.parse(fs.readFileSync(blogTopicsPath, "utf-8"));
-const blogTopics = blogTopicsData.topics || blogTopicsData;
+const categories = blogTopicsData.categories || [];
 
 // 模拟博客内容生成（实际应该调用AI API）
 async function generateBlogContent(topic: string, category: string): Promise<string> {
@@ -95,16 +95,28 @@ async function autoPublish() {
     }
     
     // 3. 随机选择话题
-    const categories = Object.keys(blogTopics);
-    const randomCategory = categories[Math.floor(Math.random() * categories.length)];
-    const topics = blogTopics[randomCategory as keyof typeof blogTopics];
-    const randomTopic = topics[Math.floor(Math.random() * topics.length)];
+    if (categories.length === 0) {
+      console.error("❌ 没有找到博客话题分类");
+      process.exit(1);
+    }
     
-    console.log(`📌 选择话题: [${randomCategory}] ${randomTopic}`);
+    const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+    const categoryName = randomCategory.name;
+    const topics = randomCategory.topics || [];
+    
+    if (topics.length === 0) {
+      console.error(`❌ 分类 "${categoryName}" 没有话题`);
+      process.exit(1);
+    }
+    
+    const randomTopicObj = topics[Math.floor(Math.random() * topics.length)];
+    const randomTopic = randomTopicObj.title; // 使用 title 字段
+    
+    console.log(`📌 选择话题: [${categoryName}] ${randomTopic}`);
     
     // 4. 生成内容
     console.log("✍️  生成博客内容...");
-    const content = await generateBlogContent(randomTopic, randomCategory);
+    const content = await generateBlogContent(randomTopic, categoryName);
     
     // 5. 生成 slug
     const timestamp = Date.now();
@@ -130,7 +142,6 @@ async function autoPublish() {
     console.log(`   链接: /blog/${blog.slug}`);
     
     // 7. 创建标记文件，通知 GitHub Actions 部署
-    const fs = require("fs");
     fs.writeFileSync(".new_blog_created", "true");
     fs.writeFileSync(".new_blog_title", blog.title);
     fs.writeFileSync(".new_blog_url", `https://jobs-platform-gold.vercel.app/blog/${blog.slug}`);
