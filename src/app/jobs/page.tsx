@@ -34,56 +34,70 @@ export default async function JobsPage({ searchParams }: PageProps) {
   const limit = 20;
   const skip = (page - 1) * limit;
 
-  // 构建查询条件
-  const where: Prisma.JobWhereInput = {
-    status: "ACTIVE",
-  };
+  let jobs: any[] = [];
+  let total = 0;
+  let cities: { city: string | null }[] = [];
+  let dbError = false;
 
-  if (params.q) {
-    where.OR = [
-      { title: { contains: params.q, mode: "insensitive" } },
-      { description: { contains: params.q, mode: "insensitive" } },
-      { company: { name: { contains: params.q, mode: "insensitive" } } },
-    ];
-  }
+  try {
+    // 构建查询条件
+    const where: Prisma.JobWhereInput = {
+      status: "ACTIVE",
+    };
 
-  if (params.city) {
-    where.city = params.city;
-  }
-
-  if (params.type) {
-    where.employmentType = params.type as Prisma.EnumEmploymentTypeFilter<"Job">;
-  }
-
-  if (params.minSalary || params.maxSalary) {
-    where.AND = [];
-    if (params.minSalary) {
-      (where.AND as Prisma.JobWhereInput[]).push({
-        salaryMin: { gte: parseInt(params.minSalary) },
-      });
+    if (params.q) {
+      where.OR = [
+        { title: { contains: params.q, mode: "insensitive" } },
+        { description: { contains: params.q, mode: "insensitive" } },
+        { company: { name: { contains: params.q, mode: "insensitive" } } },
+      ];
     }
-    if (params.maxSalary) {
-      (where.AND as Prisma.JobWhereInput[]).push({
-        salaryMax: { lte: parseInt(params.maxSalary) },
-      });
-    }
-  }
 
-  const [jobs, total, cities] = await Promise.all([
-    prisma.job.findMany({
-      where,
-      include: { company: true },
-      orderBy: { datePosted: "desc" },
-      skip,
-      take: limit,
-    }),
-    prisma.job.count({ where }),
-    prisma.job.findMany({
-      where: { status: "ACTIVE" },
-      select: { city: true },
-      distinct: ["city"],
-    }),
-  ]);
+    if (params.city) {
+      where.city = params.city;
+    }
+
+    if (params.type) {
+      where.employmentType = params.type as Prisma.EnumEmploymentTypeFilter<"Job">;
+    }
+
+    if (params.minSalary || params.maxSalary) {
+      where.AND = [];
+      if (params.minSalary) {
+        (where.AND as Prisma.JobWhereInput[]).push({
+          salaryMin: { gte: parseInt(params.minSalary) },
+        });
+      }
+      if (params.maxSalary) {
+        (where.AND as Prisma.JobWhereInput[]).push({
+          salaryMax: { lte: parseInt(params.maxSalary) },
+        });
+      }
+    }
+
+    const [jobsData, totalData, citiesData] = await Promise.all([
+      prisma.job.findMany({
+        where,
+        include: { company: true },
+        orderBy: { datePosted: "desc" },
+        skip,
+        take: limit,
+      }),
+      prisma.job.count({ where }),
+      prisma.job.findMany({
+        where: { status: "ACTIVE" },
+        select: { city: true },
+        distinct: ["city"],
+      }),
+    ]);
+
+    jobs = jobsData;
+    total = totalData;
+    cities = citiesData;
+  } catch (error) {
+    console.error("Database error:", error);
+    dbError = true;
+  }
 
   const totalPages = Math.ceil(total / limit);
 
@@ -138,7 +152,23 @@ export default async function JobsPage({ searchParams }: PageProps) {
 
           {/* 职位列表 */}
           <div className="lg:col-span-3">
-            {jobs.length === 0 ? (
+            {dbError ? (
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
+                <div className="w-24 h-24 mx-auto mb-6 bg-red-50 rounded-full flex items-center justify-center">
+                  <svg className="w-12 h-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">服务暂时不可用</h3>
+                <p className="text-gray-500 mb-6">数据库连接失败，请稍后重试</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all"
+                >
+                  重新加载
+                </button>
+              </div>
+            ) : jobs.length === 0 ? (
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
                 <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
                   <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
