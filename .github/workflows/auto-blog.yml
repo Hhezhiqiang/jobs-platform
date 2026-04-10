@@ -45,11 +45,9 @@ jobs:
         
     - name: Deploy to Vercel
       if: steps.check_blog.outputs.new_blog == 'true'
-      uses: vercel/action-deploy@v1
-      with:
-        vercel-token: ${{ secrets.VERCEL_TOKEN }}
-        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+      run: |
+        npm install -g vercel
+        vercel --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
         
     - name: Send notification to Telegram
       if: steps.check_blog.outputs.new_blog == 'true'
