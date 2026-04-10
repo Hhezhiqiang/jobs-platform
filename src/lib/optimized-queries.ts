@@ -1,4 +1,27 @@
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
+
+// 类型定义
+type JobWithCompany = Prisma.JobGetPayload<{
+  include: {
+    company: true;
+  };
+}>;
+
+type CompanyBasic = Prisma.CompanyGetPayload<{}>;
+
+interface SiteStats {
+  jobCount: number;
+  companyCount: number;
+  blogCount: number;
+}
+
+interface HomePageData {
+  featuredJobs: JobWithCompany[];
+  latestJobs: JobWithCompany[];
+  hotCompanies: CompanyBasic[];
+  stats: SiteStats;
+}
 
 /**
  * 优化的数据库查询工具
@@ -48,9 +71,9 @@ export function clearCache(pattern?: string): void {
 /**
  * 获取热门职位（带缓存）
  */
-export async function getFeaturedJobs(limit = 6) {
+export async function getFeaturedJobs(limit = 6): Promise<JobWithCompany[]> {
   const cacheKey = `featured_jobs_${limit}`;
-  const cached = getCached(cacheKey);
+  const cached = getCached<JobWithCompany[]>(cacheKey);
   if (cached) return cached;
 
   const jobs = await prisma.job.findMany({
@@ -59,14 +82,7 @@ export async function getFeaturedJobs(limit = 6) {
       isFeatured: true 
     },
     include: { 
-      company: {
-        select: {
-          id: true,
-          name: true,
-          logo: true,
-          slug: true,
-        },
-      },
+      company: true,
     },
     orderBy: { datePosted: "desc" },
     take: limit,
@@ -79,22 +95,15 @@ export async function getFeaturedJobs(limit = 6) {
 /**
  * 获取最新职位（带缓存）
  */
-export async function getLatestJobs(limit = 10) {
+export async function getLatestJobs(limit = 10): Promise<JobWithCompany[]> {
   const cacheKey = `latest_jobs_${limit}`;
-  const cached = getCached(cacheKey);
+  const cached = getCached<JobWithCompany[]>(cacheKey);
   if (cached) return cached;
 
   const jobs = await prisma.job.findMany({
     where: { status: "ACTIVE" },
     include: { 
-      company: {
-        select: {
-          id: true,
-          name: true,
-          logo: true,
-          slug: true,
-        },
-      },
+      company: true,
     },
     orderBy: { datePosted: "desc" },
     take: limit,
@@ -131,9 +140,9 @@ export async function getJobBySlug(slug: string) {
 /**
  * 获取公司列表（带缓存）
  */
-export async function getCompanies(limit = 20) {
+export async function getCompanies(limit = 20): Promise<CompanyBasic[]> {
   const cacheKey = `companies_${limit}`;
-  const cached = getCached(cacheKey);
+  const cached = getCached<CompanyBasic[]>(cacheKey);
   if (cached) return cached;
 
   const companies = await prisma.company.findMany({
@@ -201,9 +210,9 @@ export async function getPublishedBlogs(limit = 10) {
 /**
  * 获取统计数据（带缓存）
  */
-export async function getSiteStats() {
+export async function getSiteStats(): Promise<SiteStats> {
   const cacheKey = "site_stats";
-  const cached = getCached(cacheKey);
+  const cached = getCached<SiteStats>(cacheKey);
   if (cached) return cached;
 
   const [jobCount, companyCount, blogCount] = await Promise.all([
@@ -255,14 +264,7 @@ export async function searchJobs(params: {
     prisma.job.findMany({
       where,
       include: {
-        company: {
-          select: {
-            id: true,
-            name: true,
-            logo: true,
-            slug: true,
-          },
-        },
+        company: true,
       },
       orderBy: { datePosted: "desc" },
       skip,
@@ -285,9 +287,9 @@ export async function searchJobs(params: {
 /**
  * 批量获取（减少数据库往返）
  */
-export async function getHomePageData() {
+export async function getHomePageData(): Promise<HomePageData> {
   const cacheKey = "homepage_data";
-  const cached = getCached(cacheKey);
+  const cached = getCached<HomePageData>(cacheKey);
   if (cached) return cached;
 
   const [featuredJobs, latestJobs, hotCompanies, stats] = await Promise.all([

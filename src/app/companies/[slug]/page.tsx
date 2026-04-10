@@ -146,7 +146,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
               )}
 
               {/* Job Listings */}
-              <<div>
+              <div>
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-bold text-gray-900">在招职位</h2>
                   <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">

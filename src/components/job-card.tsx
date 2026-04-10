@@ -31,7 +31,6 @@ export function JobCard({ job, compact = false }: JobCardProps) {
       "address": {
         "@type": "PostalAddress",
         "addressLocality": job.city || job.location,
-        "addressRegion": job.province,
         "addressCountry": "CN",
       },
     },

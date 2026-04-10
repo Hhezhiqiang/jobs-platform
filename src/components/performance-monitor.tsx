@@ -159,7 +159,7 @@ export function PerformanceMonitor() {
         </div>
       </div>
       <div className="mt-3 pt-2 border-t text-xs text-gray-400">
-        目标: LCP < 2.5s, INP < 200ms, CLS < 0.1
+        目标: LCP &lt; 2.5s, INP &lt; 200ms, CLS &lt; 0.1
       </div>
     </div>
   );

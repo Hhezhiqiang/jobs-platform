@@ -12,7 +12,7 @@ function parseMarkdown(content: string, filename: string) {
   const title = titleMatch ? titleMatch[1].trim() : filename.replace('.md', '');
   
   // 提取摘要（引言部分）
-  const excerptMatch = content.match(/##\s+引言\s*\n\n(.+?)(?=\n\n##|$)/s);
+  const excerptMatch = content.match(/##\s+引言\s*\n\n([\s\S]+?)(?=\n\n##|\n##|$)/);
   let excerpt = excerptMatch ? excerptMatch[1].slice(0, 200) : content.slice(0, 200);
   excerpt = excerpt.replace(/[#*>_`\[\]]/g, '').trim();
   
@@ -153,7 +153,7 @@ async function importAllBlogs() {
       const result = await importBlog(filePath, author.id);
       results.push(result);
       
-      if (result.success) {
+      if (result.success && result.post) {
         console.log(`   ✅ 成功: /blog/${result.post.slug}`);
       } else {
         console.log(`   ⏭️  ${result.reason}`);
