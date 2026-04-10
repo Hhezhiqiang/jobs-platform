@@ -638,7 +638,7 @@ async function main() {
           isRemote: job.isRemote,
           companyId: companyId,
           authorId: authorId,
-          tags: job.tags,
+          keywords: job.tags,
         },
       });
 
