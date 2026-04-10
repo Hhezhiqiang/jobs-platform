@@ -41,18 +41,49 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function JobDetailPage({ params }: PageProps) {
   const { slug } = await params;
   
-  // 检查登录状态
-  const session = await getServerSession(authOptions);
-  const isLoggedIn = !!session?.user;
+  let job = null;
+  let dbError = false;
   
-  const job = await prisma.job.findUnique({
-    where: { slug },
-    include: { company: true },
-  });
+  try {
+    job = await prisma.job.findUnique({
+      where: { slug },
+      include: { company: true },
+    });
+  } catch (error) {
+    console.error("Database error:", error);
+    dbError = true;
+  }
+
+  if (dbError) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="max-w-7xl mx-auto px-4 py-20 text-center">
+          <div className="w-24 h-24 mx-auto mb-6 bg-red-50 rounded-full flex items-center justify-center">
+            <svg className="w-12 h-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">服务暂时不可用</h3>
+          <p className="text-gray-500 mb-6">数据库连接失败，请稍后重试</p>
+          <a
+            href="/jobs"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all"
+          >
+            返回职位列表
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   if (!job) {
     notFound();
   }
+  
+  // 检查登录状态
+  const session = await getServerSession(authOptions);
+  const isLoggedIn = !!session?.user;
 
   const jobSchema = generateJobPostingSchema(job);
   const breadcrumbSchema = generateBreadcrumbSchema([
