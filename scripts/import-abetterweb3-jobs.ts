@@ -609,7 +609,6 @@ async function main() {
               description: `${job.companyName} - ${job.companyIndustry}领域公司`,
               location: job.location,
               website: job.applyUrl.startsWith("mailto:") ? "" : job.applyUrl,
-              isVerified: true,
             },
           });
           console.log(`✅ 创建公司: ${job.companyName}`);
