@@ -114,7 +114,7 @@ export function FilterSidebar({ currentParams, cities, totalJobs, onClear }: Fil
                   {cities.filter(Boolean).map((city) => (
                     <a
                       key={city}
-                      href={`/jobs?city=${encodeURIComponent(city)}${currentParams.q ? `&q=${currentParams.q}` : ""}`}
+                      href={`/jobs?city=${encodeURIComponent(city)}${currentParams.q ? `&q=${encodeURIComponent(currentParams.q)}` : ""}`}
                       className={cn(
                         "px-3 py-1.5 rounded-lg text-sm transition-all",
                         currentParams.city === city
@@ -147,7 +147,7 @@ export function FilterSidebar({ currentParams, cities, totalJobs, onClear }: Fil
                 {jobTypes.map((type) => (
                   <a
                     key={type.value}
-                    href={`/jobs?type=${type.value}${currentParams.q ? `&q=${currentParams.q}` : ""}${currentParams.city ? `&city=${currentParams.city}` : ""}`}
+                    href={`/jobs?type=${type.value}${currentParams.q ? `&q=${encodeURIComponent(currentParams.q)}` : ""}${currentParams.city ? `&city=${encodeURIComponent(currentParams.city)}` : ""}`}
                     className={cn(
                       "px-3 py-1.5 rounded-lg text-sm transition-all",
                       currentParams.type === type.value
@@ -182,7 +182,7 @@ export function FilterSidebar({ currentParams, cities, totalJobs, onClear }: Fil
                 {salaryRanges.map((range) => (
                   <a
                     key={range.label}
-                    href={`/jobs?minSalary=${range.min}${range.max ? `&maxSalary=${range.max}` : ""}${currentParams.q ? `&q=${currentParams.q}` : ""}${currentParams.city ? `&city=${currentParams.city}` : ""}${currentParams.type ? `&type=${currentParams.type}` : ""}`}
+                    href={`/jobs?minSalary=${range.min}${range.max ? `&maxSalary=${range.max}` : ""}${currentParams.q ? `&q=${encodeURIComponent(currentParams.q)}` : ""}${currentParams.city ? `&city=${encodeURIComponent(currentParams.city)}` : ""}${currentParams.type ? `&type=${currentParams.type}` : ""}`}
                     className={cn(
                       "px-3 py-1.5 rounded-lg text-sm transition-all",
                       currentParams.minSalary === range.min
