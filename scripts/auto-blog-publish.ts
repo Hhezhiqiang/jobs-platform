@@ -120,9 +120,8 @@ async function autoPublish() {
         type: "BLOG",
         status: "PUBLISHED",
         authorId: admin.id,
-        publishedAt: new Date(),
-        seoTitle: `${randomTopic} | JobsBro`,
-        seoDescription: `深入了解${randomTopic}，获取最新行业洞察和求职建议。`,
+        metaTitle: `${randomTopic} | JobsBro`,
+        metaDescription: `深入了解${randomTopic}，获取最新行业洞察和求职建议。`,
       },
     });
     
