@@ -4,6 +4,7 @@ import { generateJobsListMetadata } from "@/lib/metadata";
 import { JobCardV2 } from "@/components/job-card-v2";
 import { FilterSidebar } from "@/components/filter-sidebar";
 import { Header } from "@/components/header";
+import { Breadcrumb } from "@/components/breadcrumb";
 import { Metadata } from "next";
 import { Prisma } from "@prisma/client";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -119,12 +120,8 @@ export default async function JobsPage({ searchParams }: PageProps) {
       {/* Page Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center gap-4 text-sm text-gray-500 mb-2">
-            <Link href="/" className="hover:text-blue-600">首页</Link>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-            <span className="text-gray-900">职位列表</span>
+          <div className="mb-2">
+            <Breadcrumb items={[{ label: "职位列表", href: "/jobs" }]} />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">
             {params.q ? `"${params.q}" 的搜索结果` : "全部职位"}

@@ -2,14 +2,16 @@ import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { Header } from "@/components/header";
+import { Breadcrumb } from "@/components/breadcrumb";
 import { Metadata } from "next";
 import { Building2, MapPin, Users, Briefcase, Search } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "公司列表 - 招聘平台",
-  description: "发现优秀企业，查看最新招聘信息",
+  title: "公司列表 - 发现优秀招聘企业 | JobsBro招聘平台",
+  description: "浏览30+家合作企业，包括Web3、互联网、科技行业头部公司。查看最新公司招聘信息，找到适合你的职业发展平台。",
+  keywords: ["公司招聘", "企业列表", "互联网公司", "Web3公司", "招聘企业"],
 };
 
 export default async function CompaniesPage() {
@@ -29,6 +31,13 @@ export default async function CompaniesPage() {
       {/* Page Header */}
       <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white">
         <div className="max-w-7xl mx-auto px-4 py-16">
+          {/* Breadcrumb */}
+          <div className="mb-6">
+            <div className="text-blue-100/80">
+              <Breadcrumb items={[{ label: "公司列表" }]} />
+            </div>
+          </div>
+          
           <div className="text-center max-w-2xl mx-auto">
             <h1 className="text-3xl md:text-4xl font-bold mb-4">发现优秀企业</h1>
             <p className="text-blue-100 text-lg">
@@ -65,10 +74,11 @@ export default async function CompaniesPage() {
                     <div className="w-16 h-16 rounded-xl shadow-lg overflow-hidden ring-4 ring-white">
                       <Image
                         src={company.logo}
-                        alt={company.name}
+                        alt={`${company.name} 公司Logo`}
                         width={64}
                         height={64}
                         className="w-full h-full object-cover"
+                        loading="lazy"
                       />
                     </div>
                   ) : (

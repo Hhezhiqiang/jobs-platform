@@ -85,7 +85,7 @@ export default async function HomePage() {
                   {company.logo ? (
                     <img
                       src={company.logo}
-                      alt={company.name}
+                      alt={`${company.name} 公司Logo`}
                       className="w-12 h-12 rounded-lg object-cover"
                       loading="lazy"
                     />

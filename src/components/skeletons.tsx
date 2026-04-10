@@ -1,134 +1,131 @@
 "use client";
 
-// 职位卡片骨架屏
-export function JobCardSkeleton() {
-  return (
-    <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden animate-pulse">
-      <div className="h-40 bg-gray-200"></div>
-      <div className="p-5">
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
-            <div className="space-y-2">
-              <div className="h-5 bg-gray-200 rounded w-32"></div>
-              <div className="h-4 bg-gray-200 rounded w-24"></div>
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
+
+export function JobCardSkeleton({ variant = "default" }: { variant?: "default" | "compact" | "featured" }) {
+  if (variant === "compact") {
+    return (
+      <div className="flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-100">
+        <Skeleton circle width={48} height={48} />
+        <div className="flex-1">
+          <Skeleton width={150} height={20} />
+          <Skeleton width={100} height={14} style={{ marginTop: 8 }} />
+          <div className="flex gap-2 mt-2">
+            <Skeleton width={60} height={12} />
+            <Skeleton width={40} height={12} />
+          </div>
+        </div>
+        <div className="text-right">
+          <Skeleton width={60} height={20} />
+          <Skeleton width={40} height={12} style={{ marginTop: 4 }} />
+        </div>
+      </div>
+    );
+  }
+
+  if (variant === "featured") {
+    return (
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+        <Skeleton height={160} />
+        <div className="p-5">
+          <div className="flex items-center gap-3 mb-3">
+            <Skeleton circle width={40} height={40} />
+            <div>
+              <Skeleton width={120} height={18} />
+              <Skeleton width={80} height={12} style={{ marginTop: 4 }} />
             </div>
           </div>
-        </div>
-        
-        <div className="flex gap-2 mb-3">
-          <div className="h-4 bg-gray-200 rounded w-16"></div>
-          <div className="h-4 bg-gray-200 rounded w-12"></div>
-          <div className="h-4 bg-gray-200 rounded w-20"></div>
-        </div>
-        
-        <div className="flex justify-between">
-          <div className="h-5 bg-gray-200 rounded w-24"></div>
-          <div className="h-4 bg-gray-200 rounded w-20"></div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// 职位卡片骨架屏 - 紧凑版
-export function JobCardCompactSkeleton() {
-  return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 animate-pulse">
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
-          <div className="space-y-2">
-            <div className="h-5 bg-gray-200 rounded w-32"></div>
-            <div className="h-4 bg-gray-200 rounded w-24"></div>
+          <Skeleton width={200} height={24} style={{ marginBottom: 12 }} />
+          <div className="flex gap-2 mb-4">
+            <Skeleton width={60} height={24} borderRadius={8} />
+            <Skeleton width={80} height={24} borderRadius={8} />
+          </div>
+          <div className="flex justify-between pt-4 border-t border-gray-100">
+            <Skeleton width={80} height={24} />
+            <Skeleton width={60} height={16} />
           </div>
         </div>
-        <div className="text-right space-y-2">
-          <div className="h-5 bg-gray-200 rounded w-20"></div>
-          <div className="h-4 bg-gray-200 rounded w-16"></div>
-        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
-// 博客卡片骨架屏
-export function BlogCardSkeleton() {
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden animate-pulse">
-      <div className="h-48 bg-gray-200"></div>
-      <div className="p-4">
-        <div className="h-6 bg-gray-200 rounded mb-2"></div>
-        <div className="h-4 bg-gray-200 rounded mb-4 w-3/4"></div>
-        <div className="flex justify-between">
-          <div className="h-4 bg-gray-200 rounded w-20"></div>
-          <div className="h-4 bg-gray-200 rounded w-16"></div>
+    <div className="bg-white rounded-xl border border-gray-100 p-5">
+      <div className="flex items-start gap-4">
+        <Skeleton circle width={56} height={56} />
+        <div className="flex-1">
+          <div className="flex justify-between">
+            <div>
+              <Skeleton width={180} height={22} />
+              <Skeleton width={120} height={16} style={{ marginTop: 4 }} />
+            </div>
+            <Skeleton width={70} height={24} />
+          </div>
+          <div className="flex gap-2 mt-3">
+            <Skeleton width={80} height={28} borderRadius={8} />
+            <Skeleton width={100} height={28} borderRadius={8} />
+          </div>
+          <div className="flex justify-between mt-4 pt-4 border-t border-gray-50">
+            <Skeleton width={100} height={16} />
+            <Skeleton width={80} height={16} />
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-// 公司卡片骨架屏
 export function CompanyCardSkeleton() {
   return (
-    <div className="bg-white rounded-lg shadow p-6 animate-pulse">
-      <div className="flex items-center gap-4 mb-4">
-        <div className="w-16 h-16 bg-gray-200 rounded-lg"></div>
-        <div className="space-y-2">
-          <div className="h-6 bg-gray-200 rounded w-32"></div>
-          <div className="h-4 bg-gray-200 rounded w-24"></div>
+    <div className="flex items-center gap-3 px-6 py-4 bg-white rounded-xl border border-gray-100">
+      <Skeleton circle width={48} height={48} />
+      <div>
+        <Skeleton width={120} height={18} />
+        <Skeleton width={80} height={14} style={{ marginTop: 4 }} />
+      </div>
+    </div>
+  );
+}
+
+export function BlogCardSkeleton() {
+  return (
+    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+      <Skeleton height={200} />
+      <div className="p-5">
+        <div className="flex gap-2 mb-3">
+          <Skeleton width={60} height={20} borderRadius={4} />
+          <Skeleton width={40} height={20} borderRadius={4} />
         </div>
-      </div>
-      
-      <div className="h-4 bg-gray-200 rounded mb-2 w-full"></div>
-      <div className="h-4 bg-gray-200 rounded mb-4 w-3/4"></div>
-      
-      <div className="flex justify-between">
-        <div className="h-4 bg-gray-200 rounded w-24"></div>
-        <div className="h-4 bg-gray-200 rounded w-16"></div>
-      </div>
-    </div>
-  );
-}
-
-// 统计卡片骨架屏
-export function StatCardSkeleton() {
-  return (
-    <div className="bg-white p-6 rounded-lg shadow animate-pulse">
-      <div className="h-4 bg-gray-200 rounded w-20 mb-2"></div>
-      <div className="h-8 bg-gray-200 rounded w-24"></div>
-    </div>
-  );
-}
-
-// 页面加载骨架屏
-export function PageSkeleton() {
-  return (
-    <div className="min-h-screen bg-gray-50 animate-pulse">
-      <div className="h-16 bg-gray-200"></div>
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="h-8 bg-gray-200 rounded w-48 mb-6"></div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <JobCardSkeleton key={i} />
-          ))}
+        <Skeleton width="100%" height={24} style={{ marginBottom: 8 }} />
+        <Skeleton width="80%" height={16} style={{ marginBottom: 16 }} />
+        <div className="flex items-center gap-3">
+          <Skeleton circle width={32} height={32} />
+          <div>
+            <Skeleton width={80} height={14} />
+            <Skeleton width={60} height={12} style={{ marginTop: 2 }} />
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-// 通用骨架屏（文本）
-export function TextSkeleton({ lines = 3 }: { lines?: number }) {
+export function JobsListSkeleton({ count = 5 }: { count?: number }) {
   return (
-    <div className="space-y-2 animate-pulse">
-      {[...Array(lines)].map((_, i) => (
-        <div 
-          key={i} 
-          className="h-4 bg-gray-200 rounded"
-          style={{ width: i === lines - 1 ? "75%" : "100%" }}
-        />
+    <div className="space-y-4">
+      {Array.from({ length: count }).map((_, i) => (
+        <JobCardSkeleton key={i} />
+      ))}
+    </div>
+  );
+}
+
+export function CompaniesListSkeleton({ count = 8 }: { count?: number }) {
+  return (
+    <div className="flex flex-wrap gap-4">
+      {Array.from({ length: count }).map((_, i) => (
+        <CompanyCardSkeleton key={i} />
       ))}
     </div>
   );

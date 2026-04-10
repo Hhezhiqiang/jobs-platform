@@ -27,10 +27,11 @@ export function JobCardV2({ job, variant = "default" }: JobCardV2Props) {
             <div className="w-12 h-12 rounded-xl overflow-hidden ring-2 ring-gray-100 group-hover:ring-blue-200 transition-all">
               <Image
                 src={job.company.logo}
-                alt={job.company.name}
+                alt={`${job.company.name} 公司Logo`}
                 width={48}
                 height={48}
                 className="w-full h-full object-cover"
+                loading="lazy"
               />
             </div>
           ) : (
@@ -74,9 +75,10 @@ export function JobCardV2({ job, variant = "default" }: JobCardV2Props) {
             <div className="h-40 relative overflow-hidden">
               <Image
                 src={job.imageUrl}
-                alt={job.title}
+                alt={`${job.title} 职位图片`}
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
+                loading="lazy"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
             </div>
@@ -103,10 +105,11 @@ export function JobCardV2({ job, variant = "default" }: JobCardV2Props) {
             {job.company.logo ? (
               <Image
                 src={job.company.logo}
-                alt={job.company.name}
+                alt={`${job.company.name} 公司Logo`}
                 width={40}
                 height={40}
                 className="rounded-lg"
+                loading="lazy"
               />
             ) : (
               <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
@@ -162,10 +165,11 @@ export function JobCardV2({ job, variant = "default" }: JobCardV2Props) {
             <div className="w-14 h-14 rounded-xl overflow-hidden ring-2 ring-gray-100 group-hover:ring-blue-200 transition-all">
               <Image
                 src={job.company.logo}
-                alt={job.company.name}
+                alt={`${job.company.name} 公司Logo`}
                 width={56}
                 height={56}
                 className="w-full h-full object-cover"
+                loading="lazy"
               />
             </div>
           ) : (

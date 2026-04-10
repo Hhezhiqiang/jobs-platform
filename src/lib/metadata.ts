@@ -1,18 +1,19 @@
 import { Metadata } from "next";
 import { Job, Company } from "@prisma/client";
 
-const SITE_NAME = "招聘平台";
+const SITE_NAME = "JobsBro招聘平台";
 const SITE_URL = "https://jobs-platform-gold.vercel.app";
-const SITE_DESCRIPTION = "专业的求职招聘平台，汇聚海量优质职位，为求职者和企业提供高效对接服务";
+const SITE_DESCRIPTION = "专业的求职招聘平台，汇聚海量优质Web3、互联网、科技行业职位，为求职者和企业提供高效对接服务，助力职场发展";
 
 // 首页 Metadata
 export function generateHomeMetadata(): Metadata {
+  const title = `${SITE_NAME} - 专业求职招聘平台，汇聚Web3、互联网高薪职位`;
   return {
-    title: `${SITE_NAME} - 专业求职招聘平台`,
+    title,
     description: SITE_DESCRIPTION,
-    keywords: ["招聘", "求职", "找工作", "人才网", "招聘信息", "职位搜索"],
+    keywords: ["招聘", "求职", "找工作", "人才网", "招聘信息", "职位搜索", "Web3招聘", "互联网招聘", "高薪职位", "职业发展"],
     openGraph: {
-      title: `${SITE_NAME} - 专业求职招聘平台`,
+      title,
       description: SITE_DESCRIPTION,
       url: SITE_URL,
       siteName: SITE_NAME,
@@ -21,7 +22,7 @@ export function generateHomeMetadata(): Metadata {
     },
     twitter: {
       card: "summary_large_image",
-      title: `${SITE_NAME} - 专业求职招聘平台`,
+      title,
       description: SITE_DESCRIPTION,
     },
     alternates: {
