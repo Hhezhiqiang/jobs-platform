@@ -6,6 +6,8 @@ import { generateJobMetadata } from "@/lib/metadata";
 import { generateJobPostingSchema, generateBreadcrumbSchema } from "@/lib/schema";
 import { Header } from "@/components/header";
 import { ApplyButton } from "@/components/apply-button";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 import { Metadata } from "next";
 import { MapPin, Briefcase, DollarSign, Clock, Building2, Share2, Heart, Calendar } from "lucide-react";
 import { formatDistanceToNow } from "@/lib/utils";
@@ -38,6 +40,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function JobDetailPage({ params }: PageProps) {
   const { slug } = await params;
+  
+  // 检查登录状态
+  const session = await getServerSession(authOptions);
+  const isLoggedIn = !!session?.user;
+  
   const job = await prisma.job.findUnique({
     where: { slug },
     include: { company: true },
@@ -194,11 +201,13 @@ export default async function JobDetailPage({ params }: PageProps) {
                   jobId={job.id}
                   jobTitle={job.title}
                   companyName={job.company.name}
-                  applyUrl={job.applyUrl}
+                  applyUrl={isLoggedIn ? job.applyUrl : undefined}
                 />
 
                 <p className="text-sm text-gray-500 text-center mt-4">
-                  申请后，HR将在3-5个工作日内回复
+                  {isLoggedIn 
+                    ? "申请后，HR将在3-5个工作日内回复" 
+                    : "登录后查看申请方式"}
                 </p>
               </div>
 
