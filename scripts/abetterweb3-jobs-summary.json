@@ -1,0 +1,200 @@
+[
+  {
+    "companyName": "Gate",
+    "title": "Business & Onboarding Specialist",
+    "type": "CEX/交易所",
+    "location": "Global",
+    "salary": "$5,000 - $8,000",
+    "updateTime": "2026.4.8",
+    "isHot": false
+  },
+  {
+    "companyName": "Gate",
+    "title": "Senior Legal Counsel",
+    "type": "CEX/交易所",
+    "location": "Global",
+    "salary": "$8,000 - $15,000",
+    "updateTime": "2026.4.8",
+    "isHot": false
+  },
+  {
+    "companyName": "Gate",
+    "title": "工业衍生品设计师",
+    "type": "CEX/交易所",
+    "location": "Global",
+    "salary": "$5,000 - $10,000",
+    "updateTime": "2026.4.8",
+    "isHot": false
+  },
+  {
+    "companyName": "LBank",
+    "title": "合约测试工程师",
+    "type": "CEX/交易所",
+    "location": "Global",
+    "salary": "$4,000 - $8,000",
+    "updateTime": "2026.4月",
+    "isHot": false
+  },
+  {
+    "companyName": "LBank",
+    "title": "AI大模型基建工程师",
+    "type": "CEX/交易所",
+    "location": "Global",
+    "salary": "$8,000 - $15,000",
+    "updateTime": "2026.4月",
+    "isHot": false
+  },
+  {
+    "companyName": "MEXC",
+    "title": "UI/UX设计师",
+    "type": "CEX/交易所",
+    "location": "Global",
+    "salary": "$4,000 - $8,000",
+    "updateTime": "2026.4月",
+    "isHot": true
+  },
+  {
+    "companyName": "MEXC",
+    "title": "交易风控分析师",
+    "type": "CEX/交易所",
+    "location": "Global",
+    "salary": "$6,000 - $12,000",
+    "updateTime": "2026.4月",
+    "isHot": true
+  },
+  {
+    "companyName": "MEXC",
+    "title": "用户增长运营经理",
+    "type": "CEX/交易所",
+    "location": "Global",
+    "salary": "$5,000 - $10,000",
+    "updateTime": "2026.4月",
+    "isHot": true
+  },
+  {
+    "companyName": "Bitget",
+    "title": "大前端开发工程师",
+    "type": "CEX/交易所",
+    "location": "Global",
+    "salary": "$6,000 - $12,000",
+    "updateTime": "2026.4月",
+    "isHot": false
+  },
+  {
+    "companyName": "Bitget",
+    "title": "iOS开发工程师",
+    "type": "CEX/交易所",
+    "location": "Global",
+    "salary": "$6,000 - $12,000",
+    "updateTime": "2026.4月",
+    "isHot": false
+  },
+  {
+    "companyName": "SynFutures",
+    "title": "Head of Product for DEX",
+    "type": "DeFi/DEX",
+    "location": "Hong Kong",
+    "salary": "$15,000 - $25,000+",
+    "updateTime": "2026.4月",
+    "isHot": false
+  },
+  {
+    "companyName": "SynFutures",
+    "title": "资深DeFi智能合约工程师",
+    "type": "DeFi/DEX",
+    "location": "Hong Kong",
+    "salary": "$5,000+",
+    "updateTime": "2026.4月",
+    "isHot": false
+  },
+  {
+    "companyName": "Bedrock",
+    "title": "Institutional BD",
+    "type": "DeFi/Layer1",
+    "location": "Singapore",
+    "salary": "$8,000 - $15,000",
+    "updateTime": "2026.4月",
+    "isHot": true
+  },
+  {
+    "companyName": "Pharos",
+    "title": "DEX智能合约开发工程师",
+    "type": "DeFi/DEX",
+    "location": "Shenzhen",
+    "salary": "$8,000 - $12,000",
+    "updateTime": "2026.4月",
+    "isHot": false
+  },
+  {
+    "companyName": "0G Labs",
+    "title": "Blockchain Core Engineer",
+    "type": "Layer1",
+    "location": "Global",
+    "salary": "$10,000 - $20,000",
+    "updateTime": "2026.4月",
+    "isHot": false
+  },
+  {
+    "companyName": "SOONetwork",
+    "title": "AI Vibecoding Application Engineer",
+    "type": "Layer2",
+    "location": "Singapore",
+    "salary": "$6,000 - $12,000",
+    "updateTime": "2026.4月",
+    "isHot": false
+  },
+  {
+    "companyName": "Trust Wallet",
+    "title": "Senior Data Engineer",
+    "type": "钱包",
+    "location": "Global",
+    "salary": "$8,000 - $15,000",
+    "updateTime": "2026.4月",
+    "isHot": false
+  },
+  {
+    "companyName": "Trust Wallet",
+    "title": "Senior Product Manager",
+    "type": "钱包",
+    "location": "Global",
+    "salary": "$8,000 - $15,000",
+    "updateTime": "2026.4月",
+    "isHot": false
+  },
+  {
+    "companyName": "Byterum",
+    "title": "AI Agent开发工程师",
+    "type": "AI+Web3",
+    "location": "Global",
+    "salary": "$6,000 - $12,000",
+    "updateTime": "2026.4月",
+    "isHot": false
+  },
+  {
+    "companyName": "TradeOS",
+    "title": "全栈工程师(应届生)",
+    "type": "AI+Web3",
+    "location": "Shenzhen",
+    "salary": "$3,000 - $6,000",
+    "updateTime": "2026.4月",
+    "isHot": false
+  },
+  {
+    "companyName": "LTP｜LiquidityTech",
+    "title": "高级Java开发工程师",
+    "type": "Broker/量化",
+    "location": "Shanghai",
+    "salary": "$8,000 - $20,000",
+    "updateTime": "2026.3.24",
+    "isHot": false
+  },
+  {
+    "companyName": "LTP｜LiquidityTech",
+    "title": "风控模型工程师",
+    "type": "Broker/量化",
+    "location": "Shanghai",
+    "salary": "$6,000 - $15,000",
+    "updateTime": "2026.3.24",
+    "isHot": false
+  }
+]
