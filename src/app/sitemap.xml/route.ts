@@ -5,15 +5,15 @@ export async function GET() {
   
   const [jobs, companies, blogs] = await Promise.all([
     prisma.job.findMany({
-      where: { status: "ACTIVE", slug: { not: null } },
+      where: { status: "ACTIVE", slug: { not: "" } },
       select: { slug: true, updatedAt: true },
     }),
     prisma.company.findMany({
-      where: { slug: { not: null } },
+      where: { slug: { not: "" } },
       select: { slug: true, updatedAt: true },
     }),
     prisma.page.findMany({
-      where: { type: "BLOG", status: "PUBLISHED", slug: { not: null } },
+      where: { type: "BLOG", status: "PUBLISHED", slug: { not: "" } },
       select: { slug: true, updatedAt: true },
     }),
   ]);
