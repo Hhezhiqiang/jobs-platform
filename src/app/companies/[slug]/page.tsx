@@ -146,17 +146,20 @@ export default async function CompanyDetailPage({ params }: PageProps) {
               )}
 
               {/* Job Listings */}
+              {(() => {
+                const validJobs = company.jobs.filter(job => job.slug);
+                return (
               <div>
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-bold text-gray-900">在招职位</h2>
                   <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
-                    {company.jobs.length} 个职位
+                    {validJobs.length} 个职位
                   </span>
                 </div>
 
-                {company.jobs.length > 0 ? (
+                {validJobs.length > 0 ? (
                   <div className="space-y-4">
-                    {company.jobs.map((job) => (
+                    {validJobs.map((job) => (
                       <JobCardV2 key={job.id} job={job} variant="compact" />
                     ))}
                   </div>
@@ -170,6 +173,8 @@ export default async function CompanyDetailPage({ params }: PageProps) {
                   </div>
                 )}
               </div>
+                );
+              })()}
             </div>
 
             {/* Sidebar */}
