@@ -14,7 +14,6 @@ interface FilterSidebarProps {
   };
   cities: string[];
   totalJobs: number;
-  onClear: () => void;
 }
 
 const jobTypes = [
@@ -33,7 +32,7 @@ const salaryRanges = [
   { min: "50000", max: "", label: "50K以上" },
 ];
 
-export function FilterSidebar({ currentParams, cities, totalJobs, onClear }: FilterSidebarProps) {
+export function FilterSidebar({ currentParams, cities, totalJobs }: FilterSidebarProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const hasFilters = Object.values(currentParams).some(Boolean);
 
@@ -198,13 +197,13 @@ export function FilterSidebar({ currentParams, cities, totalJobs, onClear }: Fil
 
             {/* 清除筛选 */}
             {hasFilters && (
-              <button
-                onClick={onClear}
+              <a
+                href="/jobs"
                 className="w-full py-2.5 border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
               >
                 <X className="w-4 h-4" />
                 清除筛选
-              </button>
+              </a>
             )}
           </div>
         )}

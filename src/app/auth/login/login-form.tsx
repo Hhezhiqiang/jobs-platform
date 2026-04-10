@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle, AlertCircle } from "lucide-react";
 import { SkipLink } from "@/components/skip-link";
 
-export default function LoginForm() {
+function LoginFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const registered = searchParams.get("registered");
@@ -20,22 +20,28 @@ export default function LoginForm() {
     setLoading(true);
     setError("");
 
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
+    try {
+      const formData = new FormData(e.currentTarget);
+      const email = formData.get("email") as string;
+      const password = formData.get("password") as string;
 
-    const res = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
+      const res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
 
-    if (res?.error) {
-      setError("邮箱或密码错误");
+      if (res?.error) {
+        setError("邮箱或密码错误");
+        setLoading(false);
+      } else {
+        router.push("/dashboard");
+        router.refresh();
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("登录服务暂时不可用，请稍后重试");
       setLoading(false);
-    } else {
-      router.push("/dashboard");
-      router.refresh();
     }
   }
 
@@ -166,7 +172,8 @@ export default function LoginForm() {
 
             {/* Error */}
             {error && (
-              <div className="p-3 bg-red-50 text-red-600 rounded-xl text-sm" role="alert">
+              <div className="p-3 bg-red-50 text-red-600 rounded-xl text-sm flex items-center gap-2" role="alert">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 {error}
               </div>
             )}
@@ -190,5 +197,42 @@ export default function LoginForm() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Error Fallback Component
+function LoginErrorFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="max-w-md w-full mx-4 bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
+        <div className="w-16 h-16 mx-auto mb-6 bg-red-50 rounded-full flex items-center justify-center">
+          <AlertCircle className="w-8 h-8 text-red-500" />
+        </div>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">页面加载失败</h2>
+        <p className="text-gray-500 mb-6">登录服务暂时不可用，请稍后重试</p>
+        
+        <button
+          onClick={() => window.location.reload()}
+          className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium hover:bg-blue-700 transition-all"
+        >
+          重新加载
+        </button>
+        
+        <div className="mt-4">
+          <Link href="/" className="text-sm text-gray-500 hover:text-gray-700">
+            ← 返回首页
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Main LoginForm with Error Boundary
+export default function LoginForm() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">加载中...</div>}>
+      <LoginFormContent />
+    </Suspense>
   );
 }

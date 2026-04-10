@@ -143,7 +143,6 @@ export default async function JobsPage({ searchParams }: PageProps) {
               }}
               cities={cities.map((c) => c.city).filter(Boolean) as string[]}
               totalJobs={total}
-              onClear={() => window.location.href = "/jobs"}
             />
           </div>
 
