@@ -11,10 +11,10 @@ export function Header({ transparent = false }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { label: "职位", href: "/jobs", icon: "💼" },
-    { label: "公司", href: "/companies", icon: "🏢" },
-    { label: "博客", href: "/blog", icon: "📝" },
-    { label: "关于", href: "/about", icon: "ℹ️" },
+    { label: "职位", href: "/jobs", icon: "💼", iconLabel: "职位" },
+    { label: "公司", href: "/companies", icon: "🏢", iconLabel: "公司" },
+    { label: "博客", href: "/blog", icon: "📝", iconLabel: "博客" },
+    { label: "关于", href: "/about", icon: "ℹ️", iconLabel: "关于" },
   ];
 
   return (
@@ -79,6 +79,8 @@ export function Header({ transparent = false }: HeaderProps) {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label={mobileMenuOpen ? "关闭菜单" : "打开菜单"}
+            aria-expanded={mobileMenuOpen}
             className="md:hidden p-2 rounded-lg hover:bg-gray-100"
           >
             <svg
@@ -86,6 +88,7 @@ export function Header({ transparent = false }: HeaderProps) {
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               {mobileMenuOpen ? (
                 <path
@@ -117,7 +120,7 @@ export function Header({ transparent = false }: HeaderProps) {
                   className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <span>{item.icon}</span>
+                  <span aria-hidden="true">{item.icon}</span>
                   {item.label}
                 </Link>
               ))}
