@@ -1,0 +1,63 @@
+name: Auto Blog Publisher
+
+on:
+  schedule:
+    # 每2小时运行一次 (UTC时间)
+    - cron: '0 */2 * * *'
+  workflow_dispatch:  # 允许手动触发
+
+env:
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+jobs:
+  publish-blog:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Generate Prisma Client
+      run: npx prisma generate
+      
+    - name: Auto publish blog
+      run: npx tsx scripts/auto-blog-publish.ts
+      env:
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        
+    - name: Check if new blog was created
+      id: check_blog
+      run: |
+        if [ -f ".new_blog_created" ]; then
+          echo "new_blog=true" >> $GITHUB_OUTPUT
+          cat .new_blog_created
+        else
+          echo "new_blog=false" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Deploy to Vercel
+      if: steps.check_blog.outputs.new_blog == 'true'
+      uses: vercel/action-deploy@v1
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        
+    - name: Send notification to Telegram
+      if: steps.check_blog.outputs.new_blog == 'true'
+      run: |
+        BLOG_TITLE=$(cat .new_blog_title 2>/dev/null || echo "新博客已发布")
+        BLOG_URL=$(cat .new_blog_url 2>/dev/null || echo "https://jobs-platform-gold.vercel.app/blog")
+        
+        curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+          -d "chat_id=${{ secrets.TELEGRAM_CHANNEL_ID }}" \
+          -d "text=📝 新博客发布！%0A%0A标题: ${BLOG_TITLE}%0A链接: ${BLOG_URL}%0A%0A来自 JobsBro 自动发布系统" \
+          -d "parse_mode=HTML"

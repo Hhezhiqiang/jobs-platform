@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { generateHomeMetadata } from "@/lib/metadata";
 import { generateWebsiteSchema } from "@/lib/schema";
+import { TelegramFloatButton } from "@/components/telegram-float-button";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -68,6 +69,7 @@ export default function RootLayout({
             `,
           }}
         />
+        <TelegramFloatButton />
       </body>
     </html>
   );

@@ -7,106 +7,76 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// 用户模型
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String
-  password  String
-  role      UserRole @default(USER)
-  avatar    String?
-  phone     String?      // 手机号（选填）
-  status    UserStatus   @default(ACTIVE) // 账号状态
-  
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // 关联
-  jobs          Job[]
-  ads           Ad[]
-  sessions      Session[]
-  pages         Page[]
-  profile       UserProfile?      // 个人详细资料
-  applications  JobApplication[]  // 职位申请
-  resumes       Resume[]          // 简历附件
+  id           String           @id @default(cuid())
+  email        String           @unique
+  name         String
+  password     String
+  role         UserRole         @default(USER)
+  avatar       String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  phone        String?
+  status       UserStatus       @default(ACTIVE)
+  ads          Ad[]
+  applications JobApplication[]
+  jobs         Job[]
+  pages        Page[]
+  resumes      Resume[]
+  sessions     Session[]
+  profile      UserProfile?
 
   @@map("users")
 }
 
-// 用户详细资料
 model UserProfile {
-  id          String @id @default(cuid())
-  userId      String @unique
-  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  // 基本信息
-  gender      String?   // 性别
-  birthday    DateTime? // 生日
-  location    String?   // 所在城市
-  
-  // 工作经历（JSON数组）
+  id             String    @id @default(cuid())
+  userId         String    @unique
+  gender         String?
+  birthday       DateTime?
+  location       String?
   workExperience Json?
-  
-  // 教育背景（JSON数组）
-  education Json?
-  
-  // 技能标签
-  skills String[]
-  
-  // 自我介绍
-  bio String? @db.Text
-  
-  updatedAt DateTime @updatedAt
-  
+  education      Json?
+  skills         String[]
+  bio            String?
+  updatedAt      DateTime  @updatedAt
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("user_profiles")
 }
 
-// 简历附件
 model Resume {
-  id        String @id @default(cuid())
-  userId    String
-  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  name      String // 简历名称
-  fileUrl   String // 文件URL
-  fileType  String // pdf/doc/docx
-  fileSize  Int    // 文件大小（字节）
-  isDefault Boolean @default(false) // 是否默认简历
-  
-  // 关联的申请
+  id           String           @id @default(cuid())
+  userId       String
+  name         String
+  fileUrl      String
+  fileType     String
+  fileSize     Int
+  isDefault    Boolean          @default(false)
+  createdAt    DateTime         @default(now())
   applications JobApplication[]
-  
-  createdAt DateTime @default(now())
-  
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@map("resumes")
 }
 
-// 职位申请
 model JobApplication {
-  id          String @id @default(cuid())
-  
-  // 关联
-  jobId       String
-  job         Job    @relation(fields: [jobId], references: [id])
-  userId      String
-  user        User   @relation(fields: [userId], references: [id])
-  resumeId    String? // 使用的简历
-  resume      Resume? @relation(fields: [resumeId], references: [id])
-  
-  // 申请信息
-  status      ApplicationStatus @default(PENDING)
-  coverLetter String? @db.Text  // 求职信
-  
-  // 时间线
-  appliedAt   DateTime @default(now())
-  viewedAt    DateTime? // HR查看时间
-  respondedAt DateTime? // HR回复时间
-  withdrewAt  DateTime? // 撤回时间
-  
-  // 回复信息
-  responseType String?  // INTERVIEW / REJECT / OFFER
-  responseNote String? @db.Text // 回复备注
-  
+  id           String            @id @default(cuid())
+  jobId        String
+  userId       String
+  resumeId     String?
+  status       ApplicationStatus @default(PENDING)
+  coverLetter  String?
+  appliedAt    DateTime          @default(now())
+  viewedAt     DateTime?
+  respondedAt  DateTime?
+  withdrewAt   DateTime?
+  responseType String?
+  responseNote String?
+  job          Job               @relation(fields: [jobId], references: [id])
+  resume       Resume?           @relation(fields: [resumeId], references: [id])
+  user         User              @relation(fields: [userId], references: [id])
+
   @@index([userId, status])
   @@index([jobId, status])
   @@map("job_applications")
@@ -122,6 +92,142 @@ model Session {
   @@map("sessions")
 }
 
+model Company {
+  id              String   @id @default(cuid())
+  name            String
+  slug            String   @unique
+  logo            String?
+  website         String?
+  description     String?
+  industry        String?
+  size            String?
+  location        String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  metaTitle       String?
+  metaDescription String?
+  jobs            Job[]
+
+  @@map("companies")
+}
+
+model Job {
+  id                     String           @id @default(cuid())
+  slug                   String           @unique
+  title                  String
+  description            String
+  requirements           String?
+  benefits               String?
+  employmentType         EmploymentType   @default(FULL_TIME)
+  experience             ExperienceLevel  @default(MID)
+  salaryMin              Int?
+  salaryMax              Int?
+  salaryCurrency         String           @default("CNY")
+  salaryPeriod           String           @default("YEAR")
+  location               String
+  city                   String?
+  country                String           @default("CN")
+  isRemote               Boolean          @default(false)
+  isHybrid               Boolean          @default(false)
+  applyUrl               String
+  status                 JobStatus        @default(ACTIVE)
+  isFeatured             Boolean          @default(false)
+  viewCount              Int              @default(0)
+  datePosted             DateTime         @default(now())
+  validThrough           DateTime?
+  metaTitle              String?
+  metaDescription        String?
+  keywords               String[]
+  imageUrl               String?
+  schemaOrganizationName String?
+  schemaOrganizationLogo String?
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+  companyId              String
+  authorId               String
+  applications           JobApplication[]
+  author                 User             @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  company                Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([status, datePosted])
+  @@index([city, status])
+  @@index([employmentType, status])
+  @@index([isFeatured, status])
+  @@map("jobs")
+}
+
+model AdPosition {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  displayName String
+  description String?
+  width       Int?
+  height      Int?
+  maxAds      Int      @default(1)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  ads         Ad[]
+
+  @@map("ad_positions")
+}
+
+model Ad {
+  id          String     @id @default(cuid())
+  title       String
+  type        AdType     @default(IMAGE)
+  imageUrl    String?
+  linkUrl     String
+  textContent String?
+  altText     String?
+  status      AdStatus   @default(PENDING)
+  startDate   DateTime?
+  endDate     DateTime?
+  clickCount  Int        @default(0)
+  viewCount   Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  positionId  String
+  authorId    String
+  author      User       @relation(fields: [authorId], references: [id])
+  position    AdPosition @relation(fields: [positionId], references: [id])
+
+  @@map("ads")
+}
+
+model SEOSetting {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String
+  description String?
+  updatedAt   DateTime @updatedAt
+
+  @@map("seo_settings")
+}
+
+model Page {
+  id              String     @id @default(cuid())
+  slug            String     @unique
+  title           String
+  content         String
+  excerpt         String?
+  type            PageType   @default(PAGE)
+  status          PageStatus @default(PUBLISHED)
+  metaTitle       String?
+  metaDescription String?
+  keywords        String[]
+  featuredImage   String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  authorId        String
+  viewCount       Int        @default(0)
+  author          User       @relation(fields: [authorId], references: [id])
+
+  @@index([type, status])
+  @@index([slug, status])
+  @@map("pages")
+}
+
 enum UserRole {
   ADMIN
   USER
@@ -134,104 +240,12 @@ enum UserStatus {
 }
 
 enum ApplicationStatus {
-  PENDING    // 待处理
-  VIEWED     // 已查看
-  INTERVIEW  // 面试邀请
-  REJECTED   // 已拒绝
-  OFFER      // 已录用
-  WITHDRAWN  // 已撤回
-}
-
-// 公司模型
-model Company {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique
-  logo        String?
-  website     String?
-  description String?  @db.Text
-  industry    String?
-  size        String?
-  location    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // SEO字段
-  metaTitle       String?
-  metaDescription String?
-
-  // 关联
-  jobs Job[]
-
-  @@map("companies")
-}
-
-// 职位模型（完整SEO支持）
-model Job {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  title       String
-  description String   @db.Text
-  requirements String? @db.Text
-  benefits    String?  @db.Text
-
-  // 职位类型
-  employmentType EmploymentType @default(FULL_TIME)
-  experience     ExperienceLevel @default(MID)
-
-  // 薪资信息
-  salaryMin     Int?
-  salaryMax     Int?
-  salaryCurrency String @default("CNY")
-  salaryPeriod  String @default("YEAR")
-
-  // 工作地点
-  location    String
-  city        String?
-  country     String @default("CN")
-  isRemote    Boolean @default(false)
-  isHybrid    Boolean @default(false)
-
-  // 外部申请链接
-  applyUrl    String
-
-  // 状态
-  status      JobStatus @default(ACTIVE)
-  isFeatured  Boolean   @default(false)
-  viewCount   Int       @default(0)
-
-  // 时间字段
-  datePosted   DateTime @default(now())
-  validThrough DateTime?
-
-  // SEO字段
-  metaTitle       String?
-  metaDescription String?
-  keywords        String[]
-  imageUrl        String?  // 职位图片URL
-
-  // 结构化数据字段
-  schemaOrganizationName String? // hiringOrganization.name
-  schemaOrganizationLogo String? // hiringOrganization.logo
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // 关联
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  authorId  String
-  author    User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  
-  // 求职者申请
-  applications JobApplication[]
-
-  // 索引
-  @@index([status, datePosted])
-  @@index([city, status])
-  @@index([employmentType, status])
-  @@index([isFeatured, status])
-  @@map("jobs")
+  PENDING
+  VIEWED
+  INTERVIEW
+  REJECTED
+  OFFER
+  WITHDRAWN
 }
 
 enum EmploymentType {
@@ -256,55 +270,6 @@ enum JobStatus {
   DRAFT
 }
 
-// 广告位模型
-model AdPosition {
-  id          String @id @default(cuid())
-  name        String @unique // 如: HP_BANNER_01
-  displayName String // 显示名称
-  description String?
-  width       Int?
-  height      Int?
-  maxAds      Int    @default(1)
-  isActive    Boolean @default(true)
-
-  // 关联
-  ads Ad[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("ad_positions")
-}
-
-// 广告模型
-model Ad {
-  id          String   @id @default(cuid())
-  title       String
-  type        AdType   @default(IMAGE)
-  imageUrl    String?
-  linkUrl     String
-  textContent String?  // 文字链内容
-  altText     String?  // 图片alt属性（SEO）
-
-  // 状态
-  status     AdStatus @default(PENDING)
-  startDate  DateTime?
-  endDate    DateTime?
-  clickCount Int      @default(0)
-  viewCount  Int      @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // 关联
-  positionId String
-  position   AdPosition @relation(fields: [positionId], references: [id])
-  authorId   String
-  author     User       @relation(fields: [authorId], references: [id])
-
-  @@map("ads")
-}
-
 enum AdType {
   IMAGE
   TEXT
@@ -316,47 +281,6 @@ enum AdStatus {
   ACTIVE
   INACTIVE
   EXPIRED
-}
-
-// SEO设置模型
-model SEOSetting {
-  id          String @id @default(cuid())
-  key         String @unique
-  value       String
-  description String?
-
-  updatedAt DateTime @updatedAt
-
-  @@map("seo_settings")
-}
-
-// 页面内容模型（用于博客/内容页）
-model Page {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  title       String
-  content     String   @db.Text
-  excerpt     String?  @db.Text
-  type        PageType @default(PAGE)
-  status      PageStatus @default(PUBLISHED)
-  viewCount   Int      @default(0)
-
-  // SEO字段
-  metaTitle       String?
-  metaDescription String?
-  keywords        String[]
-  featuredImage   String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // 作者关联
-  authorId  String
-  author    User     @relation(fields: [authorId], references: [id])
-
-  @@index([type, status])
-  @@index([slug, status])
-  @@map("pages")
 }
 
 enum PageType {
