@@ -47,6 +47,10 @@ export default function CompanyDashboardPage() {
       const result = await res.json();
 
       if (!res.ok) {
+        if (res.status === 401) {
+          router.push("/auth/login?callbackUrl=/company/dashboard");
+          return;
+        }
         if (result.needRegister) {
           router.push("/company/register");
           return;
