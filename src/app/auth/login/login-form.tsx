@@ -4,12 +4,13 @@ import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle, AlertCircle } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle, AlertCircle, Building2, User, Shield } from "lucide-react";
 import { SkipLink } from "@/components/skip-link";
 
 function LoginFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
   const registered = searchParams.get("registered");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -35,7 +36,23 @@ function LoginFormContent() {
         setError("邮箱或密码错误");
         setLoading(false);
       } else {
-        router.push("/dashboard");
+        // 登录成功，获取用户信息并跳转
+        const userRes = await fetch("/api/auth/session");
+        const session = await userRes.json();
+        
+        if (callbackUrl) {
+          // 如果有回调URL，优先跳转到回调URL
+          router.push(callbackUrl);
+        } else if (session?.user?.role === "ADMIN") {
+          // 管理员 → 后台管理
+          router.push("/admin");
+        } else if (session?.user?.role === "COMPANY" || session?.user?.companies?.length > 0) {
+          // 企业用户 → 企业Dashboard
+          router.push("/company/dashboard");
+        } else {
+          // 普通用户 → 用户Dashboard
+          router.push("/dashboard");
+        }
         router.refresh();
       }
     } catch (err) {
@@ -62,21 +79,27 @@ function LoginFormContent() {
               <Mail className="w-8 h-8" />
             </div>
             <h2 className="text-4xl font-bold mb-6">欢迎回来</h2>
-            <p className="text-xl text-blue-100 mb-4">
-              登录您的账户，管理求职申请
+            <p className="text-xl text-blue-100 mb-6">
+              统一登录入口，根据您的身份自动跳转到对应的管理后台
             </p>
-            <ul className="space-y-3 text-blue-100">
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5" />
-                查看申请进度
+            <ul className="space-y-4 text-blue-100">
+              <li className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                  <User className="w-4 h-4" />
+                </div>
+                <span>求职者 - 管理简历和申请</span>
               </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5" />
-                管理个人简历
+              <li className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                  <Building2 className="w-4 h-4" />
+                </div>
+                <span>企业用户 - 发布职位、管理简历</span>
               </li>
-              <li className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5" />
-                收藏心仪职位
+              <li className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                  <Shield className="w-4 h-4" />
+                </div>
+                <span>管理员 - 系统管理和审核</span>
               </li>
             </ul>
           </div>
@@ -93,7 +116,7 @@ function LoginFormContent() {
           )}
 
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">用户登录</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">登录</h1>
             <p className="text-gray-500">
               还没有账户？{" "}
               <Link href="/auth/register" className="text-blue-600 hover:text-blue-700 font-medium">
@@ -189,10 +212,20 @@ function LoginFormContent() {
             </button>
           </form>
 
-          <div className="mt-8 text-center">
-            <Link href="/" className="text-sm text-gray-500 hover:text-gray-700">
-              ← 返回首页
-            </Link>
+          <div className="mt-8 space-y-3">
+            {/* 企业注册入口 */}
+            <div className="text-center">
+              <span className="text-sm text-gray-500">企业用户？</span>
+              <Link href="/company/register" className="text-sm text-blue-600 hover:text-blue-700 font-medium ml-1">
+                注册企业账户 →
+              </Link>
+            </div>
+            
+            <div className="text-center">
+              <Link href="/" className="text-sm text-gray-500 hover:text-gray-700">
+                ← 返回首页
+              </Link>
+            </div>
           </div>
         </div>
       </div>
