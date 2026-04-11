@@ -6,6 +6,7 @@ import { generateJobMetadata } from "@/lib/metadata";
 import { generateJobPostingSchema, generateBreadcrumbSchema } from "@/lib/schema";
 import { Header } from "@/components/header";
 import { ApplyButton } from "@/components/apply-button";
+import { JobViewTracker } from "@/components/job-view-tracker";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { Metadata } from "next";
@@ -98,6 +99,9 @@ export default async function JobDetailPage({ params }: PageProps) {
 
   return (
     <>
+      {/* 浏览追踪器 - 客户端组件 */}
+      <JobViewTracker job={job} />
+      
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jobSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
 

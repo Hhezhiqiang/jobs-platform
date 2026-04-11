@@ -2,13 +2,17 @@ import Link from "next/link";
 import Image from "next/image";
 import { Job, Company } from "@prisma/client";
 import { formatDistanceToNow, formatSalary } from "@/lib/utils";
+import { HeartButton } from "./heart-button";
+import { HighlightedText } from "./highlighted-text";
 
 interface JobCardV2Props {
   job: Job & { company: Company };
   variant?: "default" | "compact" | "featured";
+  showFavorite?: boolean;
+  highlightQuery?: string;
 }
 
-export function JobCardV2({ job, variant = "default" }: JobCardV2Props) {
+export function JobCardV2({ job, variant = "default", showFavorite = true, highlightQuery }: JobCardV2Props) {
   const salaryText = formatSalary(job.salaryMin, job.salaryMax);
   const timeAgo = formatDistanceToNow(job.datePosted);
 
@@ -41,11 +45,27 @@ export function JobCardV2({ job, variant = "default" }: JobCardV2Props) {
         {/* Job Info */}
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors truncate">
-            {job.title}
+            {highlightQuery ? (
+              <HighlightedText text={job.title} highlight={highlightQuery} />
+            ) : (
+              job.title
+            )}
           </h3>
-          <p className="text-sm text-gray-500 truncate">{job.company.name}</p>
+          <p className="text-sm text-gray-500 truncate">
+            {highlightQuery ? (
+              <HighlightedText text={job.company.name} highlight={highlightQuery} />
+            ) : (
+              job.company.name
+            )}
+          </p>
           <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
-            <span className="flex items-center gap-1">📍 {job.location}</span>
+            <span className="flex items-center gap-1">
+              📍 {highlightQuery ? (
+                <HighlightedText text={job.location} highlight={highlightQuery} />
+              ) : (
+                job.location
+              )}
+            </span>
             <span>·</span>
             <span>{job.employmentType}</span>
           </div>
@@ -151,72 +171,77 @@ export function JobCardV2({ job, variant = "default" }: JobCardV2Props) {
 
   // Default variant
   return (
-    <Link
-      href={`/jobs/${job.slug}`}
-      className="group block bg-white rounded-xl border border-gray-100 p-5 hover:border-blue-200 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300"
-    >
-      <div className="flex items-start gap-4">
-        {/* Logo */}
-        <div className="flex-shrink-0">
-          {job.company.logo ? (
-            <div className="w-14 h-14 rounded-xl overflow-hidden ring-2 ring-gray-100 group-hover:ring-blue-200 transition-all">
-              <Image
-                src={job.company.logo}
-                alt={`${job.company.name} 公司Logo`}
-                width={56}
-                height={56}
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </div>
-          ) : (
-            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-md">
-              {job.company.name.charAt(0)}
-            </div>
-          )}
+    <div className="group block bg-white rounded-xl border border-gray-100 p-5 hover:border-blue-200 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 relative">
+      {/* Favorite Button */}
+      {showFavorite && (
+        <div className="absolute top-4 right-4 z-10">
+          <HeartButton jobId={job.id} size="sm" />
         </div>
-
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h3 className="font-bold text-lg text-gray-900 group-hover:text-blue-600 transition-colors">
-                {job.title}
-              </h3>
-              <p className="text-gray-600">{job.company.name}</p>
-            </div>
-            <span className="text-lg font-bold text-blue-600 flex-shrink-0">{salaryText}</span>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2 mt-3">
-            <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-50 text-gray-600 text-sm rounded-lg">
-              📍 {job.location}
-            </span>
-            <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-50 text-gray-600 text-sm rounded-lg">
-              💼 {job.employmentType}
-            </span>
-            {job.isRemote && (
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-50 text-green-600 text-sm rounded-lg">
-                🏠 远程办公
-              </span>
+      )}
+      <Link href={`/jobs/${job.slug}`}>
+        <div className="flex items-start gap-4">
+          {/* Logo */}
+          <div className="flex-shrink-0">
+            {job.company.logo ? (
+              <div className="w-14 h-14 rounded-xl overflow-hidden ring-2 ring-gray-100 group-hover:ring-blue-200 transition-all">
+                <Image
+                  src={job.company.logo}
+                  alt={`${job.company.name} 公司Logo`}
+                  width={56}
+                  height={56}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+            ) : (
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-md">
+                {job.company.name.charAt(0)}
+              </div>
             )}
           </div>
 
-          <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-50">
-            <div className="flex items-center gap-4 text-sm text-gray-400">
-              <span>⏱️ {timeAgo}</span>
-              {job.isFeatured && (
-                <span className="px-2 py-0.5 bg-red-50 text-red-600 rounded text-xs font-medium">
-                  热招
+          {/* Content */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-4">
+              <div className={showFavorite ? "pr-12" : ""}>
+                <h3 className="font-bold text-lg text-gray-900 group-hover:text-blue-600 transition-colors">
+                  {job.title}
+                </h3>
+                <p className="text-gray-600">{job.company.name}</p>
+              </div>
+              <span className="text-lg font-bold text-blue-600 flex-shrink-0">{salaryText}</span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 mt-3">
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-50 text-gray-600 text-sm rounded-lg">
+                📍 {job.location}
+              </span>
+              <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-50 text-gray-600 text-sm rounded-lg">
+                💼 {job.employmentType}
+              </span>
+              {job.isRemote && (
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-50 text-green-600 text-sm rounded-lg">
+                  🏠 远程办公
                 </span>
               )}
             </div>
-            <span className="text-blue-600 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-              查看详情 →
-            </span>
+
+            <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-50">
+              <div className="flex items-center gap-4 text-sm text-gray-400">
+                <span>⏱️ {timeAgo}</span>
+                {job.isFeatured && (
+                  <span className="px-2 py-0.5 bg-red-50 text-red-600 rounded text-xs font-medium">
+                    热招
+                  </span>
+                )}
+              </div>
+              <span className="text-blue-600 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                查看详情 →
+              </span>
+            </div>
           </div>
         </div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 }

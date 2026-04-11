@@ -8,23 +8,26 @@ datasource db {
 }
 
 model User {
-  id           String           @id @default(cuid())
-  email        String           @unique
-  name         String
-  password     String
-  role         UserRole         @default(USER)
-  avatar       String?
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
-  phone        String?
-  status       UserStatus       @default(ACTIVE)
-  ads          Ad[]
-  applications JobApplication[]
-  jobs         Job[]
-  pages        Page[]
-  resumes      Resume[]
-  sessions     Session[]
-  profile      UserProfile?
+  id            String           @id @default(cuid())
+  email         String           @unique
+  name          String
+  password      String
+  role          UserRole         @default(USER)
+  avatar        String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  phone         String?
+  status        UserStatus       @default(ACTIVE)
+  ads           Ad[]
+  applications  JobApplication[]
+  jobs          Job[]
+  pages         Page[]
+  resumes       Resume[]
+  sessions      Session[]
+  profile       UserProfile?
+  notifications Notification[]
+  companies     CompanyMember[]  // 关联的企业
+  favorites     Favorite[]
 
   @@map("users")
 }
@@ -93,22 +96,65 @@ model Session {
 }
 
 model Company {
-  id              String   @id @default(cuid())
-  name            String
-  slug            String   @unique
-  logo            String?
-  website         String?
-  description     String?
-  industry        String?
-  size            String?
-  location        String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  metaTitle       String?
-  metaDescription String?
-  jobs            Job[]
-
+  id                  String        @id @default(cuid())
+  name                String
+  slug                String        @unique
+  logo                String?
+  website             String?
+  description         String?
+  industry            String?
+  size                String?
+  location            String?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  metaTitle           String?
+  metaDescription     String?
+  
+  // 企业认证相关字段
+  creditCode          String?       @unique // 统一社会信用代码
+  businessLicense     String?       // 营业执照图片URL
+  legalPersonName     String?       // 法人姓名
+  contactPhone        String?       // 联系电话
+  contactEmail        String?       // 联系邮箱
+  verificationStatus  CompanyStatus @default(PENDING) // 认证状态
+  verifiedAt          DateTime?     // 认证通过时间
+  verifiedBy          String?       // 审核人ID
+  rejectionReason     String?       // 拒绝原因
+  
+  // 关联
+  jobs                Job[]
+  members             CompanyMember[]
+  
   @@map("companies")
+}
+
+// 企业成员关联表
+model CompanyMember {
+  id        String           @id @default(cuid())
+  companyId String
+  userId    String
+  role      CompanyMemberRole @default(ADMIN)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  company   Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([companyId, userId])
+  @@index([userId])
+  @@map("company_members")
+}
+
+enum CompanyStatus {
+  PENDING   // 待审核
+  APPROVED  // 已通过
+  REJECTED  // 已拒绝
+  SUSPENDED // 已暂停
+}
+
+enum CompanyMemberRole {
+  ADMIN     // 管理员
+  RECRUITER // 招聘专员
+  VIEWER    // 只读成员
 }
 
 model Job {
@@ -148,6 +194,7 @@ model Job {
   applications           JobApplication[]
   author                 User             @relation(fields: [authorId], references: [id], onDelete: Cascade)
   company                Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  favorites              Favorite[]
 
   @@index([status, datePosted])
   @@index([city, status])
@@ -240,12 +287,12 @@ enum UserStatus {
 }
 
 enum ApplicationStatus {
-  PENDING
-  VIEWED
-  INTERVIEW
-  REJECTED
-  OFFER
-  WITHDRAWN
+  PENDING   // 待处理
+  VIEWED    // 已查看
+  INTERVIEW // 面试
+  REJECTED  // 拒绝
+  OFFER     // 录用
+  WITHDRAWN // 已撤回
 }
 
 enum EmploymentType {
@@ -294,4 +341,56 @@ enum PageStatus {
   DRAFT
   PUBLISHED
   ARCHIVED
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  content   String
+  isRead    Boolean          @default(false)
+  metadata  Json?            // 存储额外信息如 jobId, applicationId 等
+  createdAt DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+  @@map("notifications")
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  jobId     String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, jobId])
+  @@index([userId, createdAt])
+  @@index([jobId])
+  @@map("favorites")
+}
+
+model SearchQuery {
+  id          String   @id @default(cuid())
+  query       String
+  count       Int      @default(1)
+  lastSearched DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([count])
+  @@index([lastSearched])
+  @@unique([query])
+  @@map("search_queries")
+}
+
+enum NotificationType {
+  APPLICATION_UPDATE
+  SYSTEM
+  JOB_ALERT
+  INTERVIEW_INVITE
+  OFFER_RECEIVED
 }

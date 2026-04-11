@@ -14,6 +14,8 @@ export function Header({ transparent = false }: HeaderProps) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { data: session, status } = useSession();
   const isLoggedIn = status === "authenticated";
+  const isCompany = session?.user?.role === "COMPANY";
+  const isAdmin = session?.user?.role === "ADMIN";
 
   // 点击外部关闭用户菜单
   useEffect(() => {
@@ -76,7 +78,7 @@ export function Header({ transparent = false }: HeaderProps) {
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-all"
                 >
-                  {session.user?.image ? (
+                  {session?.user?.image ? (
                     <Image
                       src={session.user.image}
                       alt={session.user.name || "用户"}
@@ -86,11 +88,11 @@ export function Header({ transparent = false }: HeaderProps) {
                     />
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white font-bold text-sm">
-                      {session.user?.name?.charAt(0) || session.user?.email?.charAt(0) || "U"}
+                      {session?.user?.name?.charAt(0) || session?.user?.email?.charAt(0) || "U"}
                     </div>
                   )}
                   <span className={`text-sm font-medium ${transparent ? "text-white" : "text-gray-700"}`}>
-                    {session.user?.name || "用户"}
+                    {session?.user?.name || "用户"}
                   </span>
                   <svg
                     className={`w-4 h-4 ${transparent ? "text-white" : "text-gray-500"} transition-transform ${userMenuOpen ? "rotate-180" : ""}`}
@@ -104,7 +106,7 @@ export function Header({ transparent = false }: HeaderProps) {
 
                 {/* User Dropdown Menu */}
                 {userMenuOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50">
+                  <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50">
                     <Link
                       href="/dashboard"
                       className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50"
@@ -114,6 +116,84 @@ export function Header({ transparent = false }: HeaderProps) {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                       </svg>
                       个人中心
+                    </Link>
+                    
+                    {/* 企业用户菜单 */}
+                    {(isCompany || isAdmin) && (
+                      <>
+                        <div className="my-2 border-t border-gray-100" />
+                        <Link
+                          href="/company/dashboard"
+                          className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                          </svg>
+                          企业管理
+                        </Link>
+                        <Link
+                          href="/company/jobs"
+                          className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          职位管理
+                        </Link>
+                        <Link
+                          href="/company/applications"
+                          className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+                          </svg>
+                          收到的简历
+                        </Link>
+                      </>
+                    )}
+                    
+                    {/* 管理员菜单 */}
+                    {isAdmin && (
+                      <>
+                        <div className="my-2 border-t border-gray-100" />
+                        <Link
+                          href="/admin"
+                          className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          管理后台
+                        </Link>
+                        <Link
+                          href="/admin/companies"
+                          className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50"
+                          onClick={() => setUserMenuOpen(false)}
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                          </svg>
+                          企业审核
+                        </Link>
+                      </>
+                    )}
+                    
+                    <div className="my-2 border-t border-gray-100" />
+                    
+                    <Link
+                      href="/dashboard/favorites"
+                      className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50"
+                      onClick={() => setUserMenuOpen(false)}
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      </svg>
+                      我的收藏
                     </Link>
                     <Link
                       href="/dashboard/applications"
@@ -236,6 +316,36 @@ export function Header({ transparent = false }: HeaderProps) {
                     <span>👤</span>
                     个人中心
                   </Link>
+                  {(isCompany || isAdmin) && (
+                    <>
+                      <Link
+                        href="/company/dashboard"
+                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <span>🏢</span>
+                        企业管理
+                      </Link>
+                      <Link
+                        href="/company/jobs"
+                        className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <span>💼</span>
+                        职位管理
+                      </Link>
+                    </>
+                  )}
+                  {isAdmin && (
+                    <Link
+                      href="/admin/companies"
+                      className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <span>⚙️</span>
+                      企业审核
+                    </Link>
+                  )}
                   <button
                     onClick={() => {
                       signOut({ callbackUrl: "/" });

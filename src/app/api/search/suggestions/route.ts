@@ -1,0 +1,76 @@
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+
+// 获取搜索建议
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const q = searchParams.get("q")?.trim().toLowerCase();
+  const limit = parseInt(searchParams.get("limit") || "10");
+
+  if (!q || q.length < 1) {
+    return NextResponse.json({ suggestions: [] });
+  }
+
+  try {
+    // 1. 从职位标题中匹配
+    const jobSuggestions = await prisma.job.findMany({
+      where: {
+        status: "ACTIVE",
+        title: {
+          contains: q,
+          mode: "insensitive",
+        },
+      },
+      select: {
+        title: true,
+      },
+      distinct: ["title"],
+      take: 5,
+    });
+
+    // 2. 从公司名中匹配
+    const companySuggestions = await prisma.company.findMany({
+      where: {
+        name: {
+          contains: q,
+          mode: "insensitive",
+        },
+      },
+      select: {
+        name: true,
+      },
+      take: 3,
+    });
+
+    // 3. 从搜索历史中匹配热门查询
+    const historySuggestions = await prisma.searchQuery.findMany({
+      where: {
+        query: {
+          contains: q,
+          mode: "insensitive",
+        },
+      },
+      orderBy: {
+        count: "desc",
+      },
+      select: {
+        query: true,
+      },
+      take: 3,
+    });
+
+    // 合并并去重
+    const suggestions = new Set<string>();
+    
+    jobSuggestions.forEach((job) => suggestions.add(job.title));
+    companySuggestions.forEach((company) => suggestions.add(company.name));
+    historySuggestions.forEach((item) => suggestions.add(item.query));
+
+    return NextResponse.json({
+      suggestions: Array.from(suggestions).slice(0, limit),
+    });
+  } catch (error) {
+    console.error("Suggestions error:", error);
+    return NextResponse.json({ suggestions: [] });
+  }
+}

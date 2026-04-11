@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import ResumeUpload from "@/components/resume-upload";
 
 interface WorkExperience {
   company: string;
@@ -33,6 +34,16 @@ interface UserProfile {
   education: Education[];
 }
 
+interface Resume {
+  id: string;
+  name: string;
+  fileUrl: string;
+  fileType: string;
+  fileSize: number;
+  isDefault: boolean;
+  createdAt: string;
+}
+
 interface UserData {
   user: {
     id: string;
@@ -51,6 +62,10 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
   const [activeTab, setActiveTab] = useState("basic");
+  
+  // 简历列表
+  const [resumes, setResumes] = useState<Resume[]>([]);
+  const [resumesLoading, setResumesLoading] = useState(false);
   
   // 基本信息
   const [name, setName] = useState("");
@@ -94,6 +109,7 @@ export default function ProfilePage() {
     
     if (status === "authenticated") {
       fetchProfile();
+      fetchResumes();
     }
   }, [status, router]);
 
@@ -121,6 +137,45 @@ export default function ProfilePage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchResumes = async () => {
+    setResumesLoading(true);
+    try {
+      const res = await fetch("/api/resumes");
+      const data = await res.json();
+      
+      if (res.ok) {
+        setResumes(data.resumes || []);
+      }
+    } catch (error) {
+      console.error("Failed to fetch resumes:", error);
+    } finally {
+      setResumesLoading(false);
+    }
+  };
+
+  const handleResumeUploadSuccess = (resume: Resume) => {
+    setResumes((prev) => [resume, ...prev]);
+    setMessage({ type: "success", text: "简历上传成功" });
+    setTimeout(() => setMessage({ type: "", text: "" }), 3000);
+  };
+
+  const handleResumeDeleteSuccess = (id: string) => {
+    setResumes((prev) => prev.filter((r) => r.id !== id));
+    setMessage({ type: "success", text: "简历已删除" });
+    setTimeout(() => setMessage({ type: "", text: "" }), 3000);
+  };
+
+  const handleSetDefaultSuccess = (id: string) => {
+    setResumes((prev) =>
+      prev.map((r) => ({
+        ...r,
+        isDefault: r.id === id,
+      }))
+    );
+    setMessage({ type: "success", text: "默认简历已设置" });
+    setTimeout(() => setMessage({ type: "", text: "" }), 3000);
   };
 
   const saveBasicInfo = async () => {
@@ -308,10 +363,10 @@ export default function ProfilePage() {
 
             {/* Tab 切换 */}
             <div className="bg-white rounded-lg shadow mb-6">
-              <div className="border-b flex">
+              <div className="border-b flex overflow-x-auto">
                 <button
                   onClick={() => setActiveTab("basic")}
-                  className={`px-6 py-4 font-medium ${
+                  className={`px-6 py-4 font-medium whitespace-nowrap ${
                     activeTab === "basic"
                       ? "border-b-2 border-blue-600 text-blue-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -321,7 +376,7 @@ export default function ProfilePage() {
                 </button>
                 <button
                   onClick={() => setActiveTab("experience")}
-                  className={`px-6 py-4 font-medium ${
+                  className={`px-6 py-4 font-medium whitespace-nowrap ${
                     activeTab === "experience"
                       ? "border-b-2 border-blue-600 text-blue-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -331,7 +386,7 @@ export default function ProfilePage() {
                 </button>
                 <button
                   onClick={() => setActiveTab("education")}
-                  className={`px-6 py-4 font-medium ${
+                  className={`px-6 py-4 font-medium whitespace-nowrap ${
                     activeTab === "education"
                       ? "border-b-2 border-blue-600 text-blue-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -341,13 +396,23 @@ export default function ProfilePage() {
                 </button>
                 <button
                   onClick={() => setActiveTab("skills")}
-                  className={`px-6 py-4 font-medium ${
+                  className={`px-6 py-4 font-medium whitespace-nowrap ${
                     activeTab === "skills"
                       ? "border-b-2 border-blue-600 text-blue-600"
                       : "text-gray-600 hover:text-gray-800"
                   }`}
                 >
                   技能标签
+                </button>
+                <button
+                  onClick={() => setActiveTab("resumes")}
+                  className={`px-6 py-4 font-medium whitespace-nowrap ${
+                    activeTab === "resumes"
+                      ? "border-b-2 border-blue-600 text-blue-600"
+                      : "text-gray-600 hover:text-gray-800"
+                  }`}
+                >
+                  简历文件
                 </button>
               </div>
 
@@ -767,6 +832,22 @@ export default function ProfilePage() {
                     >
                       {saving ? "保存中..." : "保存技能标签"}
                     </button>
+                  </div>
+                )}
+
+                {/* 简历文件管理 */}
+                {activeTab === "resumes" && (
+                  <div className="space-y-6">
+                    {resumesLoading ? (
+                      <div className="text-center py-8 text-gray-500">加载中...</div>
+                    ) : (
+                      <ResumeUpload
+                        resumes={resumes}
+                        onUploadSuccess={handleResumeUploadSuccess}
+                        onDeleteSuccess={handleResumeDeleteSuccess}
+                        onSetDefaultSuccess={handleSetDefaultSuccess}
+                      />
+                    )}
                   </div>
                 )}
               </div>

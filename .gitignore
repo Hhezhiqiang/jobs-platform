@@ -44,3 +44,6 @@ next-env.d.ts
 
 # Auto blog marker files
 .new_blog_*
+
+# Uploaded files
+/public/uploads

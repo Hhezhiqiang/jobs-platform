@@ -8,6 +8,7 @@ import { StatsSection } from "@/components/stats-section";
 import { FeaturesSection } from "@/components/features-section";
 import { JobCardV2 } from "@/components/job-card-v2";
 import { AdBanner } from "@/components/ad-banner";
+import { RecommendationSection } from "@/components/recommendation-section";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = generateHomeMetadata();
@@ -22,6 +23,9 @@ export default async function HomePage() {
       <HeroSection jobCount={stats.jobCount} />
       
       <StatsSection jobCount={stats.jobCount} companyCount={stats.companyCount} />
+
+      {/* 推荐职位 - 个性化推荐 */}
+      <RecommendationSection limit={6} />
 
       {/* Featured Jobs */}
       {featuredJobs.length > 0 && (
