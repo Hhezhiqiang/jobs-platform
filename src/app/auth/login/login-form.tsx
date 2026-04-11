@@ -235,6 +235,7 @@ function LoginFormContent() {
 
 // Error Fallback Component
 function LoginErrorFallback() {
+  const router = useRouter();
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full mx-4 bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
@@ -245,7 +246,7 @@ function LoginErrorFallback() {
         <p className="text-gray-500 mb-6">登录服务暂时不可用，请稍后重试</p>
         
         <button
-          onClick={() => window.location.reload()}
+          onClick={() => router.refresh()}
           className="w-full bg-blue-600 text-white py-3 rounded-xl font-medium hover:bg-blue-700 transition-all"
         >
           重新加载

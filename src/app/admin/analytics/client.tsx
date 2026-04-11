@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Header } from "@/components/header";
 import {
@@ -130,12 +131,13 @@ const navItems = [
 const COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#EC4899", "#06B6D4", "#84CC16"];
 
 export default function AnalyticsClient({ data }: AnalyticsClientProps) {
+  const router = useRouter();
   const [timeRange, setTimeRange] = useState<7 | 30 | 90>(30);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const handleRefresh = () => {
     setIsRefreshing(true);
-    window.location.reload();
+    router.refresh();
   };
 
   // 根据时间范围过滤数据

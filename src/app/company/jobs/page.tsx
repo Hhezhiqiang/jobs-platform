@@ -37,12 +37,12 @@ export default function CompanyJobsPage() {
   const fetchJobs = async () => {
     try {
       setIsLoading(true);
-      const url = new URL("/api/company/jobs", window.location.origin);
+      const params = new URLSearchParams();
       if (statusFilter) {
-        url.searchParams.set("status", statusFilter);
+        params.set("status", statusFilter);
       }
-
-      const res = await fetch(url.toString());
+      const query = params.toString();
+      const res = await fetch(`/api/company/jobs${query ? `?${query}` : ""}`);
       const data = await res.json();
 
       if (!res.ok) {
