@@ -128,6 +128,7 @@ export default function CompaniesPage() {
                   placeholder="搜索公司名称、行业或城市..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  aria-label="搜索公司"
                   className="w-full pl-12 pr-12 py-4 bg-white rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-white/20"
                 />
                 {searchQuery && (

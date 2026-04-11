@@ -75,6 +75,7 @@ export function HeroSection({ jobCount }: HeroSectionProps) {
                 placeholder="搜索职位、公司或关键词..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                aria-label="搜索职位关键词"
                 className="w-full pl-12 pr-4 py-4 text-gray-800 placeholder-gray-400 bg-transparent focus:outline-none text-lg"
               />
             </div>
@@ -88,6 +89,7 @@ export function HeroSection({ jobCount }: HeroSectionProps) {
                 name="city"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
+                aria-label="选择城市"
                 className="w-full md:w-40 pl-12 pr-8 py-4 text-gray-800 bg-transparent focus:outline-none appearance-none cursor-pointer"
               >
                 <option value="">全国</option>
