@@ -46,6 +46,16 @@ export async function PUT(
       return NextResponse.json({ error: "未登录" }, { status: 401 });
     }
 
+    // 权限校验：仅 ADMIN 或该公司 ADMIN 成员可操作
+    if (session.user.role !== "ADMIN") {
+      const membership = await prisma.companyMember.findFirst({
+        where: { companyId: id, userId: session.user.id, role: "ADMIN" },
+      });
+      if (!membership) {
+        return NextResponse.json({ error: "无权操作" }, { status: 403 });
+      }
+    }
+
     const body = await request.json();
 
     // 检查公司是否存在
@@ -104,6 +114,16 @@ export async function DELETE(
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: "未登录" }, { status: 401 });
+    }
+
+    // 权限校验：仅 ADMIN 或该公司 ADMIN 成员可操作
+    if (session.user.role !== "ADMIN") {
+      const membership = await prisma.companyMember.findFirst({
+        where: { companyId: id, userId: session.user.id, role: "ADMIN" },
+      });
+      if (!membership) {
+        return NextResponse.json({ error: "无权操作" }, { status: 403 });
+      }
     }
 
     // 检查公司是否存在

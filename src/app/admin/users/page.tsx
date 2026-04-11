@@ -5,10 +5,34 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { UserRole, UserStatus } from "@prisma/client";
 
+async function toggleUserStatus(formData: FormData) {
+  "use server";
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    throw new Error("未登录");
+  }
+  const currentUser = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { role: true },
+  });
+  if (currentUser?.role !== "ADMIN") {
+    throw new Error("无权操作");
+  }
+
+  const userId = formData.get("userId") as string;
+  const status = formData.get("status") as UserStatus;
+  if (!userId || !status) throw new Error("参数不完整");
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { status },
+  });
+}
+
 export default async function UsersPage() {
   const session = await getServerSession(authOptions);
 
-  if (!session) {
+  if (!session || session.user?.role !== "ADMIN") {
     redirect("/auth/login/admin");
   }
 
@@ -162,15 +186,11 @@ export default async function UsersPage() {
                       </Link>
                       {user.status === "ACTIVE" ? (
                         <form
-                          action={async () => {
-                            "use server";
-                            await prisma.user.update({
-                              where: { id: user.id },
-                              data: { status: "DISABLED" },
-                            });
-                          }}
+                          action={toggleUserStatus}
                           className="inline"
                         >
+                          <input type="hidden" name="userId" value={user.id} />
+                          <input type="hidden" name="status" value="DISABLED" />
                           <button
                             type="submit"
                             className="text-red-600 hover:text-red-900"
@@ -180,15 +200,11 @@ export default async function UsersPage() {
                         </form>
                       ) : (
                         <form
-                          action={async () => {
-                            "use server";
-                            await prisma.user.update({
-                              where: { id: user.id },
-                              data: { status: "ACTIVE" },
-                            });
-                          }}
+                          action={toggleUserStatus}
                           className="inline"
                         >
+                          <input type="hidden" name="userId" value={user.id} />
+                          <input type="hidden" name="status" value="ACTIVE" />
                           <button
                             type="submit"
                             className="text-green-600 hover:text-green-900"

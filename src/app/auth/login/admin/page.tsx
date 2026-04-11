@@ -4,6 +4,7 @@ import { LoginPageShell } from "../login-shell";
 export const metadata: Metadata = {
   title: "管理员登录 | 招聘平台",
   description: "管理员登录后台管理系统。",
+  robots: { index: false, follow: false },
 };
 
 export default function AdminLoginPage() {

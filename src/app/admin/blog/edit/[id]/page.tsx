@@ -36,6 +36,21 @@ export default async function EditBlogPage({ params }: Props) {
   async function updateBlog(formData: FormData) {
     "use server";
 
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      throw new Error("未登录");
+    }
+    const currentUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { role: true },
+    });
+    if (currentUser?.role !== "ADMIN") {
+      throw new Error("无权操作");
+    }
+
+    const postId = formData.get("id") as string;
+    if (!postId) throw new Error("缺少文章ID");
+
     const title = formData.get("title") as string;
     const slug = formData.get("slug") as string;
     const excerpt = formData.get("excerpt") as string;
@@ -48,7 +63,7 @@ export default async function EditBlogPage({ params }: Props) {
     const status = formData.get("status") as PageStatus;
 
     await prisma.page.update({
-      where: { id },
+      where: { id: postId },
       data: {
         title,
         slug,
@@ -78,6 +93,7 @@ export default async function EditBlogPage({ params }: Props) {
 
       <main className="max-w-4xl mx-auto px-4 py-8">
         <form action={updateBlog} className="bg-white rounded-lg shadow-md p-8">
+          <input type="hidden" name="id" value={post.id} />
           <div className="space-y-6">
             {/* 标题 */}
             <div>

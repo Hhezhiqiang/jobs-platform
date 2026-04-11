@@ -14,7 +14,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
   const session = await getServerSession(authOptions);
   const { id } = await params;
 
-  if (!session) {
+  if (!session || session.user?.role !== "ADMIN") {
     redirect("/auth/login/admin");
   }
 

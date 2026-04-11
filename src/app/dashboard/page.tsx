@@ -27,6 +27,29 @@ const statusMap: Record<string, { label: string; color: string; bg: string }> = 
   WITHDRAWN: { label: "已撤回", color: "text-gray-700", bg: "bg-gray-100" },
 };
 
+async function withdrawApplication(formData: FormData) {
+  "use server";
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    throw new Error("未登录");
+  }
+  const id = formData.get("applicationId") as string;
+  if (!id) throw new Error("缺少申请ID");
+
+  const app = await prisma.jobApplication.findUnique({
+    where: { id },
+    select: { userId: true },
+  });
+  if (!app || app.userId !== session.user.id) {
+    throw new Error("无权操作");
+  }
+
+  await prisma.jobApplication.update({
+    where: { id },
+    data: { status: "WITHDRAWN", withdrewAt: new Date() },
+  });
+}
+
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
 
@@ -310,15 +333,8 @@ export default async function DashboardPage() {
                           </span>
                           
                           {app.status === "PENDING" && (
-                            <form
-                              action={async () => {
-                                "use server";
-                                await prisma.jobApplication.update({
-                                  where: { id: app.id },
-                                  data: { status: "WITHDRAWN", withdrewAt: new Date() },
-                                });
-                              }}
-                            >
+                            <form action={withdrawApplication}>
+                              <input type="hidden" name="applicationId" value={app.id} />
                               <button
                                 type="submit"
                                 className="text-sm text-gray-400 hover:text-red-600 transition-colors"

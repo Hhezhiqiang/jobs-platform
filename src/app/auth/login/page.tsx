@@ -4,6 +4,7 @@ import { LoginPageShell } from "./login-shell";
 export const metadata: Metadata = {
   title: "用户登录 | 招聘平台",
   description: "登录招聘平台，管理您的求职申请和简历。",
+  robots: { index: false, follow: false },
 };
 
 export default function UserLoginPage() {
