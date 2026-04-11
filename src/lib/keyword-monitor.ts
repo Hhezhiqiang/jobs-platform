@@ -58,7 +58,6 @@ export async function collectKeywords(): Promise<{ inserted: number; duplicates:
       });
 
       if (exists) {
-        // Update lastSeenAt and maybe trendScore if higher
         await prisma.keywordMonitor.update({
           where: { id: exists.id },
           data: {
@@ -71,7 +70,6 @@ export async function collectKeywords(): Promise<{ inserted: number; duplicates:
         continue;
       }
 
-      // Auto-classify
       const classification = await classifyKeyword(item.keyword);
 
       const created = await prisma.keywordMonitor.create({
@@ -90,9 +88,31 @@ export async function collectKeywords(): Promise<{ inserted: number; duplicates:
       });
       newIds.push(created.id);
       inserted++;
-    } catch (err) {
-      console.error(`[keyword-monitor] failed to upsert "${norm}":`, (err as Error).message);
-      errors++;
+    } catch (err: any) {
+      if (err.code === "P2002") {
+        // Race condition: another instance created the same normalized keyword.
+        // Try to update it.
+        const exists = await prisma.keywordMonitor.findFirst({
+          where: { normalized: norm },
+        });
+        if (exists) {
+          await prisma.keywordMonitor.update({
+            where: { id: exists.id },
+            data: {
+              lastSeenAt: new Date(),
+              trendScore: Math.max(exists.trendScore, item.trendScore || 0),
+              source: item.source || exists.source,
+            },
+          });
+          duplicates++;
+        } else {
+          console.error(`[keyword-monitor] race condition but record missing for "${norm}"`);
+          errors++;
+        }
+      } else {
+        console.error(`[keyword-monitor] failed to upsert "${norm}":`, (err as Error).message);
+        errors++;
+      }
     }
   }
 

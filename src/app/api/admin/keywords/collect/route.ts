@@ -3,12 +3,49 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { collectKeywords } from "@/lib/keyword-monitor";
 import { runAutoPipeline } from "@/lib/auto-publisher";
 
+const CRON_LOCK_KEY = "cron_lock_keyword_collect";
+const LOCK_TTL_MINUTES = 10;
+
+async function acquireCronLock(): Promise<boolean> {
+  const now = new Date();
+  const ttlAgo = new Date(now.getTime() - LOCK_TTL_MINUTES * 60 * 1000);
+
+  const updated = await prisma.sEOSetting.updateMany({
+    where: { key: CRON_LOCK_KEY, updatedAt: { lt: ttlAgo } },
+    data: { value: now.toISOString(), updatedAt: now },
+  });
+
+  if (updated.count > 0) {
+    return true;
+  }
+
+  try {
+    await prisma.sEOSetting.create({
+      data: { key: CRON_LOCK_KEY, value: now.toISOString(), description: "cron lock" },
+    });
+    return true;
+  } catch (err: any) {
+    if (err.code === "P2002") {
+      return false;
+    }
+    throw err;
+  }
+}
+
+async function releaseCronLock(): Promise<void> {
+  const stale = new Date(Date.now() - (LOCK_TTL_MINUTES + 1) * 60 * 1000);
+  await prisma.sEOSetting.updateMany({
+    where: { key: CRON_LOCK_KEY },
+    data: { updatedAt: stale },
+  });
+}
+
 export async function POST(request: NextRequest) {
   try {
-    // Allow cron jobs via secret header/query OR Vercel Cron user-agent
     const secretHeader = request.headers.get("Authorization")?.replace("Bearer ", "");
     const { searchParams } = new URL(request.url);
     const secretQuery = searchParams.get("secret");
@@ -27,12 +64,21 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const result = await collectKeywords();
+    const locked = await acquireCronLock();
+    if (!locked) {
+      return NextResponse.json(
+        { success: true, skipped: true, reason: "Another cron instance is running" },
+        { status: 200 }
+      );
+    }
 
-    // Run fully automatic pipeline for newly inserted keywords
-    const autoResult = await runAutoPipeline(result.newIds);
-
-    return NextResponse.json({ success: true, result, autoResult });
+    try {
+      const result = await collectKeywords();
+      const autoResult = await runAutoPipeline(result.newIds);
+      return NextResponse.json({ success: true, result, autoResult });
+    } finally {
+      await releaseCronLock();
+    }
   } catch (error) {
     console.error("[api/admin/keywords/collect] error:", error);
     return NextResponse.json(

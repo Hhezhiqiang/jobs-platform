@@ -128,7 +128,6 @@ const nextConfig = {
   },
 
   // 输出配置
-  output: "standalone",
   poweredByHeader: false,
   generateEtags: true,
 };

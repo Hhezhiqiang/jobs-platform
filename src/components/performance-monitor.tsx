@@ -17,9 +17,9 @@ export function PerformanceMonitor() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // 检查 PerformanceObserver 支持
+    const observers: PerformanceObserver[] = [];
+
     if ("PerformanceObserver" in window) {
-      // LCP - Largest Contentful Paint
       try {
         const lcpObserver = new PerformanceObserver((list) => {
           const entries = list.getEntries();
@@ -27,11 +27,11 @@ export function PerformanceMonitor() {
           setMetrics((prev) => ({ ...prev, lcp: lastEntry.startTime }));
         });
         lcpObserver.observe({ entryTypes: ["largest-contentful-paint"] });
+        observers.push(lcpObserver);
       } catch (e) {
         console.log("LCP observation not supported");
       }
 
-      // FID - First Input Delay (使用 INP 替代)
       try {
         const fidObserver = new PerformanceObserver((list) => {
           const entries = list.getEntries();
@@ -41,11 +41,11 @@ export function PerformanceMonitor() {
           }
         });
         fidObserver.observe({ entryTypes: ["first-input"] });
+        observers.push(fidObserver);
       } catch (e) {
         console.log("FID observation not supported");
       }
 
-      // CLS - Cumulative Layout Shift
       try {
         let clsValue = 0;
         const clsObserver = new PerformanceObserver((list) => {
@@ -57,11 +57,11 @@ export function PerformanceMonitor() {
           setMetrics((prev) => ({ ...prev, cls: clsValue }));
         });
         clsObserver.observe({ entryTypes: ["layout-shift"] });
+        observers.push(clsObserver);
       } catch (e) {
         console.log("CLS observation not supported");
       }
 
-      // FCP - First Contentful Paint
       try {
         const fcpObserver = new PerformanceObserver((list) => {
           const entries = list.getEntries();
@@ -71,11 +71,11 @@ export function PerformanceMonitor() {
           }
         });
         fcpObserver.observe({ entryTypes: ["paint"] });
+        observers.push(fcpObserver);
       } catch (e) {
         console.log("FCP observation not supported");
       }
 
-      // INP - Interaction to Next Paint
       try {
         let inpValue = 0;
         const inpObserver = new PerformanceObserver((list) => {
@@ -87,18 +87,24 @@ export function PerformanceMonitor() {
           }
         });
         inpObserver.observe({ entryTypes: ["event"] });
+        observers.push(inpObserver);
       } catch (e) {
         console.log("INP observation not supported");
       }
     }
 
-    // TTFB - Time to First Byte
     if ("performance" in window) {
       const navigation = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming;
       if (navigation) {
         setMetrics((prev) => ({ ...prev, ttfb: navigation.responseStart }));
       }
     }
+
+    return () => {
+      observers.forEach((obs) => {
+        try { obs.disconnect(); } catch {}
+      });
+    };
   }, []);
 
   // 只在开发环境显示性能指标

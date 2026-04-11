@@ -75,11 +75,15 @@ export async function runAutoPipeline(newMonitorIds: string[]): Promise<AutoPipe
       if (existingPlan) {
         planId = existingPlan.id;
       } else {
-        const plan = await generateSEOPlan(monitor.id);
-        planId = (await prisma.sEOPlan.findFirst({
+        await generateSEOPlan(monitor.id);
+        const freshPlan = await prisma.sEOPlan.findFirst({
           where: { monitorId: monitor.id },
           orderBy: { generatedAt: "desc" },
-        }))!.id;
+        });
+        if (!freshPlan) {
+          throw new Error("SEO plan generation succeeded but plan not found in DB");
+        }
+        planId = freshPlan.id;
       }
 
       // 3. Publish

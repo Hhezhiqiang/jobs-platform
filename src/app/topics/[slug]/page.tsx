@@ -1,12 +1,15 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { Header } from "@/components/header";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { JobCardV2 } from "@/components/job-card-v2";
+import { ViewCounter } from "@/components/view-counter";
 import { generateJobPostingSchema, generateBreadcrumbSchema } from "@/lib/schema";
 import { Prisma } from "@prisma/client";
+import ReactMarkdown from "react-markdown";
 
 const SITE_NAME = "JobsBro招聘平台";
 const SITE_URL = "https://jobs-platform-gold.vercel.app";
@@ -118,7 +121,6 @@ function buildWhere(slug: string): Prisma.JobWhereInput {
 
   switch (slug) {
     case "java-developer":
-      // 简化：title 包含 "Java"
       base.title = { contains: "Java", mode: "insensitive" };
       break;
     case "frontend-developer":
@@ -149,12 +151,70 @@ function buildWhere(slug: string): Prisma.JobWhereInput {
   return base;
 }
 
+function generateTopicBreadcrumbSchema(slug: string, title: string) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "首页", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "专题", item: `${SITE_URL}/topics` },
+      { "@type": "ListItem", position: 3, name: title, item: `${SITE_URL}/topics/${slug}` },
+    ],
+  };
+}
+
+// 生成 Article Schema（用于 CMS 专题页）
+function generateArticleSchema(post: any) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    description: post.excerpt,
+    image: post.featuredImage,
+    datePublished: post.createdAt.toISOString(),
+    dateModified: post.updatedAt.toISOString(),
+    author: {
+      "@type": "Person",
+      name: post.author?.name || "招聘平台",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE_URL}/logo.png`,
+      },
+    },
+    url: `${SITE_URL}/topics/${post.slug}`,
+  };
+}
+
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
+
+  // 1. 尝试 CMS 专题页
+  const cmsPage = await prisma.page.findUnique({
+    where: { slug, type: "PAGE", status: "PUBLISHED" },
+    select: { title: true, metaDescription: true, metaTitle: true, keywords: true },
+  });
+
+  if (cmsPage) {
+    const url = `${SITE_URL}/topics/${slug}`;
+    return {
+      title: cmsPage.metaTitle || `${cmsPage.title} | ${SITE_NAME}`,
+      description: cmsPage.metaDescription || cmsPage.title,
+      keywords: cmsPage.keywords,
+      openGraph: { title: cmsPage.title, description: cmsPage.metaDescription || "", url, siteName: SITE_NAME, type: "article", locale: "zh_CN" },
+      twitter: { card: "summary_large_image", title: cmsPage.title, description: cmsPage.metaDescription || "" },
+      alternates: { canonical: url },
+    };
+  }
+
+  // 2. Fallback 硬编码专题
   if (!VALID_SLUGS.includes(slug)) {
     return { title: "页面未找到" };
   }
@@ -164,28 +224,121 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: meta.title,
     description: meta.description,
     keywords: meta.keywords,
-    openGraph: {
-      title: meta.title,
-      description: meta.description,
-      url,
-      siteName: SITE_NAME,
-      type: "website",
-      locale: "zh_CN",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: meta.title,
-      description: meta.description,
-    },
-    alternates: {
-      canonical: url,
-    },
+    openGraph: { title: meta.title, description: meta.description, url, siteName: SITE_NAME, type: "website", locale: "zh_CN" },
+    twitter: { card: "summary_large_image", title: meta.title, description: meta.description },
+    alternates: { canonical: url },
   };
 }
 
 export default async function TopicPage({ params }: PageProps) {
   const { slug } = await params;
 
+  // 1. 优先查找 CMS 专题页（由自动发布系统生成）
+  const cmsPage = await prisma.page.findUnique({
+    where: { slug, type: "PAGE", status: "PUBLISHED" },
+    include: { author: true },
+  });
+
+  if (cmsPage) {
+    const articleSchema = generateArticleSchema(cmsPage);
+    const breadcrumbSchema = generateTopicBreadcrumbSchema(slug, cmsPage.title);
+
+    // 获取相关职位
+    const keyword = cmsPage.keywords?.[0] || "";
+    const relatedJobs = await prisma.job.findMany({
+      where: {
+        status: "ACTIVE",
+        slug: { not: "" },
+        OR: keyword
+          ? [
+              { title: { contains: keyword, mode: "insensitive" } },
+              { description: { contains: keyword, mode: "insensitive" } },
+            ]
+          : undefined,
+      },
+      include: { company: true },
+      take: 6,
+    });
+
+    const displayJobs = relatedJobs.length > 0 ? relatedJobs : [];
+
+    return (
+      <>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
+
+        <div className="min-h-screen bg-gray-50">
+          <Header />
+          <header className="bg-white shadow-sm">
+            <div className="max-w-4xl mx-auto px-4 py-4">
+              <Link href="/topics" className="text-blue-600 hover:text-blue-800">← 返回专题列表</Link>
+            </div>
+          </header>
+
+          <main className="max-w-4xl mx-auto px-4 py-8">
+            <article className="bg-white rounded-lg shadow-md overflow-hidden">
+              {cmsPage.featuredImage && (
+                <div className="relative h-64 md:h-96 w-full">
+                  <Image src={cmsPage.featuredImage} alt={cmsPage.title} fill className="object-cover" priority />
+                </div>
+              )}
+              <div className="p-8">
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">{cmsPage.title}</h1>
+                <div className="flex items-center gap-4 text-gray-600 mb-8 pb-8 border-b">
+                  <div className="flex items-center gap-2">
+                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
+                      {cmsPage.author?.name?.[0] || "A"}
+                    </div>
+                    <span>{cmsPage.author?.name || "匿名作者"}</span>
+                  </div>
+                  <span>·</span>
+                  <time dateTime={cmsPage.createdAt.toISOString()}>
+                    {cmsPage.createdAt.toLocaleDateString("zh-CN", { year: "numeric", month: "long", day: "numeric" })}
+                  </time>
+                  <span>·</span>
+                  <ViewCounter slug={slug} initialCount={cmsPage.viewCount} />
+                </div>
+
+                {cmsPage.excerpt && (
+                  <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-8 rounded-r-lg">
+                    <p className="text-gray-700 italic">{cmsPage.excerpt}</p>
+                  </div>
+                )}
+
+                <div className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-a:text-blue-600">
+                  <ReactMarkdown>{cmsPage.content}</ReactMarkdown>
+                </div>
+
+                {cmsPage.keywords && cmsPage.keywords.length > 0 && (
+                  <div className="mt-8 pt-8 border-t">
+                    <p className="text-sm text-gray-500 mb-2">关键词：</p>
+                    <div className="flex flex-wrap gap-2">
+                      {cmsPage.keywords.map((k: string) => (
+                        <span key={k} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">{k}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </article>
+
+            {displayJobs.length > 0 && (
+              <div className="mt-8 bg-white rounded-lg shadow-md p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">相关职位推荐</h2>
+                <div className="space-y-4">
+                  {displayJobs.map((job) => (
+                    <JobCardV2 key={job.id} job={job} variant="compact" />
+                  ))}
+                </div>
+              </div>
+            )}
+          </main>
+        </div>
+      </>
+    );
+  }
+
+  // 2. Fallback 硬编码专题
   if (!VALID_SLUGS.includes(slug)) {
     notFound();
   }
@@ -194,9 +347,7 @@ export default async function TopicPage({ params }: PageProps) {
 
   const jobs = await prisma.job.findMany({
     where: buildWhere(slug),
-    include: {
-      company: true,
-    },
+    include: { company: true },
     orderBy: { datePosted: "desc" },
     take: 20,
   });
@@ -210,51 +361,27 @@ export default async function TopicPage({ params }: PageProps) {
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jobSchemas) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jobSchemas) }} />
 
       <div className="min-h-screen bg-gray-50">
         <Header />
-
-        {/* Page Header */}
         <div className="bg-white border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 py-8">
             <div className="mb-4">
-              <Breadcrumb
-                items={[
-                  { label: "职位列表", href: "/jobs" },
-                  { label: meta.title.split(" - ")[0] },
-                ]}
-              />
+              <Breadcrumb items={[{ label: "职位列表", href: "/jobs" }, { label: meta.title.split(" - ")[0] }]} />
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-              {meta.title.split(" - ")[0]}
-            </h1>
-            <p className="text-gray-600 max-w-3xl leading-relaxed">
-              {meta.intro}
-            </p>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">{meta.title.split(" - ")[0]}</h1>
+            <p className="text-gray-600 max-w-3xl leading-relaxed">{meta.intro}</p>
           </div>
         </div>
 
         <main className="max-w-7xl mx-auto px-4 py-8">
           {jobs.length === 0 ? (
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                暂无相关职位
-              </h3>
-              <p className="text-gray-500 mb-6">
-                该专题下暂时没有符合条件的职位，去看看其他机会吧
-              </p>
-              <Link
-                href="/jobs"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all"
-              >
+              <h3 className="text-xl font-bold text-gray-900 mb-2">暂无相关职位</h3>
+              <p className="text-gray-500 mb-6">该专题下暂时没有符合条件的职位，去看看其他机会吧</p>
+              <Link href="/jobs" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all">
                 查看更多职位
               </Link>
             </div>
@@ -262,38 +389,19 @@ export default async function TopicPage({ params }: PageProps) {
             <>
               <div className="flex items-center justify-between mb-6">
                 <p className="text-gray-600">
-                  共{" "}
-                  <span className="font-semibold text-gray-900">
-                    {jobs.length}
-                  </span>{" "}
-                  个精选职位
+                  共 <span className="font-semibold text-gray-900">{jobs.length}</span> 个精选职位
                 </p>
               </div>
-
               <div className="space-y-4">
                 {jobs.map((job) => (
                   <JobCardV2 key={job.id} job={job} variant="compact" />
                 ))}
               </div>
-
               <div className="mt-10 text-center">
-                <Link
-                  href="/jobs"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-all font-medium"
-                >
+                <Link href="/jobs" className="inline-flex items-center gap-2 px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-all font-medium">
                   查看更多职位
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17 8l4 4m0 0l-4 4m4-4H3"
-                    />
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
                 </Link>
               </div>

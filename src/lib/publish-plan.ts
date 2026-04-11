@@ -30,11 +30,7 @@ export async function publishSEOPlan(
 
   const slugBase =
     plan.targetUrl?.split("/").pop() || plan.monitor.normalized.replace(/\s+/g, "-");
-  const slug = slugBase.replace(/^-+|-+$/g, "").toLowerCase() || `auto-${Date.now()}`;
-
-  // Ensure unique slug
-  const existing = await prisma.page.findUnique({ where: { slug } });
-  const finalSlug = existing ? `${slug}-${Date.now()}` : slug;
+  let finalSlug = slugBase.replace(/^-+|-+$/g, "").toLowerCase() || `auto-${Date.now()}`;
 
   // Generate basic markdown body from outline
   const outline = (plan.outline as any[]) || [];
@@ -47,20 +43,38 @@ export async function publishSEOPlan(
 
   const content = `# ${plan.h1}\n\n${outlineMd}\n\n---\n\n*> 本文由关键词监控系统自动生成，基于 [${plan.monitor.keyword}] 热词数据。*`;
 
-  const page = await prisma.page.create({
-    data: {
-      slug: finalSlug,
-      title: plan.title,
-      content,
-      excerpt: plan.metaDesc,
-      type: plan.pageType === "TOPIC" ? "PAGE" : "BLOG",
-      status: "PUBLISHED",
-      metaTitle: plan.title,
-      metaDescription: plan.metaDesc,
-      keywords: plan.keywords,
-      authorId,
-    },
-  });
+  let page;
+  let retries = 0;
+  while (retries < 3) {
+    try {
+      page = await prisma.page.create({
+        data: {
+          slug: finalSlug,
+          title: plan.title,
+          content,
+          excerpt: plan.metaDesc,
+          type: plan.pageType === "TOPIC" ? "PAGE" : "BLOG",
+          status: "PUBLISHED",
+          metaTitle: plan.title,
+          metaDescription: plan.metaDesc,
+          keywords: plan.keywords,
+          authorId,
+        },
+      });
+      break;
+    } catch (err: any) {
+      if (err.code === "P2002") {
+        finalSlug = `${slugBase || "auto"}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+        retries++;
+        continue;
+      }
+      throw err;
+    }
+  }
+
+  if (!page) {
+    throw new Error("Failed to create page after retries due to slug conflict");
+  }
 
   // Link keyword to page
   await prisma.keywordMonitor.update({
