@@ -3,9 +3,10 @@ import { normalizeKeyword, type RawKeywordItem } from "./keyword-sources";
 import { googleTrendsAdapter } from "./keyword-sources/google-trends";
 import { zhihuAdapter } from "./keyword-sources/zhihu";
 import { redditAdapter } from "./keyword-sources/reddit";
+import { jobMarketAdapter } from "./keyword-sources/job-market";
 import { llmChat, isLLMConfigured } from "@/lib/llm";
 
-const ADAPTERS = [googleTrendsAdapter, zhihuAdapter, redditAdapter];
+const ADAPTERS = [jobMarketAdapter, googleTrendsAdapter, zhihuAdapter, redditAdapter];
 
 // Recruitment-related whitelist for quick pre-filtering
 const JOB_KEYWORDS_REGEX =

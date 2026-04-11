@@ -88,13 +88,18 @@ ${jobContext ? `${jobContext}\n` : ""}
 
   let content: string;
   if (isLLMConfigured()) {
-    content = await llmChat(
-      [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-      ],
-      { temperature: 0.4, maxTokens: 1500 }
-    );
+    try {
+      content = await llmChat(
+        [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        { temperature: 0.4, maxTokens: 1500 }
+      );
+    } catch (err) {
+      console.error("[seo-plan] LLM call failed, using fallback:", (err as Error).message);
+      content = fallbackSEOPayload(keyword, category);
+    }
   } else {
     content = fallbackSEOPayload(keyword, category);
   }
@@ -129,6 +134,7 @@ ${jobContext ? `${jobContext}\n` : ""}
 }
 
 function fallbackSEOPayload(keyword: string, category: string): string {
+  const safeSlug = keyword.replace(/\s+/g, "-").toLowerCase() || `auto-${Date.now()}`;
   if (category === "PRIMARY") {
     return JSON.stringify({
       pageType: "TOPIC",
@@ -137,11 +143,11 @@ function fallbackSEOPayload(keyword: string, category: string): string {
       metaDesc: `汇集最新的${keyword}信息，实时更新热门企业与薪资待遇，助你快速找到理想工作。`,
       keywords: [keyword, "招聘", "求职", "高薪岗位"],
       outline: [
-        { section: "市场趋势", points: ["当前${keyword}供需分析", "薪资水平与增长趋势"] },
+        { section: "市场趋势", points: [`当前${keyword}供需分析`, "薪资水平与增长趋势"] },
         { section: "热门职位推荐", points: ["精选20个最新岗位", "覆盖一线与新一线城市"] },
         { section: "技能要求与求职建议", points: ["核心技能清单", "简历优化与面试技巧"] },
       ],
-      targetUrl: `/topics/${keyword.replace(/\s+/g, "-").toLowerCase()}`,
+      targetUrl: `/topics/${safeSlug}`,
       internalLinks: [
         { text: "查看更多职位", url: `/jobs?keyword=${encodeURIComponent(keyword)}` },
         { text: "薪资洞察", url: "/salary-insights" },
@@ -159,7 +165,7 @@ function fallbackSEOPayload(keyword: string, category: string): string {
       { section: "深度分析", points: ["原因剖析", "影响范围"] },
       { section: "对求职者的建议", points: ["如何准备", "机会与风险"] },
     ],
-    targetUrl: `/blog/${keyword.replace(/\s+/g, "-").toLowerCase()}`,
+    targetUrl: `/blog/${safeSlug}`,
     internalLinks: [
       { text: "搜索相关职位", url: `/jobs?keyword=${encodeURIComponent(keyword)}` },
       { text: "热门专题", url: "/topics" },
