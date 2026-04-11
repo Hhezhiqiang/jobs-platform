@@ -15,37 +15,43 @@ function formatDateKey(date: Date): string {
   return format(date, "yyyy-MM-dd");
 }
 
-// 获取访问统计数据（模拟数据，基于实际页面浏览量）
+// 获取访问统计数据（基于真实PageView数据）
 export async function getVisitStats(days: number = 30) {
   const dateRange = getLastNDays(days);
   const startDate = startOfDay(dateRange[0]);
   const endDate = endOfDay(dateRange[dateRange.length - 1]);
 
-  // 获取所有职位和博客的总浏览量
-  const [jobViews, blogViews] = await Promise.all([
-    prisma.job.aggregate({
-      _sum: { viewCount: true },
-    }),
-    prisma.page.aggregate({
-      where: { type: "BLOG" },
-      _sum: { viewCount: true },
-    }),
-  ]);
+  // 获取真实的页面访问数据
+  const pageViews = await prisma.pageView.findMany({
+    where: {
+      createdAt: {
+        gte: startDate,
+        lte: endDate,
+      },
+    },
+    select: {
+      sessionId: true,
+      createdAt: true,
+    },
+  });
 
-  const totalViews = (jobViews._sum.viewCount || 0) + (blogViews._sum.viewCount || 0);
-  
-  // 模拟每日PV/UV数据（基于实际数据生成合理分布）
-  const dailyAvg = Math.max(Math.floor(totalViews / 90), 50); // 过去90天平均，至少50
-  
+  // 按日期分组统计 PV 和 UV
   const dailyStats = dateRange.map((date) => {
-    const dayOfWeek = date.getDay();
-    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-    const randomFactor = 0.7 + Math.random() * 0.6; // 0.7 - 1.3
-    const weekendFactor = isWeekend ? 0.6 : 1.0;
-    
-    const pv = Math.floor(dailyAvg * randomFactor * weekendFactor);
-    const uv = Math.floor(pv * (0.4 + Math.random() * 0.3)); // UV约为PV的40-70%
-    
+    const dayStart = startOfDay(date);
+    const dayEnd = endOfDay(date);
+
+    // 当天的所有访问
+    const dayViews = pageViews.filter(
+      (pv) => pv.createdAt >= dayStart && pv.createdAt <= dayEnd
+    );
+
+    // PV = 访问次数
+    const pv = dayViews.length;
+
+    // UV = 独立会话数
+    const uniqueSessions = new Set(dayViews.map((v) => v.sessionId));
+    const uv = uniqueSessions.size;
+
     return {
       date: formatDateKey(date),
       dateDisplay: format(date, "MM/dd"),
@@ -57,6 +63,25 @@ export async function getVisitStats(days: number = 30) {
   const totalPV = dailyStats.reduce((sum, d) => sum + d.pv, 0);
   const totalUV = dailyStats.reduce((sum, d) => sum + d.uv, 0);
 
+  // 计算增长率（与上一个周期比较）
+  const prevStartDate = startOfDay(subDays(dateRange[0], days));
+  const prevEndDate = endOfDay(subDays(dateRange[0], 1));
+
+  const prevPageViews = await prisma.pageView.findMany({
+    where: {
+      createdAt: {
+        gte: prevStartDate,
+        lte: prevEndDate,
+      },
+    },
+  });
+
+  const prevPV = prevPageViews.length;
+  const prevUV = new Set(prevPageViews.map((v) => v.sessionId)).size;
+
+  const pvGrowth = prevPV > 0 ? +(((totalPV - prevPV) / prevPV) * 100).toFixed(1) : 0;
+  const uvGrowth = prevUV > 0 ? +(((totalUV - prevUV) / prevUV) * 100).toFixed(1) : 0;
+
   return {
     dailyStats,
     summary: {
@@ -64,30 +89,27 @@ export async function getVisitStats(days: number = 30) {
       totalUV,
       avgPV: Math.floor(totalPV / days),
       avgUV: Math.floor(totalUV / days),
-      pvGrowth: +(Math.random() * 20 + 5).toFixed(1), // 模拟增长率 5-25%
-      uvGrowth: +(Math.random() * 18 + 3).toFixed(1), // 模拟增长率 3-21%
+      pvGrowth,
+      uvGrowth,
     },
   };
 }
 
-// 获取申请转化率统计
+// 获取申请转化率统计（基于真实数据）
 export async function getApplicationConversionStats(days: number = 30) {
   const dateRange = getLastNDays(days);
-  const startDate = startOfDay(dateRange[0]);
-  const endDate = endOfDay(dateRange[dateRange.length - 1]);
 
-  // 获取职位浏览数据
-  const jobs = await prisma.job.findMany({
-    select: {
-      id: true,
-      viewCount: true,
-      createdAt: true,
-    },
+  // 获取真实的页面访问数据（职位详情页）
+  const pageViews = await prisma.pageView.findMany({
     where: {
+      path: { startsWith: "/jobs/" },
       createdAt: {
-        gte: startDate,
-        lte: endDate,
+        gte: startOfDay(dateRange[0]),
+        lte: endOfDay(dateRange[dateRange.length - 1]),
       },
+    },
+    select: {
+      createdAt: true,
     },
   });
 
@@ -99,22 +121,22 @@ export async function getApplicationConversionStats(days: number = 30) {
     },
     where: {
       appliedAt: {
-        gte: startDate,
-        lte: endDate,
+        gte: startOfDay(dateRange[0]),
+        lte: endOfDay(dateRange[dateRange.length - 1]),
       },
     },
   });
 
   // 按日期分组统计
   const stats = dateRange.map((date) => {
-    const dateKey = formatDateKey(date);
     const dayStart = startOfDay(date);
     const dayEnd = endOfDay(date);
+    const dateKey = formatDateKey(date);
 
-    // 当日浏览量（所有职位的浏览量累加，按创建时间分布估算）
-    const dayViews = jobs
-      .filter((job) => job.createdAt <= dayEnd)
-      .reduce((sum, job) => sum + Math.floor(job.viewCount / 30), 0);
+    // 当日职位详情页浏览量
+    const dayViews = pageViews.filter(
+      (pv) => pv.createdAt >= dayStart && pv.createdAt <= dayEnd
+    ).length;
 
     // 当日申请数
     const dayApplications = applications.filter(
@@ -136,13 +158,32 @@ export async function getApplicationConversionStats(days: number = 30) {
   const totalApplications = stats.reduce((sum, s) => sum + s.applications, 0);
   const avgConversionRate = totalViews > 0 ? (totalApplications / totalViews) * 100 : 0;
 
+  // 计算转化率变化（与上一个周期比较）
+  const prevDays = days;
+  const prevStart = startOfDay(subDays(dateRange[0], prevDays));
+  const prevEnd = endOfDay(subDays(dateRange[0], 1));
+
+  const prevApplications = await prisma.jobApplication.count({
+    where: {
+      appliedAt: {
+        gte: prevStart,
+        lte: prevEnd,
+      },
+    },
+  });
+
+  const conversionGrowth =
+    prevApplications > 0
+      ? +(((totalApplications - prevApplications) / prevApplications) * 100).toFixed(1)
+      : 0;
+
   return {
     dailyStats: stats,
     summary: {
       totalViews,
       totalApplications,
       avgConversionRate: +avgConversionRate.toFixed(2),
-      conversionGrowth: +(Math.random() * 15 - 5).toFixed(1), // 模拟增长率 -5% 到 10%
+      conversionGrowth,
     },
   };
 }
@@ -179,11 +220,9 @@ export async function getTopJobs(limit: number = 10) {
   }));
 }
 
-// 获取用户增长趋势
+// 获取用户增长趋势（基于真实数据）
 export async function getUserGrowthStats(days: number = 30) {
   const dateRange = getLastNDays(days);
-  const startDate = startOfDay(dateRange[0]);
-  const endDate = endOfDay(dateRange[dateRange.length - 1]);
 
   // 获取所有用户
   const users = await prisma.user.findMany({
@@ -193,7 +232,7 @@ export async function getUserGrowthStats(days: number = 30) {
     },
     where: {
       createdAt: {
-        lte: endDate,
+        lte: endOfDay(dateRange[dateRange.length - 1]),
       },
     },
     orderBy: {
@@ -205,12 +244,12 @@ export async function getUserGrowthStats(days: number = 30) {
   let cumulativeCount = 0;
   const dailyStats = dateRange.map((date) => {
     const dayEnd = endOfDay(date);
-    
+
     // 计算当天新增
     const newUsers = users.filter(
       (user) => user.createdAt >= startOfDay(date) && user.createdAt <= dayEnd
     ).length;
-    
+
     // 计算累计（截至当天）
     cumulativeCount = users.filter((user) => user.createdAt <= dayEnd).length;
 
@@ -223,15 +262,30 @@ export async function getUserGrowthStats(days: number = 30) {
   });
 
   const totalNewUsers = dailyStats.reduce((sum, d) => sum + d.newUsers, 0);
-  const avgDailyNewUsers = Math.floor(totalNewUsers / days);
+
+  // 计算增长率（与上一个周期比较）
+  const prevDays = days;
+  const prevStart = startOfDay(subDays(dateRange[0], prevDays));
+  const prevEnd = endOfDay(subDays(dateRange[0], 1));
+
+  const prevNewUsers = users.filter(
+    (user) => user.createdAt >= prevStart && user.createdAt <= prevEnd
+  ).length;
+
+  const growthRate =
+    prevNewUsers > 0
+      ? +(((totalNewUsers - prevNewUsers) / prevNewUsers) * 100).toFixed(1)
+      : totalNewUsers > 0
+      ? 100
+      : 0;
 
   return {
     dailyStats,
     summary: {
       totalUsers: cumulativeCount,
       totalNewUsers,
-      avgDailyNewUsers,
-      growthRate: +(Math.random() * 25 + 10).toFixed(1), // 模拟增长率 10-35%
+      avgDailyNewUsers: Math.floor(totalNewUsers / days),
+      growthRate,
     },
   };
 }

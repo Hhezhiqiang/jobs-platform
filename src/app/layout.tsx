@@ -5,6 +5,8 @@ import { generateHomeMetadata } from "@/lib/metadata";
 import { generateWebsiteSchema } from "@/lib/schema";
 import { Providers } from "@/components/providers";
 import { TelegramFloatButton } from "@/components/telegram-float-button";
+import { Analytics } from "@vercel/analytics/react";
+import { PageTracker } from "@/components/page-tracker";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -52,6 +54,12 @@ export default function RootLayout({
       <body className={inter.className}>
         <Providers>
           {children}
+          
+          {/* 页面访问跟踪 - 真实PV统计 */}
+          <PageTracker />
+          
+          {/* Vercel Analytics */}
+          <Analytics />
           
           {/* Baidu Auto Push */}
           <script
