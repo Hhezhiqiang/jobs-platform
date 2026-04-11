@@ -128,18 +128,19 @@ export default async function BlogDetailPage({ params }: PageProps) {
   });
 
   // 获取相关职位（基于关键词匹配）
-  const relatedJobs = await prisma.job.findMany({
+  const keyword = post.keywords?.[0] || "";
+  const relatedJobs = keyword ? await prisma.job.findMany({
     where: {
       status: "ACTIVE",
       slug: { not: "" }, // 确保有 slug
       OR: [
-        { title: { contains: post.keywords?.[0] || "", mode: "insensitive" } },
-        { description: { contains: post.keywords?.[0] || "", mode: "insensitive" } },
+        { title: { contains: keyword, mode: "insensitive" } },
+        { description: { contains: keyword, mode: "insensitive" } },
       ],
     },
     include: { company: true },
     take: 3,
-  });
+  }) : [];
 
   // 如果没有匹配到，获取最新职位
   const fallbackJobs = relatedJobs.length === 0 
@@ -231,9 +232,9 @@ export default async function BlogDetailPage({ params }: PageProps) {
               <div className="flex items-center gap-4 text-gray-600 mb-8 pb-8 border-b">
                 <div className="flex items-center gap-2">
                   <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
-                    {post.author.name[0]}
+                    {post.author?.name?.[0] || "A"}
                   </div>
-                  <span>{post.author.name}</span>
+                  <span>{post.author?.name || "匿名作者"}</span>
                 </div>
                 <span>·</span>
                 <time dateTime={post.createdAt.toISOString()}>
