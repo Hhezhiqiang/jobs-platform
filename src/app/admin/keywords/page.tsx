@@ -34,6 +34,16 @@ interface SEOPlanItem {
   monitor?: { keyword: string };
 }
 
+interface ArchiveItem {
+  id: string;
+  contentType: string;
+  contentTitle?: string;
+  contentBody: string;
+  contentUrl?: string;
+  relevanceScore?: number;
+  fetchedAt: string;
+}
+
 const CATEGORY_COLORS: Record<string, string> = {
   PRIMARY: "bg-emerald-100 text-emerald-700",
   TRAFFIC: "bg-blue-100 text-blue-700",
@@ -56,6 +66,10 @@ export default function AdminKeywordsPage() {
   const [collecting, setCollecting] = useState(false);
   const [filterCategory, setFilterCategory] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
+  const [selectedArchives, setSelectedArchives] = useState<ArchiveItem[]>([]);
+  const [archiveModalOpen, setArchiveModalOpen] = useState(false);
+  const [archiveModalKeyword, setArchiveModalKeyword] = useState("");
+  const [collectingArchivesForId, setCollectingArchivesForId] = useState<string | null>(null);
 
   async function fetchKeywords() {
     setLoading(true);
@@ -126,6 +140,26 @@ export default function AdminKeywordsPage() {
       fetchPlans();
     } else {
       alert(data.error || "发布失败");
+    }
+  }
+
+  async function fetchArchives(monitorId: string, keyword: string) {
+    const res = await fetch(`/api/admin/keywords/${monitorId}/archives`);
+    const data = await res.json();
+    setSelectedArchives(data.items || []);
+    setArchiveModalKeyword(keyword);
+    setArchiveModalOpen(true);
+  }
+
+  async function collectArchivesForKeyword(monitorId: string) {
+    setCollectingArchivesForId(monitorId);
+    const res = await fetch(`/api/admin/keywords/${monitorId}/archives`, { method: "POST" });
+    const data = await res.json();
+    setCollectingArchivesForId(null);
+    if (data.success) {
+      alert(`素材采集完成: 新增 ${data.result?.inserted || 0}, 错误 ${data.result?.errors || 0}`);
+    } else {
+      alert(data.error || "素材采集失败");
     }
   }
 
@@ -215,6 +249,7 @@ export default function AdminKeywordsPage() {
                       <th className="px-4 py-3 text-left font-medium text-gray-600">热度</th>
                       <th className="px-4 py-3 text-left font-medium text-gray-600">状态</th>
                       <th className="px-4 py-3 text-left font-medium text-gray-600">方案</th>
+                      <th className="px-4 py-3 text-left font-medium text-gray-600">素材</th>
                       <th className="px-4 py-3 text-right font-medium text-gray-600">操作</th>
                     </tr>
                   </thead>
@@ -258,12 +293,26 @@ export default function AdminKeywordsPage() {
                           </select>
                         </td>
                         <td className="px-4 py-3 text-gray-600">{k._count.seoPlans}</td>
+                        <td className="px-4 py-3 text-gray-600">{k._count.archives}</td>
                         <td className="px-4 py-3 text-right">
                           <button
                             onClick={() => generatePlan(k.id)}
                             className="text-blue-600 hover:text-blue-700 font-medium mr-3"
                           >
                             生成方案
+                          </button>
+                          <button
+                            onClick={() => fetchArchives(k.id, k.keyword)}
+                            className="text-indigo-600 hover:text-indigo-700 font-medium mr-3"
+                          >
+                            查看素材
+                          </button>
+                          <button
+                            onClick={() => collectArchivesForKeyword(k.id)}
+                            disabled={collectingArchivesForId === k.id}
+                            className="text-purple-600 hover:text-purple-700 font-medium mr-3 disabled:opacity-50"
+                          >
+                            {collectingArchivesForId === k.id ? "采集中..." : "采集素材"}
                           </button>
                           <button
                             onClick={() => deleteKeyword(k.id)}
@@ -278,6 +327,45 @@ export default function AdminKeywordsPage() {
                 </table>
               </div>
             )}
+          </div>
+        )}
+
+        {archiveModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[80vh] overflow-hidden flex flex-col">
+              <div className="px-6 py-4 border-b flex items-center justify-between">
+                <h3 className="text-lg font-bold text-gray-900">素材归档: {archiveModalKeyword}</h3>
+                <button onClick={() => setArchiveModalOpen(false)} className="text-gray-500 hover:text-gray-700">
+                  关闭
+                </button>
+              </div>
+              <div className="p-6 overflow-y-auto space-y-4">
+                {selectedArchives.length === 0 && (
+                  <p className="text-gray-500">暂无素材，请点击"采集素材"按钮获取。</p>
+                )}
+                {selectedArchives.map((a) => (
+                  <div key={a.id} className="border rounded-lg p-4 bg-gray-50">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700 font-medium">
+                        {a.contentType}
+                      </span>
+                      {typeof a.relevanceScore === "number" && (
+                        <span className="text-xs text-gray-500">相关度: {(a.relevanceScore * 100).toFixed(0)}%</span>
+                      )}
+                    </div>
+                    {a.contentTitle && (
+                      <h4 className="font-medium text-gray-900 mb-1">{a.contentTitle}</h4>
+                    )}
+                    <p className="text-sm text-gray-700 whitespace-pre-line mb-2">{a.contentBody}</p>
+                    {a.contentUrl && (
+                      <a href={a.contentUrl} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:underline">
+                        查看原文 →
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
