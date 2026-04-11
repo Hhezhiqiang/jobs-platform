@@ -21,7 +21,7 @@ const jobTypes = [
   { value: "PART_TIME", label: "兼职", icon: "⏰" },
   { value: "INTERNSHIP", label: "实习", icon: "🎓" },
   { value: "CONTRACT", label: "合同", icon: "📝" },
-  { value: "REMOTE", label: "远程", icon: "🏠" },
+  { value: "FREELANCE", label: "自由职业", icon: "🏠" },
 ];
 
 const salaryRanges = [
@@ -31,6 +31,28 @@ const salaryRanges = [
   { min: "30000", max: "50000", label: "30K-50K" },
   { min: "50000", max: "", label: "50K以上" },
 ];
+
+// 构建筛选URL，保留所有当前参数
+function buildFilterUrl(
+  baseUrl: string,
+  currentParams: FilterSidebarProps["currentParams"],
+  newParams: Partial<FilterSidebarProps["currentParams"]>
+): string {
+  const params = new URLSearchParams();
+  
+  // 合并参数
+  const mergedParams = { ...currentParams, ...newParams };
+  
+  // 添加所有非空参数
+  if (mergedParams.q) params.set("q", mergedParams.q);
+  if (mergedParams.city) params.set("city", mergedParams.city);
+  if (mergedParams.type) params.set("type", mergedParams.type);
+  if (mergedParams.minSalary) params.set("minSalary", mergedParams.minSalary);
+  if (mergedParams.maxSalary) params.set("maxSalary", mergedParams.maxSalary);
+  
+  const queryString = params.toString();
+  return queryString ? `${baseUrl}?${queryString}` : baseUrl;
+}
 
 export function FilterSidebar({ currentParams, cities, totalJobs }: FilterSidebarProps) {
   const [isExpanded, setIsExpanded] = useState(true);
@@ -45,6 +67,12 @@ export function FilterSidebar({ currentParams, cities, totalJobs }: FilterSideba
           搜索职位
         </h3>
         <form action="/jobs" className="space-y-3">
+          {/* 保留当前筛选参数 */}
+          {currentParams.city && <input type="hidden" name="city" value={currentParams.city} />}
+          {currentParams.type && <input type="hidden" name="type" value={currentParams.type} />}
+          {currentParams.minSalary && <input type="hidden" name="minSalary" value={currentParams.minSalary} />}
+          {currentParams.maxSalary && <input type="hidden" name="maxSalary" value={currentParams.maxSalary} />}
+          
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
@@ -100,7 +128,7 @@ export function FilterSidebar({ currentParams, cities, totalJobs }: FilterSideba
                 </h4>
                 <div className="flex flex-wrap gap-2">
                   <a
-                    href="/jobs"
+                    href={buildFilterUrl("/jobs", currentParams, { city: undefined })}
                     className={cn(
                       "px-3 py-1.5 rounded-lg text-sm transition-all",
                       !currentParams.city
@@ -113,7 +141,7 @@ export function FilterSidebar({ currentParams, cities, totalJobs }: FilterSideba
                   {cities.filter(Boolean).map((city) => (
                     <a
                       key={city}
-                      href={`/jobs?city=${encodeURIComponent(city)}${currentParams.q ? `&q=${encodeURIComponent(currentParams.q)}` : ""}`}
+                      href={buildFilterUrl("/jobs", currentParams, { city })}
                       className={cn(
                         "px-3 py-1.5 rounded-lg text-sm transition-all",
                         currentParams.city === city
@@ -133,7 +161,7 @@ export function FilterSidebar({ currentParams, cities, totalJobs }: FilterSideba
               <h4 className="text-sm font-semibold text-gray-700 mb-3">职位类型</h4>
               <div className="flex flex-wrap gap-2">
                 <a
-                  href="/jobs"
+                  href={buildFilterUrl("/jobs", currentParams, { type: undefined })}
                   className={cn(
                     "px-3 py-1.5 rounded-lg text-sm transition-all",
                     !currentParams.type
@@ -146,7 +174,7 @@ export function FilterSidebar({ currentParams, cities, totalJobs }: FilterSideba
                 {jobTypes.map((type) => (
                   <a
                     key={type.value}
-                    href={`/jobs?type=${type.value}${currentParams.q ? `&q=${encodeURIComponent(currentParams.q)}` : ""}${currentParams.city ? `&city=${encodeURIComponent(currentParams.city)}` : ""}`}
+                    href={buildFilterUrl("/jobs", currentParams, { type: type.value })}
                     className={cn(
                       "px-3 py-1.5 rounded-lg text-sm transition-all",
                       currentParams.type === type.value
@@ -168,7 +196,7 @@ export function FilterSidebar({ currentParams, cities, totalJobs }: FilterSideba
               </h4>
               <div className="flex flex-wrap gap-2">
                 <a
-                  href="/jobs"
+                  href={buildFilterUrl("/jobs", currentParams, { minSalary: undefined, maxSalary: undefined })}
                   className={cn(
                     "px-3 py-1.5 rounded-lg text-sm transition-all",
                     !currentParams.minSalary && !currentParams.maxSalary
@@ -181,7 +209,7 @@ export function FilterSidebar({ currentParams, cities, totalJobs }: FilterSideba
                 {salaryRanges.map((range) => (
                   <a
                     key={range.label}
-                    href={`/jobs?minSalary=${range.min}${range.max ? `&maxSalary=${range.max}` : ""}${currentParams.q ? `&q=${encodeURIComponent(currentParams.q)}` : ""}${currentParams.city ? `&city=${encodeURIComponent(currentParams.city)}` : ""}${currentParams.type ? `&type=${currentParams.type}` : ""}`}
+                    href={buildFilterUrl("/jobs", currentParams, { minSalary: range.min, maxSalary: range.max || undefined })}
                     className={cn(
                       "px-3 py-1.5 rounded-lg text-sm transition-all",
                       currentParams.minSalary === range.min
