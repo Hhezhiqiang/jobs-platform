@@ -34,7 +34,7 @@ export default async function AdminJobsPage({ searchParams }: PageProps) {
   const session = await getServerSession(authOptions);
 
   if (!session) {
-    redirect("/auth/login");
+    redirect("/auth/login/admin");
   }
 
   const params = await searchParams;

@@ -9,7 +9,7 @@ export default async function NewBlogPage() {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
-    redirect("/auth/login");
+    redirect("/auth/login/admin");
   }
 
   const user = await prisma.user.findUnique({

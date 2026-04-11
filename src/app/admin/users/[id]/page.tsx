@@ -15,7 +15,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
   const { id } = await params;
 
   if (!session) {
-    redirect("/auth/login");
+    redirect("/auth/login/admin");
   }
 
   const user = await prisma.user.findUnique({

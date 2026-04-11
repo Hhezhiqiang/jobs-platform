@@ -48,7 +48,7 @@ export default function CompanyDashboardPage() {
 
       if (!res.ok) {
         if (res.status === 401) {
-          router.push("/auth/login?callbackUrl=/company/dashboard");
+          router.push("/auth/login/company?callbackUrl=/company/dashboard");
           return;
         }
         if (result.needRegister) {

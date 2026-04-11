@@ -8,7 +8,7 @@ export default async function AdminAdsPage() {
   const session = await getServerSession(authOptions);
 
   if (!session) {
-    redirect("/auth/login");
+    redirect("/auth/login/admin");
   }
 
   // 获取所有广告位

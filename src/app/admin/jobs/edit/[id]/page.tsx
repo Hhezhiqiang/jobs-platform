@@ -13,7 +13,7 @@ export default async function EditJobPage({ params }: PageProps) {
   const session = await getServerSession(authOptions);
 
   if (!session) {
-    redirect("/auth/login");
+    redirect("/auth/login/admin");
   }
 
   const { id } = await params;

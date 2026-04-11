@@ -8,7 +8,7 @@ export default async function AdminBlogPage() {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
-    redirect("/auth/login");
+    redirect("/auth/login/admin");
   }
 
   // 检查是否是管理员

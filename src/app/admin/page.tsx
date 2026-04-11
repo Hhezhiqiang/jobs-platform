@@ -23,7 +23,7 @@ export default async function AdminPage() {
   const session = await getServerSession(authOptions);
 
   if (!session) {
-    redirect("/auth/login");
+    redirect("/auth/login/admin");
   }
 
   const [jobCount, companyCount, blogCount, totalViews, userCount] = await Promise.all([

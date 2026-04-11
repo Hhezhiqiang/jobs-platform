@@ -1,20 +1,24 @@
 import { Metadata } from "next";
-import { Suspense } from "react";
-import LoginForm from "./login-form";
+import { LoginPageShell } from "./login-shell";
 
 export const metadata: Metadata = {
-  title: "登录 | 招聘平台",
-  description: "登录招聘平台，管理您的求职申请、企业招聘或系统管理。",
-  robots: {
-    index: false,
-    follow: false,
-  },
+  title: "用户登录 | 招聘平台",
+  description: "登录招聘平台，管理您的求职申请和简历。",
 };
 
-export default function LoginPage() {
+export default function UserLoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">加载中...</div>}>
-      <LoginForm />
-    </Suspense>
+    <LoginPageShell
+      title="用户登录"
+      subtitle="求职者登录平台，查看和管理您的求职进度"
+      role="USER"
+      redirectUrl="/dashboard"
+      accentColor="blue"
+      registerLink={{ text: "立即注册", href: "/auth/register" }}
+      alternateLinks={[
+        { text: "企业用户登录 →", href: "/auth/login/company" },
+        { text: "管理员登录 →", href: "/auth/login/admin" },
+      ]}
+    />
   );
 }
