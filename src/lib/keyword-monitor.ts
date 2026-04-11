@@ -20,7 +20,7 @@ export interface ClassificationResult {
   reasoning: string;
 }
 
-export async function collectKeywords(): Promise<{ inserted: number; duplicates: number; errors: number }> {
+export async function collectKeywords(): Promise<{ inserted: number; duplicates: number; errors: number; newIds: string[] }> {
   let allItems: RawKeywordItem[] = [];
 
   for (const adapter of ADAPTERS) {
@@ -48,6 +48,7 @@ export async function collectKeywords(): Promise<{ inserted: number; duplicates:
   let inserted = 0;
   let duplicates = 0;
   let errors = 0;
+  const newIds: string[] = [];
 
   for (const [norm, item] of uniqueMap) {
     try {
@@ -72,7 +73,7 @@ export async function collectKeywords(): Promise<{ inserted: number; duplicates:
       // Auto-classify
       const classification = await classifyKeyword(item.keyword);
 
-      await prisma.keywordMonitor.create({
+      const created = await prisma.keywordMonitor.create({
         data: {
           keyword: item.keyword,
           normalized: norm,
@@ -86,6 +87,7 @@ export async function collectKeywords(): Promise<{ inserted: number; duplicates:
           metadata: (item.metadata || {}) as any,
         },
       });
+      newIds.push(created.id);
       inserted++;
     } catch (err) {
       console.error(`[keyword-monitor] failed to upsert "${norm}":`, (err as Error).message);
@@ -93,7 +95,7 @@ export async function collectKeywords(): Promise<{ inserted: number; duplicates:
     }
   }
 
-  return { inserted, duplicates, errors };
+  return { inserted, duplicates, errors, newIds };
 }
 
 function scoreToHotLevel(score: number): number {

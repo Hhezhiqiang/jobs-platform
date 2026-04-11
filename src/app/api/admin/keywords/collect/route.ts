@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { collectKeywords } from "@/lib/keyword-monitor";
+import { runAutoPipeline } from "@/lib/auto-publisher";
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,7 +28,11 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await collectKeywords();
-    return NextResponse.json({ success: true, result });
+
+    // Run fully automatic pipeline for newly inserted keywords
+    const autoResult = await runAutoPipeline(result.newIds);
+
+    return NextResponse.json({ success: true, result, autoResult });
   } catch (error) {
     console.error("[api/admin/keywords/collect] error:", error);
     return NextResponse.json(
