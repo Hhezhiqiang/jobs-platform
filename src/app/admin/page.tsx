@@ -75,7 +75,6 @@ export default async function AdminPage() {
     { label: "管理博客", href: "/admin/blog", color: "bg-indigo-600 hover:bg-indigo-700" },
     { label: "用户管理", href: "/admin/users", color: "bg-purple-600 hover:bg-purple-700" },
     { label: "广告管理", href: "/admin/ads", color: "bg-gray-600 hover:bg-gray-700" },
-    { label: "数据统计", href: "/admin/analytics", color: "bg-pink-600 hover:bg-pink-700" },
   ];
 
   return (
