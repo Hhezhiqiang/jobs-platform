@@ -5,7 +5,6 @@ import Image from "next/image";
 import { useState, useMemo } from "react";
 import { Header } from "@/components/header";
 import { Breadcrumb } from "@/components/breadcrumb";
-import { Metadata } from "next";
 import { Building2, MapPin, Users, Briefcase, Search, X, Building } from "lucide-react";
 
 // 模拟公司数据（实际应该从API获取）

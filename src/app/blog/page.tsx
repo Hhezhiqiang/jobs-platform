@@ -4,7 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { Header } from "@/components/header";
-import { Metadata } from "next";
 import { BookOpen, TrendingUp, Users, Clock, Search, ChevronRight, X } from "lucide-react";
 
 // 模拟博客数据（实际应该从API获取）
