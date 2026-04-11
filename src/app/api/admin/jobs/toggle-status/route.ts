@@ -13,6 +13,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "未登录" }, { status: 401 });
     }
 
+    if (session.user.role !== "ADMIN") {
+      return NextResponse.json({ error: "无权访问" }, { status: 403 });
+    }
+
     const formData = await request.formData();
     const jobId = formData.get("jobId") as string;
 

@@ -14,6 +14,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    if (session.user?.role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Forbidden" },
+        { status: 403 }
+      );
+    }
+
     // 获取时间范围参数
     const { searchParams } = new URL(request.url);
     const days = parseInt(searchParams.get("days") || "30");
