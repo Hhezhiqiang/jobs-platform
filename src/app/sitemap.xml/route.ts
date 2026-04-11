@@ -28,6 +28,23 @@ export async function GET() {
     { url: "/faq", priority: 0.5, changefreq: "monthly" },
     { url: "/auth/login", priority: 0.3, changefreq: "never" },
     { url: "/auth/register", priority: 0.3, changefreq: "never" },
+    // 专题页
+    { url: "/topics/java-developer", priority: 0.8, changefreq: "daily" },
+    { url: "/topics/frontend-developer", priority: 0.8, changefreq: "daily" },
+    { url: "/topics/product-manager", priority: 0.8, changefreq: "daily" },
+    { url: "/topics/remote-jobs", priority: 0.8, changefreq: "daily" },
+    { url: "/topics/fresh-graduate", priority: 0.8, changefreq: "daily" },
+    // 城市聚合页
+    { url: "/jobs/city/北京", priority: 0.8, changefreq: "daily" },
+    { url: "/jobs/city/上海", priority: 0.8, changefreq: "daily" },
+    { url: "/jobs/city/深圳", priority: 0.8, changefreq: "daily" },
+    { url: "/jobs/city/杭州", priority: 0.8, changefreq: "daily" },
+    { url: "/jobs/city/广州", priority: 0.8, changefreq: "daily" },
+    { url: "/jobs/city/成都", priority: 0.8, changefreq: "daily" },
+    { url: "/jobs/city/武汉", priority: 0.8, changefreq: "daily" },
+    { url: "/jobs/city/西安", priority: 0.8, changefreq: "daily" },
+    { url: "/jobs/city/南京", priority: 0.8, changefreq: "daily" },
+    { url: "/jobs/city/苏州", priority: 0.8, changefreq: "daily" },
   ];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
