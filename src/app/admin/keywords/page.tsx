@@ -1,0 +1,345 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+
+interface KeywordItem {
+  id: string;
+  keyword: string;
+  normalized: string;
+  source: string;
+  category: string;
+  intent: string;
+  status: string;
+  trendScore: number;
+  hotLevel: number;
+  lastSeenAt: string;
+  firstSeenAt: string;
+  _count: { archives: number; seoPlans: number };
+}
+
+interface SEOPlanItem {
+  id: string;
+  monitorId: string;
+  pageType: string;
+  title: string;
+  h1: string;
+  metaDesc: string;
+  keywords: string[];
+  status: string;
+  generatedAt: string;
+  approvedAt?: string;
+  publishedAt?: string;
+  targetUrl?: string;
+  monitor?: { keyword: string };
+}
+
+const CATEGORY_COLORS: Record<string, string> = {
+  PRIMARY: "bg-emerald-100 text-emerald-700",
+  TRAFFIC: "bg-blue-100 text-blue-700",
+  JUNK: "bg-gray-100 text-gray-600",
+  HOLD: "bg-amber-100 text-amber-700",
+};
+
+const STATUS_COLORS: Record<string, string> = {
+  PENDING: "bg-amber-100 text-amber-700",
+  APPROVED: "bg-blue-100 text-blue-700",
+  REJECTED: "bg-red-100 text-red-700",
+  PUBLISHED: "bg-emerald-100 text-emerald-700",
+};
+
+export default function AdminKeywordsPage() {
+  const [tab, setTab] = useState<"keywords" | "plans">("keywords");
+  const [keywords, setKeywords] = useState<KeywordItem[]>([]);
+  const [plans, setPlans] = useState<SEOPlanItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [collecting, setCollecting] = useState(false);
+  const [filterCategory, setFilterCategory] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+
+  async function fetchKeywords() {
+    setLoading(true);
+    const params = new URLSearchParams();
+    if (filterCategory) params.set("category", filterCategory);
+    if (filterStatus) params.set("status", filterStatus);
+    const res = await fetch(`/api/admin/keywords?${params.toString()}`);
+    const data = await res.json();
+    setKeywords(data.items || []);
+    setLoading(false);
+  }
+
+  async function fetchPlans() {
+    const res = await fetch(`/api/admin/seo-plans?limit=50`);
+    const data = await res.json();
+    setPlans(data.items || []);
+  }
+
+  async function triggerCollect() {
+    setCollecting(true);
+    const res = await fetch("/api/admin/keywords/collect", { method: "POST" });
+    const data = await res.json();
+    setCollecting(false);
+    alert(`采集完成: 新增 ${data.result?.inserted || 0}, 更新 ${data.result?.duplicates || 0}, 错误 ${data.result?.errors || 0}`);
+    fetchKeywords();
+  }
+
+  async function updateKeyword(id: string, payload: Partial<KeywordItem>) {
+    await fetch(`/api/admin/keywords/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    fetchKeywords();
+  }
+
+  async function deleteKeyword(id: string) {
+    if (!confirm("确定删除该关键词监控记录？")) return;
+    await fetch(`/api/admin/keywords/${id}`, { method: "DELETE" });
+    fetchKeywords();
+  }
+
+  async function generatePlan(monitorId: string) {
+    const res = await fetch("/api/admin/seo-plans/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ monitorId }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert("SEO方案生成成功！");
+      fetchKeywords();
+      if (tab === "plans") fetchPlans();
+    } else {
+      alert(data.error || "生成失败");
+    }
+  }
+
+  async function publishPlan(planId: string) {
+    const res = await fetch("/api/admin/seo-plans/publish", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ planId }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert(`发布成功: ${data.url}`);
+      fetchPlans();
+    } else {
+      alert(data.error || "发布失败");
+    }
+  }
+
+  useEffect(() => {
+    fetchKeywords();
+    fetchPlans();
+  }, [filterCategory, filterStatus]);
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Simple Admin Header */}
+      <header className="bg-white border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link href="/admin" className="text-gray-500 hover:text-gray-700">← 返回概览</Link>
+            <h1 className="text-xl font-bold text-gray-900">关键词监控中心</h1>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={triggerCollect}
+              disabled={collecting}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            >
+              {collecting ? "采集中..." : "立即采集"}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Tabs */}
+        <div className="flex gap-6 border-b mb-6">
+          <button
+            onClick={() => setTab("keywords")}
+            className={`pb-3 font-medium ${
+              tab === "keywords" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500"
+            }`}
+          >
+            热词监控 ({keywords.length})
+          </button>
+          <button
+            onClick={() => setTab("plans")}
+            className={`pb-3 font-medium ${
+              tab === "plans" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500"
+            }`}
+          >
+            SEO方案 ({plans.length})
+          </button>
+        </div>
+
+        {tab === "keywords" && (
+          <div className="space-y-4">
+            <div className="flex flex-wrap gap-3">
+              <select
+                value={filterCategory}
+                onChange={(e) => setFilterCategory(e.target.value)}
+                className="px-3 py-2 border rounded-lg bg-white"
+              >
+                <option value="">全部分类</option>
+                <option value="PRIMARY">PRIMARY</option>
+                <option value="TRAFFIC">TRAFFIC</option>
+                <option value="JUNK">JUNK</option>
+                <option value="HOLD">HOLD</option>
+              </select>
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="px-3 py-2 border rounded-lg bg-white"
+              >
+                <option value="">全部状态</option>
+                <option value="PENDING">待处理</option>
+                <option value="APPROVED">已通过</option>
+                <option value="REJECTED">已拒绝</option>
+              </select>
+            </div>
+
+            {loading ? (
+              <p className="text-gray-500">加载中...</p>
+            ) : (
+              <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left font-medium text-gray-600">关键词</th>
+                      <th className="px-4 py-3 text-left font-medium text-gray-600">来源</th>
+                      <th className="px-4 py-3 text-left font-medium text-gray-600">分类</th>
+                      <th className="px-4 py-3 text-left font-medium text-gray-600">热度</th>
+                      <th className="px-4 py-3 text-left font-medium text-gray-600">状态</th>
+                      <th className="px-4 py-3 text-left font-medium text-gray-600">方案</th>
+                      <th className="px-4 py-3 text-right font-medium text-gray-600">操作</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y">
+                    {keywords.map((k) => (
+                      <tr key={k.id}>
+                        <td className="px-4 py-3">
+                          <div className="font-medium text-gray-900">{k.keyword}</div>
+                          <div className="text-xs text-gray-400">{k.normalized}</div>
+                        </td>
+                        <td className="px-4 py-3 text-gray-600">{k.source}</td>
+                        <td className="px-4 py-3">
+                          <select
+                            value={k.category}
+                            onChange={(e) => updateKeyword(k.id, { category: e.target.value })}
+                            className={`text-xs px-2 py-1 rounded-full border-0 font-medium ${CATEGORY_COLORS[k.category] || "bg-gray-100"}`}
+                          >
+                            <option value="PRIMARY">PRIMARY</option>
+                            <option value="TRAFFIC">TRAFFIC</option>
+                            <option value="JUNK">JUNK</option>
+                            <option value="HOLD">HOLD</option>
+                          </select>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-1">
+                            {"🔥".repeat(k.hotLevel)}
+                            {"🌑".repeat(5 - k.hotLevel)}
+                            <span className="ml-2 text-gray-500">{k.trendScore.toFixed(0)}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <select
+                            value={k.status}
+                            onChange={(e) => updateKeyword(k.id, { status: e.target.value })}
+                            className={`text-xs px-2 py-1 rounded-full border-0 font-medium ${STATUS_COLORS[k.status] || "bg-gray-100"}`}
+                          >
+                            <option value="PENDING">PENDING</option>
+                            <option value="APPROVED">APPROVED</option>
+                            <option value="REJECTED">REJECTED</option>
+                            <option value="PUBLISHED">PUBLISHED</option>
+                          </select>
+                        </td>
+                        <td className="px-4 py-3 text-gray-600">{k._count.seoPlans}</td>
+                        <td className="px-4 py-3 text-right">
+                          <button
+                            onClick={() => generatePlan(k.id)}
+                            className="text-blue-600 hover:text-blue-700 font-medium mr-3"
+                          >
+                            生成方案
+                          </button>
+                          <button
+                            onClick={() => deleteKeyword(k.id)}
+                            className="text-red-500 hover:text-red-600"
+                          >
+                            删除
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {tab === "plans" && (
+          <div className="grid gap-4">
+            {plans.length === 0 && <p className="text-gray-500">暂无SEO方案，请在热词监控中生成。</p>}
+            {plans.map((p) => (
+              <div key={p.id} className="bg-white rounded-xl shadow-sm border p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">{p.pageType}</span>
+                    <span className={`text-xs px-2 py-1 rounded-full ${STATUS_COLORS[p.status] || "bg-gray-100"}`}>{p.status}</span>
+                    <h3 className="font-bold text-gray-900">{p.title}</h3>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {p.status === "PENDING" && (
+                      <>
+                        <button
+                          onClick={() =>
+                            fetch("/api/admin/seo-plans", {
+                              method: "PATCH",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ id: p.id, status: "APPROVED" }),
+                            }).then(fetchPlans)
+                          }
+                          className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
+                        >
+                          通过
+                        </button>
+                        <button
+                          onClick={() =>
+                            fetch("/api/admin/seo-plans", {
+                              method: "PATCH",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ id: p.id, status: "REJECTED" }),
+                            }).then(fetchPlans)
+                          }
+                          className="px-3 py-1.5 bg-gray-200 text-gray-700 text-sm rounded-lg hover:bg-gray-300"
+                        >
+                          拒绝
+                        </button>
+                      </>
+                    )}
+                    {p.status === "APPROVED" && (
+                      <button
+                        onClick={() => publishPlan(p.id)}
+                        className="px-3 py-1.5 bg-emerald-600 text-white text-sm rounded-lg hover:bg-emerald-700"
+                      >
+                        发布博客
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <p className="text-sm text-gray-600 mb-2">H1: {p.h1}</p>
+                <p className="text-sm text-gray-500 mb-2">Meta: {p.metaDesc}</p>
+                <p className="text-sm text-gray-500 mb-1">关键词: {p.keywords?.join(", ")}</p>
+                {p.targetUrl && <p className="text-sm text-gray-400">建议URL: {p.targetUrl}</p>}
+              </div>
+            ))}
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}

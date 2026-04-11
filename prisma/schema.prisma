@@ -251,6 +251,7 @@ model Page {
   authorId        String
   viewCount       Int        @default(0)
   author          User       @relation(fields: [authorId], references: [id])
+  keywordsFrom    KeywordMonitor[] @relation("KeywordToPage")
 
   @@index([type, status])
   @@index([slug, status])
@@ -406,4 +407,91 @@ model PageView {
   @@index([createdAt])
   @@index([sessionId, createdAt])
   @@map("page_views")
+}
+
+// 关键词监控系统
+model KeywordMonitor {
+  id           String   @id @default(cuid())
+  keyword      String   // 原始关键词/话题
+  normalized   String   // 规范化关键词（去空格、小写）
+  language     String   @default("zh") // zh / en / ja
+  source       String   // google_trends / zhihu / reddit / weibo / news / manual
+  sourceUrl    String?  // 来源链接（如果有）
+  trendScore   Float    @default(0) // 趋势得分 0-100
+  searchVolume Int?     // 估算搜索量（绝对值，可选）
+  hotLevel     Int      @default(1) // 1-5 热度分级
+  category     String   @default("HOLD") // PRIMARY / TRAFFIC / JUNK / HOLD
+  intent       String   @default("UNKNOWN") // INFORMATIONAL / NAVIGATIONAL / TRANSACTIONAL / UNKNOWN
+  status       String   @default("PENDING") // PENDING / APPROVED / REJECTED / PUBLISHED / ARCHIVED
+  firstSeenAt  DateTime @default(now())
+  lastSeenAt   DateTime @updatedAt
+  metadata     Json?    // 原始API返回的附加数据
+
+  archives     KeywordArchive[]
+  seoPlans     SEOPlan[]
+  pages        Page[]   @relation("KeywordToPage")
+
+  @@index([normalized, source])
+  @@index([category, status])
+  @@index([trendScore])
+  @@index([lastSeenAt])
+  @@index([status, firstSeenAt])
+  @@map("keyword_monitors")
+}
+
+// 关键词素材归档
+model KeywordArchive {
+  id               String         @id @default(cuid())
+  monitorId        String
+  monitor          KeywordMonitor @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+  contentType      String         // SERP_SUMMARY / REDDIT_POST / ZHIHU_ANSWER / NEWS_ARTICLE / PERPLEXITY_QA / JOB_DATA
+  contentUrl       String?        // 原始URL
+  contentTitle     String?        // 标题
+  contentBody      String         @db.Text // 内容体
+  fetchedAt        DateTime       @default(now())
+  relevanceScore   Float?         // AI评估的相关性 0-1
+  usedInPlan       Boolean        @default(false) // 是否已被SEO方案引用
+
+  @@index([monitorId, contentType])
+  @@index([usedInPlan])
+  @@map("keyword_archives")
+}
+
+// SEO 方案生成结果
+model SEOPlan {
+  id              String         @id @default(cuid())
+  monitorId       String
+  monitor         KeywordMonitor @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+  pageType        String         // BLOG / TOPIC / FAQ / SALARY_REPORT
+  title           String         // 建议页面标题
+  h1              String         // 建议H1
+  metaDesc        String         // 建议Meta Description
+  keywords        String[]       // 建议关键词数组
+  outline         Json           // 文章/页面大纲（结构化JSON）
+  targetUrl       String?        // 建议发布URL slug
+  internalLinks   Json?          // 建议内链 [{text, url}]
+  contentMarkdown String?        @db.Text // 生成的完整Markdown内容（可选）
+  status          String         @default("PENDING") // PENDING / APPROVED / REJECTED / PUBLISHED
+  generatedAt     DateTime       @default(now())
+  generatedBy     String         // 模型标识，如 "gpt-4o-2026-04"
+  approvedAt      DateTime?      // 审批通过时间
+  approvedBy      String?        // 审批人ID
+  publishedAt     DateTime?      // 发布时间
+  publishUrl      String?        // 最终发布URL
+  publishJobId    String?        // 关联的异步任务ID
+
+  @@index([monitorId, pageType])
+  @@index([status])
+  @@index([publishedAt])
+  @@map("seo_plans")
+}
+
+// 关键词与已发布内容的多对多关联
+model KeywordToPage {
+  A        String @map("keyword_id")
+  B        String @map("page_id")
+
+  @@unique([A, B])
+  @@index([B])
+  @@map("_keyword_to_page")
 }

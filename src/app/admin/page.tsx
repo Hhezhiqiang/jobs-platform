@@ -15,7 +15,8 @@ import {
   TrendingUp,
   Clock,
   ChevronRight,
-  BarChart3
+  BarChart3,
+  Sparkles
 } from "lucide-react";
 import { formatDistanceToNow } from "@/lib/utils";
 
@@ -57,6 +58,7 @@ export default async function AdminPage() {
     { icon: Briefcase, label: "职位管理", href: "/admin/jobs" },
     { icon: Building2, label: "公司管理", href: "/admin/companies" },
     { icon: FileText, label: "博客管理", href: "/admin/blog" },
+    { icon: Sparkles, label: "关键词监控", href: "/admin/keywords" },
     { icon: Users, label: "用户管理", href: "/admin/users" },
     { icon: BarChart3, label: "数据分析", href: "/admin/analytics" },
   ];
@@ -76,6 +78,7 @@ export default async function AdminPage() {
     { label: "管理博客", href: "/admin/blog", color: "bg-indigo-600 hover:bg-indigo-700" },
     { label: "用户管理", href: "/admin/users", color: "bg-purple-600 hover:bg-purple-700" },
     { label: "广告管理", href: "/admin/ads", color: "bg-gray-600 hover:bg-gray-700" },
+    { label: "关键词监控", href: "/admin/keywords", color: "bg-pink-600 hover:bg-pink-700" },
     { label: "数据分析", href: "/admin/analytics", color: "bg-orange-600 hover:bg-orange-700" },
   ];
 
