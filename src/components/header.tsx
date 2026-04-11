@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSession, signOut } from "next-auth/react";
+import Image from "next/image";
 
 interface HeaderProps {
   transparent?: boolean;
@@ -9,12 +11,26 @@ interface HeaderProps {
 
 export function Header({ transparent = false }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const { data: session, status } = useSession();
+  const isLoggedIn = status === "authenticated";
+
+  // 点击外部关闭用户菜单
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.user-menu-container')) {
+        setUserMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const navItems = [
     { label: "职位", href: "/jobs", icon: "💼", iconLabel: "职位" },
     { label: "公司", href: "/companies", icon: "🏢", iconLabel: "公司" },
     { label: "博客", href: "/blog", icon: "📝", iconLabel: "博客" },
-    { label: "关于", href: "/about", icon: "ℹ️", iconLabel: "关于" },
   ];
 
   return (
@@ -54,26 +70,111 @@ export function Header({ transparent = false }: HeaderProps) {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-3">
-            <Link
-              href="/auth/login"
-              className={`px-4 py-2 text-sm font-medium transition-all rounded-lg ${
-                transparent
-                  ? "text-white hover:bg-white/10"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-              }`}
-            >
-              登录
-            </Link>
-            <Link
-              href="/auth/register"
-              className={`px-5 py-2.5 text-sm font-medium rounded-lg transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 ${
-                transparent
-                  ? "bg-white text-blue-600 hover:bg-gray-100"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
-              }`}
-            >
-              免费注册
-            </Link>
+            {isLoggedIn ? (
+              <div className="relative user-menu-container">
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-all"
+                >
+                  {session.user?.image ? (
+                    <Image
+                      src={session.user.image}
+                      alt={session.user.name || "用户"}
+                      width={32}
+                      height={32}
+                      className="w-8 h-8 rounded-full"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white font-bold text-sm">
+                      {session.user?.name?.charAt(0) || session.user?.email?.charAt(0) || "U"}
+                    </div>
+                  )}
+                  <span className={`text-sm font-medium ${transparent ? "text-white" : "text-gray-700"}`}>
+                    {session.user?.name || "用户"}
+                  </span>
+                  <svg
+                    className={`w-4 h-4 ${transparent ? "text-white" : "text-gray-500"} transition-transform ${userMenuOpen ? "rotate-180" : ""}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {/* User Dropdown Menu */}
+                {userMenuOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50">
+                    <Link
+                      href="/dashboard"
+                      className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50"
+                      onClick={() => setUserMenuOpen(false)}
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                      </svg>
+                      个人中心
+                    </Link>
+                    <Link
+                      href="/dashboard/applications"
+                      className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50"
+                      onClick={() => setUserMenuOpen(false)}
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      我的申请
+                    </Link>
+                    <Link
+                      href="/dashboard/profile"
+                      className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-50"
+                      onClick={() => setUserMenuOpen(false)}
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      账号设置
+                    </Link>
+                    <hr className="my-2 border-gray-100" />
+                    <button
+                      onClick={() => {
+                        signOut({ callbackUrl: "/" });
+                        setUserMenuOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 text-left"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>
+                      退出登录
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <Link
+                  href="/auth/login"
+                  className={`px-4 py-2 text-sm font-medium transition-all rounded-lg ${
+                    transparent
+                      ? "text-white hover:bg-white/10"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  }`}
+                >
+                  登录
+                </Link>
+                <Link
+                  href="/auth/register"
+                  className={`px-5 py-2.5 text-sm font-medium rounded-lg transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 ${
+                    transparent
+                      ? "bg-white text-blue-600 hover:bg-gray-100"
+                      : "bg-blue-600 text-white hover:bg-blue-700"
+                  }`}
+                >
+                  免费注册
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -125,20 +226,45 @@ export function Header({ transparent = false }: HeaderProps) {
                 </Link>
               ))}
               <hr className="my-2" />
-              <Link
-                href="/auth/login"
-                className="px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-lg"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                登录
-              </Link>
-              <Link
-                href="/auth/register"
-                className="mx-4 py-3 bg-blue-600 text-white text-center rounded-lg hover:bg-blue-700"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                免费注册
-              </Link>
+              {isLoggedIn ? (
+                <>
+                  <Link
+                    href="/dashboard"
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <span>👤</span>
+                    个人中心
+                  </Link>
+                  <button
+                    onClick={() => {
+                      signOut({ callbackUrl: "/" });
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full text-left flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg"
+                  >
+                    <span>🚪</span>
+                    退出登录
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/auth/login"
+                    className="px-4 py-3 text-gray-600 hover:bg-gray-100 rounded-lg"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    登录
+                  </Link>
+                  <Link
+                    href="/auth/register"
+                    className="mx-4 py-3 bg-blue-600 text-white text-center rounded-lg hover:bg-blue-700"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    免费注册
+                  </Link>
+                </>
+              )}
             </nav>
           </div>
         )}

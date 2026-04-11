@@ -41,10 +41,8 @@ export default async function JobsPage({ searchParams }: PageProps) {
   let dbError = false;
 
   try {
-    // 构建查询条件
-    const where: Prisma.JobWhereInput = {
-      status: "ACTIVE",
-    };
+    // 构建查询条件 - 移除 ACTIVE 状态限制，显示所有职位
+    const where: Prisma.JobWhereInput = {};
 
     if (params.q) {
       where.OR = [
@@ -86,7 +84,6 @@ export default async function JobsPage({ searchParams }: PageProps) {
       }),
       prisma.job.count({ where }),
       prisma.job.findMany({
-        where: { status: "ACTIVE" },
         select: { city: true },
         distinct: ["city"],
       }),
@@ -157,12 +154,12 @@ export default async function JobsPage({ searchParams }: PageProps) {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">服务暂时不可用</h3>
                 <p className="text-gray-500 mb-6">数据库连接失败，请稍后重试</p>
-                <button
-                  onClick={() => window.location.reload()}
+                <a
+                  href="/jobs"
                   className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all"
                 >
                   重新加载
-                </button>
+                </a>
               </div>
             ) : jobs.length === 0 ? (
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
@@ -208,6 +205,20 @@ export default async function JobsPage({ searchParams }: PageProps) {
                     )}
 
                     <div className="flex items-center gap-1">
+                      {/* 第一页 */}
+                      {page > 3 && (
+                        <>
+                          <Link
+                            href={buildPageUrl(1)}
+                            className="w-10 h-10 flex items-center justify-center rounded-xl font-medium bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+                          >
+                            1
+                          </Link>
+                          {page > 4 && <span className="px-2 text-gray-400">...</span>}
+                        </>
+                      )}
+
+                      {/* 中间页码 */}
                       {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                         let pageNum: number;
                         if (totalPages <= 5) {
@@ -234,6 +245,19 @@ export default async function JobsPage({ searchParams }: PageProps) {
                           </Link>
                         );
                       })}
+
+                      {/* 最后一页 */}
+                      {page < totalPages - 2 && (
+                        <>
+                          {page < totalPages - 3 && <span className="px-2 text-gray-400">...</span>}
+                          <Link
+                            href={buildPageUrl(totalPages)}
+                            className="w-10 h-10 flex items-center justify-center rounded-xl font-medium bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+                          >
+                            {totalPages}
+                          </Link>
+                        </>
+                      )}
                     </div>
 
                     {page < totalPages && (

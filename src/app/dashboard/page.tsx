@@ -172,23 +172,51 @@ export default async function DashboardPage() {
                 </Link>
               </div>
 
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-500 text-sm">简历完善度</p>
-                    <p className="text-3xl font-bold text-gray-900 mt-1">{user.profile ? "85%" : "0%"}</p>
+              {/* 计算简历完善度 */}
+              {(() => {
+                const calculateProfileCompleteness = () => {
+                  if (!user.profile) return 0;
+                  
+                  const fields = [
+                    user.name, // 从 user 获取姓名
+                    user.email, // 从 user 获取邮箱
+                    user.profile.bio,
+                    user.profile.location,
+                    user.profile.gender,
+                    user.profile.skills?.length > 0, // 至少有一个技能
+                  ];
+                  
+                  const filledFields = fields.filter(field => field && (typeof field === 'string' ? field.trim() !== "" : field === true)).length;
+                  return Math.round((filledFields / fields.length) * 100);
+                };
+                
+                const completeness = calculateProfileCompleteness();
+                
+                return (
+                  <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-gray-500 text-sm">简历完善度</p>
+                        <p className="text-3xl font-bold text-gray-900 mt-1">{completeness}%</p>
+                      </div>
+                      <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center">
+                        <Award className="w-6 h-6 text-purple-600" />
+                      </div>
+                    </div>
+                    <div className="mt-4 w-full bg-gray-100 rounded-full h-2">
+                      <div 
+                        className="bg-purple-600 h-2 rounded-full transition-all" 
+                        style={{ width: `${completeness}%` }}
+                      />
+                    </div>
+                    {completeness < 100 && (
+                      <p className="mt-2 text-xs text-gray-500">
+                        完善度达到100%可以提高被HR发现的几率
+                      </p>
+                    )}
                   </div>
-                  <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center">
-                    <Award className="w-6 h-6 text-purple-600" />
-                  </div>
-                </div>
-                <div className="mt-4 w-full bg-gray-100 rounded-full h-2">
-                  <div 
-                    className="bg-purple-600 h-2 rounded-full transition-all" 
-                    style={{ width: user.profile ? "85%" : "0%" }}
-                  />
-                </div>
-              </div>
+                );
+              })()}
             </div>
 
             {/* Quick Actions */}
