@@ -6,14 +6,27 @@ export async function GET() {
     // 获取所有有薪资信息的职位
     const jobs = await prisma.job.findMany({
       where: {
+        status: "ACTIVE",
         AND: [
           { salaryMin: { not: null } },
           { salaryMax: { not: null } },
         ],
       },
-      include: {
-        company: true,
+      select: {
+        id: true,
+        title: true,
+        salaryMin: true,
+        salaryMax: true,
+        employmentType: true,
+        city: true,
+        datePosted: true,
+        company: {
+          select: {
+            industry: true,
+          },
+        },
       },
+      take: 5000,
     });
 
     // 计算各行业平均薪资
@@ -117,7 +130,7 @@ function calculateTrendStats(jobs: any[]) {
   jobs.forEach((job) => {
     const posted = new Date(job.datePosted);
     const monthKey = `${posted.getFullYear()}-${String(posted.getMonth() + 1).padStart(2, "0")}`;
-    
+
     if (!monthMap.has(monthKey)) {
       monthMap.set(monthKey, { salaries: [], count: 0 });
     }

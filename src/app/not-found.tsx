@@ -1,13 +1,34 @@
+import { Metadata } from "next";
+import NotFoundClient from "./not-found-client";
+
+const SITE_NAME = "JobsBro招聘平台";
+const SITE_URL = "https://jobs-platform-gold.vercel.app";
+
+export const metadata: Metadata = {
+  title: `页面未找到 - 404 | ${SITE_NAME}`,
+  description: "抱歉，您访问的页面不存在。返回首页继续浏览职位与公司信息。",
+  robots: {
+    index: false,
+    follow: false,
+  },
+  openGraph: {
+    title: `页面未找到 - 404 | ${SITE_NAME}`,
+    description: "抱歉，您访问的页面不存在。",
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    type: "website",
+    locale: "zh_CN",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `页面未找到 - 404 | ${SITE_NAME}`,
+    description: "抱歉，您访问的页面不存在。",
+  },
+  alternates: {
+    canonical: `${SITE_URL}/404`,
+  },
+};
+
 export default function NotFound() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="text-center">
-        <h1 className="text-6xl font-bold text-gray-900 mb-4">404</h1>
-        <p className="text-xl text-gray-600 mb-8">页面未找到</p>
-        <a href="/" className="text-blue-600 hover:text-blue-700 font-medium">
-          ← 返回首页
-        </a>
-      </div>
-    </div>
-  );
+  return <NotFoundClient />;
 }

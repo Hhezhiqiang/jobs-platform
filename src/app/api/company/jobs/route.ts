@@ -133,6 +133,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const parsedSalaryMin = salaryMin ? parseInt(salaryMin, 10) : null;
+    if (parsedSalaryMin !== null && isNaN(parsedSalaryMin)) {
+      return NextResponse.json({ error: "无效参数" }, { status: 400 });
+    }
+    const parsedSalaryMax = salaryMax ? parseInt(salaryMax, 10) : null;
+    if (parsedSalaryMax !== null && isNaN(parsedSalaryMax)) {
+      return NextResponse.json({ error: "无效参数" }, { status: 400 });
+    }
+
     const job = await prisma.job.create({
       data: {
         title,
@@ -142,8 +151,8 @@ export async function POST(request: NextRequest) {
         benefits,
         employmentType: employmentType || "FULL_TIME",
         experience: experience || "MID",
-        salaryMin: salaryMin ? parseInt(salaryMin) : null,
-        salaryMax: salaryMax ? parseInt(salaryMax) : null,
+        salaryMin: parsedSalaryMin,
+        salaryMax: parsedSalaryMax,
         location: location || "",
         city: city || location,
         isRemote: isRemote || false,

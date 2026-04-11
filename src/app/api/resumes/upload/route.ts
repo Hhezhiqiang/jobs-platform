@@ -7,27 +7,73 @@ import { writeFile } from "fs/promises";
 import { join } from "path";
 import { mkdir } from "fs/promises";
 import { randomUUID } from "crypto";
+import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
 export const dynamic = "force-dynamic";
 
-// 允许的文件类型
-const ALLOWED_TYPES = [
-  "application/pdf",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-];
+// 允许的文件扩展名白名单
+const ALLOWED_EXTENSIONS = ["pdf", "doc", "docx", "txt", "md"];
 
-// 文件扩展名映射
+// MIME 到扩展名映射（仅用于参考，真实类型由魔数决定）
 const EXTENSION_MAP: Record<string, string> = {
   "application/pdf": ".pdf",
   "application/msword": ".doc",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ".docx",
+  "text/plain": ".txt",
+  "text/markdown": ".md",
 };
 
 // 最大文件大小 10MB
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
+function getExtensionByMagic(buffer: Buffer): string | null {
+  if (buffer.length < 4) return null;
+  const header = buffer.slice(0, 4).toString("hex").toLowerCase();
+  if (header.startsWith("25504446")) return ".pdf";
+  if (header.startsWith("504b0304")) return ".docx";
+  if (header.startsWith("d0cf11e0")) return ".doc";
+  // txt / md 统一按 text 处理（UTF-8 BOM 或纯文本）
+  const isText = isUtf8OrAscii(buffer);
+  if (isText) {
+    // 无法区分 txt 和 md，返回 .txt 让后续按原始扩展名覆盖
+    return ".txt";
+  }
+  return null;
+}
+
+function isUtf8OrAscii(buffer: Buffer): boolean {
+  // 简单的 UTF-8 BOM 或 ASCII 检测
+  if (buffer.length >= 3 && buffer[0] === 0xef && buffer[1] === 0xbb && buffer[2] === 0xbf) {
+    return true;
+  }
+  // 抽样检测是否全为可打印 ASCII / 空白字符
+  const sample = buffer.slice(0, Math.min(buffer.length, 512));
+  let highBytes = 0;
+  for (let i = 0; i < sample.length; i++) {
+    const b = sample[i];
+    if (b === 0) return false; // 二进制文件通常含 null
+    if (b > 127) highBytes++;
+  }
+  // 若高字节比例低，视为文本
+  return highBytes / sample.length < 0.3;
+}
+
+function getClientExtension(name: string): string | null {
+  const ext = name.split(".").pop()?.toLowerCase();
+  if (!ext) return null;
+  return ALLOWED_EXTENSIONS.includes(ext) ? `.${ext}` : null;
+}
+
 export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIP(req);
+    const rateLimit = checkRateLimit(ip, 10, 60 * 60 * 1000);
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { error: "上传过于频繁，请稍后再试" },
+        { status: 429 }
+      );
+    }
+
     // 验证用户
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
@@ -42,12 +88,44 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "请选择文件" }, { status: 400 });
     }
 
-    // 验证文件类型
-    if (!ALLOWED_TYPES.includes(file.type)) {
+    // 验证文件扩展名白名单
+    const clientExt = getClientExtension(file.name);
+    if (!clientExt || !ALLOWED_EXTENSIONS.includes(clientExt.slice(1))) {
       return NextResponse.json(
-        { error: "仅支持 PDF、DOC、DOCX 格式的文件" },
+        { error: "仅支持 PDF、DOC、DOCX、TXT、MD 格式的文件" },
         { status: 400 }
       );
+    }
+
+    // 读取文件 buffer
+    const buffer = Buffer.from(await file.arrayBuffer());
+
+    // 魔数校验真实文件类型
+    const magicExt = getExtensionByMagic(buffer);
+    if (!magicExt) {
+      return NextResponse.json(
+        { error: "文件类型不合法或已损坏" },
+        { status: 400 }
+      );
+    }
+
+    // 对 txt/md 放宽到允许文本类型互转；对其他类型要求魔数匹配扩展名大类
+    const isTextLike = clientExt === ".txt" || clientExt === ".md";
+    const magicIsText = magicExt === ".txt";
+    if (!isTextLike) {
+      if (magicExt !== clientExt) {
+        return NextResponse.json(
+          { error: "文件扩展名与真实文件类型不一致" },
+          { status: 400 }
+        );
+      }
+    } else {
+      if (!magicIsText) {
+        return NextResponse.json(
+          { error: "该文件不是合法的文本文件" },
+          { status: 400 }
+        );
+      }
     }
 
     // 验证文件大小
@@ -58,9 +136,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 生成唯一文件名
+    // 生成唯一文件名（使用客户端扩展名，txt/md 是安全的）
     const fileId = randomUUID();
-    const extension = EXTENSION_MAP[file.type];
+    const extension = clientExt;
     const fileName = `${fileId}${extension}`;
 
     // 确保上传目录存在
@@ -69,7 +147,6 @@ export async function POST(req: NextRequest) {
 
     // 保存文件
     const filePath = join(uploadDir, fileName);
-    const buffer = Buffer.from(await file.arrayBuffer());
     await writeFile(filePath, buffer);
 
     // 相对路径用于访问
@@ -87,7 +164,7 @@ export async function POST(req: NextRequest) {
         userId: session.user.id,
         name: name || file.name,
         fileUrl,
-        fileType: file.type,
+        fileType: file.type || "application/octet-stream",
         fileSize: file.size,
         isDefault,
       },

@@ -1,17 +1,39 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
 
 export async function GET(request: NextRequest) {
+  const ip = getClientIP(request);
+  const rateLimit = checkRateLimit(ip, 5, 1000);
+  if (!rateLimit.success) {
+    return NextResponse.json(
+      { error: "请求过于频繁，请稍后再试" },
+      { status: 429 }
+    );
+  }
+
   const { searchParams } = new URL(request.url);
-  
+
   const q = searchParams.get("q")?.trim();
   const city = searchParams.get("city");
   const type = searchParams.get("type");
   const minSalary = searchParams.get("minSalary");
   const maxSalary = searchParams.get("maxSalary");
-  const page = parseInt(searchParams.get("page") || "1");
-  const limit = parseInt(searchParams.get("limit") || "20");
+  const pageRaw = searchParams.get("page") || "1";
+  const limitRaw = searchParams.get("limit") || "20";
+
+  const pageParsed = parseInt(pageRaw, 10);
+  if (isNaN(pageParsed)) {
+    return NextResponse.json({ error: "无效参数" }, { status: 400 });
+  }
+  const page = pageParsed;
+
+  const limitParsed = parseInt(limitRaw, 10);
+  if (isNaN(limitParsed)) {
+    return NextResponse.json({ error: "无效参数" }, { status: 400 });
+  }
+  const limit = Math.min(limitParsed, 50);
   const skip = (page - 1) * limit;
 
   // 记录搜索查询（用于热门搜索统计）
@@ -66,20 +88,28 @@ export async function GET(request: NextRequest) {
     }
 
     if (minSalary || maxSalary) {
+      const parsedMin = minSalary ? parseInt(minSalary, 10) : null;
+      if (parsedMin !== null && isNaN(parsedMin)) {
+        return NextResponse.json({ error: "无效参数" }, { status: 400 });
+      }
+      const parsedMax = maxSalary ? parseInt(maxSalary, 10) : null;
+      if (parsedMax !== null && isNaN(parsedMax)) {
+        return NextResponse.json({ error: "无效参数" }, { status: 400 });
+      }
       where.AND = [];
-      if (minSalary) {
+      if (parsedMin !== null) {
         (where.AND as Prisma.JobWhereInput[]).push({
           OR: [
-            { salaryMin: { gte: parseInt(minSalary) } },
-            { salaryMax: { gte: parseInt(minSalary) } },
+            { salaryMin: { gte: parsedMin } },
+            { salaryMax: { gte: parsedMin } },
           ],
         });
       }
-      if (maxSalary) {
+      if (parsedMax !== null) {
         (where.AND as Prisma.JobWhereInput[]).push({
           OR: [
-            { salaryMin: { lte: parseInt(maxSalary) } },
-            { salaryMax: { lte: parseInt(maxSalary) } },
+            { salaryMin: { lte: parsedMax } },
+            { salaryMax: { lte: parsedMax } },
           ],
         });
       }

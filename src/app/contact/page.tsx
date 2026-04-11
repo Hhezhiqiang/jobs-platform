@@ -1,9 +1,29 @@
 import Link from "next/link";
 import { Metadata } from "next";
 
+const SITE_NAME = "JobsBro招聘平台";
+const SITE_URL = "https://jobs-platform-gold.vercel.app";
+
 export const metadata: Metadata = {
-  title: "联系我们 - 招聘平台",
-  description: "联系招聘平台，获取更多帮助",
+  title: `联系我们 - ${SITE_NAME}`,
+  description: "联系JobsBro招聘平台，获取更多帮助与支持。我们致力于为您提供最优质的求职招聘服务。",
+  keywords: ["联系我们", "招聘平台", "客户服务", "求职帮助", "招聘咨询"],
+  openGraph: {
+    title: `联系我们 - ${SITE_NAME}`,
+    description: "联系JobsBro招聘平台，获取更多帮助与支持。",
+    url: `${SITE_URL}/contact`,
+    siteName: SITE_NAME,
+    type: "website",
+    locale: "zh_CN",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `联系我们 - ${SITE_NAME}`,
+    description: "联系JobsBro招聘平台，获取更多帮助与支持。",
+  },
+  alternates: {
+    canonical: `${SITE_URL}/contact`,
+  },
 };
 
 export default function ContactPage() {
@@ -24,7 +44,7 @@ export default function ContactPage() {
         <div className="bg-white rounded-lg shadow p-8 space-y-8">
           <section>
             <h2 className="text-2xl font-bold mb-6">联系方式</h2>
-            
+
             <div className="space-y-6">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-2xl">📧</div>

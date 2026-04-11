@@ -7,6 +7,7 @@ export async function POST(request: Request) {
 
     // 构建查询条件
     const where: any = {
+      status: "ACTIVE",
       AND: [
         { salaryMin: { not: null } },
         { salaryMax: { not: null } },

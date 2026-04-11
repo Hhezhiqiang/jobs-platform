@@ -122,6 +122,15 @@ export async function PATCH(
       status,
     } = body;
 
+    const parsedSalaryMin = salaryMin ? parseInt(salaryMin, 10) : null;
+    if (parsedSalaryMin !== null && isNaN(parsedSalaryMin)) {
+      return NextResponse.json({ error: "无效参数" }, { status: 400 });
+    }
+    const parsedSalaryMax = salaryMax ? parseInt(salaryMax, 10) : null;
+    if (parsedSalaryMax !== null && isNaN(parsedSalaryMax)) {
+      return NextResponse.json({ error: "无效参数" }, { status: 400 });
+    }
+
     const job = await prisma.job.update({
       where: { id },
       data: {
@@ -131,8 +140,8 @@ export async function PATCH(
         benefits,
         employmentType,
         experience,
-        salaryMin: salaryMin ? parseInt(salaryMin) : null,
-        salaryMax: salaryMax ? parseInt(salaryMax) : null,
+        salaryMin: parsedSalaryMin,
+        salaryMax: parsedSalaryMax,
         location,
         city,
         isRemote,

@@ -1,9 +1,19 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
   try {
+    const ip = getClientIP(request);
+    const rateLimit = checkRateLimit(ip, 10, 15 * 60 * 1000);
+    if (!rateLimit.success) {
+      return NextResponse.json(
+        { error: "请求过于频繁，请稍后再试" },
+        { status: 429 }
+      );
+    }
+
     const { name, email, password, phone } = await request.json();
 
     // 验证必填字段

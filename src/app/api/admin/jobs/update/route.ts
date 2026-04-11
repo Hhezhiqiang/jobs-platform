@@ -55,6 +55,15 @@ export async function POST(request: NextRequest) {
     const benefits = formData.get("benefits") as string;
     const status = formData.get("status") as JobStatus;
 
+    const parsedSalaryMin = salaryMin ? parseInt(salaryMin, 10) : null;
+    if (parsedSalaryMin !== null && isNaN(parsedSalaryMin)) {
+      return NextResponse.json({ error: "无效参数" }, { status: 400 });
+    }
+    const parsedSalaryMax = salaryMax ? parseInt(salaryMax, 10) : null;
+    if (parsedSalaryMax !== null && isNaN(parsedSalaryMax)) {
+      return NextResponse.json({ error: "无效参数" }, { status: 400 });
+    }
+
     // 更新职位
     await prisma.job.update({
       where: { id: jobId },
@@ -66,8 +75,8 @@ export async function POST(request: NextRequest) {
         city,
         location,
         applyUrl,
-        salaryMin: salaryMin ? parseInt(salaryMin) : null,
-        salaryMax: salaryMax ? parseInt(salaryMax) : null,
+        salaryMin: parsedSalaryMin,
+        salaryMax: parsedSalaryMax,
         salaryCurrency,
         isRemote,
         isHybrid,

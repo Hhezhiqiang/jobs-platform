@@ -4,8 +4,45 @@ import { Header } from "@/components/header";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { prisma } from "@/lib/prisma";
 import { Building2, MapPin, Users, Briefcase, Search } from "lucide-react";
+import { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+const SITE_NAME = "JobsBro招聘平台";
+const SITE_URL = "https://jobs-platform-gold.vercel.app";
+
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ q?: string }> }): Promise<Metadata> {
+  const params = await searchParams;
+  const query = params.q || "";
+  const title = query
+    ? `${query} 相关公司 - 企业搜索 | ${SITE_NAME}`
+    : `知名企业列表 - 发现优秀企业 | ${SITE_NAME}`;
+  const description = query
+    ? `搜索"${query}"找到的相关企业，查看最新招聘信息和公司详情。`
+    : "发现优秀企业，探索知名互联网公司，找到理想的职业平台。查看最新公司列表和招聘信息。";
+
+  return {
+    title,
+    description,
+    keywords: ["公司列表", "企业招聘", "互联网公司", query, "公司详情"].filter(Boolean),
+    openGraph: {
+      title,
+      description,
+      url: `${SITE_URL}/companies`,
+      siteName: SITE_NAME,
+      type: "website",
+      locale: "zh_CN",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
+    alternates: {
+      canonical: `${SITE_URL}/companies`,
+    },
+  };
+}
 
 interface PageProps {
   searchParams: Promise<{ q?: string }>;

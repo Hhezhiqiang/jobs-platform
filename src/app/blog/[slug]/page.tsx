@@ -11,8 +11,8 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-// ISR: 每7天重新生成页面
-export const revalidate = 604800;
+// ISR: 每1天重新生成页面
+export const revalidate = 86400;
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
