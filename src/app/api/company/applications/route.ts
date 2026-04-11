@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 // 检查权限
 async function checkPermission(userId: string, role: string, companyId?: string) {
   if (role === "ADMIN") return { allowed: true, companyId: null };

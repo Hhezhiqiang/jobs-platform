@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { unlink } from "fs/promises";
 import { join } from "path";
+export const dynamic = "force-dynamic";
 
 // 获取单个简历
 export async function GET(

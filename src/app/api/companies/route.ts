@@ -3,10 +3,13 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 // 获取公司列表
 export async function GET() {
   try {
     const companies = await prisma.company.findMany({
+      take: 100,
       include: {
         _count: {
           select: { jobs: true },

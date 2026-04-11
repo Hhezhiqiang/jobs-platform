@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { EmploymentType, ExperienceLevel, JobStatus } from "@prisma/client";
+export const dynamic = "force-dynamic";
 
 // 更新职位
 export async function POST(request: NextRequest) {

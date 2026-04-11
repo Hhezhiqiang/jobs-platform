@@ -14,6 +14,7 @@ export async function GET() {
         city: true,
       },
       distinct: ["city"],
+      take: 500,
       orderBy: {
         city: "asc",
       },

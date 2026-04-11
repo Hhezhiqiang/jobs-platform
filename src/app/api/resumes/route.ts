@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
     // 验证用户
@@ -14,6 +16,7 @@ export async function GET(req: NextRequest) {
     // 获取用户的所有简历
     const resumes = await prisma.resume.findMany({
       where: { userId: session.user.id },
+      take: 50,
       orderBy: [{ isDefault: "desc" }, { createdAt: "desc" }],
     });
 

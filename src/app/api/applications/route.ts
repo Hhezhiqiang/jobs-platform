@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+export const dynamic = "force-dynamic";
 
 // 获取当前用户的职位申请列表
 export async function GET(request: NextRequest) {
@@ -26,6 +28,7 @@ export async function GET(request: NextRequest) {
 
     const applications = await prisma.jobApplication.findMany({
       where,
+      take: 100,
       include: {
         job: {
           include: { company: true },

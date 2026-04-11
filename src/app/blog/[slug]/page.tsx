@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { Metadata } from "next";
 import ReactMarkdown from "react-markdown";
 import { formatSalary } from "@/lib/utils";
+import { ViewCounter } from "@/components/view-counter";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -120,12 +121,6 @@ export default async function BlogDetailPage({ params }: PageProps) {
   if (!post) {
     notFound();
   }
-
-  // 增加浏览量
-  await prisma.page.update({
-    where: { id: post.id },
-    data: { viewCount: { increment: 1 } },
-  });
 
   // 获取相关职位（基于关键词匹配）
   const keyword = post.keywords?.[0] || "";
@@ -245,7 +240,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
                   })}
                 </time>
                 <span>·</span>
-                <span className="text-gray-500">{post.viewCount + 1} 次阅读</span>
+                <ViewCounter slug={slug} initialCount={post.viewCount} />
               </div>
 
               {/* 摘要 */}

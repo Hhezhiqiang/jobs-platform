@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+export const dynamic = "force-dynamic";
 
 // 切换职位状态（上架/下架）
 export async function POST(request: NextRequest) {

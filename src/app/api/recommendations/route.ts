@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { calculateMatchScore, getRecommendationWeight } from "@/lib/recommendations";
 import { Job, Company } from "@prisma/client";
+export const dynamic = "force-dynamic";
 
 interface JobWithCompany extends Job {
   company: Company;

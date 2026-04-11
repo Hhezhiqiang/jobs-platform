@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+export const dynamic = "force-dynamic";
 
 // 更新用户详细资料（工作经历、教育背景、技能等）
 export async function PUT(request: NextRequest) {

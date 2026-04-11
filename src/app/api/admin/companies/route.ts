@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+export const dynamic = "force-dynamic";
 
 // 获取企业列表（仅管理员）
 export async function GET(request: NextRequest) {
@@ -26,6 +28,7 @@ export async function GET(request: NextRequest) {
 
     const companies = await prisma.company.findMany({
       where,
+      take: 200,
       include: {
         members: {
           include: {
