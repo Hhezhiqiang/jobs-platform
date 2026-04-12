@@ -21,12 +21,12 @@ export async function getVisitStats(days: number = 30) {
   const rows = await prisma.$queryRaw<
     Array<{ date: Date; pv: bigint; uv: bigint }>
   >`
-    SELECT DATE(createdAt) as date,
+    SELECT DATE("createdAt") as date,
            COUNT(*) as pv,
-           COUNT(DISTINCT sessionId) as uv
+           COUNT(DISTINCT "sessionId") as uv
     FROM page_views
-    WHERE createdAt >= ${startDate} AND createdAt <= ${endDate}
-    GROUP BY DATE(createdAt)
+    WHERE "createdAt" >= ${startDate} AND "createdAt" <= ${endDate}
+    GROUP BY DATE("createdAt")
     ORDER BY date ASC
   `;
 
@@ -54,9 +54,9 @@ export async function getVisitStats(days: number = 30) {
   const prevRows = await prisma.$queryRaw<
     Array<{ pv: bigint; uv: bigint }>
   >`
-    SELECT COUNT(*) as pv, COUNT(DISTINCT sessionId) as uv
+    SELECT COUNT(*) as pv, COUNT(DISTINCT "sessionId") as uv
     FROM page_views
-    WHERE createdAt >= ${prevStartDate} AND createdAt <= ${prevEndDate}
+    WHERE "createdAt" >= ${prevStartDate} AND "createdAt" <= ${prevEndDate}
   `;
   const prev = prevRows[0] || { pv: BigInt(0), uv: BigInt(0) };
   const prevPV = Number(prev.pv);
@@ -83,23 +83,23 @@ export async function getApplicationConversionStats(days: number = 30) {
   const viewRows = await prisma.$queryRaw<
     Array<{ date: Date; views: bigint }>
   >`
-    SELECT DATE(createdAt) as date, COUNT(*) as views
+    SELECT DATE("createdAt") as date, COUNT(*) as views
     FROM page_views
     WHERE path LIKE '/jobs/%'
-      AND createdAt >= ${startDate}
-      AND createdAt <= ${endDate}
-    GROUP BY DATE(createdAt)
+      AND "createdAt" >= ${startDate}
+      AND "createdAt" <= ${endDate}
+    GROUP BY DATE("createdAt")
     ORDER BY date ASC
   `;
 
   const appRows = await prisma.$queryRaw<
     Array<{ date: Date; applications: bigint }>
   >`
-    SELECT DATE(appliedAt) as date, COUNT(*) as applications
+    SELECT DATE("appliedAt") as date, COUNT(*) as applications
     FROM job_applications
-    WHERE appliedAt >= ${startDate}
-      AND appliedAt <= ${endDate}
-    GROUP BY DATE(appliedAt)
+    WHERE "appliedAt" >= ${startDate}
+      AND "appliedAt" <= ${endDate}
+    GROUP BY DATE("appliedAt")
     ORDER BY date ASC
   `;
 
@@ -188,11 +188,11 @@ export async function getUserGrowthStats(days: number = 30) {
   const userRows = await prisma.$queryRaw<
     Array<{ date: Date; newUsers: bigint }>
   >`
-    SELECT DATE(createdAt) as date, COUNT(*) as newUsers
+    SELECT DATE("createdAt") as date, COUNT(*) as newUsers
     FROM users
-    WHERE createdAt >= ${startDate}
-      AND createdAt <= ${endDate}
-    GROUP BY DATE(createdAt)
+    WHERE "createdAt" >= ${startDate}
+      AND "createdAt" <= ${endDate}
+    GROUP BY DATE("createdAt")
     ORDER BY date ASC
   `;
 
@@ -250,13 +250,13 @@ export async function getJobGrowthStats(days: number = 30) {
   const jobRows = await prisma.$queryRaw<
     Array<{ date: Date; newJobs: bigint; activeJobs: bigint }>
   >`
-    SELECT DATE(createdAt) as date,
+    SELECT DATE("createdAt") as date,
            COUNT(*) as newJobs,
            COUNT(*) FILTER (WHERE status = 'ACTIVE') as activeJobs
     FROM jobs
-    WHERE createdAt >= ${startDate}
-      AND createdAt <= ${endDate}
-    GROUP BY DATE(createdAt)
+    WHERE "createdAt" >= ${startDate}
+      AND "createdAt" <= ${endDate}
+    GROUP BY DATE("createdAt")
     ORDER BY date ASC
   `;
 
