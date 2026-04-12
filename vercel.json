@@ -1,8 +1,0 @@
-{
-  "crons": [
-    {
-      "path": "/api/admin/keywords/collect",
-      "schedule": "0 0 * * *"
-    }
-  ]
-}
