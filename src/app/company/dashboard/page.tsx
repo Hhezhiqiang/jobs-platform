@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Building2,
   Briefcase,
@@ -124,10 +125,13 @@ export default function CompanyDashboardPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               {data?.company?.logo ? (
-                <img
+                <Image
                   src={data.company.logo}
                   alt={data.company.name}
+                  width={48}
+                  height={48}
                   className="w-12 h-12 rounded-lg object-cover"
+                  unoptimized
                 />
               ) : (
                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center"

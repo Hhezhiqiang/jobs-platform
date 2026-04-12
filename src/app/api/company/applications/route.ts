@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
     const jobId = searchParams.get("jobId");
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+    const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
 
     const { allowed, companyId } = await checkPermission(
       session.user.id,
@@ -46,7 +49,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "无权访问" }, { status: 403 });
     }
 
-    const where: any = {};
+    const where: Prisma.JobApplicationWhereInput = {};
 
     if (companyId) {
       where.job = {
@@ -55,7 +58,13 @@ export async function GET(request: NextRequest) {
     }
 
     if (status) {
-      where.status = status;
+      where.status = status as
+        | "PENDING"
+        | "VIEWED"
+        | "INTERVIEW"
+        | "REJECTED"
+        | "OFFER"
+        | "WITHDRAWN";
     }
 
     if (jobId) {
@@ -84,6 +93,8 @@ export async function GET(request: NextRequest) {
         resume: true,
       },
       orderBy: { appliedAt: "desc" },
+      skip: (page - 1) * limit,
+      take: limit,
     });
 
     return NextResponse.json({ applications });

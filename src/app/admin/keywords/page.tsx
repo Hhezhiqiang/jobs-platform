@@ -358,7 +358,7 @@ export default function AdminKeywordsPage() {
                     )}
                     <p className="text-sm text-gray-700 whitespace-pre-line mb-2">{a.contentBody}</p>
                     {a.contentUrl && (
-                      <a href={a.contentUrl} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:underline">
+                      <a href={a.contentUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline">
                         查看原文 →
                       </a>
                     )}

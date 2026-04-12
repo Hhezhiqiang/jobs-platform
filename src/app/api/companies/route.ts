@@ -56,6 +56,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 限制每个用户最多创建 3 家公司
+    const existingCount = await prisma.company.count({
+      where: {
+        members: {
+          some: {
+            userId: session.user.id,
+            role: "ADMIN",
+          },
+        },
+      },
+    });
+
+    if (existingCount >= 3) {
+      return NextResponse.json(
+        { error: "每位用户最多只能创建 3 家公司" },
+        { status: 400 }
+      );
+    }
+
     const company = await prisma.company.create({
       data: {
         name: body.name,
@@ -68,6 +87,12 @@ export async function POST(request: NextRequest) {
         description: body.description || null,
         metaTitle: body.metaTitle || null,
         metaDescription: body.metaDescription || null,
+        members: {
+          create: {
+            userId: session.user.id,
+            role: "ADMIN",
+          },
+        },
       },
     });
 

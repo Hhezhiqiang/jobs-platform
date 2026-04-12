@@ -4,7 +4,8 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { unlink } from "fs/promises";
-import { join } from "path";
+import { join, resolve } from "path";
+import { realpath } from "fs/promises";
 export const dynamic = "force-dynamic";
 
 // 获取单个简历
@@ -63,10 +64,18 @@ export async function DELETE(
       return NextResponse.json({ error: "简历不存在" }, { status: 404 });
     }
 
-    // 删除文件
+    // 删除文件（带路径穿越校验）
     try {
+      if (!resume.fileUrl || !resume.fileUrl.startsWith("/uploads/resumes/")) {
+        throw new Error("Invalid file path");
+      }
       const filePath = join(process.cwd(), "public", resume.fileUrl);
-      await unlink(filePath);
+      const resolvedPath = await realpath(filePath).catch(() => filePath);
+      const allowedBase = resolve(join(process.cwd(), "public", "uploads", "resumes"));
+      if (!resolvedPath.startsWith(allowedBase)) {
+        throw new Error("Path traversal detected");
+      }
+      await unlink(resolvedPath);
     } catch (err) {
       console.error("删除文件失败:", err);
       // 继续删除数据库记录，即使文件删除失败

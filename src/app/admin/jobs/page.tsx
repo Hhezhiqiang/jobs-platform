@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
@@ -300,10 +301,13 @@ export default async function AdminJobsPage({ searchParams }: PageProps) {
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-2">
                               {job.company.logo ? (
-                                <img
+                                <Image
                                   src={job.company.logo}
                                   alt={job.company.name}
+                                  width={24}
+                                  height={24}
                                   className="w-6 h-6 rounded object-cover"
+                                  unoptimized
                                 />
                               ) : (
                                 <div className="w-6 h-6 rounded bg-blue-100 flex items-center justify-center text-blue-600 text-xs font-bold">
@@ -357,6 +361,7 @@ export default async function AdminJobsPage({ searchParams }: PageProps) {
                               <Link
                                 href={`/jobs/${job.slug}`}
                                 target="_blank"
+                                rel="noopener noreferrer"
                                 className="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                                 title="查看"
                               >

@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 
 export async function GET() {
-  const baseUrl = "https://jobs-platform-gold.vercel.app";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jobs-platform-gold.vercel.app";
   
   const [jobs, companies, blogs, cmsPages] = await Promise.all([
     prisma.job.findMany({

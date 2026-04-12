@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth";
 import { prisma } from "./prisma";
+import { Prisma } from "@prisma/client";
 
 /**
  * 检查用户是否是企业成员
@@ -16,7 +17,7 @@ export async function checkCompanyPermission(
   }
 
   // 查找用户的企业成员身份
-  const where: any = { userId };
+  const where: Prisma.CompanyMemberWhereInput = { userId };
   if (companyId) {
     where.companyId = companyId;
   }

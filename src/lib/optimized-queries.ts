@@ -236,28 +236,42 @@ export async function searchJobs(params: {
   page?: number;
   limit?: number;
 }) {
-  const { query, city, type, page = 1, limit = 20 } = params;
+  const { query: rawQuery, city: rawCity, type, page = 1, limit = 20 } = params;
   const skip = (page - 1) * limit;
 
-  const where: any = { status: "ACTIVE" };
+  // 防止超长输入导致慢查询/恶意攻击
+  const query = rawQuery ? rawQuery.slice(0, 50) : undefined;
+  const city = rawCity ? rawCity.slice(0, 30) : undefined;
+
+  const where: Prisma.JobWhereInput = { status: "ACTIVE" };
+
+  const orConditions: Prisma.JobWhereInput[] = [];
 
   if (query) {
-    where.OR = [
+    orConditions.push(
       { title: { contains: query, mode: "insensitive" } },
-      { description: { contains: query, mode: "insensitive" } },
-    ];
+      { description: { contains: query, mode: "insensitive" } }
+    );
   }
 
   if (city) {
-    where.OR = where.OR || [];
-    where.OR.push(
+    orConditions.push(
       { city: { contains: city, mode: "insensitive" } },
       { location: { contains: city, mode: "insensitive" } }
     );
   }
 
+  if (orConditions.length > 0) {
+    where.OR = orConditions;
+  }
+
   if (type) {
-    where.employmentType = type;
+    where.employmentType = type as
+      | "FULL_TIME"
+      | "PART_TIME"
+      | "CONTRACT"
+      | "INTERNSHIP"
+      | "FREELANCE";
   }
 
   const [jobs, total] = await Promise.all([

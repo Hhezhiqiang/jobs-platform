@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getHomePageData } from "@/lib/optimized-queries";
 import { generateHomeMetadata } from "@/lib/metadata";
 import { Metadata } from "next";
@@ -87,12 +88,14 @@ export default async function HomePage() {
                   className="group flex items-center gap-3 px-6 py-4 bg-white rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all"
                 >
                   {company.logo ? (
-                    <img
-                      src={company.logo}
-                      alt={`${company.name} 公司Logo`}
-                      className="w-12 h-12 rounded-lg object-cover"
-                      loading="lazy"
-                    />
+                  <Image
+                    src={company.logo}
+                    alt={`${company.name} 公司Logo`}
+                    width={48}
+                    height={48}
+                    className="w-12 h-12 rounded-lg object-cover"
+                    unoptimized
+                  />
                   ) : (
                     <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-lg">
                       {company.name.charAt(0)}

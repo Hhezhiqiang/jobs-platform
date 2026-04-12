@@ -245,6 +245,7 @@ export default function CompanyJobsPage() {
                       <Link
                         href={`/jobs/${job.slug}`}
                         target="_blank"
+                        rel="noopener noreferrer"
                         className="p-2 hover:bg-gray-100 rounded-lg"
                         title="查看"
                       >

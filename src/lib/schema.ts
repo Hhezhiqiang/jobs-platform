@@ -2,7 +2,7 @@ import { Job, Company } from "@prisma/client";
 
 // JobPosting Schema 生成（Google for Jobs 支持）
 export function generateJobPostingSchema(job: Job & { company: Company }) {
-  const siteUrl = "https://jobs-platform-gold.vercel.app";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jobs-platform-gold.vercel.app";
   
   const baseSalary = job.salaryMin && job.salaryMax ? {
     "@type": "MonetaryAmount",

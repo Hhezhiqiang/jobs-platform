@@ -4,6 +4,8 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createApplicationStatusNotification } from "@/lib/notifications";
+import { checkApplicationPermission } from "@/lib/permissions";
+import { Prisma } from "@prisma/client";
 export const dynamic = "force-dynamic";
 
 // 更新申请状态（招聘方使用）
@@ -50,12 +52,14 @@ export async function PATCH(
       return NextResponse.json({ error: "申请不存在" }, { status: 404 });
     }
 
-    // 检查权限：只有职位发布者、公司账户或管理员可以更新状态
-    const isAuthorized =
-      user?.role === "ADMIN" ||
-      application.job.authorId === session.user.id;
+    // 检查权限：使用统一的权限校验（基于 companyMember 实时身份）
+    const permission = await checkApplicationPermission(
+      session.user.id,
+      user?.role || "USER",
+      applicationId
+    );
 
-    if (!isAuthorized) {
+    if (!permission.allowed) {
       return NextResponse.json(
         { error: "无权操作此申请" },
         { status: 403 }
@@ -65,7 +69,7 @@ export async function PATCH(
     const oldStatus = application.status;
 
     // 更新申请状态
-    const updateData: any = {
+    const updateData: Prisma.JobApplicationUpdateInput = {
       status: newStatus,
     };
 

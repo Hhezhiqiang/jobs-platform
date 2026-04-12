@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Metadata } from "next";
 
 const SITE_NAME = "JobsBro招聘平台";
-const SITE_URL = "https://jobs-platform-gold.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobs-platform-gold.vercel.app";
 
 export const metadata: Metadata = {
   title: `联系我们 - ${SITE_NAME}`,
@@ -50,8 +50,8 @@ export default function ContactPage() {
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-2xl">📧</div>
                 <div>
                   <p className="text-gray-600">电子邮箱</p>
-                  <a href="mailto:contact@example.com" className="text-blue-600 hover:text-blue-800 text-lg">
-                    contact@example.com
+                  <a href="mailto:support@jobs-platform.com" className="text-blue-600 hover:text-blue-800 text-lg">
+                    support@jobs-platform.com
                   </a>
                 </div>
               </div>

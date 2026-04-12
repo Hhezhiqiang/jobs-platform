@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getClientIP, checkRateLimit } from "@/lib/rate-limit";
 export const dynamic = "force-dynamic";
 
 // 生成会话ID（基于IP + User-Agent的简单哈希）
@@ -25,6 +26,12 @@ export async function POST(request: NextRequest) {
     const forwardedFor = request.headers.get("x-forwarded-for");
     const ip = forwardedFor ? forwardedFor.split(",")[0].trim() : "127.0.0.1";
     const userAgent = request.headers.get("user-agent") || "";
+
+    // 速率限制：同一 IP 30 次/分钟
+    const rateLimit = checkRateLimit(ip, 30, 60 * 1000);
+    if (!rateLimit.success) {
+      return NextResponse.json({ success: true }, { status: 200 });
+    }
 
     // 获取登录用户
     const session = await getServerSession(authOptions);

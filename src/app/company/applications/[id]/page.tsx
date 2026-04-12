@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   ChevronLeft,
   Mail,
@@ -174,10 +175,13 @@ export default function ApplicationDetailPage({
                 <div className="flex items-center space-x-4">
                   <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
                     {application?.user?.avatar ? (
-                      <img
+                      <Image
                         src={application.user.avatar}
                         alt={application.user.name}
+                        width={64}
+                        height={64}
                         className="w-16 h-16 rounded-full object-cover"
+                        unoptimized
                       />
                     ) : (
                       <User className="w-8 h-8 text-gray-400" />

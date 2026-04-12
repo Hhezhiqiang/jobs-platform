@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 
-// 强制使用生产域名
-const SITE_URL = "https://jobs-platform-gold.vercel.app";
+// 强制使用生产域名（可通过环境变量覆盖）
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobs-platform-gold.vercel.app";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -29,6 +29,8 @@ export default function robots(): MetadataRoute.Robots {
           "/auth/*",
           "/_next",
           "/_next/*",
+          "/search?",
+          "/search/*?",
         ],
       },
       {

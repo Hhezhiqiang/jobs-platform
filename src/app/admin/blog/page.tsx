@@ -48,7 +48,7 @@ export default async function AdminBlogPage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="bg-white rounded-lg shadow overflow-hidden overflow-x-auto">
           <table className="min-w-full">
             <thead className="bg-gray-50">
               <tr>
@@ -120,6 +120,7 @@ export default async function AdminBlogPage() {
                       <Link
                         href={`/blog/${post.slug}`}
                         target="_blank"
+                        rel="noopener noreferrer"
                         className="text-blue-600 hover:text-blue-900"
                       >
                         预览
