@@ -88,7 +88,7 @@ export default async function CompaniesPage({ searchParams }: PageProps) {
             <p className="text-blue-100 mb-6">探索知名互联网公司，找到理想的职业平台</p>
 
             {/* Search */}
-            <form className="max-w-xl mx-auto">
+            <form action="/companies" className="max-w-xl mx-auto">
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input

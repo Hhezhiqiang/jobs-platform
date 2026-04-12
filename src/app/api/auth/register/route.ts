@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
+import { bindUserReferral, getPromoRef } from "@/lib/promoter";
 
 export async function POST(request: Request) {
   try {
@@ -76,6 +77,12 @@ export async function POST(request: Request) {
         skills: [],
       },
     });
+
+    // CPS 推广归因绑定
+    const promoRef = getPromoRef(request);
+    if (promoRef) {
+      await bindUserReferral(user.id, promoRef);
+    }
 
     return NextResponse.json({
       success: true,

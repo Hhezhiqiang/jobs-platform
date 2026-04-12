@@ -5,6 +5,7 @@ import { formatSalary } from "./utils";
 const SITE_NAME = "JobsBro招聘平台";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobs-platform-gold.vercel.app";
 const SITE_DESCRIPTION = "专业的求职招聘平台，汇聚海量优质Web3、互联网、科技行业职位，为求职者和企业提供高效对接服务，助力职场发展";
+const DEFAULT_OG_IMAGE = `${SITE_URL}/logo.png`;
 
 // 首页 Metadata
 export function generateHomeMetadata(): Metadata {
@@ -20,11 +21,13 @@ export function generateHomeMetadata(): Metadata {
       siteName: SITE_NAME,
       type: "website",
       locale: "zh_CN",
+      images: [DEFAULT_OG_IMAGE],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description: SITE_DESCRIPTION,
+      images: [DEFAULT_OG_IMAGE],
     },
     alternates: {
       canonical: SITE_URL,
@@ -36,9 +39,9 @@ export function generateHomeMetadata(): Metadata {
 export function generateJobMetadata(job: Job & { company: Company }): Metadata {
   const title = job.metaTitle || `${job.title} | ${job.company.name}招聘 | ${SITE_NAME}`;
   const salaryStr = formatSalary(job.salaryMin, job.salaryMax);
-  const description = job.metaDescription || 
+  const description = job.metaDescription ||
     `${job.company.name}招聘${job.title}，工作地点：${job.location}，薪资：${salaryStr}。点击查看详情并申请。`;
-  
+
   const url = `${SITE_URL}/jobs/${job.slug}`;
 
   return {
@@ -53,13 +56,13 @@ export function generateJobMetadata(job: Job & { company: Company }): Metadata {
       type: "article",
       publishedTime: job.datePosted.toISOString(),
       modifiedTime: job.updatedAt.toISOString(),
-      images: job.imageUrl ? [job.imageUrl] : [],
+      images: job.imageUrl ? [job.imageUrl] : [DEFAULT_OG_IMAGE],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description: description.slice(0, 160),
-      images: job.imageUrl ? [job.imageUrl] : [],
+      images: job.imageUrl ? [job.imageUrl] : [DEFAULT_OG_IMAGE],
     },
     alternates: {
       canonical: url,
@@ -74,9 +77,9 @@ export function generateJobMetadata(job: Job & { company: Company }): Metadata {
 // 公司页 Metadata
 export function generateCompanyMetadata(company: Company): Metadata {
   const title = company.metaTitle || `${company.name} - 公司招聘主页 | ${SITE_NAME}`;
-  const description = company.metaDescription || 
+  const description = company.metaDescription ||
     `${company.name}${company.industry ? `，${company.industry}行业` : ""}招聘主页。查看最新职位信息，了解公司详情。`;
-  
+
   const url = `${SITE_URL}/companies/${company.slug}`;
 
   return {
@@ -89,7 +92,7 @@ export function generateCompanyMetadata(company: Company): Metadata {
       url,
       siteName: SITE_NAME,
       type: "profile",
-      images: company.logo ? [company.logo] : [],
+      images: company.logo ? [company.logo] : [DEFAULT_OG_IMAGE],
     },
     alternates: {
       canonical: url,
@@ -102,11 +105,11 @@ export function generateJobsListMetadata(params?: { city?: string; type?: string
   const cityText = params?.city ? `${params.city} ` : "";
   const typeText = params?.type ? `${params.type} ` : "";
   const queryText = params?.query ? `${params.query} ` : "";
-  
-  const title = queryText 
+
+  const title = queryText
     ? `${queryText}招聘信息 - 职位搜索结果 | ${SITE_NAME}`
     : `${cityText}${typeText}招聘信息 - 最新职位列表 | ${SITE_NAME}`;
-  
+
   const description = queryText
     ? `搜索"${queryText}"相关职位，查看最新的${queryText}招聘信息。高薪岗位实时更新，快速找到理想工作。`
     : `查看${cityText}${typeText}最新招聘信息，包含各行业热门职位。高薪岗位实时更新，快速找到理想工作。`;
@@ -120,6 +123,13 @@ export function generateJobsListMetadata(params?: { city?: string; type?: string
       description,
       siteName: SITE_NAME,
       type: "website",
+      images: [DEFAULT_OG_IMAGE],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [DEFAULT_OG_IMAGE],
     },
   };
 }

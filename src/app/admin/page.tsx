@@ -16,7 +16,9 @@ import {
   Clock,
   ChevronRight,
   BarChart3,
-  Sparkles
+  Sparkles,
+  Wallet,
+  PieChart,
 } from "lucide-react";
 import { formatDistanceToNow } from "@/lib/utils";
 
@@ -61,6 +63,9 @@ export default async function AdminPage() {
     { icon: Sparkles, label: "关键词监控", href: "/admin/keywords" },
     { icon: Users, label: "用户管理", href: "/admin/users" },
     { icon: BarChart3, label: "数据分析", href: "/admin/analytics" },
+    { icon: TrendingUp, label: "推广者管理", href: "/admin/promoters" },
+    { icon: Wallet, label: "提现审核", href: "/admin/withdrawals" },
+    { icon: PieChart, label: "CPS 报表", href: "/admin/reports/cps" },
   ];
 
   const stats = [

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { JobCardV2 } from "@/components/job-card-v2";
 import { ViewCounter } from "@/components/view-counter";
@@ -280,7 +281,7 @@ export default async function TopicPage({ params }: PageProps) {
             <article className="bg-white rounded-lg shadow-md overflow-hidden">
               {cmsPage.featuredImage && (
                 <div className="relative h-64 md:h-96 w-full">
-                  <Image src={cmsPage.featuredImage} alt={cmsPage.title} fill className="object-cover" priority />
+                  <Image src={cmsPage.featuredImage} alt={cmsPage.title} fill sizes="100vw" className="object-cover" priority />
                 </div>
               )}
               <div className="p-8">
@@ -334,6 +335,7 @@ export default async function TopicPage({ params }: PageProps) {
               </div>
             )}
           </main>
+          <Footer />
         </div>
       </>
     );
@@ -409,6 +411,8 @@ export default async function TopicPage({ params }: PageProps) {
             </>
           )}
         </main>
+
+        <Footer />
       </div>
     </>
   );

@@ -15,7 +15,8 @@ import {
   ChevronRight,
   TrendingUp,
   Award,
-  Clock
+  Clock,
+  Wallet,
 } from "lucide-react";
 
 const statusMap: Record<string, { label: string; color: string; bg: string }> = {
@@ -91,6 +92,7 @@ export default async function DashboardPage() {
     { icon: LayoutDashboard, label: "概览", href: "/dashboard", active: true },
     { icon: FileText, label: "我的简历", href: "/dashboard/profile" },
     { icon: Briefcase, label: "我的申请", href: "/dashboard/applications" },
+    { icon: Wallet, label: "账户余额", href: "/user/recharge" },
     { icon: Settings, label: "账号设置", href: "/dashboard/settings" },
   ];
 
@@ -160,7 +162,7 @@ export default async function DashboardPage() {
           {/* Main Content */}
           <div className="lg:col-span-3 space-y-8">
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                 <div className="flex items-center justify-between">
                   <div>
@@ -175,6 +177,24 @@ export default async function DashboardPage() {
                   <TrendingUp className="w-4 h-4" />
                   <span>{interviewCount} 个面试邀请</span>
                 </div>
+              </div>
+
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-500 text-sm">账户余额</p>
+                    <p className="text-3xl font-bold text-gray-900 mt-1">¥{(user.balance ?? 0).toFixed(2)}</p>
+                  </div>
+                  <div className="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center">
+                    <Wallet className="w-6 h-6 text-amber-600" />
+                  </div>
+                </div>
+                <Link 
+                  href="/user/recharge" 
+                  className="mt-4 text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
+                >
+                  去充值 <ChevronRight className="w-4 h-4" />
+                </Link>
               </div>
 
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
@@ -201,12 +221,12 @@ export default async function DashboardPage() {
                   if (!user.profile) return 0;
                   
                   const fields = [
-                    user.name, // 从 user 获取姓名
-                    user.email, // 从 user 获取邮箱
+                    user.name,
+                    user.email,
                     user.profile.bio,
                     user.profile.location,
                     user.profile.gender,
-                    user.profile.skills?.length > 0, // 至少有一个技能
+                    user.profile.skills?.length > 0,
                   ];
                   
                   const filledFields = fields.filter(field => field && (typeof field === 'string' ? field.trim() !== "" : field === true)).length;

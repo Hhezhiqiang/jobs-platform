@@ -62,8 +62,11 @@ export default function CompanyRegisterPage() {
 
   if (status === "loading") {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        加载中...
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="w-full max-w-xl px-4 space-y-6">
+          <div className="bg-white rounded-xl shadow-sm h-16 animate-pulse" />
+          <div className="bg-white rounded-xl shadow-sm h-96 animate-pulse" />
+        </div>
       </div>
     );
   }

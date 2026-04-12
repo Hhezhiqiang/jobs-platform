@@ -120,8 +120,21 @@ export default function EditCompanyPage() {
 
   if (fetchLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-600">加载中...</div>
+      <div className="min-h-screen bg-gray-50">
+        <div className="h-16 bg-white shadow-sm animate-pulse" />
+        <div className="max-w-3xl mx-auto px-4 py-8">
+          <div className="bg-white rounded-lg shadow-sm p-6 space-y-6 animate-pulse">
+            <div className="h-6 bg-gray-200 rounded w-1/3" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="h-10 bg-gray-200 rounded" />
+              <div className="h-10 bg-gray-200 rounded" />
+              <div className="h-10 bg-gray-200 rounded" />
+              <div className="h-10 bg-gray-200 rounded" />
+            </div>
+            <div className="h-32 bg-gray-200 rounded" />
+            <div className="h-10 bg-gray-200 rounded w-1/4" />
+          </div>
+        </div>
       </div>
     );
   }

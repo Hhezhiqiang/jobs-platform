@@ -1,0 +1,29 @@
+
+// ============================================
+// 预充值余额系统
+// ============================================
+
+model BalanceTransaction {
+  id            String           @id @default(cuid())
+  userId        String
+  type          TransactionType
+  amount        Decimal          @db.Decimal(18, 8)
+  balanceAfter  Decimal          @db.Decimal(18, 8)
+  description   String?
+  orderId       String?
+  createdAt     DateTime         @default(now())
+
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order         ContactUnlockOrder? @relation(fields: [orderId], references: [id])
+
+  @@index([userId, createdAt])
+  @@index([type])
+  @@map("balance_transactions")
+}
+
+enum TransactionType {
+  RECHARGE
+  DEDUCTION
+  REFUND
+  ADJUSTMENT
+}

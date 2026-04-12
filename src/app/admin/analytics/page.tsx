@@ -7,8 +7,8 @@ import AnalyticsClient from "./client";
 export default async function AnalyticsPage() {
   const session = await getServerSession(authOptions);
 
-  if (!session) {
-    redirect("/auth/login/admin");
+  if (!session || session.user?.role !== "ADMIN") {
+    redirect("/unauthorized");
   }
 
   // 获取分析数据

@@ -13,6 +13,7 @@ import { Metadata } from "next";
 import { MapPin, Briefcase, DollarSign, Clock, Building2, Share2, Heart, Calendar } from "lucide-react";
 import { formatDistanceToNow, formatSalary } from "@/lib/utils";
 import { ensureHttpProtocol, safeJsonLdStringify } from "@/lib/utils";
+import { ContactUnlockCard } from "@/components/contact-unlock-card";
 
 const employmentTypeMap: Record<string, string> = {
   FULL_TIME: "全职",
@@ -87,6 +88,19 @@ export default async function JobDetailPage({ params }: PageProps) {
   const session = await getServerSession(authOptions);
   const isLoggedIn = !!session?.user;
 
+  // 检查是否已解锁联系方式
+  let isContactUnlocked = false;
+  if (isLoggedIn && job) {
+    const order = await prisma.contactUnlockOrder.findFirst({
+      where: {
+        userId: session.user.id,
+        jobId: job.id,
+        status: "PAID",
+      },
+    });
+    isContactUnlocked = !!order;
+  }
+
   const jobSchema = generateJobPostingSchema(job);
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: "首页", url: "/" },
@@ -96,7 +110,7 @@ export default async function JobDetailPage({ params }: PageProps) {
 
   const salaryText = formatSalary(job.salaryMin, job.salaryMax);
 
-  const timeAgo = formatDistanceToNow(job.datePosted);
+  const dateText = new Date(job.datePosted).toLocaleDateString("zh-CN");
 
   return (
     <>
@@ -148,15 +162,18 @@ export default async function JobDetailPage({ params }: PageProps) {
                     {job.location}
                   </span>
                   <span>·</span>
-                  <span>⏱️ {timeAgo}</span>
+                  <span className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    {dateText}
+                  </span>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <button className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all">
+                <button aria-label="分享职位" className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all">
                   <Share2 className="w-5 h-5" />
                 </button>
-                <button className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all">
+                <button aria-label="收藏职位" className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all">
                   <Heart className="w-5 h-5" />
                 </button>
               </div>
@@ -244,6 +261,16 @@ export default async function JobDetailPage({ params }: PageProps) {
                     : "登录后查看申请方式"}
                 </p>
               </div>
+
+              {/* Contact Unlock Card */}
+              <ContactUnlockCard
+                jobId={job.id}
+                contactEmail={job.company.contactEmail}
+                contactPhone={job.company.contactPhone}
+                isUnlocked={isContactUnlocked}
+                price={Number(process.env.CONTACT_UNLOCK_PRICE || 5)}
+                isLoggedIn={isLoggedIn}
+              />
 
               {/* Company Card */}
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">

@@ -6,13 +6,13 @@ import { Metadata } from "next";
 import ReactMarkdown from "react-markdown";
 import { formatSalary, safeJsonLdStringify } from "@/lib/utils";
 import { ViewCounter } from "@/components/view-counter";
+import { Footer } from "@/components/footer";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-// ISR: 每1天重新生成页面
-export const revalidate = 86400;
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
@@ -211,6 +211,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
                   src={post.featuredImage}
                   alt={post.title}
                   fill
+                  sizes="100vw"
                   className="object-cover"
                   priority
                 />
@@ -314,6 +315,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
           )}
         </main>
       </div>
+      <Footer />
     </>
   );
 }

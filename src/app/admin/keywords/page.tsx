@@ -237,7 +237,11 @@ export default function AdminKeywordsPage() {
             </div>
 
             {loading ? (
-              <p className="text-gray-500">加载中...</p>
+              <div className="p-8 space-y-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="h-16 bg-gray-100 rounded-lg animate-pulse" />
+                ))}
+              </div>
             ) : (
               <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
                 <table className="w-full text-sm">

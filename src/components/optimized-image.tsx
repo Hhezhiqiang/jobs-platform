@@ -62,7 +62,7 @@ export function OptimizedImage({
           loading={priority ? "eager" : "lazy"}
           quality={80}
           style={imageStyle}
-          onLoadingComplete={() => setIsLoading(false)}
+          onLoad={() => setIsLoading(false)}
           onError={() => setError(true)}
         />
       </div>
@@ -84,7 +84,7 @@ export function OptimizedImage({
         loading={priority ? "eager" : "lazy"}
         quality={80}
         style={imageStyle}
-        onLoadingComplete={() => setIsLoading(false)}
+        onLoad={() => setIsLoading(false)}
         onError={() => setError(true)}
       />
     </div>

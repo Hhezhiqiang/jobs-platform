@@ -1,8 +1,9 @@
 import { Metadata } from "next";
 import SalaryInsightsClient from "./salary-insights-client";
+import { getSalaryInsightsData } from "@/lib/salary-insights";
 
 const SITE_NAME = "JobsBro招聘平台";
-const SITE_URL = "https://jobs-platform-gold.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobs-platform-gold.vercel.app";
 
 export const metadata: Metadata = {
   title: `薪资洞察分析 - 行业薪资趋势 | ${SITE_NAME}`,
@@ -26,6 +27,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default function SalaryInsightsPage() {
-  return <SalaryInsightsClient />;
+export const dynamic = "force-dynamic";
+
+export default async function SalaryInsightsPage() {
+  const data = await getSalaryInsightsData();
+
+  return <SalaryInsightsClient initialData={data} />;
 }

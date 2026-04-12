@@ -3,12 +3,18 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { Header } from "@/components/header";
 import { Metadata } from "next";
-import { BookOpen, TrendingUp, Users, Clock, Search } from "lucide-react";
+import { BookOpen, Users, Clock, Search, ChevronLeft, ChevronRight } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "求职博客 - 薪资报告、面试攻略、行业趋势 | 招聘平台",
   description: "互联网求职干货：2026薪资报告、产品经理面试攻略、东京IT求职指南、简历优化技巧。专家级内容助你快速拿到理想Offer。",
   keywords: ["求职博客", "薪资报告", "面试攻略", "产品经理", "东京IT求职"],
+  openGraph: {
+    images: ["https://jobs-platform-gold.vercel.app/logo.png"],
+  },
+  twitter: {
+    images: ["https://jobs-platform-gold.vercel.app/logo.png"],
+  },
 };
 
 export const dynamic = "force-dynamic";
@@ -24,13 +30,16 @@ const categories = [
 ];
 
 interface PageProps {
-  searchParams: Promise<{ q?: string; category?: string }>;
+  searchParams: Promise<{ q?: string; category?: string; page?: string }>;
 }
 
 export default async function BlogPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const searchQuery = params.q || "";
   const selectedCategory = params.category || "全部";
+  const page = parseInt(params.page || "1", 10);
+  const limit = 12;
+  const skip = (page - 1) * limit;
 
   // 获取真实博客数据
   const posts = await prisma.page.findMany({
@@ -46,16 +55,27 @@ export default async function BlogPage({ searchParams }: PageProps) {
     },
     include: { author: true },
     orderBy: { createdAt: "desc" },
-    take: 50,
   });
 
   // 根据分类筛选（简单匹配标题关键词）
-  const filteredPosts = selectedCategory === "全部" 
-    ? posts 
-    : posts.filter(post => 
-        post.title.includes(selectedCategory) || 
+  const filteredPosts = selectedCategory === "全部"
+    ? posts
+    : posts.filter(post =>
+        post.title.includes(selectedCategory) ||
         post.excerpt?.includes(selectedCategory)
       );
+
+  const total = filteredPosts.length;
+  const paginatedPosts = filteredPosts.slice(skip, skip + limit);
+  const totalPages = Math.ceil(total / limit);
+
+  const buildPageUrl = (pageNum: number) => {
+    const sp = new URLSearchParams();
+    if (searchQuery) sp.set("q", searchQuery);
+    if (selectedCategory !== "全部") sp.set("category", selectedCategory);
+    sp.set("page", pageNum.toString());
+    return `/blog?${sp.toString()}`;
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -67,7 +87,7 @@ export default async function BlogPage({ searchParams }: PageProps) {
           <div className="text-center max-w-3xl mx-auto">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full text-sm mb-6">
               <BookOpen className="w-4 h-4" />
-              {filteredPosts.length}+ 篇专业文章
+              {total}+ 篇专业文章
             </div>
 
             <h1 className="text-4xl md:text-5xl font-bold mb-6">求职干货博客</h1>
@@ -117,7 +137,7 @@ export default async function BlogPage({ searchParams }: PageProps) {
         {(searchQuery || selectedCategory !== "全部") && (
           <div className="mb-6 flex items-center justify-between">
             <p className="text-gray-600">
-              找到 <span className="font-semibold">{filteredPosts.length}</span> 篇文章
+              找到 <span className="font-semibold">{total}</span> 篇文章
               {searchQuery && (
                 <>
                   {" "}
@@ -140,9 +160,9 @@ export default async function BlogPage({ searchParams }: PageProps) {
             <h2 className="text-xl font-bold">最新文章</h2>
           </div>
 
-          {filteredPosts.length > 0 ? (
+          {paginatedPosts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredPosts.map((post) => (
+              {paginatedPosts.map((post) => (
                 <Link
                   key={post.id}
                   href={`/blog/${post.slug}`}
@@ -154,6 +174,7 @@ export default async function BlogPage({ searchParams }: PageProps) {
                         src={post.featuredImage}
                         alt={post.title}
                         fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         className="object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     ) : (
@@ -197,6 +218,83 @@ export default async function BlogPage({ searchParams }: PageProps) {
               >
                 查看全部文章
               </Link>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-10">
+              {page > 1 && (
+                <Link
+                  href={buildPageUrl(page - 1)}
+                  className="flex items-center gap-1 px-4 py-2 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  上一页
+                </Link>
+              )}
+
+              <div className="flex items-center gap-1">
+                {page > 3 && (
+                  <>
+                    <Link
+                      href={buildPageUrl(1)}
+                      className="w-10 h-10 flex items-center justify-center rounded-xl font-medium bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+                    >
+                      1
+                    </Link>
+                    {page > 4 && <span className="px-2 text-gray-400">...</span>}
+                  </>
+                )}
+
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum: number;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (page <= 3) {
+                    pageNum = i + 1;
+                  } else if (page >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = page - 2 + i;
+                  }
+                  return (
+                    <Link
+                      key={pageNum}
+                      href={buildPageUrl(pageNum)}
+                      className={`w-10 h-10 flex items-center justify-center rounded-xl font-medium transition-all ${
+                        page === pageNum
+                          ? "bg-blue-600 text-white"
+                          : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+                      }`}
+                    >
+                      {pageNum}
+                    </Link>
+                  );
+                })}
+
+                {page < totalPages - 2 && (
+                  <>
+                    {page < totalPages - 3 && <span className="px-2 text-gray-400">...</span>}
+                    <Link
+                      href={buildPageUrl(totalPages)}
+                      className="w-10 h-10 flex items-center justify-center rounded-xl font-medium bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+                    >
+                      {totalPages}
+                    </Link>
+                  </>
+                )}
+              </div>
+
+              {page < totalPages && (
+                <Link
+                  href={buildPageUrl(page + 1)}
+                  className="flex items-center gap-1 px-4 py-2 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all"
+                >
+                  下一页
+                  <ChevronRight className="w-4 h-4" />
+                </Link>
+              )}
             </div>
           )}
         </div>

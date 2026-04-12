@@ -121,8 +121,14 @@ export default function ApplicationDetailPage({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        加载中...
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="w-full max-w-4xl px-4 space-y-6">
+          <div className="bg-white rounded-xl shadow-sm h-20 animate-pulse" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 bg-white rounded-xl shadow-sm h-96 animate-pulse" />
+            <div className="bg-white rounded-xl shadow-sm h-64 animate-pulse" />
+          </div>
+        </div>
       </div>
     );
   }

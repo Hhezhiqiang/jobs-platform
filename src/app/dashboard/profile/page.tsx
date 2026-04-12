@@ -285,8 +285,20 @@ export default function ProfilePage() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-600">加载中...</div>
+      <div className="min-h-screen bg-gray-50">
+        <div className="h-16 bg-white shadow-sm animate-pulse" />
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="flex gap-8">
+            <div className="hidden md:block w-64 shrink-0">
+              <div className="bg-white rounded-lg shadow-sm h-64 animate-pulse" />
+            </div>
+            <div className="flex-1 space-y-6">
+              <div className="bg-white rounded-lg shadow-sm h-40 animate-pulse" />
+              <div className="bg-white rounded-lg shadow-sm h-64 animate-pulse" />
+              <div className="bg-white rounded-lg shadow-sm h-48 animate-pulse" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

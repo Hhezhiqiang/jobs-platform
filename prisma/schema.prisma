@@ -9,26 +9,31 @@ datasource db {
 }
 
 model User {
-  id            String           @id @default(cuid())
-  email         String           @unique
-  name          String
-  password      String
-  role          UserRole         @default(USER)
-  avatar        String?
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
-  phone         String?
-  status        UserStatus       @default(ACTIVE)
-  ads           Ad[]
-  companies     CompanyMember[]
-  favorites     Favorite[]
-  applications  JobApplication[]
-  jobs          Job[]
-  notifications Notification[]
-  pages         Page[]
-  resumes       Resume[]
-  sessions      Session[]
-  profile       UserProfile?
+  id                    String               @id @default(cuid())
+  email                 String               @unique
+  name                  String
+  password              String
+  role                  UserRole             @default(USER)
+  avatar                String?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  phone                 String?
+  status                UserStatus           @default(ACTIVE)
+  ads                   Ad[]
+  companies             CompanyMember[]
+  contact_unlock_orders ContactUnlockOrder[]
+  favorites             Favorite[]
+  applications          JobApplication[]
+  jobs                  Job[]
+  notifications         Notification[]
+  pages                 Page[]
+  promoters             Promoter?
+  resumes               Resume[]
+  sessions              Session[]
+  profile               UserProfile?
+  user_referrals        UserReferral?
+  balance               Decimal              @default(dbgenerated("0.0")) @db.Decimal(18, 8)
+  balance_transactions  BalanceTransaction[]
 
   @@map("users")
 }
@@ -141,28 +146,28 @@ model CompanyMember {
 }
 
 model Job {
-  id                     String           @id @default(cuid())
-  slug                   String           @unique
+  id                     String               @id @default(cuid())
+  slug                   String               @unique
   title                  String
   description            String
   requirements           String?
   benefits               String?
-  employmentType         EmploymentType   @default(FULL_TIME)
-  experience             ExperienceLevel  @default(MID)
+  employmentType         EmploymentType       @default(FULL_TIME)
+  experience             ExperienceLevel      @default(MID)
   salaryMin              Int?
   salaryMax              Int?
-  salaryCurrency         String           @default("CNY")
-  salaryPeriod           String           @default("YEAR")
+  salaryCurrency         String               @default("CNY")
+  salaryPeriod           String               @default("YEAR")
   location               String
   city                   String?
-  country                String           @default("CN")
-  isRemote               Boolean          @default(false)
-  isHybrid               Boolean          @default(false)
+  country                String               @default("CN")
+  isRemote               Boolean              @default(false)
+  isHybrid               Boolean              @default(false)
   applyUrl               String
-  status                 JobStatus        @default(ACTIVE)
-  isFeatured             Boolean          @default(false)
-  viewCount              Int              @default(0)
-  datePosted             DateTime         @default(now())
+  status                 JobStatus            @default(ACTIVE)
+  isFeatured             Boolean              @default(false)
+  viewCount              Int                  @default(0)
+  datePosted             DateTime             @default(now())
   validThrough           DateTime?
   metaTitle              String?
   metaDescription        String?
@@ -170,14 +175,15 @@ model Job {
   imageUrl               String?
   schemaOrganizationName String?
   schemaOrganizationLogo String?
-  createdAt              DateTime         @default(now())
-  updatedAt              DateTime         @updatedAt
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
   companyId              String
   authorId               String
+  contact_unlock_orders  ContactUnlockOrder[]
   favorites              Favorite[]
   applications           JobApplication[]
-  author                 User             @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  company                Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  author                 User                 @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  company                Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   @@index([status, datePosted])
   @@index([city, status])
@@ -236,22 +242,22 @@ model SEOSetting {
 }
 
 model Page {
-  id              String     @id @default(cuid())
-  slug            String     @unique
+  id              String           @id @default(cuid())
+  slug            String           @unique
   title           String
   content         String
   excerpt         String?
-  type            PageType   @default(PAGE)
-  status          PageStatus @default(PUBLISHED)
+  type            PageType         @default(PAGE)
+  status          PageStatus       @default(PUBLISHED)
   metaTitle       String?
   metaDescription String?
   keywords        String[]
   featuredImage   String?
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
   authorId        String
-  viewCount       Int        @default(0)
-  author          User       @relation(fields: [authorId], references: [id])
+  viewCount       Int              @default(0)
+  author          User             @relation(fields: [authorId], references: [id])
   keywordsFrom    KeywordMonitor[] @relation("KeywordToPage")
 
   @@index([type, status])
@@ -300,6 +306,248 @@ model SearchQuery {
   @@index([count])
   @@index([lastSearched])
   @@map("search_queries")
+}
+
+model PageView {
+  id        String   @id @default(cuid())
+  path      String
+  userAgent String?
+  ip        String?
+  referrer  String?
+  country   String?
+  city      String?
+  userId    String?
+  sessionId String
+  createdAt DateTime @default(now())
+
+  @@index([path, createdAt])
+  @@index([createdAt])
+  @@index([sessionId, createdAt])
+  @@map("page_views")
+}
+
+model KeywordMonitor {
+  id           String           @id @default(cuid())
+  keyword      String
+  normalized   String
+  language     String           @default("zh")
+  source       String
+  sourceUrl    String?
+  trendScore   Float            @default(0)
+  searchVolume Int?
+  hotLevel     Int              @default(1)
+  category     String           @default("HOLD")
+  intent       String           @default("UNKNOWN")
+  status       String           @default("PENDING")
+  firstSeenAt  DateTime         @default(now())
+  lastSeenAt   DateTime         @updatedAt
+  metadata     Json?
+  archives     KeywordArchive[]
+  seoPlans     SEOPlan[]
+  pages        Page[]           @relation("KeywordToPage")
+
+  @@index([normalized, source])
+  @@index([category, status])
+  @@index([trendScore])
+  @@index([lastSeenAt])
+  @@index([status, firstSeenAt])
+  @@map("keyword_monitors")
+}
+
+model KeywordArchive {
+  id             String         @id @default(cuid())
+  monitorId      String
+  contentType    String
+  contentUrl     String?
+  contentTitle   String?
+  contentBody    String
+  fetchedAt      DateTime       @default(now())
+  relevanceScore Float?
+  usedInPlan     Boolean        @default(false)
+  monitor        KeywordMonitor @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+
+  @@index([monitorId, contentType])
+  @@index([usedInPlan])
+  @@map("keyword_archives")
+}
+
+model SEOPlan {
+  id              String         @id @default(cuid())
+  monitorId       String
+  pageType        String
+  title           String
+  h1              String
+  metaDesc        String
+  keywords        String[]
+  outline         Json
+  targetUrl       String?
+  internalLinks   Json?
+  contentMarkdown String?
+  status          String         @default("PENDING")
+  generatedAt     DateTime       @default(now())
+  generatedBy     String
+  approvedAt      DateTime?
+  approvedBy      String?
+  publishedAt     DateTime?
+  publishUrl      String?
+  publishJobId    String?
+  monitor         KeywordMonitor @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+
+  @@index([monitorId, pageType])
+  @@index([status])
+  @@index([publishedAt])
+  @@map("seo_plans")
+}
+
+model KeywordToPage {
+  A String @map("keyword_id")
+  B String @map("page_id")
+
+  @@unique([A, B])
+  @@index([B])
+  @@map("_keyword_to_page")
+}
+
+model CommissionAdjustment {
+  id                 String           @id @default(cuid())
+  commissionRecordId String
+  promoterId         String
+  amount             Decimal          @db.Decimal(18, 8)
+  reason             String
+  type               AdjustmentType   @default(REFUND)
+  createdAt          DateTime         @default(now())
+  commission         CommissionRecord @relation(fields: [commissionRecordId], references: [id], onDelete: Cascade)
+  promoter           Promoter         @relation(fields: [promoterId], references: [id], onDelete: Cascade)
+
+  @@index([promoterId, createdAt])
+  @@map("commission_adjustments")
+}
+
+model CommissionRecord {
+  id               String                 @id @default(cuid())
+  orderId          String                 @unique
+  promoterId       String
+  linkId           String
+  userId           String
+  orderAmount      Decimal                @db.Decimal(18, 8)
+  rate             Decimal                @db.Decimal(5, 2)
+  commissionAmount Decimal                @db.Decimal(18, 8)
+  status           CommissionStatus       @default(FROZEN)
+  frozenAt         DateTime               @default(now())
+  availableAt      DateTime?
+  settledAt        DateTime?
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  adjustments      CommissionAdjustment[]
+  link             PromoterLink           @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  order            ContactUnlockOrder     @relation(fields: [orderId], references: [id])
+  promoter         Promoter               @relation(fields: [promoterId], references: [id], onDelete: Cascade)
+
+  @@index([availableAt, status])
+  @@index([promoterId, status])
+  @@map("commission_records")
+}
+
+model ContactUnlockOrder {
+  id                 String              @id @default(cuid())
+  userId             String
+  jobId              String
+  amount             Decimal             @db.Decimal(18, 8)
+  status             OrderStatus         @default(PENDING)
+  paidAt             DateTime?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  commission         CommissionRecord?
+  job                Job                 @relation(fields: [jobId], references: [id])
+  user               User                @relation(fields: [userId], references: [id])
+  BalanceTransaction BalanceTransaction?
+
+  @@index([jobId])
+  @@index([status, createdAt])
+  @@index([userId, status])
+  @@map("contact_unlock_orders")
+}
+
+model PromoterLink {
+  id            String             @id @default(cuid())
+  promoterId    String
+  name          String
+  code          String             @unique
+  customRate    Decimal?           @db.Decimal(5, 2)
+  landingPage   String             @default("/")
+  clickCount    Int                @default(0)
+  registerCount Int                @default(0)
+  orderCount    Int                @default(0)
+  gmv           Decimal            @default(0.0) @db.Decimal(18, 8)
+  status        LinkStatus         @default(ACTIVE)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  commissions   CommissionRecord[]
+  promoter      Promoter           @relation(fields: [promoterId], references: [id], onDelete: Cascade)
+  referrals     UserReferral[]
+
+  @@index([code])
+  @@index([promoterId, status])
+  @@map("promoter_links")
+}
+
+model Promoter {
+  id               String                 @id @default(cuid())
+  userId           String?                @unique
+  name             String
+  email            String                 @unique
+  phone            String?
+  walletAddress    String?
+  defaultRate      Decimal                @default(30.0) @db.Decimal(5, 2)
+  status           PromoterStatus         @default(PENDING)
+  availableBalance Decimal                @default(0.0) @db.Decimal(18, 8)
+  frozenBalance    Decimal                @default(0.0) @db.Decimal(18, 8)
+  withdrawnBalance Decimal                @default(0.0) @db.Decimal(18, 8)
+  totalEarnings    Decimal                @default(0.0) @db.Decimal(18, 8)
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+  adjustments      CommissionAdjustment[]
+  commissions      CommissionRecord[]
+  links            PromoterLink[]
+  user             User?                  @relation(fields: [userId], references: [id])
+  referrals        UserReferral[]
+  withdrawals      WithdrawalRecord[]
+
+  @@map("promoters")
+}
+
+model UserReferral {
+  id           String       @id @default(cuid())
+  userId       String       @unique
+  promoterId   String
+  linkId       String
+  referralCode String
+  createdAt    DateTime     @default(now())
+  link         PromoterLink @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  promoter     Promoter     @relation(fields: [promoterId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([promoterId])
+  @@index([referralCode])
+  @@map("user_referrals")
+}
+
+model WithdrawalRecord {
+  id            String           @id @default(cuid())
+  promoterId    String
+  amount        Decimal          @db.Decimal(18, 8)
+  walletAddress String
+  txHash        String?
+  status        WithdrawalStatus @default(PENDING)
+  remark        String?
+  requestedAt   DateTime         @default(now())
+  reviewedAt    DateTime?
+  completedAt   DateTime?
+  promoter      Promoter         @relation(fields: [promoterId], references: [id], onDelete: Cascade)
+
+  @@index([promoterId, status])
+  @@index([status, requestedAt])
+  @@map("withdrawal_records")
 }
 
 enum CompanyStatus {
@@ -391,108 +639,68 @@ enum NotificationType {
   OFFER_RECEIVED
 }
 
-// 页面访问统计模型 - 真实PV数据
-model PageView {
-  id        String   @id @default(cuid())
-  path      String   // 访问路径
-  userAgent String?  // 浏览器User-Agent
-  ip        String?  // IP地址（哈希处理）
-  referrer  String?  // 来源页面
-  country   String?  // 国家
-  city      String?  // 城市
-  userId    String?  // 登录用户ID
-  sessionId String   // 会话ID，用于计算UV
-  createdAt DateTime @default(now())
-
-  @@index([path, createdAt])
-  @@index([createdAt])
-  @@index([sessionId, createdAt])
-  @@map("page_views")
+enum AdjustmentType {
+  REFUND
+  MANUAL
 }
 
-// 关键词监控系统
-model KeywordMonitor {
-  id           String   @id @default(cuid())
-  keyword      String   // 原始关键词/话题
-  normalized   String   // 规范化关键词（去空格、小写）
-  language     String   @default("zh") // zh / en / ja
-  source       String   // google_trends / zhihu / reddit / weibo / news / manual
-  sourceUrl    String?  // 来源链接（如果有）
-  trendScore   Float    @default(0) // 趋势得分 0-100
-  searchVolume Int?     // 估算搜索量（绝对值，可选）
-  hotLevel     Int      @default(1) // 1-5 热度分级
-  category     String   @default("HOLD") // PRIMARY / TRAFFIC / JUNK / HOLD
-  intent       String   @default("UNKNOWN") // INFORMATIONAL / NAVIGATIONAL / TRANSACTIONAL / UNKNOWN
-  status       String   @default("PENDING") // PENDING / APPROVED / REJECTED / PUBLISHED / ARCHIVED
-  firstSeenAt  DateTime @default(now())
-  lastSeenAt   DateTime @updatedAt
-  metadata     Json?    // 原始API返回的附加数据
-
-  archives     KeywordArchive[]
-  seoPlans     SEOPlan[]
-  pages        Page[]   @relation("KeywordToPage")
-
-  @@index([normalized, source])
-  @@index([category, status])
-  @@index([trendScore])
-  @@index([lastSeenAt])
-  @@index([status, firstSeenAt])
-  @@map("keyword_monitors")
+enum CommissionStatus {
+  FROZEN
+  AVAILABLE
+  WITHDRAWN
+  CLAWED_BACK
 }
 
-// 关键词素材归档
-model KeywordArchive {
-  id               String         @id @default(cuid())
-  monitorId        String
-  monitor          KeywordMonitor @relation(fields: [monitorId], references: [id], onDelete: Cascade)
-  contentType      String         // SERP_SUMMARY / REDDIT_POST / ZHIHU_ANSWER / NEWS_ARTICLE / PERPLEXITY_QA / JOB_DATA
-  contentUrl       String?        // 原始URL
-  contentTitle     String?        // 标题
-  contentBody      String         @db.Text // 内容体
-  fetchedAt        DateTime       @default(now())
-  relevanceScore   Float?         // AI评估的相关性 0-1
-  usedInPlan       Boolean        @default(false) // 是否已被SEO方案引用
-
-  @@index([monitorId, contentType])
-  @@index([usedInPlan])
-  @@map("keyword_archives")
+enum LinkStatus {
+  ACTIVE
+  PAUSED
 }
 
-// SEO 方案生成结果
-model SEOPlan {
-  id              String         @id @default(cuid())
-  monitorId       String
-  monitor         KeywordMonitor @relation(fields: [monitorId], references: [id], onDelete: Cascade)
-  pageType        String         // BLOG / TOPIC / FAQ / SALARY_REPORT
-  title           String         // 建议页面标题
-  h1              String         // 建议H1
-  metaDesc        String         // 建议Meta Description
-  keywords        String[]       // 建议关键词数组
-  outline         Json           // 文章/页面大纲（结构化JSON）
-  targetUrl       String?        // 建议发布URL slug
-  internalLinks   Json?          // 建议内链 [{text, url}]
-  contentMarkdown String?        @db.Text // 生成的完整Markdown内容（可选）
-  status          String         @default("PENDING") // PENDING / APPROVED / REJECTED / PUBLISHED
-  generatedAt     DateTime       @default(now())
-  generatedBy     String         // 模型标识，如 "gpt-4o-2026-04"
-  approvedAt      DateTime?      // 审批通过时间
-  approvedBy      String?        // 审批人ID
-  publishedAt     DateTime?      // 发布时间
-  publishUrl      String?        // 最终发布URL
-  publishJobId    String?        // 关联的异步任务ID
-
-  @@index([monitorId, pageType])
-  @@index([status])
-  @@index([publishedAt])
-  @@map("seo_plans")
+enum OrderStatus {
+  PENDING
+  PAID
+  REFUNDED
 }
 
-// 关键词与已发布内容的多对多关联
-model KeywordToPage {
-  A        String @map("keyword_id")
-  B        String @map("page_id")
+enum PromoterStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+}
 
-  @@unique([A, B])
-  @@index([B])
-  @@map("_keyword_to_page")
+enum WithdrawalStatus {
+  PENDING
+  APPROVED
+  TRANSFERRING
+  COMPLETED
+  REJECTED
+}
+
+// ============================================
+// 预充值余额系统
+// ============================================
+
+model BalanceTransaction {
+  id           String          @id @default(cuid())
+  userId       String
+  type         TransactionType
+  amount       Decimal         @db.Decimal(18, 8)
+  balanceAfter Decimal         @db.Decimal(18, 8)
+  description  String?
+  orderId      String?         @unique
+  createdAt    DateTime        @default(now())
+
+  user  User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order ContactUnlockOrder? @relation(fields: [orderId], references: [id])
+
+  @@index([userId, createdAt])
+  @@index([type])
+  @@map("balance_transactions")
+}
+
+enum TransactionType {
+  RECHARGE
+  DEDUCTION
+  REFUND
+  ADJUSTMENT
 }

@@ -55,15 +55,21 @@ interface SalaryData {
 
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"];
 
-export default function SalaryInsightsPage() {
-  const [data, setData] = useState<SalaryData | null>(null);
-  const [loading, setLoading] = useState(true);
+interface SalaryInsightsClientProps {
+  initialData?: SalaryData;
+}
+
+export default function SalaryInsightsClient({ initialData }: SalaryInsightsClientProps) {
+  const [data, setData] = useState<SalaryData | null>(initialData || null);
+  const [loading, setLoading] = useState(!initialData);
   const [error, setError] = useState<string | null>(null);
   const [selectedIndustry, setSelectedIndustry] = useState<string>("all");
   const [selectedCity, setSelectedCity] = useState<string>("all");
 
   useEffect(() => {
-    fetchSalaryData();
+    if (!initialData) {
+      fetchSalaryData();
+    }
   }, []);
 
   const fetchSalaryData = async () => {

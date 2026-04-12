@@ -29,8 +29,7 @@ export default function robots(): MetadataRoute.Robots {
           "/auth/*",
           "/_next",
           "/_next/*",
-          "/search?",
-          "/search/*?",
+          "/search",
         ],
       },
       {

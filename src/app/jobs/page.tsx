@@ -41,8 +41,8 @@ export default async function JobsPage({ searchParams }: PageProps) {
   let dbError = false;
 
   try {
-    // 构建查询条件 - 移除 ACTIVE 状态限制，显示所有职位
-    const where: Prisma.JobWhereInput = {};
+    // 构建查询条件
+    const where: Prisma.JobWhereInput = { status: "ACTIVE" };
 
     if (params.q) {
       where.OR = [

@@ -11,6 +11,15 @@ interface PerformanceMetrics {
   inp?: number;
 }
 
+interface LayoutShift extends PerformanceEntry {
+  hadRecentInput: boolean;
+  value: number;
+}
+
+interface INPEntry extends PerformanceEventTiming {
+  duration: number;
+}
+
 export function PerformanceMonitor() {
   const [metrics, setMetrics] = useState<PerformanceMetrics>({});
 
@@ -35,9 +44,9 @@ export function PerformanceMonitor() {
       try {
         const fidObserver = new PerformanceObserver((list) => {
           const entries = list.getEntries();
-          const firstEntry = entries[0];
-          if (firstEntry) {
-            setMetrics((prev) => ({ ...prev, fid: (firstEntry as any).processingStart - firstEntry.startTime }));
+          const firstEntry = entries[0] as PerformanceEventTiming | undefined;
+          if (firstEntry && firstEntry.processingStart) {
+            setMetrics((prev) => ({ ...prev, fid: firstEntry.processingStart - firstEntry.startTime }));
           }
         });
         fidObserver.observe({ entryTypes: ["first-input"] });
@@ -50,8 +59,9 @@ export function PerformanceMonitor() {
         let clsValue = 0;
         const clsObserver = new PerformanceObserver((list) => {
           for (const entry of list.getEntries()) {
-            if (!(entry as any).hadRecentInput) {
-              clsValue += (entry as any).value;
+            const layoutShift = entry as LayoutShift;
+            if (!layoutShift.hadRecentInput) {
+              clsValue += layoutShift.value;
             }
           }
           setMetrics((prev) => ({ ...prev, cls: clsValue }));
@@ -80,7 +90,7 @@ export function PerformanceMonitor() {
         let inpValue = 0;
         const inpObserver = new PerformanceObserver((list) => {
           const entries = list.getEntries();
-          const lastEntry = entries[entries.length - 1] as any;
+          const lastEntry = entries[entries.length - 1] as INPEntry | undefined;
           if (lastEntry && lastEntry.duration > inpValue) {
             inpValue = lastEntry.duration;
             setMetrics((prev) => ({ ...prev, inp: inpValue }));

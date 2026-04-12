@@ -8,6 +8,7 @@ import { Header } from "@/components/header";
 import { JobCardV2 } from "@/components/job-card-v2";
 import { Metadata } from "next";
 import { MapPin, Globe, Users, Building2, Briefcase, ChevronRight } from "lucide-react";
+import { safeJsonLdStringify, ensureHttpProtocol } from "@/lib/utils";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -228,7 +229,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
                       <div>
                         <p className="text-sm text-gray-500">官方网站</p>
                         <Link
-                          href={company.website}
+                          href={ensureHttpProtocol(company.website)}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1"

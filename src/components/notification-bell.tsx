@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Bell, Check, Trash2, Clock, FileText, Briefcase, Gift, AlertCircle } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -11,7 +11,7 @@ interface Notification {
   title: string;
   content: string;
   isRead: boolean;
-  metadata: Record<string, any> | null;
+  metadata: Record<string, string | undefined> | null;
   createdAt: string;
 }
 
@@ -37,6 +37,8 @@ export function NotificationBell() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
+  const isFetchingRef = useRef(false);
   const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -53,24 +55,33 @@ export function NotificationBell() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // 获取通知列表
-  const fetchNotifications = async () => {
-    if (!isLoggedIn) return;
+  // 获取通知列表（带竞态保护）
+  const fetchNotifications = useCallback(async () => {
+    if (!isLoggedIn || isFetchingRef.current) return;
     
+    abortRef.current?.abort();
+    abortRef.current = new AbortController();
+    isFetchingRef.current = true;
+
     try {
       setLoading(true);
-      const response = await fetch("/api/notifications?limit=10");
+      const response = await fetch("/api/notifications?limit=10", {
+        signal: abortRef.current.signal,
+      });
       if (response.ok) {
         const data = await response.json();
         setNotifications(data.notifications);
         setUnreadCount(data.unreadCount);
       }
     } catch (error) {
-      console.error("Failed to fetch notifications:", error);
+      if ((error as Error).name !== "AbortError") {
+        console.error("Failed to fetch notifications:", error);
+      }
     } finally {
       setLoading(false);
+      isFetchingRef.current = false;
     }
-  };
+  }, [isLoggedIn]);
 
   // 标记单个通知为已读
   const markAsRead = async (notificationId: string, e: React.MouseEvent) => {
@@ -133,19 +144,21 @@ export function NotificationBell() {
   };
 
   // 点击通知处理
-  const handleNotificationClick = (notification: Notification) => {
-    // 如果未读，标记为已读
+  const handleNotificationClick = useCallback(async (notification: Notification) => {
+    setIsOpen(false);
+
+    // 如果未读，标记为已读（fire-and-forget with optimistic update）
     if (!notification.isRead) {
       fetch("/api/notifications", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ notificationId: notification.id }),
-      }).then(() => {
-        setNotifications((prev) =>
-          prev.map((n) => (n.id === notification.id ? { ...n, isRead: true } : n))
-        );
-        setUnreadCount((prev) => Math.max(0, prev - 1));
-      });
+      }).catch(() => {});
+
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === notification.id ? { ...n, isRead: true } : n))
+      );
+      setUnreadCount((prev) => Math.max(0, prev - 1));
     }
 
     // 根据类型跳转
@@ -154,9 +167,7 @@ export function NotificationBell() {
     } else if (notification.metadata?.jobId) {
       router.push(`/jobs/${notification.metadata.jobId}`);
     }
-
-    setIsOpen(false);
-  };
+  }, [router]);
 
   // 格式化时间
   const formatTime = (dateString: string) => {

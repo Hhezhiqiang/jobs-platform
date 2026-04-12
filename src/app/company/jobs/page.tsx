@@ -186,7 +186,11 @@ export default function CompanyJobsPage() {
         {/* 职位列表 */}
         <div className="bg-white rounded-lg shadow">
           {isLoading ? (
-            <div className="p-8 text-center">加载中...</div>
+            <div className="p-8 space-y-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-16 bg-gray-100 rounded-lg animate-pulse" />
+              ))}
+            </div>
           ) : error ? (
             <div className="p-8 text-center text-red-600">{error}</div>
           ) : filteredJobs.length === 0 ? (

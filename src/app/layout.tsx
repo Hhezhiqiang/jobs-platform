@@ -5,6 +5,7 @@ import { generateHomeMetadata } from "@/lib/metadata";
 import { generateWebsiteSchema } from "@/lib/schema";
 import { Providers } from "@/components/providers";
 import { TelegramFloatButton } from "@/components/telegram-float-button";
+import { Footer } from "@/components/footer";
 import { Analytics } from "@vercel/analytics/react";
 import { PageTracker } from "@/components/page-tracker";
 
@@ -80,6 +81,7 @@ export default function RootLayout({
             }}
           />
           <TelegramFloatButton />
+          <Footer />
         </Providers>
       </body>
     </html>

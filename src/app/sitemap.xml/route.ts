@@ -7,18 +7,22 @@ export async function GET() {
     prisma.job.findMany({
       where: { status: "ACTIVE", slug: { not: "" } },
       select: { slug: true, updatedAt: true },
+      take: 10000,
     }),
     prisma.company.findMany({
       where: { slug: { not: "" } },
       select: { slug: true, updatedAt: true },
+      take: 10000,
     }),
     prisma.page.findMany({
       where: { type: "BLOG", status: "PUBLISHED", slug: { not: "" } },
       select: { slug: true, updatedAt: true },
+      take: 10000,
     }),
     prisma.page.findMany({
       where: { type: "PAGE", status: "PUBLISHED", slug: { not: "" } },
       select: { slug: true, updatedAt: true },
+      take: 10000,
     }),
   ]);
 
@@ -27,6 +31,8 @@ export async function GET() {
     { url: "/jobs", priority: 0.9, changefreq: "daily" },
     { url: "/companies", priority: 0.8, changefreq: "weekly" },
     { url: "/blog", priority: 0.8, changefreq: "daily" },
+    { url: "/topics", priority: 0.8, changefreq: "daily" },
+    { url: "/jobs/city", priority: 0.8, changefreq: "daily" },
     { url: "/about", priority: 0.5, changefreq: "monthly" },
     { url: "/contact", priority: 0.5, changefreq: "monthly" },
     { url: "/faq", priority: 0.5, changefreq: "monthly" },
@@ -58,7 +64,7 @@ export async function GET() {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   ${staticRoutes.map(route => `
   <url>
-    <loc>${baseUrl}${route.url}</loc>
+    <loc>${encodeURI(`${baseUrl}${route.url}`)}</loc>
     <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
     <changefreq>${route.changefreq}</changefreq>
     <priority>${route.priority}</priority>

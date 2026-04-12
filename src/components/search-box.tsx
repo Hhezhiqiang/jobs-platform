@@ -110,12 +110,18 @@ export function SearchBox({
         fetchSuggestions(query);
       } else {
         setSuggestions([]);
-        fetchHotSearches();
       }
     }, 200);
 
     return () => clearTimeout(timer);
-  }, [query, fetchSuggestions, fetchHotSearches]);
+  }, [query, fetchSuggestions]);
+
+  // 获取热门搜索（仅在首次聚焦且为空时）
+  useEffect(() => {
+    if (showDropdown && !query.trim() && hotSearches.length === 0) {
+      fetchHotSearches();
+    }
+  }, [showDropdown, query, hotSearches.length, fetchHotSearches]);
 
   // 点击外部关闭下拉框
   useEffect(() => {
