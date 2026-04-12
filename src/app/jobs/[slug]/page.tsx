@@ -12,6 +12,7 @@ import { authOptions } from "@/lib/auth";
 import { Metadata } from "next";
 import { MapPin, Briefcase, DollarSign, Clock, Building2, Share2, Heart, Calendar } from "lucide-react";
 import { formatDistanceToNow, formatSalary } from "@/lib/utils";
+import { ensureHttpProtocol, safeJsonLdStringify } from "@/lib/utils";
 
 const employmentTypeMap: Record<string, string> = {
   FULL_TIME: "全职",
@@ -67,12 +68,12 @@ export default async function JobDetailPage({ params }: PageProps) {
           </div>
           <h3 className="text-xl font-bold text-gray-900 mb-2">服务暂时不可用</h3>
           <p className="text-gray-500 mb-6">数据库连接失败，请稍后重试</p>
-          <a
+          <Link
             href="/jobs"
             className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all"
           >
             返回职位列表
-          </a>
+          </Link>
         </div>
       </div>
     );
@@ -102,8 +103,8 @@ export default async function JobDetailPage({ params }: PageProps) {
       {/* 浏览追踪器 - 客户端组件 */}
       <JobViewTracker job={job} />
       
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jobSchema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(jobSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(breadcrumbSchema) }} />
 
       <div className="min-h-screen bg-gray-50">
         <Header />
@@ -287,7 +288,7 @@ export default async function JobDetailPage({ params }: PageProps) {
                   )}
                   {job.company.website && (
                     <Link 
-                      href={job.company.website}
+                      href={ensureHttpProtocol(job.company.website)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-blue-600 hover:text-blue-700"

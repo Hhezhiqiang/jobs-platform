@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 export async function GET() {
   const baseUrl = "https://jobs-platform-gold.vercel.app";
   
-  const [jobs, companies, blogs] = await Promise.all([
+  const [jobs, companies, blogs, cmsPages] = await Promise.all([
     prisma.job.findMany({
       where: { status: "ACTIVE", slug: { not: "" } },
       select: { slug: true, updatedAt: true },
@@ -16,6 +16,10 @@ export async function GET() {
       where: { type: "BLOG", status: "PUBLISHED", slug: { not: "" } },
       select: { slug: true, updatedAt: true },
     }),
+    prisma.page.findMany({
+      where: { type: "PAGE", status: "PUBLISHED", slug: { not: "" } },
+      select: { slug: true, updatedAt: true },
+    }),
   ]);
 
   const staticRoutes = [
@@ -26,6 +30,9 @@ export async function GET() {
     { url: "/about", priority: 0.5, changefreq: "monthly" },
     { url: "/contact", priority: 0.5, changefreq: "monthly" },
     { url: "/faq", priority: 0.5, changefreq: "monthly" },
+    { url: "/salary-insights", priority: 0.8, changefreq: "weekly" },
+    { url: "/privacy", priority: 0.3, changefreq: "monthly" },
+    { url: "/terms", priority: 0.3, changefreq: "monthly" },
     { url: "/auth/login", priority: 0.3, changefreq: "never" },
     { url: "/auth/register", priority: 0.3, changefreq: "never" },
     // 专题页
@@ -76,6 +83,13 @@ export async function GET() {
     <lastmod>${blog.updatedAt.toISOString().split('T')[0]}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+  </url>`).join('')}
+  ${cmsPages.map(page => `
+  <url>
+    <loc>${baseUrl}/topics/${page.slug}</loc>
+    <lastmod>${page.updatedAt.toISOString().split('T')[0]}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>`).join('')}
 </urlset>`;
 

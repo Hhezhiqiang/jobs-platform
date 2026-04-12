@@ -2,6 +2,15 @@
  * Utility functions
  */
 
+export function safeJsonLdStringify(obj: unknown): string {
+  return JSON.stringify(obj).replace(/</g, "\\u003c");
+}
+
+export function ensureHttpProtocol(url: string | null | undefined): string {
+  if (!url) return "#";
+  return url.startsWith("http://") || url.startsWith("https://") ? url : `https://${url}`;
+}
+
 export function formatDistanceToNow(date: Date): string {
   const now = new Date();
   const diffInMs = now.getTime() - new Date(date).getTime();

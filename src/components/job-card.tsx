@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Job, Company } from "@prisma/client";
-import { formatSalary } from "@/lib/utils";
+import { formatSalary, safeJsonLdStringify } from "@/lib/utils";
 
 interface JobCardProps {
   job: Job & { company: Company };
@@ -60,7 +60,7 @@ export function JobCard({ job, compact = false }: JobCardProps) {
       >
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jobSchema) }}
+          dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(jobSchema) }}
         />
         <div className="flex items-start justify-between">
           <div className="flex-1">
@@ -113,7 +113,7 @@ export function JobCard({ job, compact = false }: JobCardProps) {
     >
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jobSchema) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(jobSchema) }}
       />
       
       {job.imageUrl && (

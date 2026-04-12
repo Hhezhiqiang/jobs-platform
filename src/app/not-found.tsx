@@ -24,9 +24,6 @@ export const metadata: Metadata = {
     title: `页面未找到 - 404 | ${SITE_NAME}`,
     description: "抱歉，您访问的页面不存在。",
   },
-  alternates: {
-    canonical: `${SITE_URL}/404`,
-  },
 };
 
 export default function NotFound() {

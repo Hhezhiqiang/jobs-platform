@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { ensureHttpProtocol } from "@/lib/utils";
 
 interface AdBannerProps {
   position: string;
@@ -32,7 +33,7 @@ export async function AdBanner({ position, className = "" }: AdBannerProps) {
     return (
       <div className={`relative overflow-hidden rounded-lg ${className}`}>
         <Link
-          href={ad.linkUrl || "#"}
+          href={ensureHttpProtocol(ad.linkUrl)}
           target="_blank"
           rel="noopener noreferrer"
           className="block"
@@ -55,7 +56,7 @@ export async function AdBanner({ position, className = "" }: AdBannerProps) {
     return (
       <div className={`bg-gray-100 p-4 rounded-lg ${className}`}>
         <Link
-          href={ad.linkUrl || "#"}
+          href={ensureHttpProtocol(ad.linkUrl)}
           target="_blank"
           rel="noopener noreferrer"
           className="text-blue-600 hover:text-blue-800 font-medium"

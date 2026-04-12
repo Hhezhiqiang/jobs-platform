@@ -5,6 +5,8 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import ApplyModal from "./apply-modal";
 
+import { ensureHttpProtocol } from "@/lib/utils";
+
 interface ApplyButtonProps {
   jobId: string;
   jobTitle: string;
@@ -67,7 +69,7 @@ export function ApplyButton({
     return (
       <>
         <a
-          href={applyUrl}
+          href={ensureHttpProtocol(applyUrl)}
           target="_blank"
           rel="noopener noreferrer"
           className="w-full block bg-blue-600 text-white text-center py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors"

@@ -10,6 +10,7 @@ import { ViewCounter } from "@/components/view-counter";
 import { generateJobPostingSchema, generateBreadcrumbSchema } from "@/lib/schema";
 import { Prisma } from "@prisma/client";
 import ReactMarkdown from "react-markdown";
+import { safeJsonLdStringify } from "@/lib/utils";
 
 const SITE_NAME = "JobsBro招聘平台";
 const SITE_URL = "https://jobs-platform-gold.vercel.app";
@@ -264,8 +265,8 @@ export default async function TopicPage({ params }: PageProps) {
 
     return (
       <>
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(breadcrumbSchema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(articleSchema) }} />
 
         <div className="min-h-screen bg-gray-50">
           <Header />
@@ -361,8 +362,8 @@ export default async function TopicPage({ params }: PageProps) {
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jobSchemas) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(breadcrumbSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(jobSchemas) }} />
 
       <div className="min-h-screen bg-gray-50">
         <Header />
