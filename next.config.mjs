@@ -17,8 +17,12 @@ const nextConfig = {
   experimental: {
     // 优化 CSS
     optimizeCss: true,
-    // 优化包体积
-    optimizePackageImports: ["@prisma/client", "bcryptjs"],
+    // 优化包体积（注意：@prisma/client 需要完整引擎文件，不能加入 optimizePackageImports）
+    optimizePackageImports: ["bcryptjs"],
+    // 确保 Prisma engine 二进制文件被复制进 serverless bundle (Vercel)
+    outputFileTracingIncludes: {
+      "/**/*": ["./node_modules/.prisma/client/**/*"],
+    },
   },
 
   // HTTP 响应头优化
@@ -130,11 +134,6 @@ const nextConfig = {
   // 输出配置
   poweredByHeader: false,
   generateEtags: true,
-
-  // 确保 Prisma engine 二进制文件被复制进 serverless bundle (Vercel)
-  outputFileTracingIncludes: {
-    "/**/*": ["./node_modules/.prisma/client/**/*"],
-  },
 };
 
 export default nextConfig;
