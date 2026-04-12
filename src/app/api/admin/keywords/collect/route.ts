@@ -75,7 +75,21 @@ export async function POST(request: NextRequest) {
     try {
       const result = await collectKeywords();
       const autoResult = await runAutoPipeline(result.newIds);
-      return NextResponse.json({ success: true, result, autoResult });
+
+      let cleanupResult = { monitorsDeleted: 0, pagesDeleted: 0 };
+      try {
+        const { cleanupOldData } = await import("@/lib/data-cleanup");
+        cleanupResult = await cleanupOldData();
+        if (cleanupResult.monitorsDeleted > 0 || cleanupResult.pagesDeleted > 0) {
+          console.log(
+            `[data-cleanup] removed ${cleanupResult.monitorsDeleted} junk monitors and ${cleanupResult.pagesDeleted} draft pages`
+          );
+        }
+      } catch (cleanupErr) {
+        console.error("[data-cleanup] failed:", cleanupErr);
+      }
+
+      return NextResponse.json({ success: true, result, autoResult, cleanup: cleanupResult });
     } finally {
       await releaseCronLock();
     }
