@@ -130,6 +130,11 @@ const nextConfig = {
   // 输出配置
   poweredByHeader: false,
   generateEtags: true,
+
+  // 确保 Prisma engine 二进制文件被复制进 serverless bundle (Vercel)
+  outputFileTracingIncludes: {
+    "/**/*": ["./node_modules/.prisma/client/**/*"],
+  },
 };
 
 export default nextConfig;
