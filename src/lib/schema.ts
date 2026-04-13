@@ -1,40 +1,36 @@
 import { Job, Company } from "@prisma/client";
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobs-platform-gold.vercel.app";
+
 // JobPosting Schema 生成（Google for Jobs 支持）
 export function generateJobPostingSchema(job: Job & { company: Company }) {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jobs-platform-gold.vercel.app";
-  
-  const baseSalary = job.salaryMin && job.salaryMax ? {
-    "@type": "MonetaryAmount",
-    currency: job.salaryCurrency,
-    value: {
-      "@type": "QuantitativeValue",
-      minValue: job.salaryMin,
-      maxValue: job.salaryMax,
-      unitText: job.salaryPeriod === "YEAR" ? "YEAR" : "MONTH",
-    },
-  } : undefined;
-
-  const jobLocation = {
-    "@type": "Place",
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: job.city || job.location,
-      addressCountry: job.country,
-    },
-  };
-
   const employmentTypeMap: Record<string, string> = {
-    FULL_TIME: "FULL_TIME",
-    PART_TIME: "PART_TIME",
-    CONTRACT: "CONTRACT",
+    FULL_TIME: "FULLTIME",
+    PART_TIME: "PARTTIME",
+    CONTRACT: "CONTRACTOR",
     INTERNSHIP: "INTERN",
     FREELANCE: "CONTRACTOR",
   };
 
-  // 清理 description 中的 HTML 标签
-  const cleanDescription = job.description
-    .replace(/<[^\u003e]*>/g, " ")
+  const validThrough = job.validThrough
+    ? new Date(job.validThrough).toISOString()
+    : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+
+  const baseSalary = job.salaryMin || job.salaryMax
+    ? {
+        "@type": "MonetaryAmount" as const,
+        currency: job.salaryCurrency || "CNY",
+        value: {
+          "@type": "QuantitativeValue" as const,
+          minValue: job.salaryMin || undefined,
+          maxValue: job.salaryMax || undefined,
+          unitText: job.salaryPeriod === "YEAR" ? "YEAR" : "MONTH",
+        },
+      }
+    : undefined;
+
+  const cleanDescription = (job.description || "")
+    .replace(/<[^>]*>/g, " ")
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, 500);
@@ -44,33 +40,41 @@ export function generateJobPostingSchema(job: Job & { company: Company }) {
     "@type": "JobPosting",
     title: job.title,
     description: cleanDescription,
-    datePosted: job.datePosted.toISOString(),
-    validThrough: job.validThrough?.toISOString() || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-    employmentType: employmentTypeMap[job.employmentType] || "FULL_TIME",
+    datePosted: new Date(job.datePosted).toISOString(),
+    validThrough,
+    employmentType: employmentTypeMap[job.employmentType] || "FULLTIME",
     hiringOrganization: {
       "@type": "Organization",
       name: job.schemaOrganizationName || job.company.name,
-      logo: job.schemaOrganizationLogo || job.company.logo,
-      sameAs: job.company.website,
+      logo: job.schemaOrganizationLogo || job.company.logo || undefined,
+      url: `${SITE_URL}/companies/${job.company.slug}`,
     },
-    jobLocation: job.isRemote ? {
-      "@type": "Place",
-      address: {
-        "@type": "PostalAddress",
-        addressCountry: job.country,
-      },
-      additionalProperty: {
-        "@type": "PropertyValue",
-        name: "jobLocationType",
-        value: "TELECOMMUTE",
-      },
-    } : jobLocation,
+    jobLocation: job.isRemote
+      ? {
+          "@type": "Place",
+          address: {
+            "@type": "PostalAddress",
+            addressCountry: job.country || "CN",
+          },
+          additionalProperty: {
+            "@type": "PropertyValue",
+            name: "jobLocationType",
+            value: "TELECOMMUTE",
+          },
+        }
+      : {
+          "@type": "Place",
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: job.city || job.location || "未知",
+            addressCountry: job.country || "CN",
+          },
+        },
     baseSalary,
-    image: job.imageUrl,
-    url: `${siteUrl}/jobs/${job.slug}`,
+    url: `${SITE_URL}/jobs/${job.slug}`,
     identifier: {
       "@type": "PropertyValue",
-      name: "jobId",
+      name: job.company.name,
       value: job.id,
     },
   };
@@ -82,10 +86,10 @@ export function generateOrganizationSchema(company: Company) {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: company.name,
-    description: company.description,
-    url: company.website,
-    logo: company.logo,
-    sameAs: company.website,
+    description: company.description || undefined,
+    url: `${SITE_URL}/companies/${company.slug}`,
+    logo: company.logo || undefined,
+    sameAs: company.website || undefined,
   };
 }
 
@@ -103,8 +107,8 @@ export function generateBreadcrumbSchema(items: { name: string; url: string }[])
   };
 }
 
-// WebSite Schema 生成
-export function generateWebsiteSchema(siteUrl: string, siteName: string) {
+// WebSite Schema 生成（带站内搜索框）
+export function generateWebsiteSchema(siteUrl: string = SITE_URL, siteName: string = "JobsBro招聘平台") {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -112,7 +116,10 @@ export function generateWebsiteSchema(siteUrl: string, siteName: string) {
     name: siteName,
     potentialAction: {
       "@type": "SearchAction",
-      target: `${siteUrl}/jobs?q={search_term_string}`,
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${siteUrl}/search?q={search_term_string}`,
+      },
       "query-input": "required name=search_term_string",
     },
   };

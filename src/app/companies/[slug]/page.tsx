@@ -14,6 +14,17 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const companies = await prisma.company.findMany({
+    where: { slug: { not: "" } },
+    select: { slug: true },
+    take: 500,
+  });
+  return companies.map((c) => ({ slug: c.slug }));
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const company = await prisma.company.findUnique({

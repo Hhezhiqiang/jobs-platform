@@ -16,7 +16,26 @@ import {
 
 export const metadata: Metadata = {
   title: "关于我们 - JobsBro招聘平台",
-  description: "了解JobsBro招聘平台的使命、团队和价值观。我们致力于为求职者和招聘企业提供最优质的连接服务。",
+  description: "了解JobsBro招聘平台的使命、团队和价值观。我们致力于为求职者和招聘企业提供最优质的连接服务，打造专业的求职招聘体验。",
+  keywords: ["关于JobsBro", "招聘平台介绍", "求职网站", "JobsBro团队", "招聘服务"],
+  openGraph: {
+    title: "关于我们 - JobsBro招聘平台",
+    description: "了解JobsBro招聘平台的使命、团队和价值观。我们致力于为求职者和招聘企业提供最优质的连接服务。",
+    url: "https://jobs-platform-gold.vercel.app/about",
+    siteName: "JobsBro招聘平台",
+    type: "website",
+    locale: "zh_CN",
+    images: ["https://jobs-platform-gold.vercel.app/logo.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "关于我们 - JobsBro招聘平台",
+    description: "了解JobsBro招聘平台的使命、团队和价值观。",
+    images: ["https://jobs-platform-gold.vercel.app/logo.png"],
+  },
+  alternates: {
+    canonical: "https://jobs-platform-gold.vercel.app/about",
+  },
 };
 
 export default function AboutPage() {

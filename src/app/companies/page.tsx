@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { Building2, MapPin, Users, Briefcase, Search } from "lucide-react";
 import { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 const SITE_NAME = "JobsBro招聘平台";
 const SITE_URL = "https://jobs-platform-gold.vercel.app";

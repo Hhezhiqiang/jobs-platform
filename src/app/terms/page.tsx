@@ -1,6 +1,13 @@
-export const metadata = {
-  title: "用户协议 | 招聘平台",
-  description: "招聘平台用户服务协议",
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "用户服务协议 - JobsBro招聘平台 | 使用条款与法律声明",
+  description: "阅读JobsBro招聘平台的用户服务协议，了解平台使用规则、用户权利与义务、知识产权及免责声明等重要法律条款。",
+  keywords: ["用户协议", "服务条款", "法律声明", "招聘平台协议", "使用规则"],
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function TermsPage() {

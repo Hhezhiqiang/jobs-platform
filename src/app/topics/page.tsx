@@ -3,7 +3,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
 import { ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -76,8 +75,6 @@ export default async function TopicsPage() {
           </div>
         )}
       </main>
-
-      <Footer />
     </div>
   );
 }

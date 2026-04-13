@@ -195,6 +195,18 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const cmsSlugs = await prisma.page.findMany({
+    where: { type: "PAGE", status: "PUBLISHED", slug: { not: "" } },
+    select: { slug: true },
+    take: 500,
+  });
+  const hardcoded = VALID_SLUGS.map((slug) => ({ slug }));
+  return [...hardcoded, ...cmsSlugs.map((s) => ({ slug: s.slug }))];
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
 

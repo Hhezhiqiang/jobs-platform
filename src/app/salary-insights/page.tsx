@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   },
 };
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export default async function SalaryInsightsPage() {
   const data = await getSalaryInsightsData();

@@ -1,11 +1,12 @@
-// Dashboard 布局配置
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+import { Metadata } from "next";
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return children;
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
+
+export default function PrivateLayout({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
 }

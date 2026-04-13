@@ -7,6 +7,6 @@ export const metadata: Metadata = {
   },
 };
 
-export default function CompanyLayout({ children }: { children: React.ReactNode }) {
-  return children;
+export default function PrivateLayout({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
 }

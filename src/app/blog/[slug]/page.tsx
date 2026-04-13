@@ -6,13 +6,21 @@ import { Metadata } from "next";
 import ReactMarkdown from "react-markdown";
 import { formatSalary, safeJsonLdStringify } from "@/lib/utils";
 import { ViewCounter } from "@/components/view-counter";
-import { Footer } from "@/components/footer";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const posts = await prisma.page.findMany({
+    where: { type: "BLOG", status: "PUBLISHED", slug: { not: "" } },
+    select: { slug: true },
+    take: 500,
+  });
+  return posts.map((post) => ({ slug: post.slug }));
+}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
@@ -315,7 +323,6 @@ export default async function BlogDetailPage({ params }: PageProps) {
           )}
         </main>
       </div>
-      <Footer />
     </>
   );
 }

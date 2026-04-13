@@ -11,7 +11,7 @@ import { JobCardV2 } from "@/components/job-card-v2";
 import { AdBanner } from "@/components/ad-banner";
 import { RecommendationSection } from "@/components/recommendation-section";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 export const metadata: Metadata = generateHomeMetadata();
 
 export default async function HomePage() {
@@ -221,72 +221,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-950 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
-            <div>
-              <div className="flex items-center gap-2 mb-6">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center text-white font-bold text-xl">
-                  J
-                </div>
-                <span className="text-xl font-bold">招聘平台</span>
-              </div>
-              <p className="text-gray-400 leading-relaxed">
-                专业的求职招聘平台，连接优秀人才与顶尖企业，让每一次职业选择都更有价值。
-              </p>
-            </div>
-
-            <div>
-              <h3 className="font-bold text-lg mb-6">快速链接</h3>
-              <ul className="space-y-3 text-gray-400">
-                <li><Link href="/jobs" className="hover:text-white transition-colors">职位列表</Link></li>
-                <li><Link href="/companies" className="hover:text-white transition-colors">公司列表</Link></li>
-                <li><Link href="/blog" className="hover:text-white transition-colors">职场博客</Link></li>
-                <li><Link href="/faq" className="hover:text-white transition-colors">常见问题</Link></li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-bold text-lg mb-6">法律信息</h3>
-              <ul className="space-y-3 text-gray-400">
-                <li><Link href="/terms" className="hover:text-white transition-colors">用户协议</Link></li>
-                <li><Link href="/privacy" className="hover:text-white transition-colors">隐私政策</Link></li>
-                <li><Link href="/about" className="hover:text-white transition-colors">关于我们</Link></li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-bold text-lg mb-6">联系我们</h3>
-              <ul className="space-y-3 text-gray-400">
-                <li>📧 support@jobs-platform.com</li>
-                <li>📞 400-123-4567</li>
-                <li>🕐 周一至周五 9:00-18:00</li>
-                <li>
-                  <a 
-                    href="https://t.me/Web3Kairo" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 hover:text-white transition-colors"
-                  >
-                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
-                    </svg>
-                    Telegram 频道
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-gray-500">&copy; 2026 招聘平台. All rights reserved.</p>
-            <Link href="/sitemap.xml" className="text-gray-500 hover:text-white transition-colors">
-              Sitemap
-            </Link>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
