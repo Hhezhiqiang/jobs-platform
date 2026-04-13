@@ -22,8 +22,6 @@ const nextConfig = {
 
   // 实验性功能
   experimental: {
-    // 优化 CSS
-    optimizeCss: true,
     // 优化包体积（注意：@prisma/client 需要完整引擎文件，不能加入 optimizePackageImports）
     optimizePackageImports: ["bcryptjs"],
     // 确保 Prisma engine 二进制文件被复制进 serverless bundle (Vercel)
