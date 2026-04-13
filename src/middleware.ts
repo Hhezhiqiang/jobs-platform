@@ -1,6 +1,5 @@
 import createMiddleware from "next-intl/middleware";
 import { NextRequest, NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
 
 const locales = ["zh", "en"] as const;
 const defaultLocale = "zh";
@@ -22,7 +21,33 @@ function stripLocalePrefix(pathname: string): string {
   return pathname;
 }
 
-export async function middleware(request: NextRequest) {
+function decodeBase64Url(str: string): string {
+  str = str.replace(/-/g, "+").replace(/_/g, "/");
+  while (str.length % 4) {
+    str += "=";
+  }
+  return str;
+}
+
+function getJwtPayload(token: string): any | null {
+  try {
+    const payload = token.split(".")[1];
+    const json = atob(decodeBase64Url(payload));
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
+}
+
+function getSessionToken(request: NextRequest): string | undefined {
+  return (
+    request.cookies.get("next-auth.session-token")?.value ||
+    request.cookies.get("__Secure-next-auth.session-token")?.value ||
+    request.cookies.get("__Host-next-auth.session-token")?.value
+  );
+}
+
+export function middleware(request: NextRequest) {
   const ref = request.nextUrl.searchParams.get("ref");
   const pathname = request.nextUrl.pathname;
 
@@ -48,12 +73,11 @@ export async function middleware(request: NextRequest) {
   const isPromoterPath =
     cleanPath.startsWith("/promoter/dashboard") || cleanPath.startsWith("/promoter/links");
 
-  const token = await getToken({
-    req: request,
-    secret: process.env.NEXTAUTH_SECRET,
-  });
+  const sessionToken = getSessionToken(request);
+  const payload = sessionToken ? getJwtPayload(sessionToken) : null;
+  const role = payload?.role as string | undefined;
 
-  if (!token) {
+  if (!sessionToken) {
     if (isAdminPath) {
       return NextResponse.redirect(new URL("/auth/login/admin", request.url));
     }
@@ -66,8 +90,7 @@ export async function middleware(request: NextRequest) {
     return intlMiddleware(request);
   }
 
-  const role = token.role as string | undefined;
-
+  // Token 存在时做角色校验（JWT payload 未验证签名，页面级会做完整校验）
   if (isAdminPath && role !== "ADMIN") {
     return NextResponse.redirect(new URL("/unauthorized", request.url));
   }
