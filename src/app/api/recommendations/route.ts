@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { calculateMatchScore, getRecommendationWeight } from "@/lib/recommendations";
+import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
 import { Job, Company } from "@prisma/client";
 export const dynamic = "force-dynamic";
 
@@ -33,6 +34,12 @@ interface RecommendationResponse {
  */
 export async function GET(request: NextRequest) {
   try {
+    const ip = getClientIP(request);
+    const rateLimit = checkRateLimit(`recommendations:get:${ip}`, 20, 60 * 1000);
+    if (!rateLimit.success) {
+      return NextResponse.json({ error: "请求过于频繁" }, { status: 429 });
+    }
+
     const { searchParams } = new URL(request.url);
     const limit = Math.min(parseInt(searchParams.get("limit") || "6"), 20);
     const offset = parseInt(searchParams.get("offset") || "0");

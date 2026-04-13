@@ -37,8 +37,11 @@ export function PerformanceMonitor() {
         });
         lcpObserver.observe({ entryTypes: ["largest-contentful-paint"] });
         observers.push(lcpObserver);
-      } catch (e) {
-        console.log("LCP observation not supported");
+      } catch {
+        if (process.env.NODE_ENV === "development") {
+           
+          console.log("LCP observation not supported");
+        }
       }
 
       try {
@@ -51,8 +54,11 @@ export function PerformanceMonitor() {
         });
         fidObserver.observe({ entryTypes: ["first-input"] });
         observers.push(fidObserver);
-      } catch (e) {
-        console.log("FID observation not supported");
+      } catch {
+        if (process.env.NODE_ENV === "development") {
+           
+          console.log("FID observation not supported");
+        }
       }
 
       try {
@@ -68,8 +74,11 @@ export function PerformanceMonitor() {
         });
         clsObserver.observe({ entryTypes: ["layout-shift"] });
         observers.push(clsObserver);
-      } catch (e) {
-        console.log("CLS observation not supported");
+      } catch {
+        if (process.env.NODE_ENV === "development") {
+           
+          console.log("CLS observation not supported");
+        }
       }
 
       try {
@@ -82,8 +91,11 @@ export function PerformanceMonitor() {
         });
         fcpObserver.observe({ entryTypes: ["paint"] });
         observers.push(fcpObserver);
-      } catch (e) {
-        console.log("FCP observation not supported");
+      } catch {
+        if (process.env.NODE_ENV === "development") {
+           
+          console.log("FCP observation not supported");
+        }
       }
 
       try {
@@ -98,8 +110,11 @@ export function PerformanceMonitor() {
         });
         inpObserver.observe({ entryTypes: ["event"] });
         observers.push(inpObserver);
-      } catch (e) {
-        console.log("INP observation not supported");
+      } catch {
+        if (process.env.NODE_ENV === "development") {
+           
+          console.log("INP observation not supported");
+        }
       }
     }
 

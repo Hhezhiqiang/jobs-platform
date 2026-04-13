@@ -92,7 +92,10 @@ export async function runAutoPipeline(newMonitorIds: string[]): Promise<AutoPipe
       detail.url = publishResult.url;
       result.published++;
 
-      console.log(`[auto-pipeline] Published ${monitor.keyword} → ${publishResult.url}`);
+      if (process.env.NODE_ENV === "development") {
+         
+        console.log(`[auto-pipeline] Published ${monitor.keyword} → ${publishResult.url}`);
+      }
     } catch (err) {
       detail.error = (err as Error).message;
       result.errors++;

@@ -81,9 +81,12 @@ export async function POST(request: NextRequest) {
         const { cleanupOldData } = await import("@/lib/data-cleanup");
         cleanupResult = await cleanupOldData();
         if (cleanupResult.monitorsDeleted > 0 || cleanupResult.pagesDeleted > 0) {
-          console.log(
-            `[data-cleanup] removed ${cleanupResult.monitorsDeleted} junk monitors and ${cleanupResult.pagesDeleted} draft pages`
-          );
+          if (process.env.NODE_ENV === "development") {
+             
+            console.log(
+              `[data-cleanup] removed ${cleanupResult.monitorsDeleted} junk monitors and ${cleanupResult.pagesDeleted} draft pages`
+            );
+          }
         }
       } catch (cleanupErr) {
         console.error("[data-cleanup] failed:", cleanupErr);

@@ -42,7 +42,10 @@ export async function sendEmail({ to, subject, html, text }: SendEmailParams) {
     const transporter = createTransporter();
 
     if (!transporter) {
-      console.warn("Email not configured, skipping email send");
+      if (process.env.NODE_ENV === "development") {
+         
+        console.warn("Email not configured, skipping email send");
+      }
       return { success: false, error: "Email not configured" };
     }
 
@@ -56,7 +59,10 @@ export async function sendEmail({ to, subject, html, text }: SendEmailParams) {
       html,
     });
 
-    console.log("Email sent:", info.messageId);
+    if (process.env.NODE_ENV === "development") {
+       
+      console.log("Email sent:", info.messageId);
+    }
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error("Send email error:", error);
