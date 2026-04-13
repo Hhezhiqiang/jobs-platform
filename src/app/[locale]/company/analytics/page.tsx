@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { Header } from "@/components/header";
 import { subDays, startOfDay, endOfDay, format } from "date-fns";
 import CompanyAnalyticsClient from "./client";
 
@@ -93,7 +92,6 @@ export default async function CompanyAnalyticsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
       <CompanyAnalyticsClient
         companyName={membership?.company?.name || "企业"}
         stats={{

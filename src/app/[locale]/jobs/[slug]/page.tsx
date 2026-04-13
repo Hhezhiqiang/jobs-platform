@@ -4,7 +4,6 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { generateJobMetadata } from "@/lib/metadata";
 import { generateJobPostingSchema, generateBreadcrumbSchema } from "@/lib/schema";
-import { Header } from "@/components/header";
 import { ApplyButton } from "@/components/apply-button";
 import { JobViewTracker } from "@/components/job-view-tracker";
 import { getServerSession } from "next-auth/next";
@@ -43,17 +42,21 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const job = await prisma.job.findUnique({
-    where: { slug },
-    include: { company: true },
-  });
+  try {
+    const { slug } = await params;
+    const job = await prisma.job.findUnique({
+      where: { slug },
+      include: { company: true },
+    });
 
-  if (!job) {
+    if (!job) {
+      return { title: "职位未找到" };
+    }
+
+    return generateJobMetadata(job);
+  } catch {
     return { title: "职位未找到" };
   }
-
-  return generateJobMetadata(job);
 }
 
 export default async function JobDetailPage({ params }: PageProps) {
@@ -75,7 +78,6 @@ export default async function JobDetailPage({ params }: PageProps) {
   if (dbError) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
         <div className="max-w-7xl mx-auto px-4 py-20 text-center">
           <div className="w-24 h-24 mx-auto mb-6 bg-red-50 rounded-full flex items-center justify-center">
             <svg className="w-12 h-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -136,7 +138,6 @@ export default async function JobDetailPage({ params }: PageProps) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(breadcrumbSchema) }} />
 
       <div className="min-h-screen bg-gray-50">
-        <Header />
 
         {/* Hero Banner */}
         <div className="relative bg-gradient-to-br from-blue-600 to-blue-800 text-white">

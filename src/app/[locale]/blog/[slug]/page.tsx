@@ -27,7 +27,8 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params;
+  try {
+    const { slug } = await params;
   const post = await prisma.page.findUnique({
     where: { slug, type: "BLOG", status: "PUBLISHED" },
     include: { author: true },
@@ -64,6 +65,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       canonical: postUrl,
     },
   };
+  } catch {
+    return { title: "文章未找到" };
+  }
 }
 
 // 生成 Article Schema
@@ -124,17 +128,18 @@ function generateFAQSchema(faqs: { question: string; answer: string }[]) {
 }
 
 export default async function BlogDetailPage({ params }: PageProps) {
-  const { slug } = await params;
-  const post = await prisma.page.findUnique({
-    where: { slug, type: "BLOG", status: "PUBLISHED" },
-    include: { author: true },
-  });
+  try {
+    const { slug } = await params;
+    const post = await prisma.page.findUnique({
+      where: { slug, type: "BLOG", status: "PUBLISHED" },
+      include: { author: true },
+    });
 
-  if (!post) {
-    notFound();
-  }
+    if (!post) {
+      notFound();
+    }
 
-  // 获取相关职位（基于关键词匹配）
+    // 获取相关职位（基于关键词匹配）
   const keyword = post.keywords?.[0] || "";
   const relatedJobs = keyword ? await prisma.job.findMany({
     where: {
@@ -329,4 +334,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
       </div>
     </>
   );
+  } catch {
+    notFound();
+  }
 }

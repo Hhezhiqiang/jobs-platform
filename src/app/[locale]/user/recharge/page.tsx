@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Wallet, Coins, Loader2, CheckCircle2 } from "lucide-react";
 
@@ -66,7 +65,6 @@ export default function RechargePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Header />
 
       <main className="flex-1 max-w-3xl w-full mx-auto px-4 py-10">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">

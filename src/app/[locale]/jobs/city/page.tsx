@@ -1,7 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { Header } from "@/components/header";
 import { MapPin } from "lucide-react";
 
 const VALID_CITIES = [
@@ -27,7 +26,6 @@ export default async function CitiesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
 
       <main className="max-w-7xl mx-auto px-4 py-12">
         <div className="text-center mb-12">

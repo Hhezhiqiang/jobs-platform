@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
-import { Header } from "@/components/header";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { JobCardV2 } from "@/components/job-card-v2";
 import { generateJobPostingSchema, generateBreadcrumbSchema } from "@/lib/schema";
@@ -86,7 +85,11 @@ interface PageProps {
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
-  return VALID_CITIES.map((city) => ({ city }));
+  try {
+    return VALID_CITIES.map((city) => ({ city }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -136,7 +139,6 @@ export default async function CityJobsPage({ params }: PageProps) {
       />
 
       <div className="min-h-screen bg-gray-50">
-        <Header />
 
         {/* Page Header */}
         <div className="bg-white border-b border-gray-200">

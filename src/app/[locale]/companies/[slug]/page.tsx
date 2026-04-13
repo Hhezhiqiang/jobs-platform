@@ -4,7 +4,6 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { generateCompanyMetadata } from "@/lib/metadata";
 import { generateOrganizationSchema } from "@/lib/schema";
-import { Header } from "@/components/header";
 import { JobCardV2 } from "@/components/job-card-v2";
 import { Metadata } from "next";
 import { MapPin, Globe, Users, Building2, Briefcase, ChevronRight } from "lucide-react";
@@ -30,35 +29,40 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const company = await prisma.company.findUnique({
-    where: { slug },
-  });
+  try {
+    const { slug } = await params;
+    const company = await prisma.company.findUnique({
+      where: { slug },
+    });
 
-  if (!company) {
+    if (!company) {
+      return { title: "公司未找到" };
+    }
+
+    return generateCompanyMetadata(company);
+  } catch {
     return { title: "公司未找到" };
   }
-
-  return generateCompanyMetadata(company);
 }
 
 export default async function CompanyDetailPage({ params }: PageProps) {
-  const { slug } = await params;
-  
-  const company = await prisma.company.findUnique({
-    where: { slug },
-    include: {
-      jobs: {
-        where: { status: "ACTIVE" },
-        orderBy: { datePosted: "desc" },
-        include: { company: true },
+  try {
+    const { slug } = await params;
+    
+    const company = await prisma.company.findUnique({
+      where: { slug },
+      include: {
+        jobs: {
+          where: { status: "ACTIVE" },
+          orderBy: { datePosted: "desc" },
+          include: { company: true },
+        },
       },
-    },
-  });
+    });
 
-  if (!company) {
-    notFound();
-  }
+    if (!company) {
+      notFound();
+    }
 
   const orgSchema = generateOrganizationSchema(company);
 
@@ -67,7 +71,6 @@ export default async function CompanyDetailPage({ params }: PageProps) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }} />
 
       <div className="min-h-screen bg-gray-50">
-        <Header />
 
         {/* Hero Banner */}
         <div className="relative bg-gradient-to-br from-blue-600 to-blue-800">
@@ -263,4 +266,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
       </div>
     </>
   );
+  } catch {
+    notFound();
+  }
 }

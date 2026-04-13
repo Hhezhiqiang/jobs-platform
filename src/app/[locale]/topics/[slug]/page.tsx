@@ -3,7 +3,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
-import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { JobCardV2 } from "@/components/job-card-v2";
@@ -212,6 +211,8 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+
+  try {
   const { slug } = await params;
 
   // 1. 尝试 CMS 专题页
@@ -246,13 +247,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     twitter: { card: "summary_large_image", title: meta.title, description: meta.description },
     alternates: { canonical: url },
   };
+
+  } catch {
+    return { title: "页面未找到" };
+  }
 }
 
 export default async function TopicPage({ params }: PageProps) {
-  const { slug } = await params;
+  try {
+    const { slug } = await params;
 
-  // 1. 优先查找 CMS 专题页（由自动发布系统生成）
-  const cmsPage = await prisma.page.findUnique({
+    // 1. 优先查找 CMS 专题页（由自动发布系统生成）
+    const cmsPage = await prisma.page.findUnique({
     where: { slug, type: "PAGE", status: "PUBLISHED" },
     include: { author: true },
   });
@@ -286,7 +292,6 @@ export default async function TopicPage({ params }: PageProps) {
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(articleSchema) }} />
 
         <div className="min-h-screen bg-gray-50">
-          <Header />
           <header className="bg-white shadow-sm">
             <div className="max-w-4xl mx-auto px-4 py-4">
               <Link href="/topics" className="text-blue-600 hover:text-blue-800">← 返回专题列表</Link>
@@ -384,7 +389,6 @@ export default async function TopicPage({ params }: PageProps) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(jobSchemas) }} />
 
       <div className="min-h-screen bg-gray-50">
-        <Header />
         <div className="bg-white border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 py-8">
             <div className="mb-4">
@@ -432,4 +436,7 @@ export default async function TopicPage({ params }: PageProps) {
       </div>
     </>
   );
+  } catch {
+    notFound();
+  }
 }
