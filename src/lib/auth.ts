@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 const DEFAULT_MAX_AGE = 30 * 24 * 60 * 60;
 
 export const authOptions: NextAuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET,
   adapter: PrismaAdapter(prisma) as unknown as NextAuthOptions["adapter"],
   providers: [
     CredentialsProvider({
@@ -57,7 +58,7 @@ export const authOptions: NextAuthOptions = {
       return await new SignJWT(token as Record<string, unknown>)
         .setProtectedHeader({ alg: "HS256" })
         .setIssuedAt()
-        .setExpirationTime(Math.floor(Date.now() / 1000) + DEFAULT_MAX_AGE)
+        .setExpirationTime("30d")
         .sign(signingKey);
     },
     async decode({ token, secret }) {

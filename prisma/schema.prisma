@@ -8,69 +8,183 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id                    String               @id @default(cuid())
-  email                 String               @unique
-  name                  String
-  password              String
-  role                  UserRole             @default(USER)
-  avatar                String?
-  createdAt             DateTime             @default(now())
-  updatedAt             DateTime             @updatedAt
-  phone                 String?
-  status                UserStatus           @default(ACTIVE)
-  ads                   Ad[]
-  companies             CompanyMember[]
-  contact_unlock_orders ContactUnlockOrder[]
-  favorites             Favorite[]
-  applications          JobApplication[]
-  jobs                  Job[]
-  notifications         Notification[]
-  pages                 Page[]
-  promoters             Promoter?
-  resumes               Resume[]
-  sessions              Session[]
-  profile               UserProfile?
-  user_referrals        UserReferral?
-  balance               Decimal              @default(dbgenerated("0.0")) @db.Decimal(18, 8)
-  balance_transactions  BalanceTransaction[]
+model keyword_to_page {
+  keyword_id String
+  page_id    String
 
-  @@map("users")
+  @@unique([keyword_id, page_id])
+  @@index([page_id])
+  @@map("_keyword_to_page")
 }
 
-model UserProfile {
-  id             String    @id @default(cuid())
-  userId         String    @unique
-  gender         String?
-  birthday       DateTime?
-  location       String?
-  workExperience Json?
-  education      Json?
-  skills         String[]
-  bio            String?
-  updatedAt      DateTime  @updatedAt
-  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("user_profiles")
+model ad_positions {
+  id          String   @id
+  name        String   @unique
+  displayName String
+  description String?
+  width       Int?
+  height      Int?
+  maxAds      Int      @default(1)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+  ads         ads[]
 }
 
-model Resume {
-  id           String           @id @default(cuid())
-  userId       String
-  name         String
-  fileUrl      String
-  fileType     String
-  fileSize     Int
-  isDefault    Boolean          @default(false)
-  createdAt    DateTime         @default(now())
-  applications JobApplication[]
-  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("resumes")
+model ads {
+  id           String       @id
+  title        String
+  type         AdType       @default(IMAGE)
+  imageUrl     String?
+  linkUrl      String
+  textContent  String?
+  altText      String?
+  status       AdStatus     @default(PENDING)
+  startDate    DateTime?
+  endDate      DateTime?
+  clickCount   Int          @default(0)
+  viewCount    Int          @default(0)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime
+  positionId   String
+  authorId     String
+  users        users        @relation(fields: [authorId], references: [id])
+  ad_positions ad_positions @relation(fields: [positionId], references: [id])
 }
 
-model JobApplication {
-  id           String            @id @default(cuid())
+model balance_transactions {
+  id                    String                 @id
+  userId                String
+  type                  TransactionType
+  amount                Decimal                @db.Decimal(18, 8)
+  balanceAfter          Decimal                @db.Decimal(18, 8)
+  description           String?
+  orderId               String?                @unique
+  createdAt             DateTime               @default(now())
+  contact_unlock_orders contact_unlock_orders? @relation(fields: [orderId], references: [id])
+  users                 users                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([type])
+  @@index([userId, createdAt])
+}
+
+model commission_adjustments {
+  id                 String             @id
+  commissionRecordId String
+  promoterId         String
+  amount             Decimal            @db.Decimal(18, 8)
+  reason             String
+  type               AdjustmentType     @default(REFUND)
+  createdAt          DateTime           @default(now())
+  commission_records commission_records @relation(fields: [commissionRecordId], references: [id], onDelete: Cascade)
+  promoters          promoters          @relation(fields: [promoterId], references: [id], onDelete: Cascade)
+
+  @@index([promoterId, createdAt])
+}
+
+model commission_records {
+  id                     String                   @id
+  orderId                String                   @unique
+  promoterId             String
+  linkId                 String
+  userId                 String
+  orderAmount            Decimal                  @db.Decimal(18, 8)
+  rate                   Decimal                  @db.Decimal(5, 2)
+  commissionAmount       Decimal                  @db.Decimal(18, 8)
+  status                 CommissionStatus         @default(FROZEN)
+  frozenAt               DateTime                 @default(now())
+  availableAt            DateTime?
+  settledAt              DateTime?
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime
+  commission_adjustments commission_adjustments[]
+  promoter_links         promoter_links           @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  contact_unlock_orders  contact_unlock_orders    @relation(fields: [orderId], references: [id])
+  promoters              promoters                @relation(fields: [promoterId], references: [id], onDelete: Cascade)
+
+  @@index([availableAt, status])
+  @@index([promoterId, status])
+}
+
+model companies {
+  id                 String            @id
+  name               String
+  slug               String            @unique
+  logo               String?
+  website            String?
+  description        String?
+  industry           String?
+  size               String?
+  location           String?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime
+  metaTitle          String?
+  metaDescription    String?
+  businessLicense    String?
+  contactEmail       String?
+  contactPhone       String?
+  creditCode         String?           @unique
+  legalPersonName    String?
+  rejectionReason    String?
+  verificationStatus CompanyStatus     @default(PENDING)
+  verifiedAt         DateTime?
+  verifiedBy         String?
+  descriptionEn      String?
+  metaDescriptionEn  String?
+  metaTitleEn        String?
+  nameEn             String?
+  company_members    company_members[]
+  jobs               jobs[]
+}
+
+model company_members {
+  id        String            @id
+  companyId String
+  userId    String
+  role      CompanyMemberRole @default(ADMIN)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime
+  companies companies         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  users     users             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, userId])
+  @@index([userId])
+}
+
+model contact_unlock_orders {
+  id                   String                @id
+  userId               String
+  jobId                String
+  amount               Decimal               @db.Decimal(18, 8)
+  status               OrderStatus           @default(PENDING)
+  paidAt               DateTime?
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime
+  balance_transactions balance_transactions?
+  commission_records   commission_records?
+  jobs                 jobs                  @relation(fields: [jobId], references: [id])
+  users                users                 @relation(fields: [userId], references: [id])
+
+  @@index([jobId])
+  @@index([status, createdAt])
+  @@index([userId, status])
+}
+
+model favorites {
+  id        String   @id
+  userId    String
+  jobId     String
+  createdAt DateTime @default(now())
+  jobs      jobs     @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  users     users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, jobId])
+  @@index([jobId])
+  @@index([userId, createdAt])
+}
+
+model job_applications {
+  id           String            @id
   jobId        String
   userId       String
   resumeId     String?
@@ -82,206 +196,111 @@ model JobApplication {
   withdrewAt   DateTime?
   responseType String?
   responseNote String?
-  job          Job               @relation(fields: [jobId], references: [id])
-  resume       Resume?           @relation(fields: [resumeId], references: [id])
-  user         User              @relation(fields: [userId], references: [id])
+  jobs         jobs              @relation(fields: [jobId], references: [id])
+  resumes      resumes?          @relation(fields: [resumeId], references: [id])
+  users        users             @relation(fields: [userId], references: [id])
 
-  @@index([userId, status])
   @@index([jobId, status])
-  @@map("job_applications")
+  @@index([userId, status])
 }
 
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("sessions")
-}
-
-model Company {
-  id                 String          @id @default(cuid())
-  name               String
-  nameEn             String?
-  slug               String          @unique
-  logo               String?
-  website            String?
-  description        String?
-  descriptionEn      String?         @db.Text
-  industry           String?
-  size               String?
-  location           String?
-  createdAt          DateTime        @default(now())
-  updatedAt          DateTime        @updatedAt
-  metaTitle          String?
-  metaTitleEn        String?
-  metaDescription    String?
-  metaDescriptionEn  String?
-  businessLicense    String?
-  contactEmail       String?
-  contactPhone       String?
-  creditCode         String?         @unique
-  legalPersonName    String?
-  rejectionReason    String?
-  verificationStatus CompanyStatus   @default(PENDING)
-  verifiedAt         DateTime?
-  verifiedBy         String?
-  members            CompanyMember[]
-  jobs               Job[]
-
-  @@map("companies")
-}
-
-model CompanyMember {
-  id        String            @id @default(cuid())
-  companyId String
-  userId    String
-  role      CompanyMemberRole @default(ADMIN)
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
-  company   Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([companyId, userId])
-  @@index([userId])
-  @@map("company_members")
-}
-
-model Job {
-  id                     String               @id @default(cuid())
-  slug                   String               @unique
+model jobs {
+  id                     String                  @id
+  slug                   String                  @unique
   title                  String
-  titleEn                String?
   description            String
-  descriptionEn          String?              @db.Text
   requirements           String?
-  requirementsEn         String?              @db.Text
   benefits               String?
-  benefitsEn             String?              @db.Text
-  employmentType         EmploymentType       @default(FULL_TIME)
-  experience             ExperienceLevel      @default(MID)
+  employmentType         EmploymentType          @default(FULL_TIME)
+  experience             ExperienceLevel         @default(MID)
   salaryMin              Int?
   salaryMax              Int?
-  salaryCurrency         String               @default("CNY")
-  salaryPeriod           String               @default("YEAR")
+  salaryCurrency         String                  @default("CNY")
+  salaryPeriod           String                  @default("YEAR")
   location               String
   city                   String?
-  country                String               @default("CN")
-  isRemote               Boolean              @default(false)
-  isHybrid               Boolean              @default(false)
+  country                String                  @default("CN")
+  isRemote               Boolean                 @default(false)
+  isHybrid               Boolean                 @default(false)
   applyUrl               String
-  status                 JobStatus            @default(ACTIVE)
-  isFeatured             Boolean              @default(false)
-  viewCount              Int                  @default(0)
-  datePosted             DateTime             @default(now())
+  status                 JobStatus               @default(ACTIVE)
+  isFeatured             Boolean                 @default(false)
+  viewCount              Int                     @default(0)
+  datePosted             DateTime                @default(now())
   validThrough           DateTime?
   metaTitle              String?
-  metaTitleEn            String?
   metaDescription        String?
-  metaDescriptionEn      String?
   keywords               String[]
   imageUrl               String?
   schemaOrganizationName String?
   schemaOrganizationLogo String?
-  createdAt              DateTime             @default(now())
-  updatedAt              DateTime             @updatedAt
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime
   companyId              String
   authorId               String
-  contact_unlock_orders  ContactUnlockOrder[]
-  favorites              Favorite[]
-  applications           JobApplication[]
-  author                 User                 @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  company                Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  benefitsEn             String?
+  descriptionEn          String?
+  metaDescriptionEn      String?
+  metaTitleEn            String?
+  requirementsEn         String?
+  titleEn                String?
+  contact_unlock_orders  contact_unlock_orders[]
+  favorites              favorites[]
+  job_applications       job_applications[]
+  users                  users                   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  companies              companies               @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  @@index([status, datePosted])
   @@index([city, status])
   @@index([employmentType, status])
   @@index([isFeatured, status])
-  @@map("jobs")
+  @@index([status, datePosted])
 }
 
-model AdPosition {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  displayName String
-  description String?
-  width       Int?
-  height      Int?
-  maxAds      Int      @default(1)
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  ads         Ad[]
+model keyword_archives {
+  id               String           @id
+  monitorId        String
+  contentType      String
+  contentUrl       String?
+  contentTitle     String?
+  contentBody      String
+  fetchedAt        DateTime         @default(now())
+  relevanceScore   Float?
+  usedInPlan       Boolean          @default(false)
+  keyword_monitors keyword_monitors @relation(fields: [monitorId], references: [id], onDelete: Cascade)
 
-  @@map("ad_positions")
+  @@index([monitorId, contentType])
+  @@index([usedInPlan])
 }
 
-model Ad {
-  id          String     @id @default(cuid())
-  title       String
-  type        AdType     @default(IMAGE)
-  imageUrl    String?
-  linkUrl     String
-  textContent String?
-  altText     String?
-  status      AdStatus   @default(PENDING)
-  startDate   DateTime?
-  endDate     DateTime?
-  clickCount  Int        @default(0)
-  viewCount   Int        @default(0)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  positionId  String
-  authorId    String
-  author      User       @relation(fields: [authorId], references: [id])
-  position    AdPosition @relation(fields: [positionId], references: [id])
+model keyword_monitors {
+  id               String             @id
+  keyword          String
+  normalized       String
+  language         String             @default("zh")
+  source           String
+  sourceUrl        String?
+  trendScore       Float              @default(0)
+  searchVolume     Int?
+  hotLevel         Int                @default(1)
+  category         String             @default("HOLD")
+  intent           String             @default("UNKNOWN")
+  status           String             @default("PENDING")
+  firstSeenAt      DateTime           @default(now())
+  lastSeenAt       DateTime
+  metadata         Json?
+  keyword_archives keyword_archives[]
+  seo_plans        seo_plans[]
+  pages            pages[]            @relation("KeywordToPage")
 
-  @@map("ads")
+  @@index([category, status])
+  @@index([lastSeenAt])
+  @@index([normalized, source])
+  @@index([status, firstSeenAt])
+  @@index([trendScore])
 }
 
-model SEOSetting {
-  id          String   @id @default(cuid())
-  key         String   @unique
-  value       String
-  description String?
-  updatedAt   DateTime @updatedAt
-
-  @@map("seo_settings")
-}
-
-model Page {
-  id                String           @id @default(cuid())
-  slug              String           @unique
-  title             String
-  titleEn           String?
-  content           String
-  contentEn         String?          @db.Text
-  excerpt           String?
-  excerptEn         String?          @db.Text
-  type              PageType         @default(PAGE)
-  status            PageStatus       @default(PUBLISHED)
-  metaTitle         String?
-  metaTitleEn       String?
-  metaDescription   String?
-  metaDescriptionEn String?
-  keywords          String[]
-  featuredImage     String?
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
-  authorId          String
-  viewCount         Int              @default(0)
-  author            User             @relation(fields: [authorId], references: [id])
-  keywordsFrom      KeywordMonitor[] @relation("KeywordToPage")
-
-  @@index([type, status])
-  @@index([slug, status])
-  @@map("pages")
-}
-
-model Notification {
-  id        String           @id @default(cuid())
+model notifications {
+  id        String           @id
   userId    String
   type      NotificationType
   title     String
@@ -289,42 +308,14 @@ model Notification {
   isRead    Boolean          @default(false)
   metadata  Json?
   createdAt DateTime         @default(now())
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  users     users            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId, createdAt])
   @@index([userId, isRead])
-  @@index([userId, createdAt])
-  @@map("notifications")
 }
 
-model Favorite {
-  id        String   @id @default(cuid())
-  userId    String
-  jobId     String
-  createdAt DateTime @default(now())
-  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, jobId])
-  @@index([userId, createdAt])
-  @@index([jobId])
-  @@map("favorites")
-}
-
-model SearchQuery {
-  id           String   @id @default(cuid())
-  query        String   @unique
-  count        Int      @default(1)
-  lastSearched DateTime @default(now())
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  @@index([count])
-  @@index([lastSearched])
-  @@map("search_queries")
-}
-
-model PageView {
-  id        String   @id @default(cuid())
+model page_views {
+  id        String   @id
   path      String
   userAgent String?
   ip        String?
@@ -335,220 +326,211 @@ model PageView {
   sessionId String
   createdAt DateTime @default(now())
 
-  @@index([path, createdAt])
   @@index([createdAt])
+  @@index([path, createdAt])
   @@index([sessionId, createdAt])
-  @@map("page_views")
 }
 
-model KeywordMonitor {
-  id           String           @id @default(cuid())
-  keyword      String
-  normalized   String
-  language     String           @default("zh")
-  source       String
-  sourceUrl    String?
-  trendScore   Float            @default(0)
-  searchVolume Int?
-  hotLevel     Int              @default(1)
-  category     String           @default("HOLD")
-  intent       String           @default("UNKNOWN")
-  status       String           @default("PENDING")
-  firstSeenAt  DateTime         @default(now())
-  lastSeenAt   DateTime         @updatedAt
-  metadata     Json?
-  archives     KeywordArchive[]
-  seoPlans     SEOPlan[]
-  pages        Page[]           @relation("KeywordToPage")
+model pages {
+  id                String             @id
+  slug              String             @unique
+  title             String
+  content           String
+  excerpt           String?
+  type              PageType           @default(PAGE)
+  status            PageStatus         @default(PUBLISHED)
+  metaTitle         String?
+  metaDescription   String?
+  keywords          String[]
+  featuredImage     String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime
+  authorId          String
+  viewCount         Int                @default(0)
+  contentEn         String?
+  excerptEn         String?
+  metaDescriptionEn String?
+  metaTitleEn       String?
+  titleEn           String?
+  users             users              @relation(fields: [authorId], references: [id])
+  keyword_monitors  keyword_monitors[] @relation("KeywordToPage")
 
-  @@index([normalized, source])
-  @@index([category, status])
-  @@index([trendScore])
-  @@index([lastSeenAt])
-  @@index([status, firstSeenAt])
-  @@map("keyword_monitors")
+  @@index([slug, status])
+  @@index([type, status])
 }
 
-model KeywordArchive {
-  id             String         @id @default(cuid())
-  monitorId      String
-  contentType    String
-  contentUrl     String?
-  contentTitle   String?
-  contentBody    String
-  fetchedAt      DateTime       @default(now())
-  relevanceScore Float?
-  usedInPlan     Boolean        @default(false)
-  monitor        KeywordMonitor @relation(fields: [monitorId], references: [id], onDelete: Cascade)
-
-  @@index([monitorId, contentType])
-  @@index([usedInPlan])
-  @@map("keyword_archives")
-}
-
-model SEOPlan {
-  id              String         @id @default(cuid())
-  monitorId       String
-  pageType        String
-  title           String
-  h1              String
-  metaDesc        String
-  keywords        String[]
-  outline         Json
-  targetUrl       String?
-  internalLinks   Json?
-  contentMarkdown String?
-  status          String         @default("PENDING")
-  generatedAt     DateTime       @default(now())
-  generatedBy     String
-  approvedAt      DateTime?
-  approvedBy      String?
-  publishedAt     DateTime?
-  publishUrl      String?
-  publishJobId    String?
-  monitor         KeywordMonitor @relation(fields: [monitorId], references: [id], onDelete: Cascade)
-
-  @@index([monitorId, pageType])
-  @@index([status])
-  @@index([publishedAt])
-  @@map("seo_plans")
-}
-
-model KeywordToPage {
-  A String @map("keyword_id")
-  B String @map("page_id")
-
-  @@unique([A, B])
-  @@index([B])
-  @@map("_keyword_to_page")
-}
-
-model CommissionAdjustment {
-  id                 String           @id @default(cuid())
-  commissionRecordId String
+model promoter_links {
+  id                 String               @id
   promoterId         String
-  amount             Decimal          @db.Decimal(18, 8)
-  reason             String
-  type               AdjustmentType   @default(REFUND)
-  createdAt          DateTime         @default(now())
-  commission         CommissionRecord @relation(fields: [commissionRecordId], references: [id], onDelete: Cascade)
-  promoter           Promoter         @relation(fields: [promoterId], references: [id], onDelete: Cascade)
-
-  @@index([promoterId, createdAt])
-  @@map("commission_adjustments")
-}
-
-model CommissionRecord {
-  id               String                 @id @default(cuid())
-  orderId          String                 @unique
-  promoterId       String
-  linkId           String
-  userId           String
-  orderAmount      Decimal                @db.Decimal(18, 8)
-  rate             Decimal                @db.Decimal(5, 2)
-  commissionAmount Decimal                @db.Decimal(18, 8)
-  status           CommissionStatus       @default(FROZEN)
-  frozenAt         DateTime               @default(now())
-  availableAt      DateTime?
-  settledAt        DateTime?
-  createdAt        DateTime               @default(now())
-  updatedAt        DateTime               @updatedAt
-  adjustments      CommissionAdjustment[]
-  link             PromoterLink           @relation(fields: [linkId], references: [id], onDelete: Cascade)
-  order            ContactUnlockOrder     @relation(fields: [orderId], references: [id])
-  promoter         Promoter               @relation(fields: [promoterId], references: [id], onDelete: Cascade)
-
-  @@index([availableAt, status])
-  @@index([promoterId, status])
-  @@map("commission_records")
-}
-
-model ContactUnlockOrder {
-  id                 String              @id @default(cuid())
-  userId             String
-  jobId              String
-  amount             Decimal             @db.Decimal(18, 8)
-  status             OrderStatus         @default(PENDING)
-  paidAt             DateTime?
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  commission         CommissionRecord?
-  job                Job                 @relation(fields: [jobId], references: [id])
-  user               User                @relation(fields: [userId], references: [id])
-  BalanceTransaction BalanceTransaction?
-
-  @@index([jobId])
-  @@index([status, createdAt])
-  @@index([userId, status])
-  @@map("contact_unlock_orders")
-}
-
-model PromoterLink {
-  id            String             @id @default(cuid())
-  promoterId    String
-  name          String
-  code          String             @unique
-  customRate    Decimal?           @db.Decimal(5, 2)
-  landingPage   String             @default("/")
-  clickCount    Int                @default(0)
-  registerCount Int                @default(0)
-  orderCount    Int                @default(0)
-  gmv           Decimal            @default(0.0) @db.Decimal(18, 8)
-  status        LinkStatus         @default(ACTIVE)
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
-  commissions   CommissionRecord[]
-  promoter      Promoter           @relation(fields: [promoterId], references: [id], onDelete: Cascade)
-  referrals     UserReferral[]
+  name               String
+  code               String               @unique
+  customRate         Decimal?             @db.Decimal(5, 2)
+  landingPage        String               @default("/")
+  clickCount         Int                  @default(0)
+  registerCount      Int                  @default(0)
+  orderCount         Int                  @default(0)
+  gmv                Decimal              @default(0.0) @db.Decimal(18, 8)
+  status             LinkStatus           @default(ACTIVE)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime
+  commission_records commission_records[]
+  promoters          promoters            @relation(fields: [promoterId], references: [id], onDelete: Cascade)
+  user_referrals     user_referrals[]
 
   @@index([code])
   @@index([promoterId, status])
-  @@map("promoter_links")
 }
 
-model Promoter {
-  id               String                 @id @default(cuid())
-  userId           String?                @unique
+model promoters {
+  id                     String                   @id
+  userId                 String?                  @unique
+  name                   String
+  email                  String                   @unique
+  phone                  String?
+  walletAddress          String?
+  defaultRate            Decimal                  @default(30.0) @db.Decimal(5, 2)
+  status                 PromoterStatus           @default(PENDING)
+  availableBalance       Decimal                  @default(0.0) @db.Decimal(18, 8)
+  frozenBalance          Decimal                  @default(0.0) @db.Decimal(18, 8)
+  withdrawnBalance       Decimal                  @default(0.0) @db.Decimal(18, 8)
+  totalEarnings          Decimal                  @default(0.0) @db.Decimal(18, 8)
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime
+  commission_adjustments commission_adjustments[]
+  commission_records     commission_records[]
+  promoter_links         promoter_links[]
+  users                  users?                   @relation(fields: [userId], references: [id])
+  user_referrals         user_referrals[]
+  withdrawal_records     withdrawal_records[]
+}
+
+model resumes {
+  id               String             @id
+  userId           String
   name             String
-  email            String                 @unique
-  phone            String?
-  walletAddress    String?
-  defaultRate      Decimal                @default(30.0) @db.Decimal(5, 2)
-  status           PromoterStatus         @default(PENDING)
-  availableBalance Decimal                @default(0.0) @db.Decimal(18, 8)
-  frozenBalance    Decimal                @default(0.0) @db.Decimal(18, 8)
-  withdrawnBalance Decimal                @default(0.0) @db.Decimal(18, 8)
-  totalEarnings    Decimal                @default(0.0) @db.Decimal(18, 8)
-  createdAt        DateTime               @default(now())
-  updatedAt        DateTime               @updatedAt
-  adjustments      CommissionAdjustment[]
-  commissions      CommissionRecord[]
-  links            PromoterLink[]
-  user             User?                  @relation(fields: [userId], references: [id])
-  referrals        UserReferral[]
-  withdrawals      WithdrawalRecord[]
-
-  @@map("promoters")
+  fileUrl          String
+  fileType         String
+  fileSize         Int
+  isDefault        Boolean            @default(false)
+  createdAt        DateTime           @default(now())
+  job_applications job_applications[]
+  users            users              @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model UserReferral {
-  id           String       @id @default(cuid())
-  userId       String       @unique
-  promoterId   String
-  linkId       String
-  referralCode String
-  createdAt    DateTime     @default(now())
-  link         PromoterLink @relation(fields: [linkId], references: [id], onDelete: Cascade)
-  promoter     Promoter     @relation(fields: [promoterId], references: [id], onDelete: Cascade)
-  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+model search_queries {
+  id           String   @id
+  query        String   @unique
+  count        Int      @default(1)
+  lastSearched DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime
+
+  @@index([count])
+  @@index([lastSearched])
+}
+
+model seo_plans {
+  id               String           @id
+  monitorId        String
+  pageType         String
+  title            String
+  h1               String
+  metaDesc         String
+  keywords         String[]
+  outline          Json
+  targetUrl        String?
+  internalLinks    Json?
+  contentMarkdown  String?
+  status           String           @default("PENDING")
+  generatedAt      DateTime         @default(now())
+  generatedBy      String
+  approvedAt       DateTime?
+  approvedBy       String?
+  publishedAt      DateTime?
+  publishUrl       String?
+  publishJobId     String?
+  keyword_monitors keyword_monitors @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+
+  @@index([monitorId, pageType])
+  @@index([publishedAt])
+  @@index([status])
+}
+
+model seo_settings {
+  id          String   @id
+  key         String   @unique
+  value       String
+  description String?
+  updatedAt   DateTime
+}
+
+model sessions {
+  id           String   @id
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  users        users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model user_profiles {
+  id             String    @id
+  userId         String    @unique
+  gender         String?
+  birthday       DateTime?
+  location       String?
+  workExperience Json?
+  education      Json?
+  skills         String[]
+  bio            String?
+  updatedAt      DateTime
+  users          users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model user_referrals {
+  id             String         @id
+  userId         String         @unique
+  promoterId     String
+  linkId         String
+  referralCode   String
+  createdAt      DateTime       @default(now())
+  promoter_links promoter_links @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  promoters      promoters      @relation(fields: [promoterId], references: [id], onDelete: Cascade)
+  users          users          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([promoterId])
   @@index([referralCode])
-  @@map("user_referrals")
 }
 
-model WithdrawalRecord {
-  id            String           @id @default(cuid())
+model users {
+  id                    String                  @id
+  email                 String                  @unique
+  name                  String
+  password              String
+  role                  UserRole                @default(USER)
+  avatar                String?
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime
+  phone                 String?
+  status                UserStatus              @default(ACTIVE)
+  balance               Decimal                 @default(0.0) @db.Decimal(18, 8)
+  ads                   ads[]
+  balance_transactions  balance_transactions[]
+  company_members       company_members[]
+  contact_unlock_orders contact_unlock_orders[]
+  favorites             favorites[]
+  job_applications      job_applications[]
+  jobs                  jobs[]
+  notifications         notifications[]
+  pages                 pages[]
+  promoters             promoters?
+  resumes               resumes[]
+  sessions              sessions[]
+  user_profiles         user_profiles?
+  user_referrals        user_referrals?
+}
+
+model withdrawal_records {
+  id            String           @id
   promoterId    String
   amount        Decimal          @db.Decimal(18, 8)
   walletAddress String
@@ -558,35 +540,28 @@ model WithdrawalRecord {
   requestedAt   DateTime         @default(now())
   reviewedAt    DateTime?
   completedAt   DateTime?
-  promoter      Promoter         @relation(fields: [promoterId], references: [id], onDelete: Cascade)
+  promoters     promoters        @relation(fields: [promoterId], references: [id], onDelete: Cascade)
 
   @@index([promoterId, status])
   @@index([status, requestedAt])
-  @@map("withdrawal_records")
 }
 
-enum CompanyStatus {
+enum AdStatus {
   PENDING
-  APPROVED
-  REJECTED
-  SUSPENDED
-}
-
-enum CompanyMemberRole {
-  ADMIN
-  RECRUITER
-  VIEWER
-}
-
-enum UserRole {
-  ADMIN
-  USER
-  COMPANY
-}
-
-enum UserStatus {
   ACTIVE
-  DISABLED
+  INACTIVE
+  EXPIRED
+}
+
+enum AdType {
+  IMAGE
+  TEXT
+  CAROUSEL
+}
+
+enum AdjustmentType {
+  REFUND
+  MANUAL
 }
 
 enum ApplicationStatus {
@@ -596,6 +571,26 @@ enum ApplicationStatus {
   REJECTED
   OFFER
   WITHDRAWN
+}
+
+enum CommissionStatus {
+  FROZEN
+  AVAILABLE
+  WITHDRAWN
+  CLAWED_BACK
+}
+
+enum CompanyMemberRole {
+  ADMIN
+  RECRUITER
+  VIEWER
+}
+
+enum CompanyStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
 }
 
 enum EmploymentType {
@@ -620,30 +615,9 @@ enum JobStatus {
   DRAFT
 }
 
-enum AdType {
-  IMAGE
-  TEXT
-  CAROUSEL
-}
-
-enum AdStatus {
-  PENDING
+enum LinkStatus {
   ACTIVE
-  INACTIVE
-  EXPIRED
-}
-
-enum PageType {
-  PAGE
-  BLOG
-  FAQ
-  GUIDE
-}
-
-enum PageStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
+  PAUSED
 }
 
 enum NotificationType {
@@ -654,27 +628,23 @@ enum NotificationType {
   OFFER_RECEIVED
 }
 
-enum AdjustmentType {
-  REFUND
-  MANUAL
-}
-
-enum CommissionStatus {
-  FROZEN
-  AVAILABLE
-  WITHDRAWN
-  CLAWED_BACK
-}
-
-enum LinkStatus {
-  ACTIVE
-  PAUSED
-}
-
 enum OrderStatus {
   PENDING
   PAID
   REFUNDED
+}
+
+enum PageStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum PageType {
+  PAGE
+  BLOG
+  FAQ
+  GUIDE
 }
 
 enum PromoterStatus {
@@ -683,39 +653,28 @@ enum PromoterStatus {
   SUSPENDED
 }
 
+enum TransactionType {
+  RECHARGE
+  DEDUCTION
+  REFUND
+  ADJUSTMENT
+}
+
+enum UserRole {
+  ADMIN
+  USER
+  COMPANY
+}
+
+enum UserStatus {
+  ACTIVE
+  DISABLED
+}
+
 enum WithdrawalStatus {
   PENDING
   APPROVED
   TRANSFERRING
   COMPLETED
   REJECTED
-}
-
-// ============================================
-// 预充值余额系统
-// ============================================
-
-model BalanceTransaction {
-  id           String          @id @default(cuid())
-  userId       String
-  type         TransactionType
-  amount       Decimal         @db.Decimal(18, 8)
-  balanceAfter Decimal         @db.Decimal(18, 8)
-  description  String?
-  orderId      String?         @unique
-  createdAt    DateTime        @default(now())
-
-  user  User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  order ContactUnlockOrder? @relation(fields: [orderId], references: [id])
-
-  @@index([userId, createdAt])
-  @@index([type])
-  @@map("balance_transactions")
-}
-
-enum TransactionType {
-  RECHARGE
-  DEDUCTION
-  REFUND
-  ADJUSTMENT
 }
