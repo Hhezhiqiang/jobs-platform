@@ -7,5 +7,13 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return (
+    <html lang="zh">
+      <head>
+        <meta httpEquiv="refresh" content="0;url=/zh" />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
 }
+
