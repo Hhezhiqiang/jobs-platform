@@ -301,8 +301,8 @@ export default function ApplicationsPage() {
                       </div>
 
                       {/* 时间线 */}
-                      <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div className="bg-gray-50 rounded-lg p-4 mb-4 overflow-x-auto">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm min-w-[280px]">
                           <div>
                             <p className="text-gray-500">申请时间</p>
                             <p className="font-medium">

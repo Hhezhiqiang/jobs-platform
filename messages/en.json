@@ -1,0 +1,64 @@
+{
+  "site": {
+    "name": "JobsBro",
+    "description": "A professional job recruitment platform connecting top talent with Web3, internet, and tech companies. Empower your career growth."
+  },
+  "nav": {
+    "home": "Home",
+    "jobs": "Jobs",
+    "companies": "Companies",
+    "blog": "Blog",
+    "topics": "Topics",
+    "about": "About",
+    "contact": "Contact",
+    "faq": "FAQ",
+    "salary": "Salary Insights",
+    "search": "Search",
+    "login": "Log in",
+    "register": "Sign up",
+    "dashboard": "Dashboard",
+    "logout": "Log out"
+  },
+  "header": {
+    "menu": "Menu",
+    "closeMenu": "Close menu"
+  },
+  "footer": {
+    "quickLinks": "Quick Links",
+    "legal": "Legal",
+    "contactUs": "Contact Us",
+    "allRightsReserved": "All rights reserved",
+    "sitemap": "Sitemap"
+  },
+  "hero": {
+    "title": "Discover Your Next Dream Job",
+    "subtitle": "Bringing together high-paying positions in Web3, internet, and tech industries to make your career growth more valuable",
+    "searchPlaceholder": "Search jobs, companies, or keywords...",
+    "searchButton": "Search Jobs",
+    "stats": {
+      "jobs": "Job Postings",
+      "companies": "Companies",
+      "users": "Active Job Seekers",
+      "matches": "Successful Matches"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "readMore": "Read more",
+    "viewAll": "View all",
+    "prev": "Previous",
+    "next": "Next",
+    "noData": "No data available",
+    "error": "Something went wrong, please try again later",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit"
+  },
+  "locale": {
+    "switch": "Switch language",
+    "zh": "中文",
+    "en": "English"
+  }
+}

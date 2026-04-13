@@ -47,57 +47,40 @@ function generateCoverImage(category: string): string {
 async function checkRecentSimilarContent(keywords: string[]): Promise<boolean> {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
   const recentPosts = await prisma.page.findMany({
-    where: {
-      type: "BLOG",
-      createdAt: { gte: sevenDaysAgo },
-    },
+    where: { type: "BLOG", createdAt: { gte: sevenDaysAgo } },
     select: { keywords: true },
   });
-
   for (const post of recentPosts) {
     const postKeywords = post.keywords || [];
     const overlap = keywords.filter((k) =>
-      postKeywords.some((pk: string) =>
-        pk.toLowerCase().includes(k.toLowerCase()) ||
-        k.toLowerCase().includes(pk.toLowerCase())
+      postKeywords.some(
+        (pk: string) =>
+          pk.toLowerCase().includes(k.toLowerCase()) ||
+          k.toLowerCase().includes(pk.toLowerCase())
       )
     );
-    if (overlap.length >= 2) {
-      return true;
-    }
+    if (overlap.length >= 2) return true;
   }
   return false;
 }
 
 async function getJobsBroUser(): Promise<string> {
-  const user = await prisma.user.findFirst({
-    where: { email: "jobsbro@jobsbor.com" },
-  });
+  const user = await prisma.user.findFirst({ where: { email: "jobsbro@jobsbor.com" } });
   if (user) return user.id;
   const newUser = await prisma.user.create({
-    data: {
-      email: "jobsbro@jobsbor.com",
-      name: "JobsBro",
-      password: "",
-      role: "ADMIN",
-      status: "ACTIVE",
-    },
+    data: { email: "jobsbro@jobsbor.com", name: "JobsBro", password: "", role: "ADMIN", status: "ACTIVE" },
   });
   return newUser.id;
 }
 
 async function callAI(prompt: string, maxTokens = 8000): Promise<string> {
-  const apiKey = process.env.KIMI_API_KEY || process.env.MOONSHOT_API_KEY || process.env.OPENAI_API_KEY;
+  const apiKey =
+    process.env.KIMI_API_KEY || process.env.MOONSHOT_API_KEY || process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error("未配置API Key");
-
   const res = await fetch("https://api.moonshot.cn/v1/chat/completions", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
     body: JSON.stringify({
       model: "kimi-k2.5",
       messages: [{ role: "user", content: prompt }],
@@ -105,13 +88,25 @@ async function callAI(prompt: string, maxTokens = 8000): Promise<string> {
       max_tokens: maxTokens,
     }),
   });
-
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`API调用失败: ${res.status} ${text}`);
   }
   const data = await res.json();
   return data.choices[0].message.content as string;
+}
+
+async function translateToEn(text: string): Promise<string> {
+  const prompt = `将以下中文博客文章翻译成地道的美式英语职场博客风格。要求：
+1. 保持 Markdown 格式和结构不变；
+2. 语气专业、亲切，像 LinkedIn 或 Medium 上的高质量职场文章；
+3. 保留所有的 ##、###、** 等 Markdown 标记；
+4. 公司名称、产品名称等专有名词可适当保留拼音或英文通用译法；
+5. 直接输出英文译文，不要有任何额外说明。
+
+原文如下：
+${text}`;
+  return await callAI(prompt, 16000);
 }
 
 async function generateOutline(
@@ -149,7 +144,6 @@ async function generateBlogContentLong(
   try {
     const outline = await generateOutline(title, category, keywords, targetLength);
     if (!outline) throw new Error("大纲生成失败");
-
     const partMin = Math.floor(targetLength / 3);
 
     const part1Prompt = `请根据以下大纲，撰写【引言 + 第一章至第三章】的完整正文。要求：
@@ -162,7 +156,6 @@ async function generateBlogContentLong(
 ${outline}
 
 请直接输出正文。`;
-
     const part1 = await callAI(part1Prompt, 8000);
 
     const part2Prompt = `请根据以下大纲和已完成的前半部分正文，继续撰写【第四章至第六章】的完整正文。要求：
@@ -178,7 +171,6 @@ ${outline}
 ${part1}
 
 请继续输出后续正文。`;
-
     const part2 = await callAI(part2Prompt, 8000);
 
     const part3Prompt = `请根据以下大纲和已完成的正文，继续撰写【第七章（如有）、实操建议、总结】的完整正文。要求：
@@ -195,28 +187,18 @@ ${part1}
 ${part2}
 
 请继续输出后续正文。`;
-
     const part3 = await callAI(part3Prompt, 8000);
 
     let content = `${part1.trim()}\n\n${part2.trim()}\n\n${part3.trim()}`;
-
-    // 清理重复标题
     content = content.replace(/#+\s*引言[\s\S]*?(?=##?\s*第?一?章)/i, "").trim();
     content = `# ${title}\n\n${content}`;
 
-    // 如果字数不够targetLength的80%，用模板补充
     if (content.length < targetLength * 0.8) {
       content = padContent(content, title, category, keywords, targetLength);
     }
 
-    const excerpt = content
-      .replace(/#.*?\n/g, "")
-      .replace(/\*\*/g, "")
-      .slice(0, 200)
-      .trim();
-
+    const excerpt = content.replace(/#.*?\n/g, "").replace(/\*\*/g, "").slice(0, 200).trim();
     const metaDescription = excerpt.slice(0, 160);
-
     return { content, excerpt, metaDescription };
   } catch (error) {
     console.log("AI长文生成失败，使用模板生成:", error);
@@ -224,13 +206,7 @@ ${part2}
   }
 }
 
-function padContent(
-  base: string,
-  title: string,
-  category: string,
-  keywords: string[],
-  targetLength: number
-) {
+function padContent(base: string, title: string, category: string, keywords: string[], targetLength: number) {
   const keywordStr = keywords.slice(0, 5).join("、");
   let filler = "";
   let idx = 1;
@@ -387,12 +363,7 @@ ${category}是一个需要持续学习和实践的领域。希望本文的内容
 **专业书籍**：《${category}实战手册》、《互联网从业者进阶指南》、《职场核心竞争力》等经典著作
 `;
   }
-
-  const excerpt = content
-    .replace(/#.*?\n/g, "")
-    .replace(/\*\*/g, "")
-    .slice(0, 200)
-    .trim();
+  const excerpt = content.replace(/#.*?\n/g, "").replace(/\*\*/g, "").slice(0, 200).trim();
   const metaDescription = excerpt.slice(0, 160);
   return { content, excerpt, metaDescription };
 }
@@ -402,10 +373,8 @@ async function createBlogPost() {
     const topicsPath = join(process.cwd(), "memory", "blog-topics.json");
     const topicsData = JSON.parse(readFileSync(topicsPath, "utf-8"));
 
-    const randomCategory =
-      topicsData.categories[Math.floor(Math.random() * topicsData.categories.length)];
-    const randomTopic =
-      randomCategory.topics[Math.floor(Math.random() * randomCategory.topics.length)];
+    const randomCategory = topicsData.categories[Math.floor(Math.random() * topicsData.categories.length)];
+    const randomTopic = randomCategory.topics[Math.floor(Math.random() * randomCategory.topics.length)];
 
     console.log(`[Hourly] 准备生成文章: ${randomTopic.title}`);
 
@@ -420,14 +389,18 @@ async function createBlogPost() {
     }
 
     const authorId = await getJobsBroUser();
-
-    console.log("正在生成长篇文章内容...");
-    const { content, excerpt, metaDescription } = await generateBlogContentLong(
+    console.log("正在生成长篇文章内容（含英文翻译）...");
+    const zh = await generateBlogContentLong(
       randomTopic.title,
       randomCategory.name,
       [...randomCategory.keywords, ...randomTopic.keywords],
       randomTopic.targetLength
     );
+
+    console.log("中文长文生成完成，正在翻译英文版...");
+    const contentEn = await translateToEn(zh.content);
+    const excerptEn = contentEn.replace(/#.*?\n/g, "").replace(/\*\*/g, "").slice(0, 200).trim();
+    const metaDescriptionEn = excerptEn.slice(0, 160);
 
     const slug = generateSlug(randomTopic.title);
     const featuredImage = generateCoverImage(randomCategory.name);
@@ -436,14 +409,17 @@ async function createBlogPost() {
       data: {
         title: randomTopic.title,
         slug,
-        excerpt,
-        content,
+        excerpt: zh.excerpt,
+        content: zh.content,
+        excerptEn,
+        contentEn,
         type: PageType.BLOG,
         status: PageStatus.PUBLISHED,
         featuredImage,
         keywords: [...randomCategory.keywords, ...randomTopic.keywords],
         metaTitle: randomTopic.title,
-        metaDescription,
+        metaDescription: zh.metaDescription,
+        metaDescriptionEn,
         authorId,
         viewCount: 0,
       },
@@ -451,8 +427,7 @@ async function createBlogPost() {
 
     console.log(`[Hourly] 博客文章创建成功: ${post.title}`);
     console.log(`[Hourly] URL: /blog/${post.slug}`);
-    console.log(`[Hourly] 字数: ${content.length}`);
-
+    console.log(`[Hourly] 字数: 中文 ${zh.content.length} / 英文 ${contentEn.length}`);
     return { success: true, post };
   } catch (error) {
     console.error("[Hourly] 创建博客失败:", error);

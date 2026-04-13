@@ -3,7 +3,6 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { prisma } from "../src/lib/prisma";
 
-// 生成唯一slug
 function generateSlug(title: string): string {
   const timestamp = Date.now().toString(36);
   const base = title
@@ -14,7 +13,6 @@ function generateSlug(title: string): string {
   return `${base}-${timestamp}`;
 }
 
-// 生成封面图URL（使用Unsplash相关图片）
 function generateCoverImage(category: string): string {
   const coverMap: Record<string, string> = {
     "前端开发": "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1200&h=600&fit=crop",
@@ -31,75 +29,71 @@ function generateCoverImage(category: string): string {
   return coverMap[category] || coverMap["求职通用"];
 }
 
-// 检查近期是否写过类似文章（过去7天）
 async function checkRecentSimilarContent(keywords: string[]): Promise<boolean> {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
   const recentPosts = await prisma.page.findMany({
-    where: {
-      type: "BLOG",
-      createdAt: { gte: sevenDaysAgo },
-    },
+    where: { type: "BLOG", createdAt: { gte: sevenDaysAgo } },
     select: { keywords: true },
   });
-
   for (const post of recentPosts) {
     const postKeywords = post.keywords || [];
     const overlap = keywords.filter((k) =>
-      postKeywords.some((pk: string) =>
-        pk.toLowerCase().includes(k.toLowerCase()) ||
-        k.toLowerCase().includes(pk.toLowerCase())
+      postKeywords.some(
+        (pk: string) =>
+          pk.toLowerCase().includes(k.toLowerCase()) ||
+          k.toLowerCase().includes(pk.toLowerCase())
       )
     );
-    // 如果关键词重叠超过2个，认为是相似内容
-    if (overlap.length >= 2) {
-      return true;
-    }
+    if (overlap.length >= 2) return true;
   }
   return false;
 }
 
-// 获取管理员用户（JobsBro）
 async function getJobsBroUser(): Promise<string> {
-  const user = await prisma.user.findFirst({
-    where: { email: "jobsbro@jobsbor.com" },
-  });
-
+  const user = await prisma.user.findFirst({ where: { email: "jobsbro@jobsbor.com" } });
   if (user) return user.id;
-
-  // 如果没有则创建
   const newUser = await prisma.user.create({
-    data: {
-      email: "jobsbro@jobsbor.com",
-      name: "JobsBro",
-      password: "",
-      role: "ADMIN",
-      status: "ACTIVE",
-    },
+    data: { email: "jobsbro@jobsbor.com", name: "JobsBro", password: "", role: "ADMIN", status: "ACTIVE" },
   });
-
   return newUser.id;
 }
 
-// 使用AI生成博客内容
-async function generateBlogContent(
-  title: string,
-  category: string,
-  keywords: string[],
-  targetLength: number
-): Promise<{ content: string; excerpt: string; metaDescription: string }> {
-  // 尝试使用AI API生成
-  try {
-    const result = await generateWithAI(title, category, keywords, targetLength);
-    return result;
-  } catch (error) {
-    console.log("AI生成失败，使用模板生成:", error);
-    return generateWithTemplate(title, category, keywords, targetLength);
+async function callAI(prompt: string, maxTokens = 8000): Promise<string> {
+  const apiKey =
+    process.env.KIMI_API_KEY || process.env.MOONSHOT_API_KEY || process.env.OPENAI_API_KEY;
+  if (!apiKey) throw new Error("未配置API Key");
+  const res = await fetch("https://api.moonshot.cn/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({
+      model: "kimi-k2.5",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.7,
+      max_tokens: maxTokens,
+    }),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`API调用失败: ${res.status} ${text}`);
   }
+  const data = await res.json();
+  return data.choices[0].message.content as string;
 }
 
-// AI生成方式
+async function translateToEn(text: string): Promise<string> {
+  const prompt = `将以下中文博客文章翻译成地道的美式英语职场博客风格。要求：
+1. 保持 Markdown 格式和结构不变；
+2. 语气专业、亲切，像 LinkedIn 或 Medium 上的高质量职场文章；
+3. 保留所有的 ##、###、** 等 Markdown 标记；
+4. 公司名称、产品名称等专有名词可适当保留拼音或英文通用译法；
+5. 直接输出英文译文，不要有任何额外说明。
+
+原文如下：
+${text}`;
+  return await callAI(prompt, 12000);
+}
+
 async function generateWithAI(
   title: string,
   category: string,
@@ -126,57 +120,21 @@ async function generateWithAI(
 
 请直接输出文章内容，不需要额外说明。`;
 
-  const apiKey = process.env.KIMI_API_KEY || process.env.MOONSHOT_API_KEY || process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    throw new Error("未配置API Key");
-  }
-
-  const response = await fetch("https://api.moonshot.cn/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: "kimi-k2.5",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.7,
-      max_tokens: 8000,
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`API调用失败: ${response.status}`);
-  }
-
-  const data = await response.json();
-  const content = data.choices[0].message.content;
-
-  const excerpt = content
-    .replace(/#.*?\n/g, "")
-    .replace(/\*\*/g, "")
-    .slice(0, 200)
-    .trim();
-
+  const content = await callAI(prompt, 8000);
+  const excerpt = content.replace(/#.*?\n/g, "").replace(/\*\*/g, "").slice(0, 200).trim();
   const metaDescription = excerpt.slice(0, 160);
-
   return { content, excerpt, metaDescription };
 }
 
-// 模板生成方式（备用）
 function generateWithTemplate(
   title: string,
   category: string,
   keywords: string[],
   targetLength: number
 ): { content: string; excerpt: string; metaDescription: string } {
-  
   const keyWordStr = keywords.slice(0, 5).join("、");
-  
-  // 构建章节内容，确保字数达标
   const sectionCount = Math.floor(targetLength / 800);
   let sections = "";
-  
   for (let i = 1; i <= sectionCount; i++) {
     sections += `
 ## 第${i}章：${category}核心要点解析
@@ -284,7 +242,6 @@ ${category}是一个需要持续学习和实践的领域。希望本文的内容
 - [薪资谈判实战技巧](#)
 `;
 
-  // 填充内容以达到目标字数
   let finalContent = content;
   while (finalContent.length < targetLength) {
     finalContent += `
@@ -299,34 +256,51 @@ ${category}是一个需要持续学习和实践的领域。希望本文的内容
 **专业书籍**：《${category}实战》、《互联网从业者进阶指南》等经典著作
 `;
   }
-
-  const excerpt = finalContent
-    .replace(/#.*?\n/g, "")
-    .replace(/\*\*/g, "")
-    .slice(0, 200)
-    .trim();
-
+  const excerpt = finalContent.replace(/#.*?\n/g, "").replace(/\*\*/g, "").slice(0, 200).trim();
   const metaDescription = excerpt.slice(0, 160);
-
   return { content: finalContent, excerpt, metaDescription };
 }
 
-// 主函数：生成并发布博客
+async function generateBlogContent(
+  title: string,
+  category: string,
+  keywords: string[],
+  targetLength: number
+): Promise<{
+  content: string;
+  excerpt: string;
+  metaDescription: string;
+  contentEn: string;
+  excerptEn: string;
+  metaDescriptionEn: string;
+}> {
+  try {
+    const zh = await generateWithAI(title, category, keywords, targetLength);
+    console.log("中文博客生成完成，正在翻译英文版...");
+    const contentEn = await translateToEn(zh.content);
+    const excerptEn = contentEn.replace(/#.*?\n/g, "").replace(/\*\*/g, "").slice(0, 200).trim();
+    const metaDescriptionEn = excerptEn.slice(0, 160);
+    return { ...zh, contentEn, excerptEn, metaDescriptionEn };
+  } catch (error) {
+    console.log("AI生成失败，使用模板生成:", error);
+    const zh = generateWithTemplate(title, category, keywords, targetLength);
+    const contentEn = await translateToEn(zh.content);
+    const excerptEn = contentEn.replace(/#.*?\n/g, "").replace(/\*\*/g, "").slice(0, 200).trim();
+    const metaDescriptionEn = excerptEn.slice(0, 160);
+    return { ...zh, contentEn, excerptEn, metaDescriptionEn };
+  }
+}
+
 async function createBlogPost() {
   try {
-    // 读取主题库
     const topicsPath = join(process.cwd(), "memory", "blog-topics.json");
     const topicsData = JSON.parse(readFileSync(topicsPath, "utf-8"));
 
-    // 随机选择一个分类和主题
-    const randomCategory =
-      topicsData.categories[Math.floor(Math.random() * topicsData.categories.length)];
-    const randomTopic =
-      randomCategory.topics[Math.floor(Math.random() * randomCategory.topics.length)];
+    const randomCategory = topicsData.categories[Math.floor(Math.random() * topicsData.categories.length)];
+    const randomTopic = randomCategory.topics[Math.floor(Math.random() * randomCategory.topics.length)];
 
     console.log(`准备生成文章: ${randomTopic.title}`);
 
-    // 检查近期是否写过类似内容
     const isSimilar = await checkRecentSimilarContent([
       ...randomCategory.keywords.slice(0, 3),
       ...randomTopic.keywords,
@@ -337,35 +311,34 @@ async function createBlogPost() {
       return { success: false, reason: "similar_content_exists" };
     }
 
-    // 获取作者ID
     const authorId = await getJobsBroUser();
+    console.log("正在生成文章内容（含英文翻译）...");
+    const { content, excerpt, metaDescription, contentEn, excerptEn, metaDescriptionEn } =
+      await generateBlogContent(
+        randomTopic.title,
+        randomCategory.name,
+        [...randomCategory.keywords, ...randomTopic.keywords],
+        randomTopic.targetLength
+      );
 
-    // 生成内容
-    console.log("正在生成文章内容...");
-    const { content, excerpt, metaDescription } = await generateBlogContent(
-      randomTopic.title,
-      randomCategory.name,
-      [...randomCategory.keywords, ...randomTopic.keywords],
-      randomTopic.targetLength
-    );
-
-    // 生成slug和封面
     const slug = generateSlug(randomTopic.title);
     const featuredImage = generateCoverImage(randomCategory.name);
 
-    // 保存到数据库
     const post = await prisma.page.create({
       data: {
         title: randomTopic.title,
         slug,
         excerpt,
         content,
+        excerptEn,
+        contentEn,
         type: PageType.BLOG,
         status: PageStatus.PUBLISHED,
         featuredImage,
         keywords: [...randomCategory.keywords, ...randomTopic.keywords],
         metaTitle: randomTopic.title,
         metaDescription,
+        metaDescriptionEn,
         authorId,
         viewCount: 0,
       },
@@ -373,8 +346,7 @@ async function createBlogPost() {
 
     console.log(`博客文章创建成功: ${post.title}`);
     console.log(`URL: /blog/${post.slug}`);
-    console.log(`字数: ${content.length}`);
-
+    console.log(`字数: 中文 ${content.length} / 英文 ${contentEn?.length || 0}`);
     return { success: true, post };
   } catch (error) {
     console.error("创建博客失败:", error);
@@ -382,7 +354,6 @@ async function createBlogPost() {
   }
 }
 
-// 执行
 createBlogPost()
   .then((result) => {
     if (result.success) {

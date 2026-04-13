@@ -104,17 +104,21 @@ model Session {
 model Company {
   id                 String          @id @default(cuid())
   name               String
+  nameEn             String?
   slug               String          @unique
   logo               String?
   website            String?
   description        String?
+  descriptionEn      String?         @db.Text
   industry           String?
   size               String?
   location           String?
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
   metaTitle          String?
+  metaTitleEn        String?
   metaDescription    String?
+  metaDescriptionEn  String?
   businessLicense    String?
   contactEmail       String?
   contactPhone       String?
@@ -149,9 +153,13 @@ model Job {
   id                     String               @id @default(cuid())
   slug                   String               @unique
   title                  String
+  titleEn                String?
   description            String
+  descriptionEn          String?              @db.Text
   requirements           String?
+  requirementsEn         String?              @db.Text
   benefits               String?
+  benefitsEn             String?              @db.Text
   employmentType         EmploymentType       @default(FULL_TIME)
   experience             ExperienceLevel      @default(MID)
   salaryMin              Int?
@@ -170,7 +178,9 @@ model Job {
   datePosted             DateTime             @default(now())
   validThrough           DateTime?
   metaTitle              String?
+  metaTitleEn            String?
   metaDescription        String?
+  metaDescriptionEn      String?
   keywords               String[]
   imageUrl               String?
   schemaOrganizationName String?
@@ -242,23 +252,28 @@ model SEOSetting {
 }
 
 model Page {
-  id              String           @id @default(cuid())
-  slug            String           @unique
-  title           String
-  content         String
-  excerpt         String?
-  type            PageType         @default(PAGE)
-  status          PageStatus       @default(PUBLISHED)
-  metaTitle       String?
-  metaDescription String?
-  keywords        String[]
-  featuredImage   String?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  authorId        String
-  viewCount       Int              @default(0)
-  author          User             @relation(fields: [authorId], references: [id])
-  keywordsFrom    KeywordMonitor[] @relation("KeywordToPage")
+  id                String           @id @default(cuid())
+  slug              String           @unique
+  title             String
+  titleEn           String?
+  content           String
+  contentEn         String?          @db.Text
+  excerpt           String?
+  excerptEn         String?          @db.Text
+  type              PageType         @default(PAGE)
+  status            PageStatus       @default(PUBLISHED)
+  metaTitle         String?
+  metaTitleEn       String?
+  metaDescription   String?
+  metaDescriptionEn String?
+  keywords          String[]
+  featuredImage     String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  authorId          String
+  viewCount         Int              @default(0)
+  author            User             @relation(fields: [authorId], references: [id])
+  keywordsFrom      KeywordMonitor[] @relation("KeywordToPage")
 
   @@index([type, status])
   @@index([slug, status])

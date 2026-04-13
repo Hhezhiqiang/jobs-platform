@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import "../styles/design-system.css";
+@import "../../styles/design-system.css";
 
 :root {
   --background: #ffffff;
@@ -25,3 +25,22 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
+
+/* Prevent iOS Safari auto-zoom on input focus when font-size < 16px */
+@media screen and (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Ensure minimum touch target of 44×44px for interactive elements */
+button,
+a,
+input[type="checkbox"],
+input[type="radio"] {
+  min-height: 44px;
+  min-width: 44px;
+}
+

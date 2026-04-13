@@ -1,0 +1,27 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+export default function NotFoundClient() {
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] || "zh";
+  const isEn = locale === "en";
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="text-center px-4">
+        <h1 className="text-6xl font-bold text-gray-900 mb-4">404</h1>
+        <p className="text-xl text-gray-600 mb-8">
+          {isEn ? "Page not found" : "页面未找到"}
+        </p>
+        <Link
+          href={`/${locale}`}
+          className="text-blue-600 hover:text-blue-700 font-medium"
+        >
+          ← {isEn ? "Back to home" : "返回首页"}
+        </Link>
+      </div>
+    </div>
+  );
+}

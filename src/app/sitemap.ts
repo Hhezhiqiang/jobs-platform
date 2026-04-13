@@ -2,8 +2,16 @@ import { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobs-platform-gold.vercel.app";
+const locales = ["zh", "en"] as const;
 
 export const revalidate = 3600;
+
+function withLocales(path: string): MetadataRoute.Sitemap {
+  return locales.map((locale) => ({
+    url: `${SITE_URL}/${locale}${path}`,
+    lastModified: new Date(),
+  }));
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [jobs, companies, blogs, cmsPages] = await Promise.all([
@@ -28,59 +36,71 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }),
   ]);
 
-  const staticRoutes: MetadataRoute.Sitemap = [
-    { url: SITE_URL, lastModified: new Date(), changeFrequency: "daily", priority: 1 },
-    { url: `${SITE_URL}/jobs`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
-    { url: `${SITE_URL}/companies`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
-    { url: `${SITE_URL}/blog`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
-    { url: `${SITE_URL}/topics`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
-    { url: `${SITE_URL}/jobs/city`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
-    { url: `${SITE_URL}/about`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.6 },
-    { url: `${SITE_URL}/contact`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.6 },
-    { url: `${SITE_URL}/faq`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
-    { url: `${SITE_URL}/salary-insights`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.8 },
-    { url: `${SITE_URL}/privacy`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.3 },
-    { url: `${SITE_URL}/terms`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.3 },
-    // 专题页
-    { url: `${SITE_URL}/topics/java-developer`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
-    { url: `${SITE_URL}/topics/frontend-developer`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
-    { url: `${SITE_URL}/topics/product-manager`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
-    { url: `${SITE_URL}/topics/remote-jobs`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
-    { url: `${SITE_URL}/topics/fresh-graduate`, lastModified: new Date(), changeFrequency: "daily", priority: 0.8 },
-    // 城市聚合页
-    ...["北京", "上海", "深圳", "杭州", "广州", "成都", "武汉", "西安", "南京", "苏州"].map((city) => ({
-      url: `${SITE_URL}/jobs/city/${encodeURIComponent(city)}`,
-      lastModified: new Date(),
-      changeFrequency: "daily" as const,
-      priority: 0.8,
-    })),
+  const staticPaths = [
+    "",
+    "/jobs",
+    "/companies",
+    "/blog",
+    "/topics",
+    "/jobs/city",
+    "/about",
+    "/contact",
+    "/faq",
+    "/salary-insights",
+    "/privacy",
+    "/terms",
+    "/topics/java-developer",
+    "/topics/frontend-developer",
+    "/topics/product-manager",
+    "/topics/remote-jobs",
+    "/topics/fresh-graduate",
+    ...["北京", "上海", "深圳", "杭州", "广州", "成都", "武汉", "西安", "南京", "苏州"].map(
+      (city) => `/jobs/city/${encodeURIComponent(city)}`
+    ),
   ];
+
+  const staticRoutes: MetadataRoute.Sitemap = staticPaths.flatMap((path) =>
+    withLocales(path)
+  );
+
+  const dynamicRoutes: MetadataRoute.Sitemap = [
+    ...jobs.flatMap((job) => withLocales(`/jobs/${job.slug}`)),
+    ...companies.flatMap((company) => withLocales(`/companies/${company.slug}`)),
+    ...blogs.flatMap((blog) => withLocales(`/blog/${blog.slug}`)),
+    ...cmsPages.flatMap((page) => withLocales(`/topics/${page.slug}`)),
+  ];
+
+  // Add lastModified to dynamic routes
+  const jobsWithDate = jobs.flatMap((job) =>
+    locales.map((locale) => ({
+      url: `${SITE_URL}/${locale}/jobs/${job.slug}`,
+      lastModified: job.updatedAt,
+    }))
+  );
+  const companiesWithDate = companies.flatMap((company) =>
+    locales.map((locale) => ({
+      url: `${SITE_URL}/${locale}/companies/${company.slug}`,
+      lastModified: company.updatedAt,
+    }))
+  );
+  const blogsWithDate = blogs.flatMap((blog) =>
+    locales.map((locale) => ({
+      url: `${SITE_URL}/${locale}/blog/${blog.slug}`,
+      lastModified: blog.updatedAt,
+    }))
+  );
+  const pagesWithDate = cmsPages.flatMap((page) =>
+    locales.map((locale) => ({
+      url: `${SITE_URL}/${locale}/topics/${page.slug}`,
+      lastModified: page.updatedAt,
+    }))
+  );
 
   return [
     ...staticRoutes,
-    ...jobs.map((job) => ({
-      url: `${SITE_URL}/jobs/${job.slug}`,
-      lastModified: job.updatedAt,
-      changeFrequency: "weekly" as const,
-      priority: 0.7,
-    })),
-    ...companies.map((company) => ({
-      url: `${SITE_URL}/companies/${company.slug}`,
-      lastModified: company.updatedAt,
-      changeFrequency: "weekly" as const,
-      priority: 0.6,
-    })),
-    ...blogs.map((blog) => ({
-      url: `${SITE_URL}/blog/${blog.slug}`,
-      lastModified: blog.updatedAt,
-      changeFrequency: "monthly" as const,
-      priority: 0.6,
-    })),
-    ...cmsPages.map((page) => ({
-      url: `${SITE_URL}/topics/${page.slug}`,
-      lastModified: page.updatedAt,
-      changeFrequency: "weekly" as const,
-      priority: 0.8,
-    })),
+    ...jobsWithDate,
+    ...companiesWithDate,
+    ...blogsWithDate,
+    ...pagesWithDate,
   ];
 }
