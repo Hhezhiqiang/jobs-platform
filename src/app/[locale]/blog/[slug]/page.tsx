@@ -14,12 +14,16 @@ interface PageProps {
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
-  const posts = await prisma.page.findMany({
-    where: { type: "BLOG", status: "PUBLISHED", slug: { not: "" } },
-    select: { slug: true },
-    take: 500,
-  });
-  return posts.map((post) => ({ slug: post.slug }));
+  try {
+    const posts = await prisma.page.findMany({
+      where: { type: "BLOG", status: "PUBLISHED", slug: { not: "" } },
+      select: { slug: true },
+      take: 500,
+    });
+    return posts.map((post) => ({ slug: post.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

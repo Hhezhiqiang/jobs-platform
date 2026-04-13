@@ -42,7 +42,7 @@ export async function publishSEOPlan(
   let finalSlug = slugBase.replace(/^-+|-+$/g, "").toLowerCase() || `auto-${Date.now()}`;
 
   // Generate basic markdown body from outline
-  const outline = (plan.outline as OutlineItem[]) || [];
+  const outline = ((plan.outline as unknown) as OutlineItem[]) || [];
   const outlineMd = outline
     .map(
       (o: OutlineItem) =>

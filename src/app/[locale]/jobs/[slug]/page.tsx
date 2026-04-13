@@ -30,12 +30,16 @@ interface PageProps {
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
-  const jobs = await prisma.job.findMany({
-    where: { status: "ACTIVE", slug: { not: "" } },
-    select: { slug: true },
-    take: 500,
-  });
-  return jobs.map((j) => ({ slug: j.slug }));
+  try {
+    const jobs = await prisma.job.findMany({
+      where: { status: "ACTIVE", slug: { not: "" } },
+      select: { slug: true },
+      take: 500,
+    });
+    return jobs.map((j) => ({ slug: j.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

@@ -17,12 +17,16 @@ interface PageProps {
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
-  const companies = await prisma.company.findMany({
-    where: { slug: { not: "" } },
-    select: { slug: true },
-    take: 500,
-  });
-  return companies.map((c) => ({ slug: c.slug }));
+  try {
+    const companies = await prisma.company.findMany({
+      where: { slug: { not: "" } },
+      select: { slug: true },
+      take: 500,
+    });
+    return companies.map((c) => ({ slug: c.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
