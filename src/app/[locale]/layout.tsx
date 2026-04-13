@@ -4,6 +4,7 @@ import "./globals.css";
 import { generateWebsiteSchema } from "@/lib/schema";
 import { Providers } from "@/components/providers";
 import { TelegramFloatButton } from "@/components/telegram-float-button";
+import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Analytics } from "@vercel/analytics/react";
 import { PageTracker } from "@/components/page-tracker";
@@ -131,6 +132,7 @@ export default async function RootLayout({
       <body className={inter.className}>
         <NextIntlClientProvider messages={messages} locale={locale}>
           <Providers>
+            <Header />
             {children}
             <PageTracker />
             <Analytics />

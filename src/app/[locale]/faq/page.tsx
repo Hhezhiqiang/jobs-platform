@@ -1,6 +1,5 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { Header } from "@/components/header";
 import { Search, MessageCircle, Mail, ChevronRight, HelpCircle } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -95,7 +94,6 @@ export default function FAQPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       
       <div className="min-h-screen bg-gray-50">
-        <Header />
 
         {/* Hero */}
         <section className="bg-gradient-to-br from-blue-600 to-blue-800 text-white">

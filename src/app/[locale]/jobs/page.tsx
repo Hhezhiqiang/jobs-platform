@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { generateJobsListMetadata } from "@/lib/metadata";
 import { JobCardV2 } from "@/components/job-card-v2";
 import { FilterSidebar } from "@/components/filter-sidebar";
-import { Header } from "@/components/header";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { Metadata } from "next";
 import { Prisma } from "@prisma/client";
@@ -112,7 +111,6 @@ export default async function JobsPage({ searchParams }: PageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
 
       {/* Page Header */}
       <div className="bg-white border-b border-gray-200">

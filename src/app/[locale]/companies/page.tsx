@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Header } from "@/components/header";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { prisma } from "@/lib/prisma";
 import { Building2, MapPin, Users, Briefcase, Search } from "lucide-react";
@@ -74,7 +73,6 @@ export default async function CompaniesPage({ searchParams }: PageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
 
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white">

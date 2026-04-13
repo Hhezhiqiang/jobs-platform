@@ -5,7 +5,6 @@ import Image from "next/image";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { Header } from "@/components/header";
 import { formatDistanceToNow } from "@/lib/utils";
 import { 
   LayoutDashboard, 
@@ -104,7 +103,6 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
 
       {/* Page Header */}
       <div className="bg-white border-b border-gray-200">

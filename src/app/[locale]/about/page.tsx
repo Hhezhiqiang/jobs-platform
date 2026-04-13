@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Header } from "@/components/header";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { Metadata } from "next";
 import { 
@@ -93,7 +92,6 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
 
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white">

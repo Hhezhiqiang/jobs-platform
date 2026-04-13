@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
-import { Header } from "@/components/header";
 import { Metadata } from "next";
 import { BookOpen, Users, Clock, Search, ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -79,7 +78,6 @@ export default async function BlogPage({ searchParams }: PageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
 
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white">

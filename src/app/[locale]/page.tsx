@@ -3,7 +3,6 @@ import Image from "next/image";
 import { getHomePageData } from "@/lib/optimized-queries";
 import { generateHomeMetadata } from "@/lib/metadata";
 import { Metadata } from "next";
-import { Header } from "@/components/header";
 import { HeroSection } from "@/components/hero-section";
 import { StatsSection } from "@/components/stats-section";
 import { FeaturesSection } from "@/components/features-section";
@@ -19,8 +18,6 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header />
-      
       <HeroSection jobCount={stats.jobCount} />
       
       <StatsSection jobCount={stats.jobCount} companyCount={stats.companyCount} />
