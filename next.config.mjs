@@ -1,3 +1,7 @@
+import createNextIntlPlugin from 'next-intl/plugin';
+
+const withNextIntl = createNextIntlPlugin('./src/i18n.ts');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // 图片优化配置
@@ -136,4 +140,4 @@ const nextConfig = {
   generateEtags: true,
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);
