@@ -6,6 +6,15 @@ export interface PublishPlanResult {
   url: string;
 }
 
+interface OutlineItem {
+  section: string;
+  points: string[];
+}
+
+interface PrismaError extends Error {
+  code?: string;
+}
+
 export async function publishSEOPlan(
   planId: string,
   authorId: string
@@ -33,10 +42,10 @@ export async function publishSEOPlan(
   let finalSlug = slugBase.replace(/^-+|-+$/g, "").toLowerCase() || `auto-${Date.now()}`;
 
   // Generate basic markdown body from outline
-  const outline = (plan.outline as any[]) || [];
+  const outline = (plan.outline as OutlineItem[]) || [];
   const outlineMd = outline
     .map(
-      (o: any) =>
+      (o: OutlineItem) =>
         `## ${o.section}\n\n${o.points.map((p: string) => `- ${p}`).join("\n")}`
     )
     .join("\n\n");
@@ -62,8 +71,9 @@ export async function publishSEOPlan(
         },
       });
       break;
-    } catch (err: any) {
-      if (err.code === "P2002") {
+    } catch (err) {
+      const prismaError = err as PrismaError;
+      if (prismaError.code === "P2002") {
         finalSlug = `${slugBase || "auto"}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
         retries++;
         continue;

@@ -188,7 +188,6 @@ export function calculateMatchScore(
   const reasons: string[] = [];
   
   const jobSkills = extractSkillsFromJob(job);
-  const jobText = `${job.title} ${job.description} ${job.requirements || ""}`.toLowerCase();
   
   // 1. 技能匹配（最高40分）
   if (behaviorData.skills.length > 0) {

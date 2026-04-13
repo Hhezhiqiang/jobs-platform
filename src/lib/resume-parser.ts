@@ -1,4 +1,4 @@
-const pdfParse = require("pdf-parse");
+import pdfParse from "pdf-parse";
 
 interface ParsedResume {
   name?: string;

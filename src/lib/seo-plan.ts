@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { llmChat, isLLMConfigured } from "@/lib/llm";
 import type { ClassificationResult } from "./keyword-monitor";
 
@@ -122,9 +123,9 @@ ${jobContext ? `${jobContext}\n` : ""}
       h1: parsed.h1,
       metaDesc: parsed.metaDesc,
       keywords: parsed.keywords,
-      outline: parsed.outline as any,
+      outline: parsed.outline as unknown as Prisma.InputJsonValue,
       targetUrl: parsed.targetUrl,
-      internalLinks: parsed.internalLinks as any,
+      internalLinks: parsed.internalLinks as unknown as Prisma.InputJsonValue,
       status: "PENDING",
       generatedBy: isLLMConfigured() ? "llm" : "fallback",
     },

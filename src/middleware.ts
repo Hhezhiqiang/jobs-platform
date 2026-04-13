@@ -29,11 +29,19 @@ function decodeBase64Url(str: string): string {
   return str;
 }
 
-function getJwtPayload(token: string): any | null {
+interface JwtPayload {
+  role?: string;
+  sub?: string;
+  name?: string;
+  email?: string;
+  [key: string]: unknown;
+}
+
+function getJwtPayload(token: string): JwtPayload | null {
   try {
     const payload = token.split(".")[1];
     const json = atob(decodeBase64Url(payload));
-    return JSON.parse(json);
+    return JSON.parse(json) as JwtPayload;
   } catch {
     return null;
   }
