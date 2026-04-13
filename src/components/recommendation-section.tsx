@@ -8,6 +8,8 @@ import { Job, Company } from "@prisma/client";
 import { getUserBehaviorData } from "@/lib/recommendations";
 import { Sparkles, Loader2, RefreshCw, User } from "lucide-react";
 
+type JobWithCompany = Job & { company: Company };
+
 interface RecommendedJob extends Job {
   company: Company;
   matchScore: number;
