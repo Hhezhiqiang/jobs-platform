@@ -102,7 +102,7 @@ export default function SalaryInsightsClient({ initialData }: SalaryInsightsClie
   const getFilteredData = () => {
     if (!data) return null;
 
-    let filtered = { ...data };
+    const filtered = { ...data };
 
     if (selectedIndustry !== "all") {
       filtered.industry = data.industry.filter(

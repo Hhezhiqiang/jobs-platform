@@ -1,13 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
 export const dynamic = "force-dynamic";
 
 // 获取广告列表
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const ip = getClientIP(request);
+    const rateLimit = checkRateLimit(`ads:get:${ip}`, 30, 60 * 1000);
+    if (!rateLimit.success) {
+      return NextResponse.json({ error: "请求过于频繁" }, { status: 429 });
+    }
+
     const ads = await prisma.ad.findMany({
       include: { position: true },
       orderBy: { createdAt: "desc" },

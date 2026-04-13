@@ -17,7 +17,15 @@ import { markOrderPaid, markOrderRefunded } from "@/lib/promoter";
  */
 
 export async function POST(request: Request) {
-  // TODO: 接入收款服务商 webhook
-  console.log("Payment webhook received but not yet implemented.");
-  return NextResponse.json({ received: true });
+  try {
+    // TODO: 接入收款服务商 webhook
+    const body = await request.json().catch(() => ({}));
+    if (process.env.NODE_ENV === "development") {
+       
+      console.log("Payment webhook received:", body);
+    }
+    return NextResponse.json({ received: true });
+  } catch {
+    return NextResponse.json({ received: true });
+  }
 }

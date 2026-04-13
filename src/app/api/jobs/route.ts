@@ -1,13 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
-
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
+
 export const dynamic = "force-dynamic";
 
 // 获取职位列表
 export async function GET(request: NextRequest) {
   try {
+    const ip = getClientIP(request);
+    const rateLimit = checkRateLimit(`jobs:get:${ip}`, 30, 60 * 1000);
+    if (!rateLimit.success) {
+      return NextResponse.json({ error: "请求过于频繁" }, { status: 429 });
+    }
+
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");

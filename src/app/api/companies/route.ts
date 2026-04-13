@@ -2,12 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
 // 获取公司列表
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const ip = getClientIP(request);
+    const rateLimit = checkRateLimit(`companies:get:${ip}`, 30, 60 * 1000);
+    if (!rateLimit.success) {
+      return NextResponse.json({ error: "请求过于频繁" }, { status: 429 });
+    }
+
     const companies = await prisma.company.findMany({
       take: 100,
       include: {
@@ -20,7 +27,10 @@ export async function GET() {
 
     return NextResponse.json({ companies });
   } catch (error) {
-    console.error("Get companies error:", error);
+    if (process.env.NODE_ENV === "development") {
+       
+      console.error("Get companies error:", error);
+    }
     return NextResponse.json({ error: "获取失败" }, { status: 500 });
   }
 }

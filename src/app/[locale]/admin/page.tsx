@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth/next";
@@ -21,6 +22,11 @@ import {
   PieChart,
 } from "lucide-react";
 import { formatDistanceToNow } from "@/lib/utils";
+
+export const metadata: Metadata = {
+  title: "管理员控制台 | 求职平台",
+  description: "管理平台职位、公司、用户和数据分析",
+};
 
 export default async function AdminPage() {
   const session = await getServerSession(authOptions);

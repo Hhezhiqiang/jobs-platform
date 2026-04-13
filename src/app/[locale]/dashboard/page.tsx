@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -18,6 +19,11 @@ import {
   Clock,
   Wallet,
 } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "个人中心 | 求职平台",
+  description: "查看您的职位申请、收藏、通知和个人资料",
+};
 
 const statusMap: Record<string, { label: string; color: string; bg: string }> = {
   PENDING: { label: "待处理", color: "text-yellow-700", bg: "bg-yellow-100" },
