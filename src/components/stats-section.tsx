@@ -11,11 +11,13 @@ interface StatCardProps {
 }
 
 function AnimatedNumber({ value, suffix = "" }: { value: number; suffix?: string }) {
-  const [displayValue, setDisplayValue] = useState(0);
+  const [displayValue, setDisplayValue] = useState(value); // SSR 时显示最终值
   const [hasAnimated, setHasAnimated] = useState(false);
   const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
+    // 客户端hydration后开始动画
+    setDisplayValue(0);
     let timer: ReturnType<typeof setInterval> | null = null;
     const observer = new IntersectionObserver(
       ([entry]) => {

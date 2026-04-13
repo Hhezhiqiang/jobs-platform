@@ -26,7 +26,7 @@ export default async function HomePage() {
       <StatsSection jobCount={stats.jobCount} companyCount={stats.companyCount} />
 
       {/* 推荐职位 - 个性化推荐 */}
-      <RecommendationSection limit={6} />
+      <RecommendationSection limit={6} initialJobs={featuredJobs} />
 
       {/* Featured Jobs */}
       {featuredJobs.length > 0 && (

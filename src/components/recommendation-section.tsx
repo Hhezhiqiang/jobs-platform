@@ -24,15 +24,29 @@ interface RecommendationData {
 interface RecommendationSectionProps {
   limit?: number;
   className?: string;
+  initialJobs?: JobWithCompany[];
 }
 
 export function RecommendationSection({ 
   limit = 6,
-  className = "" 
+  className = "",
+  initialJobs = []
 }: RecommendationSectionProps) {
   const { data: session, status } = useSession();
-  const [recommendations, setRecommendations] = useState<RecommendationData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [recommendations, setRecommendations] = useState<RecommendationData | null>(
+    initialJobs.length > 0
+      ? {
+          jobs: initialJobs.map((job) => ({
+            ...job,
+            matchScore: 0,
+            matchReasons: []
+          })),
+          total: initialJobs.length,
+          isPersonalized: false
+        }
+      : null
+  );
+  const [isLoading, setIsLoading] = useState(!initialJobs.length);
   const [error, setError] = useState<string | null>(null);
 
   const isLoggedIn = status === "authenticated";

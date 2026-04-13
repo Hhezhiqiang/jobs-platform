@@ -95,6 +95,11 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: "/",
+        destination: "/zh",
+        permanent: false,
+      },
+      {
         source: "/home",
         destination: "/",
         permanent: true,
