@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -133,6 +133,11 @@ export default function AnalyticsClient({ data }: AnalyticsClientProps) {
   const router = useRouter();
   const [timeRange, setTimeRange] = useState<7 | 30 | 90>(30);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -301,33 +306,37 @@ export default function AnalyticsClient({ data }: AnalyticsClientProps) {
                 </div>
               </div>
               <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={getFilteredData(data.visitStats.dailyStats)}>
-                    <defs>
-                      <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
-                      </linearGradient>
-                      <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10B981" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                    <XAxis dataKey="dateDisplay" stroke="#9CA3AF" fontSize={12} />
-                    <YAxis stroke="#9CA3AF" fontSize={12} />
-                    <Tooltip
-                      contentStyle={{ 
-                        backgroundColor: "white", 
-                        borderRadius: "8px", 
-                        border: "1px solid #E5E7EB",
-                        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
-                      }}
-                    />
-                    <Area type="monotone" dataKey="pv" name="浏览量 (PV)" stroke="#3B82F6" strokeWidth={2} fillOpacity={1} fill="url(#colorPv)" />
-                    <Area type="monotone" dataKey="uv" name="访客数 (UV)" stroke="#10B981" strokeWidth={2} fillOpacity={1} fill="url(#colorUv)" />
-                  </AreaChart>
-                </ResponsiveContainer>
+                {mounted ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={getFilteredData(data.visitStats.dailyStats)}>
+                      <defs>
+                        <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                        </linearGradient>
+                        <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#10B981" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                      <XAxis dataKey="dateDisplay" stroke="#9CA3AF" fontSize={12} />
+                      <YAxis stroke="#9CA3AF" fontSize={12} />
+                      <Tooltip
+                        contentStyle={{ 
+                          backgroundColor: "white", 
+                          borderRadius: "8px", 
+                          border: "1px solid #E5E7EB",
+                          boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+                        }}
+                      />
+                      <Area type="monotone" dataKey="pv" name="浏览量 (PV)" stroke="#3B82F6" strokeWidth={2} fillOpacity={1} fill="url(#colorPv)" />
+                      <Area type="monotone" dataKey="uv" name="访客数 (UV)" stroke="#10B981" strokeWidth={2} fillOpacity={1} fill="url(#colorUv)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="w-full h-full bg-gray-50 rounded-lg animate-pulse" />
+                )}
               </div>
             </div>
 
@@ -345,23 +354,27 @@ export default function AnalyticsClient({ data }: AnalyticsClientProps) {
                   </div>
                 </div>
                 <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={getFilteredData(data.conversionStats.dailyStats)}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                      <XAxis dataKey="dateDisplay" stroke="#9CA3AF" fontSize={12} />
-                      <YAxis stroke="#9CA3AF" fontSize={12} unit="%" />
-                      <Tooltip
-                        contentStyle={{ 
-                          backgroundColor: "white", 
-                          borderRadius: "8px", 
-                          border: "1px solid #E5E7EB",
-                          boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
-                        }}
-                        formatter={(value) => [`${value}%`, "转化率"]}
-                      />
-                      <Line type="monotone" dataKey="conversionRate" name="转化率" stroke="#10B981" strokeWidth={2} dot={{ r: 4 }} />
-                    </LineChart>
-                  </ResponsiveContainer>
+                  {mounted ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={getFilteredData(data.conversionStats.dailyStats)}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                        <XAxis dataKey="dateDisplay" stroke="#9CA3AF" fontSize={12} />
+                        <YAxis stroke="#9CA3AF" fontSize={12} unit="%" />
+                        <Tooltip
+                          contentStyle={{ 
+                            backgroundColor: "white", 
+                            borderRadius: "8px", 
+                            border: "1px solid #E5E7EB",
+                            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+                          }}
+                          formatter={(value) => [`${value}%`, "转化率"]}
+                        />
+                        <Line type="monotone" dataKey="conversionRate" name="转化率" stroke="#10B981" strokeWidth={2} dot={{ r: 4 }} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="w-full h-full bg-gray-50 rounded-lg animate-pulse" />
+                  )}
                 </div>
               </div>
 
@@ -377,22 +390,26 @@ export default function AnalyticsClient({ data }: AnalyticsClientProps) {
                   </div>
                 </div>
                 <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={getFilteredData(data.userGrowth.dailyStats)}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                      <XAxis dataKey="dateDisplay" stroke="#9CA3AF" fontSize={12} />
-                      <YAxis stroke="#9CA3AF" fontSize={12} />
-                      <Tooltip
-                        contentStyle={{ 
-                          backgroundColor: "white", 
-                          borderRadius: "8px", 
-                          border: "1px solid #E5E7EB",
-                          boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
-                        }}
-                      />
-                      <Bar dataKey="newUsers" name="新增用户" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
+                  {mounted ? (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={getFilteredData(data.userGrowth.dailyStats)}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                        <XAxis dataKey="dateDisplay" stroke="#9CA3AF" fontSize={12} />
+                        <YAxis stroke="#9CA3AF" fontSize={12} />
+                        <Tooltip
+                          contentStyle={{ 
+                            backgroundColor: "white", 
+                            borderRadius: "8px", 
+                            border: "1px solid #E5E7EB",
+                            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+                          }}
+                        />
+                        <Bar dataKey="newUsers" name="新增用户" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="w-full h-full bg-gray-50 rounded-lg animate-pulse" />
+                  )}
                 </div>
               </div>
             </div>
@@ -476,33 +493,37 @@ export default function AnalyticsClient({ data }: AnalyticsClientProps) {
                 </div>
               </div>
               <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={getFilteredData(data.jobGrowth.dailyStats)}>
-                    <defs>
-                      <linearGradient id="colorNewJobs" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#6366F1" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#6366F1" stopOpacity={0}/>
-                      </linearGradient>
-                      <linearGradient id="colorActiveJobs" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10B981" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                    <XAxis dataKey="dateDisplay" stroke="#9CA3AF" fontSize={12} />
-                    <YAxis stroke="#9CA3AF" fontSize={12} />
-                    <Tooltip
-                      contentStyle={{ 
-                        backgroundColor: "white", 
-                        borderRadius: "8px", 
-                        border: "1px solid #E5E7EB",
-                        boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
-                      }}
-                    />
-                    <Area type="monotone" dataKey="newJobs" name="新增职位" stroke="#6366F1" strokeWidth={2} fillOpacity={1} fill="url(#colorNewJobs)" />
-                    <Area type="monotone" dataKey="activeJobs" name="活跃职位" stroke="#10B981" strokeWidth={2} fillOpacity={1} fill="url(#colorActiveJobs)" />
-                  </AreaChart>
-                </ResponsiveContainer>
+                {mounted ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={getFilteredData(data.jobGrowth.dailyStats)}>
+                      <defs>
+                        <linearGradient id="colorNewJobs" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#6366F1" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#6366F1" stopOpacity={0}/>
+                        </linearGradient>
+                        <linearGradient id="colorActiveJobs" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#10B981" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
+                      <XAxis dataKey="dateDisplay" stroke="#9CA3AF" fontSize={12} />
+                      <YAxis stroke="#9CA3AF" fontSize={12} />
+                      <Tooltip
+                        contentStyle={{ 
+                          backgroundColor: "white", 
+                          borderRadius: "8px", 
+                          border: "1px solid #E5E7EB",
+                          boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+                        }}
+                      />
+                      <Area type="monotone" dataKey="newJobs" name="新增职位" stroke="#6366F1" strokeWidth={2} fillOpacity={1} fill="url(#colorNewJobs)" />
+                      <Area type="monotone" dataKey="activeJobs" name="活跃职位" stroke="#10B981" strokeWidth={2} fillOpacity={1} fill="url(#colorActiveJobs)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="w-full h-full bg-gray-50 rounded-lg animate-pulse" />
+                )}
               </div>
             </div>
           </div>

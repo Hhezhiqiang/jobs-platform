@@ -39,8 +39,10 @@ export default function PromoterDashboardPage() {
   const router = useRouter();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     fetchDashboard();
   }, []);
 
@@ -157,22 +159,26 @@ export default function PromoterDashboardPage() {
       <div className="bg-white rounded-xl shadow-sm p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">近30天佣金趋势</h2>
         <div className="h-80">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data.trend}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip formatter={(value: any) => [`${Number(value).toFixed(4)} USDT`, "佣金"]} />
-              <Line
-                type="monotone"
-                dataKey="commission"
-                stroke="#2563eb"
-                strokeWidth={2}
-                dot={false}
-                activeDot={{ r: 6 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+          {mounted ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={data.trend}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} />
+                <Tooltip formatter={(value: any) => [`${Number(value).toFixed(4)} USDT`, "佣金"]} />
+                <Line
+                  type="monotone"
+                  dataKey="commission"
+                  stroke="#2563eb"
+                  strokeWidth={2}
+                  dot={false}
+                  activeDot={{ r: 6 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="w-full h-full bg-gray-50 rounded-lg animate-pulse" />
+          )}
         </div>
       </div>
     </div>

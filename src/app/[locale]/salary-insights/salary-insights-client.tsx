@@ -14,7 +14,6 @@ import {
   Line,
   Cell,
 } from "recharts";
-import { Header } from "@/components/header";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { SalaryCalculator } from "./components/salary-calculator";
 import { FilterSection } from "./components/filter-section";
@@ -65,6 +64,8 @@ export default function SalaryInsightsClient({ initialData }: SalaryInsightsClie
   const [error, setError] = useState<string | null>(null);
   const [selectedIndustry, setSelectedIndustry] = useState<string>("all");
   const [selectedCity, setSelectedCity] = useState<string>("all");
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     if (!initialData) {
@@ -122,7 +123,6 @@ export default function SalaryInsightsClient({ initialData }: SalaryInsightsClie
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
@@ -136,7 +136,6 @@ export default function SalaryInsightsClient({ initialData }: SalaryInsightsClie
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center bg-white p-8 rounded-2xl shadow-sm">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -162,7 +161,6 @@ export default function SalaryInsightsClient({ initialData }: SalaryInsightsClie
   return (
     <div className="min-h-screen bg-gray-50">
       <SalarySchema data={filteredData} />
-      <Header />
 
       {/* Page Header */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
@@ -200,6 +198,7 @@ export default function SalaryInsightsClient({ initialData }: SalaryInsightsClie
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-6">各行业平均薪资对比</h2>
             <div className="h-[350px]">
+              {mounted ? (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={filteredData.industry.slice(0, 8)}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -231,6 +230,9 @@ export default function SalaryInsightsClient({ initialData }: SalaryInsightsClie
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
+              ) : (
+                <div className="w-full h-full bg-gray-50 rounded-lg animate-pulse" />
+              )}
             </div>
           </div>
 
@@ -238,6 +240,7 @@ export default function SalaryInsightsClient({ initialData }: SalaryInsightsClie
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-6">各城市薪资分布</h2>
             <div className="h-[350px]">
+              {mounted ? (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={filteredData.city.slice(0, 8)}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -271,6 +274,9 @@ export default function SalaryInsightsClient({ initialData }: SalaryInsightsClie
                   <Bar dataKey="median" name="中位数" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
+              ) : (
+                <div className="w-full h-full bg-gray-50 rounded-lg animate-pulse" />
+              )}
             </div>
           </div>
         </div>
@@ -280,6 +286,7 @@ export default function SalaryInsightsClient({ initialData }: SalaryInsightsClie
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-6">薪资趋势（近6个月）</h2>
             <div className="h-[300px]">
+              {mounted ? (
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={filteredData.trend}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -317,6 +324,9 @@ export default function SalaryInsightsClient({ initialData }: SalaryInsightsClie
                   />
                 </LineChart>
               </ResponsiveContainer>
+              ) : (
+                <div className="w-full h-full bg-gray-50 rounded-lg animate-pulse" />
+              )}
             </div>
           </div>
 
@@ -324,6 +334,7 @@ export default function SalaryInsightsClient({ initialData }: SalaryInsightsClie
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-6">职位类型薪资对比</h2>
             <div className="h-[300px]">
+              {mounted ? (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={filteredData.jobType} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -353,6 +364,9 @@ export default function SalaryInsightsClient({ initialData }: SalaryInsightsClie
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
+              ) : (
+                <div className="w-full h-full bg-gray-50 rounded-lg animate-pulse" />
+              )}
             </div>
           </div>
         </div>
