@@ -89,7 +89,7 @@ async function getJobsBroUser(): Promise<string> {
 }
 
 async function callAI(prompt: string, maxTokens = 8000): Promise<string> {
-  const apiKey = process.env.MOONSHOT_API_KEY || process.env.OPENAI_API_KEY;
+  const apiKey = process.env.KIMI_API_KEY || process.env.MOONSHOT_API_KEY || process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error("未配置API Key");
 
   const res = await fetch("https://api.moonshot.cn/v1/chat/completions", {
@@ -99,7 +99,7 @@ async function callAI(prompt: string, maxTokens = 8000): Promise<string> {
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "kimi-k2-5",
+      model: "kimi-k2.5",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.8,
       max_tokens: maxTokens,

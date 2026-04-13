@@ -126,7 +126,7 @@ async function generateWithAI(
 
 请直接输出文章内容，不需要额外说明。`;
 
-  const apiKey = process.env.MOONSHOT_API_KEY || process.env.OPENAI_API_KEY;
+  const apiKey = process.env.KIMI_API_KEY || process.env.MOONSHOT_API_KEY || process.env.OPENAI_API_KEY;
   if (!apiKey) {
     throw new Error("未配置API Key");
   }
@@ -138,7 +138,7 @@ async function generateWithAI(
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "kimi-k2-5",
+      model: "kimi-k2.5",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.7,
       max_tokens: 8000,

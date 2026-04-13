@@ -20,6 +20,18 @@ echo "[$(date '+%Y-%m-%d %H:%M:%S')] 开始执行博客自动生成..." >> /tmp/
 
 # 进入项目目录并执行
 cd /root/.openclaw/workspace/jobs-platform
+
+# 加载环境变量（优先 .env.local，次选 .env）
+if [ -f .env.local ]; then
+  set -a
+  source .env.local
+  set +a
+elif [ -f .env ]; then
+  set -a
+  source .env
+  set +a
+fi
+
 npx tsx scripts/auto-blog.ts 2>&1 | tee -a /tmp/blog-auto.log
 
 EXIT_CODE=${PIPESTATUS[0]}
