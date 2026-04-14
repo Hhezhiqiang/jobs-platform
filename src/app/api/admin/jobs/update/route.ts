@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 验证职位存在
-    const existingJob = await prisma.job.findUnique({
+    const existingJob = await prisma.jobs.findUnique({
       where: { id: jobId },
     });
 
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 更新职位
-    await prisma.job.update({
+    await prisma.jobs.update({
       where: { id: jobId },
       data: {
         title,

@@ -42,7 +42,7 @@ async function withdrawApplication(formData: FormData) {
   const id = formData.get("applicationId") as string;
   if (!id) throw new Error("缺少申请ID");
 
-  const app = await prisma.jobApplication.findUnique({
+  const app = await prisma.job_applications.findUnique({
     where: { id },
     select: { userId: true },
   });
@@ -50,7 +50,7 @@ async function withdrawApplication(formData: FormData) {
     throw new Error("无权操作");
   }
 
-  await prisma.jobApplication.update({
+  await prisma.job_applications.update({
     where: { id },
     data: { status: "WITHDRAWN", withdrewAt: new Date() },
   });
@@ -64,31 +64,31 @@ export default async function DashboardPage() {
   }
 
   const [user, applicationCount, resumeCount] = await Promise.all([
-    prisma.user.findUnique({
+    prisma.users.findUnique({
       where: { id: session.user.id },
-      include: { profile: true },
+      include: { user_profiles: true },
     }),
-    prisma.jobApplication.count({ where: { userId: session.user.id } }),
-    prisma.resume.count({ where: { userId: session.user.id } }),
+    prisma.job_applications.count({ where: { userId: session.user.id } }),
+    prisma.resumes.count({ where: { userId: session.user.id } }),
   ]);
 
   if (!user) {
     redirect("/auth/login");
   }
 
-  const recentApplications = await prisma.jobApplication.findMany({
+  const recentApplications = await prisma.job_applications.findMany({
     where: { userId: session.user.id },
     orderBy: { appliedAt: "desc" },
     take: 5,
     include: {
-      job: { include: { company: true } },
+      jobs: { include: { companies: true } },
     },
   });
 
   // 过滤掉 job 或 company 没有 slug 的申请
   const validApplications = recentApplications.filter(app => 
-    app.job?.slug && app.job.slug !== "" &&
-    app.job.company?.slug && app.job.company.slug !== ""
+    app.jobs?.slug && app.jobs.slug !== "" &&
+    app.jobs.companies?.slug && app.jobs.companies.slug !== ""
   );
 
   const interviewCount = validApplications.filter((a) => a.status === "INTERVIEW").length;
@@ -222,15 +222,15 @@ export default async function DashboardPage() {
               {/* 计算简历完善度 */}
               {(() => {
                 const calculateProfileCompleteness = () => {
-                  if (!user.profile) return 0;
+                  if (!user.user_profiles) return 0;
                   
                   const fields = [
                     user.name,
                     user.email,
-                    user.profile.bio,
-                    user.profile.location,
-                    user.profile.gender,
-                    user.profile.skills?.length > 0,
+                    user.user_profiles.bio,
+                    user.user_profiles.location,
+                    user.user_profiles.gender,
+                    user.user_profiles.skills?.length > 0,
                   ];
                   
                   const filledFields = fields.filter(field => field && (typeof field === 'string' ? field.trim() !== "" : field === true)).length;
@@ -325,26 +325,26 @@ export default async function DashboardPage() {
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex items-start gap-4">
                           <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center flex-shrink-0">
-                            {app.job.company.logo ? (
+                            {app.jobs.companies.logo ? (
                               <Image
-                                src={app.job.company.logo}
-                                alt={app.job.company.name}
+                                src={app.jobs.companies.logo}
+                                alt={app.jobs.companies.name}
                                 width={48}
                                 height={48}
                                 className="w-full h-full rounded-xl object-cover"
                               />
                             ) : (
-                              <span className="text-lg font-bold text-blue-600">{app.job.company.name.charAt(0)}</span>
+                              <span className="text-lg font-bold text-blue-600">{app.jobs.companies.name.charAt(0)}</span>
                             )}
                           </div>
                           <div>
                             <Link 
-                              href={`/jobs/${app.job.slug}`}
+                              href={`/jobs/${app.jobs.slug}`}
                               className="font-semibold text-gray-900 hover:text-blue-600 transition-colors"
                             >
-                              {app.job.title}
+                              {app.jobs.title}
                             </Link>
-                            <p className="text-sm text-gray-500">{app.job.company.name}</p>
+                            <p className="text-sm text-gray-500">{app.jobs.companies.name}</p>
                             <div className="flex items-center gap-2 mt-1 text-sm text-gray-400">
                               <Clock className="w-3.5 h-3.5" />
                               {formatDistanceToNow(app.appliedAt)}

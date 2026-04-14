@@ -35,29 +35,29 @@ export default async function AdminPage() {
   }
 
   const [jobCount, companyCount, blogCount, totalViews, userCount] = await Promise.all([
-    prisma.job.count(),
-    prisma.company.count(),
-    prisma.page.count({ where: { type: "BLOG" } }),
-    prisma.page.aggregate({
+    prisma.jobs.count(),
+    prisma.companies.count(),
+    prisma.pages.count({ where: { type: "BLOG" } }),
+    prisma.pages.aggregate({
       where: { type: "BLOG" },
       _sum: { viewCount: true },
     }),
-    prisma.user.count(),
+    prisma.users.count(),
   ]);
 
   const [recentJobs, recentBlogs, activeJobs] = await Promise.all([
-    prisma.job.findMany({
-      include: { company: true },
+    prisma.jobs.findMany({
+      include: { companies: true },
       orderBy: { createdAt: "desc" },
       take: 5,
     }),
-    prisma.page.findMany({
+    prisma.pages.findMany({
       where: { type: "BLOG" },
       orderBy: { createdAt: "desc" },
       take: 5,
-      include: { author: true },
+      include: { users: true },
     }),
-    prisma.job.count({ where: { status: "ACTIVE" } }),
+    prisma.jobs.count({ where: { status: "ACTIVE" } }),
   ]);
 
   const navItems = [
@@ -191,7 +191,7 @@ export default async function AdminPage() {
                       <div className="flex items-center justify-between">
                         <div>
                           <p className="font-semibold text-gray-900">{job.title}</p>
-                          <p className="text-sm text-gray-500">{job.company.name}</p>
+                          <p className="text-sm text-gray-500">{job.companies.name}</p>
                         </div>
                         <span
                           className={`px-3 py-1 rounded-full text-xs font-medium ${
@@ -223,7 +223,7 @@ export default async function AdminPage() {
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-gray-900 truncate">{blog.title}</p>
                           <div className="flex items-center gap-3 text-sm text-gray-500 mt-1">
-                            <span>{blog.author.name}</span>
+                            <span>{blog.users.name}</span>
                             <span>·</span>
                             <span className="flex items-center gap-1">
                               <Eye className="w-3.5 h-3.5" />

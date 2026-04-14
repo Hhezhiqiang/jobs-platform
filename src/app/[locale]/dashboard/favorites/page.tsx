@@ -11,7 +11,7 @@ import { formatDistanceToNow, formatSalary } from "@/lib/utils";
 interface FavoriteWithJob {
   id: string;
   createdAt: string;
-  job: {
+  jobs: {
     id: string;
     slug: string;
     title: string;
@@ -21,7 +21,7 @@ interface FavoriteWithJob {
     employmentType: string;
     isRemote: boolean;
     datePosted: string;
-    company: {
+    companies: {
       id: string;
       name: string;
       logo: string | null;
@@ -74,7 +74,7 @@ export default function FavoritesPage() {
   const handleFavoriteToggle = (jobId: string, isFavorited: boolean) => {
     if (!isFavorited) {
       // 取消收藏后从列表中移除
-      setFavorites((prev) => prev.filter((f) => f.job.id !== jobId));
+      setFavorites((prev) => prev.filter((f) => f.jobs.id !== jobId));
       setTotal((prev) => prev - 1);
     }
   };
@@ -230,7 +230,7 @@ function FavoriteJobCard({
   favorite: FavoriteWithJob;
   onToggle: (jobId: string, isFavorited: boolean) => void;
 }) {
-  const { job } = favorite;
+  const { jobs: job } = favorite;
   const salaryText = formatSalary(job.salaryMin, job.salaryMax);
   const timeAgo = formatDistanceToNow(new Date(job.datePosted));
 
@@ -239,11 +239,11 @@ function FavoriteJobCard({
       <div className="flex items-start gap-4">
         {/* Company Logo */}
         <Link href={`/jobs/${job.slug}`} className="flex-shrink-0">
-          {job.company.logo ? (
+          {job.companies.logo ? (
             <div className="w-14 h-14 rounded-xl overflow-hidden ring-2 ring-gray-100 group-hover:ring-blue-200 transition-all">
               <Image
-                src={job.company.logo}
-                alt={`${job.company.name} 公司Logo`}
+                src={job.companies.logo}
+                alt={`${job.companies.name} 公司Logo`}
                 width={56}
                 height={56}
                 className="w-full h-full object-cover"
@@ -251,7 +251,7 @@ function FavoriteJobCard({
             </div>
           ) : (
             <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-xl">
-              {job.company.name.charAt(0)}
+              {job.companies.name.charAt(0)}
             </div>
           )}
         </Link>
@@ -265,7 +265,7 @@ function FavoriteJobCard({
                   {job.title}
                 </h3>
               </Link>
-              <p className="text-gray-600">{job.company.name}</p>
+              <p className="text-gray-600">{job.companies.name}</p>
             </div>
             <span className="text-lg font-bold text-blue-600 flex-shrink-0">
               {salaryText}

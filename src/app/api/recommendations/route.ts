@@ -5,11 +5,11 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { calculateMatchScore, getRecommendationWeight } from "@/lib/recommendations";
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
-import { Job, Company } from "@prisma/client";
+import { jobs, companies } from "@prisma/client";
 export const dynamic = "force-dynamic";
 
-interface JobWithCompany extends Job {
-  company: Company;
+interface JobWithCompany extends jobs {
+  companies: companies;
 }
 
 interface RecommendationResponse {
@@ -55,11 +55,11 @@ export async function GET(request: NextRequest) {
     // 获取用户数据（如果已登录）
     if (isLoggedIn) {
       const [profile, applications] = await Promise.all([
-        prisma.userProfile.findUnique({
+        prisma.user_profiles.findUnique({
           where: { userId: session.user.id },
           select: { skills: true },
         }),
-        prisma.jobApplication.findMany({
+        prisma.job_applications.findMany({
           where: { userId: session.user.id },
           select: { jobId: true },
         }),
@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 获取活跃职位
-    const activeJobs = await prisma.job.findMany({
+    const activeJobs = await prisma.jobs.findMany({
       where: {
         status: "ACTIVE",
         // 排除已申请的职位（如果用户已登录）
@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
         ],
       },
       include: {
-        company: true,
+        companies: true,
       },
     });
 

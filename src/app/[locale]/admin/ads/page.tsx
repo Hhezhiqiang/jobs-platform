@@ -12,7 +12,7 @@ export default async function AdminAdsPage() {
   }
 
   // 获取所有广告位
-  const adPositions = await prisma.adPosition.findMany({
+  const adPositions = await prisma.ad_positions.findMany({
     include: {
       ads: {
         where: {

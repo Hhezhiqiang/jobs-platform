@@ -9,12 +9,10 @@ export const dynamic = "force-dynamic";
 async function checkPermission(userId: string, role: string, jobId: string) {
   if (role === "ADMIN") return true;
 
-  const job = await prisma.job.findUnique({
+  const job = await prisma.jobs.findUnique({
     where: { id: jobId },
-    include: {
-      company: {
-        include: {
-          members: {
+    include: { companies: {
+        include: { company_members: {
             where: { userId },
           },
         },
@@ -24,7 +22,7 @@ async function checkPermission(userId: string, role: string, jobId: string) {
 
   if (!job) return false;
 
-  const membership = job.company.members[0];
+  const membership = job.companies.company_members[0];
   if (!membership) return false;
 
   return membership.role === "ADMIN" || membership.role === "RECRUITER";
@@ -53,18 +51,15 @@ export async function GET(
       return NextResponse.json({ error: "无权访问" }, { status: 403 });
     }
 
-    const job = await prisma.job.findUnique({
+    const job = await prisma.jobs.findUnique({
       where: { id },
-      include: {
-        company: {
+      include: { companies: {
           select: {
             id: true,
             name: true,
           },
         },
-        _count: {
-          select: {
-            applications: true,
+        _count: { select: { job_applications: true,
           },
         },
       },
@@ -131,7 +126,7 @@ export async function PATCH(
       return NextResponse.json({ error: "无效参数" }, { status: 400 });
     }
 
-    const job = await prisma.job.update({
+    const job = await prisma.jobs.update({
       where: { id },
       data: {
         title,
@@ -181,7 +176,7 @@ export async function DELETE(
       return NextResponse.json({ error: "无权操作" }, { status: 403 });
     }
 
-    await prisma.job.delete({
+    await prisma.jobs.delete({
       where: { id },
     });
 

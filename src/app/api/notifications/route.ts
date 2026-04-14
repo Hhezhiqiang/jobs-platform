@@ -25,16 +25,16 @@ export async function GET(request: NextRequest) {
     };
 
     const [notifications, totalCount, unreadCount] = await Promise.all([
-      prisma.notification.findMany({
+      prisma.notifications.findMany({
         where,
         orderBy: { createdAt: "desc" },
         skip: (page - 1) * limit,
         take: limit,
       }),
-      prisma.notification.count({
+      prisma.notifications.count({
         where: { userId: session.user.id },
       }),
-      prisma.notification.count({
+      prisma.notifications.count({
         where: { userId: session.user.id, isRead: false },
       }),
     ]);
@@ -69,7 +69,7 @@ export async function PATCH(request: NextRequest) {
 
     if (markAllRead) {
       // 标记所有通知为已读
-      await prisma.notification.updateMany({
+      await prisma.notifications.updateMany({
         where: {
           userId: session.user.id,
           isRead: false,
@@ -88,7 +88,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     // 检查通知是否存在且属于当前用户
-    const notification = await prisma.notification.findFirst({
+    const notification = await prisma.notifications.findFirst({
       where: {
         id: notificationId,
         userId: session.user.id,
@@ -99,7 +99,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "通知不存在" }, { status: 404 });
     }
 
-    await prisma.notification.update({
+    await prisma.notifications.update({
       where: { id: notificationId },
       data: { isRead: true },
     });
@@ -128,7 +128,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // 检查通知是否存在且属于当前用户
-    const notification = await prisma.notification.findFirst({
+    const notification = await prisma.notifications.findFirst({
       where: {
         id: notificationId,
         userId: session.user.id,
@@ -139,7 +139,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "通知不存在" }, { status: 404 });
     }
 
-    await prisma.notification.delete({
+    await prisma.notifications.delete({
       where: { id: notificationId },
     });
 

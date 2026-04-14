@@ -16,7 +16,7 @@ interface Application {
   responseType?: string;
   responseNote?: string;
   withdrewAt?: string;
-  job: {
+  jobs: {
     id: string;
     title: string;
     slug: string;
@@ -24,7 +24,7 @@ interface Application {
     salaryMin?: number;
     salaryMax?: number;
     salaryCurrency: string;
-    company: {
+    companies: {
       id: string;
       name: string;
       slug: string;
@@ -134,7 +134,7 @@ export default function ApplicationsPage() {
   };
 
   const getSalaryText = (app: Application) => {
-    return formatSalary(app.job.salaryMin, app.job.salaryMax);
+    return formatSalary(app.jobs.salaryMin, app.jobs.salaryMax);
   };
 
   if (status === "loading" || loading) {
@@ -274,19 +274,19 @@ export default function ApplicationsPage() {
                       <div className="flex items-start justify-between mb-4">
                         <div>
                           <Link
-                            href={`/jobs/${app.job.slug}`}
+                            href={`/jobs/${app.jobs.slug}`}
                             className="text-lg font-semibold text-blue-600 hover:text-blue-800"
                           >
-                            {app.job.title}
+                            {app.jobs.title}
                           </Link>
                           <Link
-                            href={`/companies/${app.job.company.slug}`}
+                            href={`/companies/${app.jobs.companies.slug}`}
                             className="block text-gray-600 hover:text-gray-800 mt-1"
                           >
-                            {app.job.company.name}
+                            {app.jobs.companies.name}
                           </Link>
                           <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                            <span>📍 {app.job.location}</span>
+                            <span>📍 {app.jobs.location}</span>
                             <span>💰 {getSalaryText(app)}</span>
                           </div>
                         </div>
@@ -382,7 +382,7 @@ export default function ApplicationsPage() {
                           </button>
                         )}
                         <Link
-                          href={`/jobs/${app.job.slug}`}
+                          href={`/jobs/${app.jobs.slug}`}
                           className="text-blue-600 hover:text-blue-800 text-sm"
                         >
                           查看职位详情 →

@@ -19,9 +19,9 @@ export async function publishSEOPlan(
   planId: string,
   authorId: string
 ): Promise<PublishPlanResult> {
-  const plan = await prisma.sEOPlan.findUnique({
+  const plan = await prisma.seo_plans.findUnique({
     where: { id: planId },
-    include: { monitor: true },
+    include: { keyword_monitors: true },
   });
 
   if (!plan) throw new Error("Plan not found");
@@ -31,14 +31,14 @@ export async function publishSEOPlan(
   }
 
   if (plan.status === "PENDING") {
-    await prisma.sEOPlan.update({
+    await prisma.seo_plans.update({
       where: { id: planId },
       data: { status: "APPROVED", approvedAt: new Date() },
     });
   }
 
   const slugBase =
-    plan.targetUrl?.split("/").pop() || plan.monitor.normalized.replace(/\s+/g, "-");
+    plan.targetUrl?.split("/").pop() || plan.keyword_monitors.normalized.replace(/\s+/g, "-");
   let finalSlug = slugBase.replace(/^-+|-+$/g, "").toLowerCase() || `auto-${Date.now()}`;
 
   // Generate basic markdown body from outline
@@ -50,13 +50,13 @@ export async function publishSEOPlan(
     )
     .join("\n\n");
 
-  const content = `# ${plan.h1}\n\n${outlineMd}\n\n---\n\n*> 本文由关键词监控系统自动生成，基于 [${plan.monitor.keyword}] 热词数据。*`;
+  const content = `# ${plan.h1}\n\n${outlineMd}\n\n---\n\n*> 本文由关键词监控系统自动生成，基于 [${plan.keyword_monitors.keyword}] 热词数据。*`;
 
   let page;
   let retries = 0;
   while (retries < 3) {
     try {
-      page = await prisma.page.create({
+      page = await prisma.pages.create({
         data: {
           slug: finalSlug,
           title: plan.title,
@@ -87,7 +87,7 @@ export async function publishSEOPlan(
   }
 
   // Link keyword to page
-  await prisma.keywordMonitor.update({
+  await prisma.keyword_monitors.update({
     where: { id: plan.monitorId },
     data: {
       pages: { connect: { id: page.id } },
@@ -97,7 +97,7 @@ export async function publishSEOPlan(
 
   // Update plan
   const url = `/${plan.pageType === "TOPIC" ? "topics" : "blog"}/${finalSlug}`;
-  await prisma.sEOPlan.update({
+  await prisma.seo_plans.update({
     where: { id: planId },
     data: {
       status: "PUBLISHED",

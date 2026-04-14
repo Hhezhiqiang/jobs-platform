@@ -17,7 +17,7 @@ export default async function EditBlogPage({ params }: Props) {
     redirect("/auth/login/admin");
   }
 
-  const user = await prisma.user.findUnique({
+  const user = await prisma.users.findUnique({
     where: { id: session.user.id },
   });
 
@@ -25,7 +25,7 @@ export default async function EditBlogPage({ params }: Props) {
     redirect("/");
   }
 
-  const post = await prisma.page.findUnique({
+  const post = await prisma.pages.findUnique({
     where: { id, type: "BLOG" },
   });
 
@@ -40,7 +40,7 @@ export default async function EditBlogPage({ params }: Props) {
     if (!session?.user?.id) {
       throw new Error("未登录");
     }
-    const currentUser = await prisma.user.findUnique({
+    const currentUser = await prisma.users.findUnique({
       where: { id: session.user.id },
       select: { role: true },
     });
@@ -62,7 +62,7 @@ export default async function EditBlogPage({ params }: Props) {
       .filter(Boolean);
     const status = formData.get("status") as PageStatus;
 
-    await prisma.page.update({
+    await prisma.pages.update({
       where: { id: postId },
       data: {
         title,

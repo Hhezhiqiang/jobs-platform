@@ -15,7 +15,7 @@ interface KeywordItem {
   hotLevel: number;
   lastSeenAt: string;
   firstSeenAt: string;
-  _count: { archives: number; seoPlans: number };
+  _count: { keyword_archives: number; seo_plans: number };
 }
 
 interface SEOPlanItem {
@@ -296,8 +296,8 @@ export default function AdminKeywordsPage() {
                             <option value="PUBLISHED">PUBLISHED</option>
                           </select>
                         </td>
-                        <td className="px-4 py-3 text-gray-600">{k._count.seoPlans}</td>
-                        <td className="px-4 py-3 text-gray-600">{k._count.archives}</td>
+                        <td className="px-4 py-3 text-gray-600">{k._count.seo_plans}</td>
+                        <td className="px-4 py-3 text-gray-600">{k._count.keyword_archives}</td>
                         <td className="px-4 py-3 text-right">
                           <button
                             onClick={() => generatePlan(k.id)}

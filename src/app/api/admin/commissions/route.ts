@@ -30,14 +30,14 @@ export async function GET(request: Request) {
     if (status) where.status = status;
 
     const [items, total] = await Promise.all([
-      prisma.commissionRecord.findMany({
+      prisma.commission_records.findMany({
         where,
         skip: (page - 1) * limit,
         take: limit,
         orderBy: { createdAt: "desc" },
-        include: { promoter: true, link: true },
+        include: { promoters: true, promoter_links: true },
       }),
-      prisma.commissionRecord.count({ where }),
+      prisma.commission_records.count({ where }),
     ]);
 
     return NextResponse.json({
@@ -79,13 +79,13 @@ export async function PATCH(request: Request) {
 }
 
 async function clawbackCommissionById(commissionId: string) {
-  const commission = await prisma.commissionRecord.findUnique({
+  const commission = await prisma.commission_records.findUnique({
     where: { id: commissionId },
   });
   if (!commission || commission.status === "CLAWED_BACK") return;
 
   await prisma.$transaction(async (tx) => {
-    await tx.commissionAdjustment.create({
+    await tx.commission_adjustments.create({
       data: {
         commissionRecordId: commission.id,
         promoterId: commission.promoterId,
@@ -95,7 +95,7 @@ async function clawbackCommissionById(commissionId: string) {
       },
     });
 
-    await tx.promoter.update({
+    await tx.promoters.update({
       where: { id: commission.promoterId },
       data: {
         availableBalance: { decrement: commission.commissionAmount },
@@ -103,7 +103,7 @@ async function clawbackCommissionById(commissionId: string) {
       },
     });
 
-    await tx.commissionRecord.update({
+    await tx.commission_records.update({
       where: { id: commission.id },
       data: { status: "CLAWED_BACK" },
     });

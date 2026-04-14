@@ -9,9 +9,9 @@ interface AdBannerProps {
 }
 
 export async function AdBanner({ position, className = "" }: AdBannerProps) {
-  const ad = await prisma.ad.findFirst({
+  const ad = await prisma.ads.findFirst({
     where: {
-      position: { name: position },
+      ad_positions: { name: position },
       status: "ACTIVE",
       startDate: { lte: new Date() },
       OR: [{ endDate: null }, { endDate: { gte: new Date() } }],

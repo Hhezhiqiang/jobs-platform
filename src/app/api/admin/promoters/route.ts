@@ -35,13 +35,13 @@ export async function GET(request: Request) {
     }
 
     const [items, total] = await Promise.all([
-      prisma.promoter.findMany({
+      prisma.promoters.findMany({
         where,
         skip: (page - 1) * limit,
         take: limit,
         orderBy: { createdAt: "desc" },
       }),
-      prisma.promoter.count({ where }),
+      prisma.promoters.count({ where }),
     ]);
 
     return NextResponse.json({

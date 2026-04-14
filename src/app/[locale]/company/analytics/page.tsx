@@ -13,9 +13,9 @@ export default async function CompanyAnalyticsPage() {
     redirect("/auth/login/company");
   }
 
-  const membership = await prisma.companyMember.findFirst({
+  const membership = await prisma.company_members.findFirst({
     where: { userId: session.user.id },
-    include: { company: true },
+    include: { companies: true },
   });
 
   if (!membership && session.user.role !== "ADMIN") {
@@ -38,12 +38,12 @@ export default async function CompanyAnalyticsPage() {
 
   const [jobCount, activeJobsCount, applicationsCount, pendingApplicationsCount, appRows] =
     await Promise.all([
-      prisma.job.count({ where: whereJob }),
-      prisma.job.count({ where: { ...whereJob, status: "ACTIVE" } }),
-      prisma.jobApplication.count({ where: companyId ? { job: { companyId } } : {} }),
-      prisma.jobApplication.count({
+      prisma.jobs.count({ where: whereJob }),
+      prisma.jobs.count({ where: { ...whereJob, status: "ACTIVE" } }),
+      prisma.job_applications.count({ where: companyId ? { jobs: { companyId } } : {} }),
+      prisma.job_applications.count({
         where: companyId
-          ? { status: "PENDING", job: { companyId } }
+          ? { status: "PENDING", jobs: { companyId } }
           : { status: "PENDING" },
       }),
       companyId
@@ -80,20 +80,20 @@ export default async function CompanyAnalyticsPage() {
     };
   });
 
-  const topJobs = await prisma.job.findMany({
+  const topJobs = await prisma.jobs.findMany({
     where: { ...whereJob, status: "ACTIVE" },
     include: {
-      _count: { select: { applications: true } },
-      company: { select: { name: true } },
+      _count: { select: { job_applications: true } },
+      companies: { select: { name: true } },
     },
-    orderBy: { applications: { _count: "desc" } },
+    orderBy: { job_applications: { _count: "desc" } },
     take: 10,
   });
 
   return (
     <div className="min-h-screen bg-gray-50">
       <CompanyAnalyticsClient
-        companyName={membership?.company?.name || "企业"}
+        companyName={membership?.companies?.name || "企业"}
         stats={{
           jobsCount: jobCount,
           activeJobsCount,
@@ -105,9 +105,9 @@ export default async function CompanyAnalyticsPage() {
           id: j.id,
           title: j.title,
           slug: j.slug,
-          applications: j._count.applications,
+          applications: j._count.job_applications,
           views: j.viewCount || 0,
-          companyName: j.company?.name || "",
+          companyName: j.companies?.name || "",
         }))}
       />
     </div>

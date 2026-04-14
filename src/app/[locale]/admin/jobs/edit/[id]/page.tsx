@@ -19,10 +19,10 @@ export default async function EditJobPage({ params }: PageProps) {
   const { id } = await params;
 
   // 获取职位信息
-  const job = await prisma.job.findUnique({
+  const job = await prisma.jobs.findUnique({
     where: { id },
     include: {
-      company: true,
+      companies: true,
     },
   });
 
@@ -31,7 +31,7 @@ export default async function EditJobPage({ params }: PageProps) {
   }
 
   // 获取所有公司（用于选择）
-  const companies = await prisma.company.findMany({
+  const companies = await prisma.companies.findMany({
     orderBy: { name: "asc" },
   });
 

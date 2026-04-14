@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import { Job, Company } from "@prisma/client";
+import { jobs, companies } from "@prisma/client";
 import { recordJobView } from "@/lib/recommendations";
 
 interface JobViewTrackerProps {
-  job: Job & { company: Company };
+  job: jobs & { companies: companies };
 }
 
 /**

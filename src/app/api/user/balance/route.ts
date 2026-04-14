@@ -13,11 +13,11 @@ export async function GET() {
     }
 
     const [user, transactions] = await Promise.all([
-      prisma.user.findUnique({
+      prisma.users.findUnique({
         where: { id: session.user.id },
         select: { balance: true },
       }),
-      prisma.balanceTransaction.findMany({
+      prisma.balance_transactions.findMany({
         where: { userId: session.user.id },
         orderBy: { createdAt: "desc" },
         take: 10,

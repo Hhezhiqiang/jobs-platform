@@ -12,7 +12,7 @@ export default async function NewBlogPage() {
     redirect("/auth/login/admin");
   }
 
-  const user = await prisma.user.findUnique({
+  const user = await prisma.users.findUnique({
     where: { id: session.user.id },
   });
 
@@ -34,7 +34,7 @@ export default async function NewBlogPage() {
       .filter(Boolean);
     const status = formData.get("status") as PageStatus;
 
-    await prisma.page.create({
+    await prisma.pages.create({
       data: {
         title,
         slug,

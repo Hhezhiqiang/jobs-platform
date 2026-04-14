@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 获取当前职位
-    const job = await prisma.job.findUnique({
+    const job = await prisma.jobs.findUnique({
       where: { id: jobId },
     });
 
@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     // 切换状态：ACTIVE -> INACTIVE，其他 -> ACTIVE
     const newStatus = job.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
 
-    await prisma.job.update({
+    await prisma.jobs.update({
       where: { id: jobId },
       data: { status: newStatus },
     });

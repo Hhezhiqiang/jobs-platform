@@ -18,30 +18,29 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
 
-    const where: Prisma.JobApplicationWhereInput = {
+    const where: Prisma.job_applicationsWhereInput = {
       userId: session.user.id,
     };
 
     if (status) {
-      where.status = status as Prisma.EnumApplicationStatusFilter<"JobApplication">;
+      where.status = status as Prisma.EnumApplicationStatusFilter<"job_applications">;
     }
 
-    const applications = await prisma.jobApplication.findMany({
+    const applications = await prisma.job_applications.findMany({
       where,
       take: 100,
-      include: {
-        job: {
-          include: { company: true },
+      include: { jobs: {
+          include: { companies: true },
         },
-        resume: true,
+        resumes: true,
       },
       orderBy: { appliedAt: "desc" },
     });
 
     // 过滤掉 job 或 company 没有 slug 的申请
-    const validApplications = applications.filter(app => 
-      app.job?.slug && app.job.slug !== "" &&
-      app.job.company?.slug && app.job.company.slug !== ""
+    const validApplications = applications.filter(app =>
+      app.jobs?.slug && app.jobs.slug !== "" &&
+      app.jobs.companies?.slug && app.jobs.companies.slug !== ""
     );
 
     return NextResponse.json({ applications: validApplications });
@@ -68,7 +67,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 检查职位是否存在且活跃
-    const job = await prisma.job.findUnique({
+    const job = await prisma.jobs.findUnique({
       where: { id: jobId },
     });
 
@@ -81,7 +80,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 检查是否已经申请过
-    const existingApplication = await prisma.jobApplication.findFirst({
+    const existingApplication = await prisma.job_applications.findFirst({
       where: {
         jobId,
         userId: session.user.id,
@@ -97,7 +96,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 创建申请
-    const application = await prisma.jobApplication.create({
+    const application = await prisma.job_applications.create({
       data: {
         jobId,
         userId: session.user.id,
@@ -105,9 +104,8 @@ export async function POST(request: NextRequest) {
         coverLetter: coverLetter || null,
         status: "PENDING",
       },
-      include: {
-        job: {
-          include: { company: true },
+      include: { jobs: {
+          include: { companies: true },
         },
       },
     });
@@ -142,7 +140,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     // 检查申请是否存在且属于当前用户
-    const application = await prisma.jobApplication.findFirst({
+    const application = await prisma.job_applications.findFirst({
       where: {
         id: applicationId,
         userId: session.user.id,
@@ -161,7 +159,7 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    const updatedApplication = await prisma.jobApplication.update({
+    const updatedApplication = await prisma.job_applications.update({
       where: { id: applicationId },
       data: {
         status,
@@ -196,7 +194,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // 检查申请是否存在且属于当前用户
-    const application = await prisma.jobApplication.findFirst({
+    const application = await prisma.job_applications.findFirst({
       where: {
         id: applicationId,
         userId: session.user.id,
@@ -207,7 +205,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "申请不存在" }, { status: 404 });
     }
 
-    await prisma.jobApplication.delete({
+    await prisma.job_applications.delete({
       where: { id: applicationId },
     });
 

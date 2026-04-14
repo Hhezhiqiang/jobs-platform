@@ -15,7 +15,7 @@ export async function GET() {
   const { promoter } = auth;
 
   try {
-    const records = await prisma.withdrawalRecord.findMany({
+    const records = await prisma.withdrawal_records.findMany({
       where: { promoterId: promoter.id },
       orderBy: { requestedAt: "desc" },
       select: {
@@ -76,7 +76,7 @@ export async function POST(request: Request) {
     // 在事务内做余额校验与扣减，防止并发竞态
     const record = await prisma.$transaction(async (tx) => {
       // 重新读取并锁定 promoter 记录（Prisma interactive transaction 已提供隔离）
-      const freshPromoter = await tx.promoter.findUnique({
+      const freshPromoter = await tx.promoters.findUnique({
         where: { id: promoter.id },
       });
 
@@ -87,7 +87,7 @@ export async function POST(request: Request) {
         throw new Error("可提现余额不足");
       }
 
-      await tx.promoter.update({
+      await tx.promoters.update({
         where: { id: promoter.id },
         data: {
           availableBalance: { decrement: withdrawalAmount },
@@ -95,7 +95,7 @@ export async function POST(request: Request) {
         },
       });
 
-      return await tx.withdrawalRecord.create({
+      return await tx.withdrawal_records.create({
         data: {
           promoterId: promoter.id,
           amount: withdrawalAmount,

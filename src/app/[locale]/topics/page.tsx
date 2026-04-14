@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default async function TopicsPage() {
-  const topics = await prisma.page.findMany({
+  const topics = await prisma.pages.findMany({
     where: {
       type: "PAGE",
       status: "PUBLISHED",

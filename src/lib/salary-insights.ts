@@ -8,7 +8,7 @@ interface JobSalary {
   employmentType: string;
   city: string | null;
   datePosted: Date;
-  company: {
+  companies: {
     industry: string | null;
   };
 }
@@ -20,7 +20,7 @@ function calculateIndustryStats(jobs: JobSalary[]) {
   >();
 
   jobs.forEach((job) => {
-    const industry = job.company?.industry || "其他";
+    const industry = job.companies?.industry || "其他";
     const avgSalary = ((job.salaryMin || 0) + (job.salaryMax || 0)) / 2;
 
     if (!industryMap.has(industry)) {
@@ -182,7 +182,7 @@ function calculateOverview(jobs: JobSalary[]) {
 }
 
 export async function getSalaryInsightsData() {
-  const jobs = await prisma.job.findMany({
+  const jobs = await prisma.jobs.findMany({
     where: {
       status: "ACTIVE",
       AND: [{ salaryMin: { not: null } }, { salaryMax: { not: null } }],
@@ -195,7 +195,7 @@ export async function getSalaryInsightsData() {
       employmentType: true,
       city: true,
       datePosted: true,
-      company: { select: { industry: true } },
+      companies: { select: { industry: true } },
     },
     take: 5000,
   });

@@ -11,13 +11,19 @@ interface StatCardProps {
 }
 
 function AnimatedNumber({ value, suffix = "" }: { value: number; suffix?: string }) {
-  const [displayValue, setDisplayValue] = useState(value); // SSR 时显示最终值
+  const [displayValue, setDisplayValue] = useState(value);
+  const [isClient, setIsClient] = useState(false);
   const [hasAnimated, setHasAnimated] = useState(false);
   const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    // 客户端hydration后开始动画
+    setIsClient(true);
     setDisplayValue(0);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
+    
     let timer: ReturnType<typeof setInterval> | null = null;
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -39,7 +45,7 @@ function AnimatedNumber({ value, suffix = "" }: { value: number; suffix?: string
           }, duration / steps);
         }
       },
-      { threshold: 0.5 }
+      { threshold: 0.3 }
     );
 
     if (ref.current) {
@@ -50,7 +56,16 @@ function AnimatedNumber({ value, suffix = "" }: { value: number; suffix?: string
       if (timer) clearInterval(timer);
       observer.disconnect();
     };
-  }, [value, hasAnimated]);
+  }, [value, hasAnimated, isClient]);
+
+  // SSR时直接显示数字，避免hydration不匹配
+  if (!isClient) {
+    return (
+      <span>
+        {value.toLocaleString()}{suffix}
+      </span>
+    );
+  }
 
   return (
     <span ref={ref}>
@@ -68,7 +83,7 @@ export function StatCard({ value, suffix, label, icon, color = "blue" }: StatCar
   };
 
   return (
-    <div className="group relative bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+    <div className="group relative bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100">
       <div className={`absolute -top-3 -right-3 w-14 h-14 rounded-xl bg-gradient-to-br ${colorClasses[color]} flex items-center justify-center text-2xl shadow-lg group-hover:scale-110 transition-transform`}>
         {icon}
       </div>
@@ -85,9 +100,10 @@ export function StatCard({ value, suffix, label, icon, color = "blue" }: StatCar
 interface StatsSectionProps {
   jobCount: number;
   companyCount: number;
+  dailyNewJobs?: number;
 }
 
-export function StatsSection({ jobCount, companyCount }: StatsSectionProps) {
+export function StatsSection({ jobCount, companyCount, dailyNewJobs = 0 }: StatsSectionProps) {
   return (
     <section className="py-16 bg-gray-50">
       <div className="max-w-6xl mx-auto px-4">
@@ -98,16 +114,16 @@ export function StatsSection({ jobCount, companyCount }: StatsSectionProps) {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           <StatCard
-            value={jobCount}
+            value={jobCount || 0}
             suffix="+"
             label="在招职位"
             icon="💼"
             color="blue"
           />
           <StatCard
-            value={companyCount}
+            value={companyCount || 0}
             suffix="+"
             label="合作企业"
             icon="🏢"
@@ -121,7 +137,7 @@ export function StatsSection({ jobCount, companyCount }: StatsSectionProps) {
             color="green"
           />
           <StatCard
-            value={500}
+            value={dailyNewJobs || 0}
             suffix="+"
             label="日新增职位"
             icon="🚀"

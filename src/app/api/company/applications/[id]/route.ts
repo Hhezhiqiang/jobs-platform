@@ -9,14 +9,12 @@ export const dynamic = "force-dynamic";
 async function checkPermission(userId: string, role: string, applicationId: string) {
   if (role === "ADMIN") return true;
 
-  const application = await prisma.jobApplication.findUnique({
+  const application = await prisma.job_applications.findUnique({
     where: { id: applicationId },
-    include: {
-      job: {
+    include: { jobs: {
         include: {
-          company: {
-            include: {
-              members: {
+          companies: {
+            include: { company_members: {
                 where: { userId },
               },
             },
@@ -28,7 +26,7 @@ async function checkPermission(userId: string, role: string, applicationId: stri
 
   if (!application) return false;
 
-  const membership = application.job.company.members[0];
+  const membership = application.jobs.companies.company_members[0];
   if (!membership) return false;
 
   return membership.role === "ADMIN" || membership.role === "RECRUITER";
@@ -57,15 +55,14 @@ export async function GET(
       return NextResponse.json({ error: "无权访问" }, { status: 403 });
     }
 
-    const application = await prisma.jobApplication.findUnique({
+    const application = await prisma.job_applications.findUnique({
       where: { id },
-      include: {
-        job: {
+      include: { jobs: {
           select: {
             id: true,
             title: true,
             slug: true,
-            company: {
+            companies: {
               select: {
                 id: true,
                 name: true,
@@ -73,17 +70,17 @@ export async function GET(
             },
           },
         },
-        user: {
+        users: {
           select: {
             id: true,
             name: true,
             email: true,
             phone: true,
             avatar: true,
-            profile: true,
+            user_profiles: true,
           },
         },
-        resume: true,
+        resumes: true,
       },
     });
 
@@ -93,7 +90,7 @@ export async function GET(
 
     // 标记为已查看
     if (application.status === "PENDING") {
-      await prisma.jobApplication.update({
+      await prisma.job_applications.update({
         where: { id },
         data: {
           status: "VIEWED",
@@ -167,16 +164,15 @@ export async function PATCH(
       updateData.viewedAt = new Date();
     }
 
-    const application = await prisma.jobApplication.update({
+    const application = await prisma.job_applications.update({
       where: { id },
       data: updateData,
-      include: {
-        job: {
+      include: { jobs: {
           select: {
             title: true,
           },
         },
-        user: {
+        users: {
           select: {
             id: true,
             name: true,
@@ -186,12 +182,12 @@ export async function PATCH(
     });
 
     // 发送通知给申请者
-    await prisma.notification.create({
+    await prisma.notifications.create({
       data: {
         userId: application.userId,
         type: "APPLICATION_UPDATE",
         title: "申请状态更新",
-        content: `您在「${application.job.title}」职位的申请状态已更新为：${getStatusText(status)}`,
+        content: `您在「${application.jobs.title}」职位的申请状态已更新为：${getStatusText(status)}`,
         metadata: {
           applicationId: id,
           jobId: application.jobId,
@@ -243,13 +239,12 @@ export async function POST(
       );
     }
 
-    const application = await prisma.jobApplication.findUnique({
+    const application = await prisma.job_applications.findUnique({
       where: { id },
-      include: {
-        job: {
+      include: { jobs: {
           select: {
             title: true,
-            company: {
+            companies: {
               select: {
                 name: true,
               },
@@ -264,11 +259,11 @@ export async function POST(
     }
 
     // 发送通知给申请者
-    await prisma.notification.create({
+    await prisma.notifications.create({
       data: {
         userId: application.userId,
         type: "INTERVIEW_INVITE",
-        title: `${application.job.company.name} 给您发送了消息`,
+        title: `${application.jobs.companies.name} 给您发送了消息`,
         content: message,
         metadata: {
           applicationId: id,

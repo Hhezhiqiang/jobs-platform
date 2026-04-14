@@ -28,14 +28,14 @@ export async function GET(request: Request) {
     if (status) where.status = status;
 
     const [items, total] = await Promise.all([
-      prisma.withdrawalRecord.findMany({
+      prisma.withdrawal_records.findMany({
         where,
         skip: (page - 1) * limit,
         take: limit,
         orderBy: { requestedAt: "desc" },
-        include: { promoter: true },
+        include: { promoters: true },
       }),
-      prisma.withdrawalRecord.count({ where }),
+      prisma.withdrawal_records.count({ where }),
     ]);
 
     return NextResponse.json({

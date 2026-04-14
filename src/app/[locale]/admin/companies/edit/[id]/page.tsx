@@ -48,18 +48,18 @@ export default function EditCompanyPage() {
       const res = await fetch(`/api/companies/${companyId}`);
       const data = await res.json();
       
-      if (res.ok && data.company) {
+      if (res.ok && data.companies) {
         setFormData({
-          name: data.company.name || "",
-          slug: data.company.slug || "",
-          website: data.company.website || "",
-          industry: data.company.industry || "",
-          size: data.company.size || "",
-          location: data.company.location || "",
-          logo: data.company.logo || "",
-          description: data.company.description || "",
-          metaTitle: data.company.metaTitle || "",
-          metaDescription: data.company.metaDescription || "",
+          name: data.companies.name || "",
+          slug: data.companies.slug || "",
+          website: data.companies.website || "",
+          industry: data.companies.industry || "",
+          size: data.companies.size || "",
+          location: data.companies.location || "",
+          logo: data.companies.logo || "",
+          description: data.companies.description || "",
+          metaTitle: data.companies.metaTitle || "",
+          metaDescription: data.companies.metaDescription || "",
         });
       } else {
         setError("获取公司信息失败");

@@ -15,6 +15,8 @@ export interface AutoPipelineResult {
 /**
  * Fully automatic pipeline: for newly inserted high-value keywords,
  * collect archives → generate SEO plan → publish page.
+ * 
+ * 注意：本流水线只发布专题页（TOPIC），博客文章（BLOG）由 smart-content-generator 负责
  */
 export async function runAutoPipeline(newMonitorIds: string[]): Promise<AutoPipelineResult> {
   if (!AUTO_PUBLISH_ENABLED || newMonitorIds.length === 0) {
@@ -22,7 +24,7 @@ export async function runAutoPipeline(newMonitorIds: string[]): Promise<AutoPipe
   }
 
   // Find author (fallback to first admin user)
-  const adminUser = await prisma.user.findFirst({
+  const adminUser = await prisma.users.findFirst({
     where: { role: "ADMIN" },
     orderBy: { createdAt: "asc" },
     select: { id: true },
@@ -36,14 +38,15 @@ export async function runAutoPipeline(newMonitorIds: string[]): Promise<AutoPipe
   const authorId = adminUser.id;
 
   // Fetch the actual monitors and filter for high-value ones
-  const monitors = await prisma.keywordMonitor.findMany({
+  // 只处理 PRIMARY 类型的专题页，BLOG 类型交给 smart-content-generator
+  const monitors = await prisma.keyword_monitors.findMany({
     where: {
       id: { in: newMonitorIds },
-      category: { in: ["PRIMARY", "TRAFFIC"] },
-      trendScore: { gte: 50 },
+      category: "PRIMARY",
+      trendScore: { gte: 60 },
     },
     orderBy: { trendScore: "desc" },
-    take: 5, // Limit to avoid rate limits / timeouts
+    take: 5,
   });
 
   const result: AutoPipelineResult = {
@@ -67,7 +70,7 @@ export async function runAutoPipeline(newMonitorIds: string[]): Promise<AutoPipe
 
       // 2. Generate SEO plan
       detail.stage = "seo-plan";
-      const existingPlan = await prisma.sEOPlan.findFirst({
+      const existingPlan = await prisma.seo_plans.findFirst({
         where: { monitorId: monitor.id },
       });
 
@@ -76,7 +79,7 @@ export async function runAutoPipeline(newMonitorIds: string[]): Promise<AutoPipe
         planId = existingPlan.id;
       } else {
         await generateSEOPlan(monitor.id);
-        const freshPlan = await prisma.sEOPlan.findFirst({
+        const freshPlan = await prisma.seo_plans.findFirst({
           where: { monitorId: monitor.id },
           orderBy: { generatedAt: "desc" },
         });
@@ -86,14 +89,20 @@ export async function runAutoPipeline(newMonitorIds: string[]): Promise<AutoPipe
         planId = freshPlan.id;
       }
 
-      // 3. Publish
+      // 3. Publish（强制为 TOPIC 类型）
       detail.stage = "publish";
+      
+      // 确保 plan 是 TOPIC 类型
+      await prisma.seo_plans.update({
+        where: { id: planId },
+        data: { pageType: "TOPIC" },
+      });
+      
       const publishResult = await publishSEOPlan(planId, authorId);
       detail.url = publishResult.url;
       result.published++;
 
       if (process.env.NODE_ENV === "development") {
-         
         console.log(`[auto-pipeline] Published ${monitor.keyword} → ${publishResult.url}`);
       }
     } catch (err) {

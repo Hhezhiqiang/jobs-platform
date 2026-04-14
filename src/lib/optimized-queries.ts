@@ -2,18 +2,19 @@ import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 
 // 类型定义
-type JobWithCompany = Prisma.JobGetPayload<{
+type JobWithCompany = Prisma.jobsGetPayload<{
   include: {
-    company: true;
+    companies: true;
   };
 }>;
 
-type CompanyBasic = Prisma.CompanyGetPayload<{}>;
+type CompanyBasic = Prisma.companiesGetPayload<{}>;
 
 interface SiteStats {
   jobCount: number;
   companyCount: number;
   blogCount: number;
+  dailyNewJobs: number;
 }
 
 interface HomePageData {
@@ -76,13 +77,13 @@ export async function getFeaturedJobs(limit = 6): Promise<JobWithCompany[]> {
   const cached = getCached<JobWithCompany[]>(cacheKey);
   if (cached) return cached;
 
-  const jobs = await prisma.job.findMany({
+  const jobs = await prisma.jobs.findMany({
     where: { 
       status: "ACTIVE", 
       isFeatured: true 
     },
     include: { 
-      company: true,
+      companies: true,
     },
     orderBy: { datePosted: "desc" },
     take: limit,
@@ -100,10 +101,10 @@ export async function getLatestJobs(limit = 10): Promise<JobWithCompany[]> {
   const cached = getCached<JobWithCompany[]>(cacheKey);
   if (cached) return cached;
 
-  const jobs = await prisma.job.findMany({
+  const jobs = await prisma.jobs.findMany({
     where: { status: "ACTIVE" },
     include: { 
-      company: true,
+      companies: true,
     },
     orderBy: { datePosted: "desc" },
     take: limit,
@@ -121,11 +122,11 @@ export async function getJobBySlug(slug: string) {
   const cached = getCached(cacheKey);
   if (cached) return cached;
 
-  const job = await prisma.job.findUnique({
+  const job = await prisma.jobs.findUnique({
     where: { slug },
     include: { 
-      company: true,
-      applications: {
+      companies: true,
+      job_applications: {
         select: { id: true },
       },
     },
@@ -145,7 +146,7 @@ export async function getCompanies(limit = 20): Promise<CompanyBasic[]> {
   const cached = getCached<CompanyBasic[]>(cacheKey);
   if (cached) return cached;
 
-  const companies = await prisma.company.findMany({
+  const companies = await prisma.companies.findMany({
     take: limit,
     orderBy: { createdAt: "desc" },
   });
@@ -162,7 +163,7 @@ export async function getCompanyBySlug(slug: string) {
   const cached = getCached(cacheKey);
   if (cached) return cached;
 
-  const company = await prisma.company.findUnique({
+  const company = await prisma.companies.findUnique({
     where: { slug },
     include: {
       jobs: {
@@ -186,13 +187,13 @@ export async function getPublishedBlogs(limit = 10) {
   const cached = getCached(cacheKey);
   if (cached) return cached;
 
-  const blogs = await prisma.page.findMany({
+  const blogs = await prisma.pages.findMany({
     where: { 
       type: "BLOG", 
       status: "PUBLISHED" 
     },
     include: {
-      author: {
+      users: {
         select: {
           id: true,
           name: true,
@@ -215,13 +216,25 @@ export async function getSiteStats(): Promise<SiteStats> {
   const cached = getCached<SiteStats>(cacheKey);
   if (cached) return cached;
 
-  const [jobCount, companyCount, blogCount] = await Promise.all([
-    prisma.job.count({ where: { status: "ACTIVE" } }),
-    prisma.company.count(),
-    prisma.page.count({ where: { type: "BLOG", status: "PUBLISHED" } }),
+  // 获取今天的开始时间（本地时间）
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const [jobCount, companyCount, blogCount, dailyNewJobs] = await Promise.all([
+    prisma.jobs.count({ where: { status: "ACTIVE" } }),
+    prisma.companies.count(),
+    prisma.pages.count({ where: { type: "BLOG", status: "PUBLISHED" } }),
+    // 统计今日新增的职位数量
+    prisma.jobs.count({
+      where: {
+        createdAt: {
+          gte: today,
+        },
+      },
+    }),
   ]);
 
-  const stats = { jobCount, companyCount, blogCount };
+  const stats = { jobCount, companyCount, blogCount, dailyNewJobs };
   setCache(cacheKey, stats, CACHE_TTL.SHORT);
   return stats;
 }
@@ -243,9 +256,9 @@ export async function searchJobs(params: {
   const query = rawQuery ? rawQuery.slice(0, 50) : undefined;
   const city = rawCity ? rawCity.slice(0, 30) : undefined;
 
-  const where: Prisma.JobWhereInput = { status: "ACTIVE" };
+  const where: Prisma.jobsWhereInput = { status: "ACTIVE" };
 
-  const orConditions: Prisma.JobWhereInput[] = [];
+  const orConditions: Prisma.jobsWhereInput[] = [];
 
   if (query) {
     orConditions.push(
@@ -275,16 +288,16 @@ export async function searchJobs(params: {
   }
 
   const [jobs, total] = await Promise.all([
-    prisma.job.findMany({
+    prisma.jobs.findMany({
       where,
       include: {
-        company: true,
+        companies: true,
       },
       orderBy: { datePosted: "desc" },
       skip,
       take: limit,
     }),
-    prisma.job.count({ where }),
+    prisma.jobs.count({ where }),
   ]);
 
   return {

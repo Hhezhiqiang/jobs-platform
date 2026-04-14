@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
-    const cities = await prisma.job.findMany({
+    const cities = await prisma.jobs.findMany({
       where: {
         status: "ACTIVE",
         city: {

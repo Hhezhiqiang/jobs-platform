@@ -20,12 +20,11 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     const [favorites, total] = await Promise.all([
-      prisma.favorite.findMany({
+      prisma.favorites.findMany({
         where: { userId: session.user.id },
-        include: {
-          job: {
+        include: { jobs: {
             include: {
-              company: true,
+              companies: true,
             },
           },
         },
@@ -33,7 +32,7 @@ export async function GET(request: NextRequest) {
         skip,
         take: limit,
       }),
-      prisma.favorite.count({
+      prisma.favorites.count({
         where: { userId: session.user.id },
       }),
     ]);
@@ -67,7 +66,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 检查职位是否存在
-    const job = await prisma.job.findUnique({
+    const job = await prisma.jobs.findUnique({
       where: { id: jobId },
     });
 
@@ -76,7 +75,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 检查是否已收藏
-    const existingFavorite = await prisma.favorite.findUnique({
+    const existingFavorite = await prisma.favorites.findUnique({
       where: {
         userId_jobId: {
           userId: session.user.id,
@@ -89,15 +88,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "已收藏该职位" }, { status: 409 });
     }
 
-    const favorite = await prisma.favorite.create({
+    const favorite = await prisma.favorites.create({
       data: {
         userId: session.user.id,
         jobId,
       },
-      include: {
-        job: {
+      include: { jobs: {
           include: {
-            company: true,
+            companies: true,
           },
         },
       },
@@ -127,7 +125,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     // 查找收藏记录
-    const favorite = await prisma.favorite.findUnique({
+    const favorite = await prisma.favorites.findUnique({
       where: {
         userId_jobId: {
           userId: session.user.id,
@@ -140,7 +138,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "收藏记录不存在" }, { status: 404 });
     }
 
-    await prisma.favorite.delete({
+    await prisma.favorites.delete({
       where: {
         id: favorite.id,
       },

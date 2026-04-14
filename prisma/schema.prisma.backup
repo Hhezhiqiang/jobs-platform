@@ -1,0 +1,680 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model keyword_to_page {
+  keyword_id String
+  page_id    String
+
+  @@unique([keyword_id, page_id])
+  @@index([page_id])
+  @@map("_keyword_to_page")
+}
+
+model ad_positions {
+  id          String   @id
+  name        String   @unique
+  displayName String
+  description String?
+  width       Int?
+  height      Int?
+  maxAds      Int      @default(1)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+  ads         ads[]
+}
+
+model ads {
+  id           String       @id
+  title        String
+  type         AdType       @default(IMAGE)
+  imageUrl     String?
+  linkUrl      String
+  textContent  String?
+  altText      String?
+  status       AdStatus     @default(PENDING)
+  startDate    DateTime?
+  endDate      DateTime?
+  clickCount   Int          @default(0)
+  viewCount    Int          @default(0)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime
+  positionId   String
+  authorId     String
+  users        users        @relation(fields: [authorId], references: [id])
+  ad_positions ad_positions @relation(fields: [positionId], references: [id])
+}
+
+model balance_transactions {
+  id                    String                 @id
+  userId                String
+  type                  TransactionType
+  amount                Decimal                @db.Decimal(18, 8)
+  balanceAfter          Decimal                @db.Decimal(18, 8)
+  description           String?
+  orderId               String?                @unique
+  createdAt             DateTime               @default(now())
+  contact_unlock_orders contact_unlock_orders? @relation(fields: [orderId], references: [id])
+  users                 users                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([type])
+  @@index([userId, createdAt])
+}
+
+model commission_adjustments {
+  id                 String             @id
+  commissionRecordId String
+  promoterId         String
+  amount             Decimal            @db.Decimal(18, 8)
+  reason             String
+  type               AdjustmentType     @default(REFUND)
+  createdAt          DateTime           @default(now())
+  commission_records commission_records @relation(fields: [commissionRecordId], references: [id], onDelete: Cascade)
+  promoters          promoters          @relation(fields: [promoterId], references: [id], onDelete: Cascade)
+
+  @@index([promoterId, createdAt])
+}
+
+model commission_records {
+  id                     String                   @id
+  orderId                String                   @unique
+  promoterId             String
+  linkId                 String
+  userId                 String
+  orderAmount            Decimal                  @db.Decimal(18, 8)
+  rate                   Decimal                  @db.Decimal(5, 2)
+  commissionAmount       Decimal                  @db.Decimal(18, 8)
+  status                 CommissionStatus         @default(FROZEN)
+  frozenAt               DateTime                 @default(now())
+  availableAt            DateTime?
+  settledAt              DateTime?
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime
+  commission_adjustments commission_adjustments[]
+  promoter_links         promoter_links           @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  contact_unlock_orders  contact_unlock_orders    @relation(fields: [orderId], references: [id])
+  promoters              promoters                @relation(fields: [promoterId], references: [id], onDelete: Cascade)
+
+  @@index([availableAt, status])
+  @@index([promoterId, status])
+}
+
+model companies {
+  id                 String            @id
+  name               String
+  slug               String            @unique
+  logo               String?
+  website            String?
+  description        String?
+  industry           String?
+  size               String?
+  location           String?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime
+  metaTitle          String?
+  metaDescription    String?
+  businessLicense    String?
+  contactEmail       String?
+  contactPhone       String?
+  creditCode         String?           @unique
+  legalPersonName    String?
+  rejectionReason    String?
+  verificationStatus CompanyStatus     @default(PENDING)
+  verifiedAt         DateTime?
+  verifiedBy         String?
+  descriptionEn      String?
+  metaDescriptionEn  String?
+  metaTitleEn        String?
+  nameEn             String?
+  company_members    company_members[]
+  jobs               jobs[]
+}
+
+model company_members {
+  id        String            @id
+  companyId String
+  userId    String
+  role      CompanyMemberRole @default(ADMIN)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime
+  companies companies         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  users     users             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, userId])
+  @@index([userId])
+}
+
+model contact_unlock_orders {
+  id                   String                @id
+  userId               String
+  jobId                String
+  amount               Decimal               @db.Decimal(18, 8)
+  status               OrderStatus           @default(PENDING)
+  paidAt               DateTime?
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime
+  balance_transactions balance_transactions?
+  commission_records   commission_records?
+  jobs                 jobs                  @relation(fields: [jobId], references: [id])
+  users                users                 @relation(fields: [userId], references: [id])
+
+  @@index([jobId])
+  @@index([status, createdAt])
+  @@index([userId, status])
+}
+
+model favorites {
+  id        String   @id
+  userId    String
+  jobId     String
+  createdAt DateTime @default(now())
+  jobs      jobs     @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  users     users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, jobId])
+  @@index([jobId])
+  @@index([userId, createdAt])
+}
+
+model job_applications {
+  id           String            @id
+  jobId        String
+  userId       String
+  resumeId     String?
+  status       ApplicationStatus @default(PENDING)
+  coverLetter  String?
+  appliedAt    DateTime          @default(now())
+  viewedAt     DateTime?
+  respondedAt  DateTime?
+  withdrewAt   DateTime?
+  responseType String?
+  responseNote String?
+  jobs         jobs              @relation(fields: [jobId], references: [id])
+  resumes      resumes?          @relation(fields: [resumeId], references: [id])
+  users        users             @relation(fields: [userId], references: [id])
+
+  @@index([jobId, status])
+  @@index([userId, status])
+}
+
+model jobs {
+  id                     String                  @id
+  slug                   String                  @unique
+  title                  String
+  description            String
+  requirements           String?
+  benefits               String?
+  employmentType         EmploymentType          @default(FULL_TIME)
+  experience             ExperienceLevel         @default(MID)
+  salaryMin              Int?
+  salaryMax              Int?
+  salaryCurrency         String                  @default("CNY")
+  salaryPeriod           String                  @default("YEAR")
+  location               String
+  city                   String?
+  country                String                  @default("CN")
+  isRemote               Boolean                 @default(false)
+  isHybrid               Boolean                 @default(false)
+  applyUrl               String
+  status                 JobStatus               @default(ACTIVE)
+  isFeatured             Boolean                 @default(false)
+  viewCount              Int                     @default(0)
+  datePosted             DateTime                @default(now())
+  validThrough           DateTime?
+  metaTitle              String?
+  metaDescription        String?
+  keywords               String[]
+  imageUrl               String?
+  schemaOrganizationName String?
+  schemaOrganizationLogo String?
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime
+  companyId              String
+  authorId               String
+  benefitsEn             String?
+  descriptionEn          String?
+  metaDescriptionEn      String?
+  metaTitleEn            String?
+  requirementsEn         String?
+  titleEn                String?
+  contact_unlock_orders  contact_unlock_orders[]
+  favorites              favorites[]
+  job_applications       job_applications[]
+  users                  users                   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  companies              companies               @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([city, status])
+  @@index([employmentType, status])
+  @@index([isFeatured, status])
+  @@index([status, datePosted])
+}
+
+model keyword_archives {
+  id               String           @id
+  monitorId        String
+  contentType      String
+  contentUrl       String?
+  contentTitle     String?
+  contentBody      String
+  fetchedAt        DateTime         @default(now())
+  relevanceScore   Float?
+  usedInPlan       Boolean          @default(false)
+  keyword_monitors keyword_monitors @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+
+  @@index([monitorId, contentType])
+  @@index([usedInPlan])
+}
+
+model keyword_monitors {
+  id               String             @id
+  keyword          String
+  normalized       String
+  language         String             @default("zh")
+  source           String
+  sourceUrl        String?
+  trendScore       Float              @default(0)
+  searchVolume     Int?
+  hotLevel         Int                @default(1)
+  category         String             @default("HOLD")
+  intent           String             @default("UNKNOWN")
+  status           String             @default("PENDING")
+  firstSeenAt      DateTime           @default(now())
+  lastSeenAt       DateTime
+  metadata         Json?
+  keyword_archives keyword_archives[]
+  seo_plans        seo_plans[]
+  pages            pages[]            @relation("KeywordToPage")
+
+  @@index([category, status])
+  @@index([lastSeenAt])
+  @@index([normalized, source])
+  @@index([status, firstSeenAt])
+  @@index([trendScore])
+}
+
+model notifications {
+  id        String           @id
+  userId    String
+  type      NotificationType
+  title     String
+  content   String
+  isRead    Boolean          @default(false)
+  metadata  Json?
+  createdAt DateTime         @default(now())
+  users     users            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([userId, isRead])
+}
+
+model page_views {
+  id        String   @id
+  path      String
+  userAgent String?
+  ip        String?
+  referrer  String?
+  country   String?
+  city      String?
+  userId    String?
+  sessionId String
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([path, createdAt])
+  @@index([sessionId, createdAt])
+}
+
+model pages {
+  id                String             @id
+  slug              String             @unique
+  title             String
+  content           String
+  excerpt           String?
+  type              PageType           @default(PAGE)
+  status            PageStatus         @default(PUBLISHED)
+  metaTitle         String?
+  metaDescription   String?
+  keywords          String[]
+  featuredImage     String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime
+  authorId          String
+  viewCount         Int                @default(0)
+  contentEn         String?
+  excerptEn         String?
+  metaDescriptionEn String?
+  metaTitleEn       String?
+  titleEn           String?
+  users             users              @relation(fields: [authorId], references: [id])
+  keyword_monitors  keyword_monitors[] @relation("KeywordToPage")
+
+  @@index([slug, status])
+  @@index([type, status])
+}
+
+model promoter_links {
+  id                 String               @id
+  promoterId         String
+  name               String
+  code               String               @unique
+  customRate         Decimal?             @db.Decimal(5, 2)
+  landingPage        String               @default("/")
+  clickCount         Int                  @default(0)
+  registerCount      Int                  @default(0)
+  orderCount         Int                  @default(0)
+  gmv                Decimal              @default(0.0) @db.Decimal(18, 8)
+  status             LinkStatus           @default(ACTIVE)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime
+  commission_records commission_records[]
+  promoters          promoters            @relation(fields: [promoterId], references: [id], onDelete: Cascade)
+  user_referrals     user_referrals[]
+
+  @@index([code])
+  @@index([promoterId, status])
+}
+
+model promoters {
+  id                     String                   @id
+  userId                 String?                  @unique
+  name                   String
+  email                  String                   @unique
+  phone                  String?
+  walletAddress          String?
+  defaultRate            Decimal                  @default(30.0) @db.Decimal(5, 2)
+  status                 PromoterStatus           @default(PENDING)
+  availableBalance       Decimal                  @default(0.0) @db.Decimal(18, 8)
+  frozenBalance          Decimal                  @default(0.0) @db.Decimal(18, 8)
+  withdrawnBalance       Decimal                  @default(0.0) @db.Decimal(18, 8)
+  totalEarnings          Decimal                  @default(0.0) @db.Decimal(18, 8)
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime
+  commission_adjustments commission_adjustments[]
+  commission_records     commission_records[]
+  promoter_links         promoter_links[]
+  users                  users?                   @relation(fields: [userId], references: [id])
+  user_referrals         user_referrals[]
+  withdrawal_records     withdrawal_records[]
+}
+
+model resumes {
+  id               String             @id
+  userId           String
+  name             String
+  fileUrl          String
+  fileType         String
+  fileSize         Int
+  isDefault        Boolean            @default(false)
+  createdAt        DateTime           @default(now())
+  job_applications job_applications[]
+  users            users              @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model search_queries {
+  id           String   @id
+  query        String   @unique
+  count        Int      @default(1)
+  lastSearched DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime
+
+  @@index([count])
+  @@index([lastSearched])
+}
+
+model seo_plans {
+  id               String           @id
+  monitorId        String
+  pageType         String
+  title            String
+  h1               String
+  metaDesc         String
+  keywords         String[]
+  outline          Json
+  targetUrl        String?
+  internalLinks    Json?
+  contentMarkdown  String?
+  status           String           @default("PENDING")
+  generatedAt      DateTime         @default(now())
+  generatedBy      String
+  approvedAt       DateTime?
+  approvedBy       String?
+  publishedAt      DateTime?
+  publishUrl       String?
+  publishJobId     String?
+  keyword_monitors keyword_monitors @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+
+  @@index([monitorId, pageType])
+  @@index([publishedAt])
+  @@index([status])
+}
+
+model seo_settings {
+  id          String   @id
+  key         String   @unique
+  value       String
+  description String?
+  updatedAt   DateTime
+}
+
+model sessions {
+  id           String   @id
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  users        users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model user_profiles {
+  id             String    @id
+  userId         String    @unique
+  gender         String?
+  birthday       DateTime?
+  location       String?
+  workExperience Json?
+  education      Json?
+  skills         String[]
+  bio            String?
+  updatedAt      DateTime
+  users          users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model user_referrals {
+  id             String         @id
+  userId         String         @unique
+  promoterId     String
+  linkId         String
+  referralCode   String
+  createdAt      DateTime       @default(now())
+  promoter_links promoter_links @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  promoters      promoters      @relation(fields: [promoterId], references: [id], onDelete: Cascade)
+  users          users          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([promoterId])
+  @@index([referralCode])
+}
+
+model users {
+  id                    String                  @id
+  email                 String                  @unique
+  name                  String
+  password              String
+  role                  UserRole                @default(USER)
+  avatar                String?
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime
+  phone                 String?
+  status                UserStatus              @default(ACTIVE)
+  balance               Decimal                 @default(0.0) @db.Decimal(18, 8)
+  ads                   ads[]
+  balance_transactions  balance_transactions[]
+  company_members       company_members[]
+  contact_unlock_orders contact_unlock_orders[]
+  favorites             favorites[]
+  job_applications      job_applications[]
+  jobs                  jobs[]
+  notifications         notifications[]
+  pages                 pages[]
+  promoters             promoters?
+  resumes               resumes[]
+  sessions              sessions[]
+  user_profiles         user_profiles?
+  user_referrals        user_referrals?
+}
+
+model withdrawal_records {
+  id            String           @id
+  promoterId    String
+  amount        Decimal          @db.Decimal(18, 8)
+  walletAddress String
+  txHash        String?
+  status        WithdrawalStatus @default(PENDING)
+  remark        String?
+  requestedAt   DateTime         @default(now())
+  reviewedAt    DateTime?
+  completedAt   DateTime?
+  promoters     promoters        @relation(fields: [promoterId], references: [id], onDelete: Cascade)
+
+  @@index([promoterId, status])
+  @@index([status, requestedAt])
+}
+
+enum AdStatus {
+  PENDING
+  ACTIVE
+  INACTIVE
+  EXPIRED
+}
+
+enum AdType {
+  IMAGE
+  TEXT
+  CAROUSEL
+}
+
+enum AdjustmentType {
+  REFUND
+  MANUAL
+}
+
+enum ApplicationStatus {
+  PENDING
+  VIEWED
+  INTERVIEW
+  REJECTED
+  OFFER
+  WITHDRAWN
+}
+
+enum CommissionStatus {
+  FROZEN
+  AVAILABLE
+  WITHDRAWN
+  CLAWED_BACK
+}
+
+enum CompanyMemberRole {
+  ADMIN
+  RECRUITER
+  VIEWER
+}
+
+enum CompanyStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+  FREELANCE
+}
+
+enum ExperienceLevel {
+  ENTRY
+  MID
+  SENIOR
+  EXECUTIVE
+}
+
+enum JobStatus {
+  ACTIVE
+  INACTIVE
+  EXPIRED
+  DRAFT
+}
+
+enum LinkStatus {
+  ACTIVE
+  PAUSED
+}
+
+enum NotificationType {
+  APPLICATION_UPDATE
+  SYSTEM
+  JOB_ALERT
+  INTERVIEW_INVITE
+  OFFER_RECEIVED
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  REFUNDED
+}
+
+enum PageStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum PageType {
+  PAGE
+  BLOG
+  FAQ
+  GUIDE
+}
+
+enum PromoterStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+}
+
+enum TransactionType {
+  RECHARGE
+  DEDUCTION
+  REFUND
+  ADJUSTMENT
+}
+
+enum UserRole {
+  ADMIN
+  USER
+  COMPANY
+}
+
+enum UserStatus {
+  ACTIVE
+  DISABLED
+}
+
+enum WithdrawalStatus {
+  PENDING
+  APPROVED
+  TRANSFERRING
+  COMPLETED
+  REJECTED
+}

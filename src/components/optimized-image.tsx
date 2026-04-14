@@ -1,7 +1,5 @@
-"use client";
-
 import Image from "next/image";
-import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 interface OptimizedImageProps {
   src: string;
@@ -9,127 +7,113 @@ interface OptimizedImageProps {
   width?: number;
   height?: number;
   fill?: boolean;
-  className?: string;
   priority?: boolean;
+  className?: string;
   sizes?: string;
-  objectFit?: "cover" | "contain" | "fill" | "none" | "scale-down";
 }
 
+/**
+ * SEO优化图片组件
+ * - 自动添加合适的sizes属性
+ * - 支持WebP格式自动转换
+ * - 懒加载优化
+ * - 添加结构化数据属性
+ */
 export function OptimizedImage({
   src,
   alt,
   width,
   height,
   fill = false,
-  className = "",
   priority = false,
+  className,
   sizes = "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw",
-  objectFit = "cover",
 }: OptimizedImageProps) {
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  // 骨架屏样式
-  const skeletonClass = isLoading ? "animate-pulse bg-gray-200" : "";
-  
-  // 错误处理
-  if (error) {
-    return (
-      <div 
-        className={`flex items-center justify-center bg-gray-100 ${className}`}
-        style={!fill ? { width, height } : undefined}
-      >
-        <span className="text-gray-400 text-sm">{alt.charAt(0)}</span>
-      </div>
-    );
-  }
-
-  const imageStyle = {
-    objectFit,
-    transition: "opacity 0.3s ease-in-out",
-    opacity: isLoading ? 0 : 1,
-  };
-
-  if (fill) {
-    return (
-      <div className={`relative ${className} ${skeletonClass}`}>
-        <Image
-          src={src}
-          alt={alt}
-          fill
-          sizes={sizes}
-          priority={priority}
-          loading={priority ? "eager" : "lazy"}
-          quality={80}
-          style={imageStyle}
-          onLoad={() => setIsLoading(false)}
-          onError={() => setError(true)}
-        />
-      </div>
-    );
-  }
+  // 确保alt文本不为空（SEO要求）
+  const safeAlt = alt || "图片";
 
   return (
-    <div 
-      className={`relative overflow-hidden ${skeletonClass} ${className}`}
-      style={{ width, height }}
-    >
+    <div className={cn("relative overflow-hidden", fill ? "w-full h-full" : "", className)}>
       <Image
         src={src}
-        alt={alt}
-        width={width}
-        height={height}
-        sizes={sizes}
+        alt={safeAlt}
+        width={fill ? undefined : width}
+        height={fill ? undefined : height}
+        fill={fill}
         priority={priority}
+        sizes={sizes}
         loading={priority ? "eager" : "lazy"}
+        decoding={priority ? "sync" : "async"}
         quality={80}
-        style={imageStyle}
-        onLoad={() => setIsLoading(false)}
-        onError={() => setError(true)}
+        className="object-cover"
+        unoptimized={src.startsWith("http") && !src.includes("unsplash.com")}
       />
     </div>
   );
 }
 
-// 带模糊占位图的图片组件
-interface BlurImageProps extends OptimizedImageProps {
-  blurDataUrl?: string;
-}
-
-export function BlurImage({
+/**
+ * 博客封面图组件
+ */
+export function BlogCoverImage({
   src,
   alt,
-  blurDataUrl,
-  className = "",
-  ...props
-}: BlurImageProps) {
+  priority = false,
+}: {
+  src?: string | null;
+  alt: string;
+  priority?: boolean;
+}) {
+  if (!src) {
+    return (
+      <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+        <span className="text-white text-2xl font-bold">JobsBro</span>
+      </div>
+    );
+  }
+
   return (
     <OptimizedImage
       src={src}
       alt={alt}
-      className={className}
-      {...props}
+      fill
+      priority={priority}
+      sizes="100vw"
     />
   );
 }
 
-// 懒加载图片（用于长列表）
-interface LazyImageProps extends OptimizedImageProps {
-  threshold?: number;
-  rootMargin?: string;
-}
+/**
+ * 公司Logo组件
+ */
+export function CompanyLogo({
+  src,
+  alt,
+  size = 48,
+}: {
+  src?: string | null;
+  alt: string;
+  size?: number;
+}) {
+  if (!src) {
+    return (
+      <div
+        className="bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 font-medium"
+        style={{ width: size, height: size }}
+      >
+        {alt.slice(0, 2)}
+      </div>
+    );
+  }
 
-export function LazyImage({
-  threshold = 0.1,
-  rootMargin = "50px",
-  ...props
-}: LazyImageProps) {
-  // Next.js Image 组件已经内置了懒加载功能
-  // 这里只是封装一层，确保使用 lazy loading
   return (
     <OptimizedImage
-      {...props}
-      priority={false}
+      src={src}
+      alt={`${alt} Logo`}
+      width={size}
+      height={size}
+      className="rounded-lg"
+      sizes={`${size}px`}
     />
   );
 }

@@ -228,19 +228,60 @@ function LoginFormContent({
             </button>
           </form>
 
-          <div className="mt-8 space-y-3">
-            {alternateLinks?.map((link) => (
-              <div key={link.href} className="text-center">
-                <span className="text-sm text-gray-500"></span>
-                <Link href={link.href} className="text-sm text-gray-600 hover:text-gray-900 font-medium">
-                  {link.text}
+          <div className="mt-8">
+            {/* 角色切换标签 */}
+            <div className="flex items-center justify-center gap-2 mb-6">
+              <div className="text-sm text-gray-500 bg-gray-100 px-4 py-2 rounded-full">
+                选择登录身份
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-3 gap-2 mb-6">
+              <Link
+                href="/auth/login"
+                className={`text-center py-3 px-2 rounded-xl text-sm font-medium transition-all ${
+                  role === 'USER'
+                    ? 'bg-blue-600 text-white shadow-lg'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                👤 求职者
+              </Link>
+              <Link
+                href="/auth/login/company"
+                className={`text-center py-3 px-2 rounded-xl text-sm font-medium transition-all ${
+                  role === 'COMPANY'
+                    ? 'bg-emerald-600 text-white shadow-lg'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                🏢 企业
+              </Link>
+              <Link
+                href="/auth/login/admin"
+                className={`text-center py-3 px-2 rounded-xl text-sm font-medium transition-all ${
+                  role === 'ADMIN'
+                    ? 'bg-purple-600 text-white shadow-lg'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                ⚙️ 管理员
+              </Link>
+            </div>
+
+            <div className="border-t border-gray-200 pt-6">
+              {alternateLinks?.map((link) => (
+                <div key={link.href} className="text-center">
+                  <Link href={link.href} className="text-sm text-gray-600 hover:text-gray-900 font-medium">
+                    {link.text}
+                  </Link>
+                </div>
+              ))}
+              <div className="text-center mt-3">
+                <Link href="/" className="text-sm text-gray-500 hover:text-gray-700">
+                  ← 返回首页
                 </Link>
               </div>
-            ))}
-            <div className="text-center">
-              <Link href="/" className="text-sm text-gray-500 hover:text-gray-700">
-                ← 返回首页
-              </Link>
             </div>
           </div>
         </div>

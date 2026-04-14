@@ -17,15 +17,15 @@ export async function checkCompanyPermission(
   }
 
   // 查找用户的企业成员身份
-  const where: Prisma.CompanyMemberWhereInput = { userId };
+  const where: Prisma.company_membersWhereInput = { userId };
   if (companyId) {
     where.companyId = companyId;
   }
 
-  const membership = await prisma.companyMember.findFirst({
+  const membership = await prisma.company_members.findFirst({
     where,
     include: {
-      company: true,
+      companies: true,
     },
   });
 
@@ -53,12 +53,12 @@ export async function checkJobPermission(
     return { allowed: true, companyId: null, role: "ADMIN" };
   }
 
-  const job = await prisma.job.findUnique({
+  const job = await prisma.jobs.findUnique({
     where: { id: jobId },
     include: {
-      company: {
+      companies: {
         include: {
-          members: {
+          company_members: {
             where: { userId },
           },
         },
@@ -70,7 +70,7 @@ export async function checkJobPermission(
     return { allowed: false, companyId: null, role: null };
   }
 
-  const membership = job.company.members[0];
+  const membership = job.companies.company_members[0];
   if (!membership) {
     return { allowed: false, companyId: null, role: null };
   }
@@ -99,14 +99,14 @@ export async function checkApplicationPermission(
     return { allowed: true, companyId: null, role: "ADMIN" };
   }
 
-  const application = await prisma.jobApplication.findUnique({
+  const application = await prisma.job_applications.findUnique({
     where: { id: applicationId },
     include: {
-      job: {
+      jobs: {
         include: {
-          company: {
+          companies: {
             include: {
-              members: {
+              company_members: {
                 where: { userId },
               },
             },
@@ -120,7 +120,7 @@ export async function checkApplicationPermission(
     return { allowed: false, companyId: null, role: null };
   }
 
-  const membership = application.job.company.members[0];
+  const membership = application.jobs.companies.company_members[0];
   if (!membership) {
     return { allowed: false, companyId: null, role: null };
   }
@@ -129,7 +129,7 @@ export async function checkApplicationPermission(
 
   return {
     allowed: true,
-    companyId: application.job.companyId,
+    companyId: application.jobs.companyId,
     role: membership.role,
     canEdit,
   };

@@ -114,8 +114,8 @@ const TOPIC_META: Record<
   },
 };
 
-function buildWhere(slug: string): Prisma.JobWhereInput {
-  const base: Prisma.JobWhereInput = {
+function buildWhere(slug: string): Prisma.jobsWhereInput {
+  const base: Prisma.jobsWhereInput = {
     status: "ACTIVE",
     slug: { not: "" },
   };
@@ -176,7 +176,7 @@ function generateArticleSchema(post: any) {
     dateModified: post.updatedAt.toISOString(),
     author: {
       "@type": "Person",
-      name: post.author?.name || "招聘平台",
+      name: post.users?.name || "招聘平台",
     },
     publisher: {
       "@type": "Organization",
@@ -198,7 +198,7 @@ export const revalidate = 3600;
 
 export async function generateStaticParams() {
   try {
-    const cmsSlugs = await prisma.page.findMany({
+    const cmsSlugs = await prisma.pages.findMany({
       where: { type: "PAGE", status: "PUBLISHED", slug: { not: "" } },
       select: { slug: true },
       take: 500,
@@ -216,7 +216,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
 
   // 1. 尝试 CMS 专题页
-  const cmsPage = await prisma.page.findUnique({
+  const cmsPage = await prisma.pages.findUnique({
     where: { slug, type: "PAGE", status: "PUBLISHED" },
     select: { title: true, metaDescription: true, metaTitle: true, keywords: true },
   });
@@ -258,9 +258,9 @@ export default async function TopicPage({ params }: PageProps) {
     const { slug } = await params;
 
     // 1. 优先查找 CMS 专题页（由自动发布系统生成）
-    const cmsPage = await prisma.page.findUnique({
+    const cmsPage = await prisma.pages.findUnique({
     where: { slug, type: "PAGE", status: "PUBLISHED" },
-    include: { author: true },
+    include: { users: true },
   });
 
   if (cmsPage) {
@@ -269,7 +269,7 @@ export default async function TopicPage({ params }: PageProps) {
 
     // 获取相关职位
     const keyword = cmsPage.keywords?.[0] || "";
-    const relatedJobs = await prisma.job.findMany({
+    const relatedJobs = await prisma.jobs.findMany({
       where: {
         status: "ACTIVE",
         slug: { not: "" },
@@ -280,7 +280,7 @@ export default async function TopicPage({ params }: PageProps) {
             ]
           : undefined,
       },
-      include: { company: true },
+      include: { companies: true },
       take: 6,
     });
 
@@ -310,9 +310,9 @@ export default async function TopicPage({ params }: PageProps) {
                 <div className="flex items-center gap-4 text-gray-600 mb-8 pb-8 border-b">
                   <div className="flex items-center gap-2">
                     <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
-                      {cmsPage.author?.name?.[0] || "A"}
+                      {cmsPage.users?.name?.[0] || "A"}
                     </div>
-                    <span>{cmsPage.author?.name || "匿名作者"}</span>
+                    <span>{cmsPage.users?.name || "匿名作者"}</span>
                   </div>
                   <span>·</span>
                   <time dateTime={cmsPage.createdAt.toISOString()}>
@@ -369,9 +369,9 @@ export default async function TopicPage({ params }: PageProps) {
 
   const meta = TOPIC_META[slug];
 
-  const jobs = await prisma.job.findMany({
+  const jobs = await prisma.jobs.findMany({
     where: buildWhere(slug),
-    include: { company: true },
+    include: { companies: true },
     orderBy: { datePosted: "desc" },
     take: 20,
   });

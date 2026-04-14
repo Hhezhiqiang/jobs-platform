@@ -153,13 +153,13 @@ export async function POST(req: NextRequest) {
     const fileUrl = `/uploads/resumes/${fileName}`;
 
     // 检查是否是用户的第一份简历，如果是则设为默认
-    const existingResumes = await prisma.resume.count({
+    const existingResumes = await prisma.resumes.count({
       where: { userId: session.user.id },
     });
     const isDefault = existingResumes === 0;
 
     // 保存到数据库
-    const resume = await prisma.resume.create({
+    const resume = await prisma.resumes.create({
       data: {
         userId: session.user.id,
         name: name || file.name,
@@ -172,7 +172,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      resume: {
+      resumes: {
         id: resume.id,
         name: resume.name,
         fileUrl: resume.fileUrl,

@@ -30,7 +30,7 @@ export const revalidate = 3600;
 
 export async function generateStaticParams() {
   try {
-    const jobs = await prisma.job.findMany({
+    const jobs = await prisma.jobs.findMany({
       where: { status: "ACTIVE", slug: { not: "" } },
       select: { slug: true },
       take: 500,
@@ -44,9 +44,9 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
     const { slug } = await params;
-    const job = await prisma.job.findUnique({
+    const job = await prisma.jobs.findUnique({
       where: { slug },
-      include: { company: true },
+      include: { companies: true },
     });
 
     if (!job) {
@@ -66,9 +66,9 @@ export default async function JobDetailPage({ params }: PageProps) {
   let dbError = false;
   
   try {
-    job = await prisma.job.findUnique({
+    job = await prisma.jobs.findUnique({
       where: { slug },
-      include: { company: true },
+      include: { companies: true },
     });
   } catch (error) {
     console.error("Database error:", error);
@@ -108,7 +108,7 @@ export default async function JobDetailPage({ params }: PageProps) {
   // 检查是否已解锁联系方式
   let isContactUnlocked = false;
   if (isLoggedIn && job) {
-    const order = await prisma.contactUnlockOrder.findFirst({
+    const order = await prisma.contact_unlock_orders.findFirst({
       where: {
         userId: session.user.id,
         jobId: job.id,
@@ -166,11 +166,11 @@ export default async function JobDetailPage({ params }: PageProps) {
                 <h1 className="text-3xl md:text-4xl font-bold mb-4">{job.title}</h1>
                 <div className="flex flex-wrap items-center gap-4 text-blue-100">
                   <Link 
-                    href={`/companies/${job.company.slug}`}
+                    href={`/companies/${job.companies.slug}`}
                     className="flex items-center gap-2 hover:text-white transition-colors"
                   >
                     <Building2 className="w-4 h-4" />
-                    {job.company.name}
+                    {job.companies.name}
                   </Link>
                   <span>·</span>
                   <span className="flex items-center gap-2">
@@ -267,7 +267,7 @@ export default async function JobDetailPage({ params }: PageProps) {
                 <ApplyButton
                   jobId={job.id}
                   jobTitle={job.title}
-                  companyName={job.company.name}
+                  companyName={job.companies.name}
                   applyUrl={isLoggedIn ? job.applyUrl : undefined}
                 />
 
@@ -281,8 +281,8 @@ export default async function JobDetailPage({ params }: PageProps) {
               {/* Contact Unlock Card */}
               <ContactUnlockCard
                 jobId={job.id}
-                contactEmail={job.company.contactEmail}
-                contactPhone={job.company.contactPhone}
+                contactEmail={job.companies.contactEmail}
+                contactPhone={job.companies.contactPhone}
                 isUnlocked={isContactUnlocked}
                 price={Number(process.env.CONTACT_UNLOCK_PRICE || 5)}
                 isLoggedIn={isLoggedIn}
@@ -292,46 +292,46 @@ export default async function JobDetailPage({ params }: PageProps) {
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                 <h3 className="font-bold text-gray-900 mb-4">关于公司</h3>
                 <div className="flex items-center gap-4 mb-4">
-                  {job.company.logo ? (
+                  {job.companies.logo ? (
                     <Image
-                      src={job.company.logo}
-                      alt={job.company.name}
+                      src={job.companies.logo}
+                      alt={job.companies.name}
                       width={60}
                       height={60}
                       className="rounded-xl"
                     />
                   ) : (
                     <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-2xl">
-                      {job.company.name.charAt(0)}
+                      {job.companies.name.charAt(0)}
                     </div>
                   )}
                   <div>
                     <Link 
-                      href={`/companies/${job.company.slug}`}
+                      href={`/companies/${job.companies.slug}`}
                       className="font-bold text-gray-900 hover:text-blue-600 transition-colors"
                     >
-                      {job.company.name}
+                      {job.companies.name}
                     </Link>
-                    <p className="text-sm text-gray-500">{job.company.industry}</p>
+                    <p className="text-sm text-gray-500">{job.companies.industry}</p>
                   </div>
                 </div>
 
-                {job.company.description && (
+                {job.companies.description && (
                   <p className="text-gray-600 text-sm line-clamp-4 mb-4">
-                    {job.company.description}
+                    {job.companies.description}
                   </p>
                 )}
 
                 <div className="space-y-2 text-sm">
-                  {job.company.size && (
+                  {job.companies.size && (
                     <div className="flex items-center gap-2 text-gray-600">
                       <Building2 className="w-4 h-4" />
-                      {job.company.size}
+                      {job.companies.size}
                     </div>
                   )}
-                  {job.company.website && (
+                  {job.companies.website && (
                     <Link 
-                      href={ensureHttpProtocol(job.company.website)}
+                      href={ensureHttpProtocol(job.companies.website)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2 text-blue-600 hover:text-blue-700"
@@ -345,7 +345,7 @@ export default async function JobDetailPage({ params }: PageProps) {
                 </div>
 
                 <Link
-                  href={`/companies/${job.company.slug}`}
+                  href={`/companies/${job.companies.slug}`}
                   className="mt-4 block w-full py-2.5 text-center border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-all font-medium"
                 >
                   查看公司主页

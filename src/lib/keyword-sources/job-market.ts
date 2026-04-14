@@ -8,7 +8,7 @@ export const jobMarketAdapter: KeywordSourceAdapter = {
     const items: RawKeywordItem[] = [];
 
     // 1. 热门职位标题词（基于最近发布的职位）
-    const recentJobs = await prisma.job.findMany({
+    const recentJobs = await prisma.jobs.findMany({
       where: { status: "ACTIVE" },
       orderBy: { viewCount: "desc" },
       take: 20,
@@ -29,7 +29,7 @@ export const jobMarketAdapter: KeywordSourceAdapter = {
     }
 
     // 2. 热门城市+职位组合（如果城市和公司数据允许）
-    const cityJobPairs = await prisma.job.findMany({
+    const cityJobPairs = await prisma.jobs.findMany({
       where: { status: "ACTIVE", city: { not: "" } },
       orderBy: { viewCount: "desc" },
       take: 15,

@@ -1,9 +1,9 @@
-import { Job, Company } from "@prisma/client";
+import { jobs, companies } from "@prisma/client";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobs-platform-gold.vercel.app";
 
 // JobPosting Schema 生成（Google for Jobs 支持）
-export function generateJobPostingSchema(job: Job & { company: Company }) {
+export function generateJobPostingSchema(job: jobs & { companies: companies }) {
   const employmentTypeMap: Record<string, string> = {
     FULL_TIME: "FULLTIME",
     PART_TIME: "PARTTIME",
@@ -45,9 +45,9 @@ export function generateJobPostingSchema(job: Job & { company: Company }) {
     employmentType: employmentTypeMap[job.employmentType] || "FULLTIME",
     hiringOrganization: {
       "@type": "Organization",
-      name: job.schemaOrganizationName || job.company.name,
-      logo: job.schemaOrganizationLogo || job.company.logo || undefined,
-      url: `${SITE_URL}/companies/${job.company.slug}`,
+      name: job.schemaOrganizationName || job.companies.name,
+      logo: job.schemaOrganizationLogo || job.companies.logo || undefined,
+      url: `${SITE_URL}/companies/${job.companies.slug}`,
     },
     jobLocation: job.isRemote
       ? {
@@ -74,14 +74,14 @@ export function generateJobPostingSchema(job: Job & { company: Company }) {
     url: `${SITE_URL}/jobs/${job.slug}`,
     identifier: {
       "@type": "PropertyValue",
-      name: job.company.name,
+      name: job.companies.name,
       value: job.id,
     },
   };
 }
 
 // Organization Schema 生成
-export function generateOrganizationSchema(company: Company) {
+export function generateOrganizationSchema(company: companies) {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",

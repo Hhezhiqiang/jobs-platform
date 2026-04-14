@@ -34,9 +34,9 @@ async function updateWithdrawal(formData: FormData) {
   if (remark) updateData.remark = remark;
 
   if (status === "REJECTED") {
-    const record = await prisma.withdrawalRecord.findUnique({ where: { id } });
+    const record = await prisma.withdrawal_records.findUnique({ where: { id } });
     if (record) {
-      await prisma.promoter.update({
+      await prisma.promoters.update({
         where: { id: record.promoterId },
         data: {
           availableBalance: { increment: record.amount },
@@ -46,7 +46,7 @@ async function updateWithdrawal(formData: FormData) {
     }
   }
 
-  await prisma.withdrawalRecord.update({ where: { id }, data: updateData });
+  await prisma.withdrawal_records.update({ where: { id }, data: updateData });
 }
 
 export default async function AdminWithdrawalsPage({ searchParams }: PageProps) {
@@ -63,14 +63,14 @@ export default async function AdminWithdrawalsPage({ searchParams }: PageProps) 
   if (statusFilter) where.status = statusFilter;
 
   const [records, total] = await Promise.all([
-    prisma.withdrawalRecord.findMany({
+    prisma.withdrawal_records.findMany({
       where,
       skip: (currentPage - 1) * ITEMS_PER_PAGE,
       take: ITEMS_PER_PAGE,
       orderBy: { requestedAt: "desc" },
-      include: { promoter: true },
+      include: { promoters: true },
     }),
-    prisma.withdrawalRecord.count({ where }),
+    prisma.withdrawal_records.count({ where }),
   ]);
 
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
@@ -121,11 +121,11 @@ export default async function AdminWithdrawalsPage({ searchParams }: PageProps) 
                 {records.map((r) => (
                   <tr key={r.id} className="hover:bg-gray-50">
                     <td className="px-4 py-3">
-                      <div className="font-medium">{r.promoter?.name}</div>
-                      <div className="text-xs text-gray-500">{r.promoter?.email}</div>
+                      <div className="font-medium">{r.promoters?.name}</div>
+                      <div className="text-xs text-gray-500">{r.promoters?.email}</div>
                     </td>
                     <td className="px-4 py-3 font-semibold">{r.amount.toNumber().toFixed(2)}</td>
-                    <td className="px-4 py-3 text-xs text-gray-500 font-mono">{r.promoter?.walletAddress || "-"}</td>
+                    <td className="px-4 py-3 text-xs text-gray-500 font-mono">{r.promoters?.walletAddress || "-"}</td>
                     <td className="px-4 py-3 text-gray-500">{r.requestedAt.toLocaleDateString("zh-CN")}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${

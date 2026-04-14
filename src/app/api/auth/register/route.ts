@@ -44,7 +44,7 @@ export async function POST(request: Request) {
     }
 
     // 检查邮箱是否已注册
-    const existingUser = await prisma.user.findUnique({
+    const existingUser = await prisma.users.findUnique({
       where: { email },
     });
 
@@ -59,7 +59,7 @@ export async function POST(request: Request) {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     // 创建用户
-    const user = await prisma.user.create({
+    const user = await prisma.users.create({
       data: {
         name,
         email,
@@ -71,7 +71,7 @@ export async function POST(request: Request) {
     });
 
     // 创建用户资料
-    await prisma.userProfile.create({
+    await prisma.user_profiles.create({
       data: {
         userId: user.id,
         skills: [],
@@ -87,7 +87,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       message: "注册成功",
-      user: {
+      users: {
         id: user.id,
         name: user.name,
         email: user.email,

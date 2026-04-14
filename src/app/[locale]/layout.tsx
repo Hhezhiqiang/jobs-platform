@@ -2,12 +2,14 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { generateWebsiteSchema } from "@/lib/schema";
+import { safeJsonLdStringify } from "@/lib/utils";
 import { Providers } from "@/components/providers";
 import { TelegramFloatButton } from "@/components/telegram-float-button";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Analytics } from "@vercel/analytics/react";
 import { PageTracker } from "@/components/page-tracker";
+import { GoogleAnalytics } from "@/components/google-analytics";
 import { unstable_setRequestLocale } from "next-intl/server";
 import { getMessages } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
@@ -125,7 +127,7 @@ export default async function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(websiteSchema),
+            __html: safeJsonLdStringify(websiteSchema),
           }}
         />
       </head>
@@ -136,6 +138,7 @@ export default async function RootLayout({
             {children}
             <PageTracker />
             <Analytics />
+            <GoogleAnalytics />
             <script
               dangerouslySetInnerHTML={{
                 __html: `

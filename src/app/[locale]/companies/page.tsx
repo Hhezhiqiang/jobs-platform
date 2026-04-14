@@ -52,7 +52,7 @@ export default async function CompaniesPage({ searchParams }: PageProps) {
   const searchQuery = params.q || "";
 
   // 从数据库获取真实公司数据
-  const companies = await prisma.company.findMany({
+  const companies = await prisma.companies.findMany({
     where: searchQuery
       ? {
           OR: [

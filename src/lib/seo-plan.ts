@@ -18,9 +18,9 @@ export async function generateSEOPlan(
   monitorId: string,
   classification?: ClassificationResult
 ): Promise<SEOPlanPayload> {
-  const monitor = await prisma.keywordMonitor.findUnique({
+  const monitor = await prisma.keyword_monitors.findUnique({
     where: { id: monitorId },
-    include: { archives: true },
+    include: { keyword_archives: true },
   });
 
   if (!monitor) throw new Error("Monitor not found");
@@ -29,7 +29,7 @@ export async function generateSEOPlan(
   const keyword = monitor.keyword;
 
   // Build context from archives + internal db hints
-  const archiveContext = monitor.archives
+  const archiveContext = monitor.keyword_archives
     .slice(0, 5)
     .map((a) => `[${a.contentType}] ${a.contentTitle || ""}: ${a.contentBody.slice(0, 300)}`)
     .join("\n---\n");
@@ -37,7 +37,7 @@ export async function generateSEOPlan(
   // If PRIMARY, fetch a tiny sample of related jobs to enrich prompt
   let jobContext = "";
   if (category === "PRIMARY") {
-    const relatedJobs = await prisma.job.findMany({
+    const relatedJobs = await prisma.jobs.findMany({
       where: {
         status: "ACTIVE",
         OR: [
@@ -115,7 +115,7 @@ ${jobContext ? `${jobContext}\n` : ""}
   }
 
   // Persist
-  await prisma.sEOPlan.create({
+  await prisma.seo_plans.create({
     data: {
       monitorId,
       pageType: parsed.pageType,

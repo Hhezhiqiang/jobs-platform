@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { Job, Company } from "@prisma/client";
+import { jobs, companies } from "@prisma/client";
 import { formatSalary } from "./utils";
 
 const SITE_NAME = "JobsBro招聘平台";
@@ -36,18 +36,18 @@ export function generateHomeMetadata(): Metadata {
 }
 
 // 职位详情页 Metadata
-export function generateJobMetadata(job: Job & { company: Company }): Metadata {
-  const title = job.metaTitle || `${job.title} | ${job.company.name}招聘 | ${SITE_NAME}`;
+export function generateJobMetadata(job: jobs & { companies: companies }): Metadata {
+  const title = job.metaTitle || `${job.title} | ${job.companies.name}招聘 | ${SITE_NAME}`;
   const salaryStr = formatSalary(job.salaryMin, job.salaryMax);
   const description = job.metaDescription ||
-    `${job.company.name}招聘${job.title}，工作地点：${job.location}，薪资：${salaryStr}。点击查看详情并申请。`;
+    `${job.companies.name}招聘${job.title}，工作地点：${job.location}，薪资：${salaryStr}。点击查看详情并申请。`;
 
   const url = `${SITE_URL}/jobs/${job.slug}`;
 
   return {
     title,
     description: description.slice(0, 160),
-    keywords: [job.title, job.company.name, "招聘", "求职", job.city || job.location].filter((k): k is string => !!k),
+    keywords: [job.title, job.companies.name, "招聘", "求职", job.city || job.location].filter((k): k is string => !!k),
     openGraph: {
       title,
       description: description.slice(0, 160),
@@ -75,7 +75,7 @@ export function generateJobMetadata(job: Job & { company: Company }): Metadata {
 }
 
 // 公司页 Metadata
-export function generateCompanyMetadata(company: Company): Metadata {
+export function generateCompanyMetadata(company: companies): Metadata {
   const title = company.metaTitle || `${company.name} - 公司招聘主页 | ${SITE_NAME}`;
   const description = company.metaDescription ||
     `${company.name}${company.industry ? `，${company.industry}行业` : ""}招聘主页。查看最新职位信息，了解公司详情。`;
@@ -133,3 +133,4 @@ export function generateJobsListMetadata(params?: { city?: string; type?: string
     },
   };
 }
+

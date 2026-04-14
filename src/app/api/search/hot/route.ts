@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const since = new Date();
     since.setDate(since.getDate() - days);
 
-    const hotQueries = await prisma.searchQuery.findMany({
+    const hotQueries = await prisma.search_queries.findMany({
       where: {
         lastSearched: {
           gte: since,

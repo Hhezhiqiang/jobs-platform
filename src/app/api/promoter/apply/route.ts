@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "请输入有效的 TRC-20 地址" }, { status: 400 });
     }
 
-    const existing = await prisma.promoter.findUnique({ where: { email } });
+    const existing = await prisma.promoters.findUnique({ where: { email } });
     if (existing) {
       return NextResponse.json({ error: "该邮箱已申请" }, { status: 400 });
     }
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
       data.userId = session.user.id;
     }
 
-    const promoter = await prisma.promoter.create({ data });
+    const promoter = await prisma.promoters.create({ data });
 
     return NextResponse.json({
       success: true,

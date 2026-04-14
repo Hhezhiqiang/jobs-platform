@@ -28,12 +28,12 @@ export async function POST(request: Request) {
     }
 
     if (industry) {
-      where.company = { industry };
+      where.companies = { industry };
     }
 
-    const jobs = await prisma.job.findMany({
+    const jobs = await prisma.jobs.findMany({
       where,
-      include: { company: true },
+      include: { companies: true },
     });
 
     if (jobs.length === 0) {

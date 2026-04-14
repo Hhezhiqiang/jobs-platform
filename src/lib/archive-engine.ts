@@ -10,7 +10,7 @@ export interface ArchiveResult {
  * Collect content archives for a keyword monitor from multiple sources.
  */
 export async function collectArchives(monitorId: string): Promise<ArchiveResult> {
-  const monitor = await prisma.keywordMonitor.findUnique({ where: { id: monitorId } });
+  const monitor = await prisma.keyword_monitors.findUnique({ where: { id: monitorId } });
   if (!monitor) throw new Error("Monitor not found");
 
   let inserted = 0;
@@ -27,7 +27,7 @@ export async function collectArchives(monitorId: string): Promise<ArchiveResult>
     try {
       const archives = await source.fn();
       for (const archive of archives) {
-        await prisma.keywordArchive.create({
+        await prisma.keyword_archives.create({
           data: {
             monitorId,
             contentType: archive.contentType,
@@ -168,7 +168,7 @@ async function fetchRedditSearch(keyword: string): Promise<RawArchive[]> {
 }
 
 async function fetchLocalJobData(keyword: string): Promise<RawArchive[]> {
-  const relatedJobs = await prisma.job.findMany({
+  const relatedJobs = await prisma.jobs.findMany({
     where: {
       status: "ACTIVE",
       OR: [
@@ -184,7 +184,7 @@ async function fetchLocalJobData(keyword: string): Promise<RawArchive[]> {
       salaryMin: true,
       salaryMax: true,
       employmentType: true,
-      company: { select: { name: true } },
+      companies: { select: { name: true } },
     },
   });
 
@@ -193,7 +193,7 @@ async function fetchLocalJobData(keyword: string): Promise<RawArchive[]> {
   const body = relatedJobs
     .map(
       (j) =>
-        `- ${j.title} @ ${j.company?.name || "未知公司"} (${j.city || "多地"}) ${
+        `- ${j.title} @ ${j.companies?.name || "未知公司"} (${j.city || "多地"}) ${
           j.salaryMin || 0
         }-${j.salaryMax || 0}K · ${j.employmentType || "全职"}`
     )

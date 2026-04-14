@@ -1,8 +1,8 @@
-import { Job, Company, JobApplication } from "@prisma/client";
+import { jobs, companies, job_applications } from "@prisma/client";
 
 // 推荐职位类型
-export interface RecommendedJob extends Job {
-  company: Company;
+export interface RecommendedJob extends jobs {
+  companies: companies;
   matchScore: number;
   matchReasons: string[];
 }
@@ -66,7 +66,7 @@ export function saveUserBehaviorData(data: UserBehaviorData): void {
 /**
  * 记录职位浏览
  */
-export function recordJobView(job: Job & { company: Company }): void {
+export function recordJobView(job: jobs & { companies: companies }): void {
   if (typeof window === "undefined") return;
   
   const data = getUserBehaviorData();
@@ -98,7 +98,7 @@ export function recordJobView(job: Job & { company: Company }): void {
 /**
  * 从职位信息中提取技能标签
  */
-function extractSkillsFromJob(job: Job): string[] {
+function extractSkillsFromJob(job: jobs): string[] {
   const skills: string[] = [];
   const text = `${job.title} ${job.description} ${job.requirements || ""}`;
   
@@ -160,7 +160,7 @@ function mergeSkills(existing: string[], newSkills: string[]): string[] {
 /**
  * 更新申请历史（从 API 获取后调用）
  */
-export function updateAppliedJobs(applications: JobApplication[]): void {
+export function updateAppliedJobs(applications: job_applications[]): void {
   if (typeof window === "undefined") return;
   
   const data = getUserBehaviorData();
@@ -181,7 +181,7 @@ export function clearRecommendationData(): void {
  * 计算职位匹配分数
  */
 export function calculateMatchScore(
-  job: Job,
+  job: jobs,
   behaviorData: UserBehaviorData
 ): { score: number; reasons: string[] } {
   let score = 0;
@@ -250,7 +250,7 @@ export function calculateMatchScore(
  * 获取推荐排序权重（结合匹配度和时间）
  */
 export function getRecommendationWeight(
-  job: Job,
+  job: jobs,
   matchScore: number
 ): number {
   // 发布时间衰减因子（越新权重越高）

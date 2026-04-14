@@ -18,7 +18,7 @@ model keyword_to_page {
 }
 
 model ad_positions {
-  id          String   @id
+  id          String   @id @default(uuid())
   name        String   @unique
   displayName String
   description String?
@@ -27,12 +27,12 @@ model ad_positions {
   maxAds      Int      @default(1)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
-  updatedAt   DateTime
+  updatedAt   DateTime @updatedAt
   ads         ads[]
 }
 
 model ads {
-  id           String       @id
+  id           String       @id @default(uuid())
   title        String
   type         AdType       @default(IMAGE)
   imageUrl     String?
@@ -45,7 +45,7 @@ model ads {
   clickCount   Int          @default(0)
   viewCount    Int          @default(0)
   createdAt    DateTime     @default(now())
-  updatedAt    DateTime
+  updatedAt    DateTime @updatedAt
   positionId   String
   authorId     String
   users        users        @relation(fields: [authorId], references: [id])
@@ -53,7 +53,7 @@ model ads {
 }
 
 model balance_transactions {
-  id                    String                 @id
+  id                    String                 @id @default(uuid())
   userId                String
   type                  TransactionType
   amount                Decimal                @db.Decimal(18, 8)
@@ -69,7 +69,7 @@ model balance_transactions {
 }
 
 model commission_adjustments {
-  id                 String             @id
+  id                 String             @id @default(uuid())
   commissionRecordId String
   promoterId         String
   amount             Decimal            @db.Decimal(18, 8)
@@ -83,7 +83,7 @@ model commission_adjustments {
 }
 
 model commission_records {
-  id                     String                   @id
+  id                     String                   @id @default(uuid())
   orderId                String                   @unique
   promoterId             String
   linkId                 String
@@ -96,7 +96,7 @@ model commission_records {
   availableAt            DateTime?
   settledAt              DateTime?
   createdAt              DateTime                 @default(now())
-  updatedAt              DateTime
+  updatedAt              DateTime @updatedAt
   commission_adjustments commission_adjustments[]
   promoter_links         promoter_links           @relation(fields: [linkId], references: [id], onDelete: Cascade)
   contact_unlock_orders  contact_unlock_orders    @relation(fields: [orderId], references: [id])
@@ -107,7 +107,7 @@ model commission_records {
 }
 
 model companies {
-  id                 String            @id
+  id                 String            @id @default(uuid())
   name               String
   slug               String            @unique
   logo               String?
@@ -117,7 +117,7 @@ model companies {
   size               String?
   location           String?
   createdAt          DateTime          @default(now())
-  updatedAt          DateTime
+  updatedAt          DateTime @updatedAt
   metaTitle          String?
   metaDescription    String?
   businessLicense    String?
@@ -138,12 +138,12 @@ model companies {
 }
 
 model company_members {
-  id        String            @id
+  id        String            @id @default(uuid())
   companyId String
   userId    String
   role      CompanyMemberRole @default(ADMIN)
   createdAt DateTime          @default(now())
-  updatedAt DateTime
+  updatedAt DateTime @updatedAt
   companies companies         @relation(fields: [companyId], references: [id], onDelete: Cascade)
   users     users             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -152,14 +152,14 @@ model company_members {
 }
 
 model contact_unlock_orders {
-  id                   String                @id
+  id                   String                @id @default(uuid())
   userId               String
   jobId                String
   amount               Decimal               @db.Decimal(18, 8)
   status               OrderStatus           @default(PENDING)
   paidAt               DateTime?
   createdAt            DateTime              @default(now())
-  updatedAt            DateTime
+  updatedAt            DateTime @updatedAt
   balance_transactions balance_transactions?
   commission_records   commission_records?
   jobs                 jobs                  @relation(fields: [jobId], references: [id])
@@ -171,7 +171,7 @@ model contact_unlock_orders {
 }
 
 model favorites {
-  id        String   @id
+  id        String   @id @default(uuid())
   userId    String
   jobId     String
   createdAt DateTime @default(now())
@@ -184,7 +184,7 @@ model favorites {
 }
 
 model job_applications {
-  id           String            @id
+  id           String            @id @default(uuid())
   jobId        String
   userId       String
   resumeId     String?
@@ -205,7 +205,7 @@ model job_applications {
 }
 
 model jobs {
-  id                     String                  @id
+  id                     String                  @id @default(uuid())
   slug                   String                  @unique
   title                  String
   description            String
@@ -235,7 +235,7 @@ model jobs {
   schemaOrganizationName String?
   schemaOrganizationLogo String?
   createdAt              DateTime                @default(now())
-  updatedAt              DateTime
+  updatedAt              DateTime @updatedAt
   companyId              String
   authorId               String
   benefitsEn             String?
@@ -257,7 +257,7 @@ model jobs {
 }
 
 model keyword_archives {
-  id               String           @id
+  id               String           @id @default(uuid())
   monitorId        String
   contentType      String
   contentUrl       String?
@@ -273,7 +273,7 @@ model keyword_archives {
 }
 
 model keyword_monitors {
-  id               String             @id
+  id               String             @id @default(uuid())
   keyword          String
   normalized       String
   language         String             @default("zh")
@@ -300,7 +300,7 @@ model keyword_monitors {
 }
 
 model notifications {
-  id        String           @id
+  id        String           @id @default(uuid())
   userId    String
   type      NotificationType
   title     String
@@ -315,7 +315,7 @@ model notifications {
 }
 
 model page_views {
-  id        String   @id
+  id        String   @id @default(uuid())
   path      String
   userAgent String?
   ip        String?
@@ -332,7 +332,7 @@ model page_views {
 }
 
 model pages {
-  id                String             @id
+  id                String             @id @default(uuid())
   slug              String             @unique
   title             String
   content           String
@@ -344,7 +344,7 @@ model pages {
   keywords          String[]
   featuredImage     String?
   createdAt         DateTime           @default(now())
-  updatedAt         DateTime
+  updatedAt         DateTime @updatedAt
   authorId          String
   viewCount         Int                @default(0)
   contentEn         String?
@@ -360,7 +360,7 @@ model pages {
 }
 
 model promoter_links {
-  id                 String               @id
+  id                 String               @id @default(uuid())
   promoterId         String
   name               String
   code               String               @unique
@@ -372,7 +372,7 @@ model promoter_links {
   gmv                Decimal              @default(0.0) @db.Decimal(18, 8)
   status             LinkStatus           @default(ACTIVE)
   createdAt          DateTime             @default(now())
-  updatedAt          DateTime
+  updatedAt          DateTime @updatedAt
   commission_records commission_records[]
   promoters          promoters            @relation(fields: [promoterId], references: [id], onDelete: Cascade)
   user_referrals     user_referrals[]
@@ -382,7 +382,7 @@ model promoter_links {
 }
 
 model promoters {
-  id                     String                   @id
+  id                     String                   @id @default(uuid())
   userId                 String?                  @unique
   name                   String
   email                  String                   @unique
@@ -395,7 +395,7 @@ model promoters {
   withdrawnBalance       Decimal                  @default(0.0) @db.Decimal(18, 8)
   totalEarnings          Decimal                  @default(0.0) @db.Decimal(18, 8)
   createdAt              DateTime                 @default(now())
-  updatedAt              DateTime
+  updatedAt              DateTime @updatedAt
   commission_adjustments commission_adjustments[]
   commission_records     commission_records[]
   promoter_links         promoter_links[]
@@ -405,7 +405,7 @@ model promoters {
 }
 
 model resumes {
-  id               String             @id
+  id               String             @id @default(uuid())
   userId           String
   name             String
   fileUrl          String
@@ -418,19 +418,19 @@ model resumes {
 }
 
 model search_queries {
-  id           String   @id
+  id           String   @id @default(uuid())
   query        String   @unique
   count        Int      @default(1)
   lastSearched DateTime @default(now())
   createdAt    DateTime @default(now())
-  updatedAt    DateTime
+  updatedAt    DateTime @updatedAt
 
   @@index([count])
   @@index([lastSearched])
 }
 
 model seo_plans {
-  id               String           @id
+  id               String           @id @default(uuid())
   monitorId        String
   pageType         String
   title            String
@@ -457,15 +457,15 @@ model seo_plans {
 }
 
 model seo_settings {
-  id          String   @id
+  id          String   @id @default(uuid())
   key         String   @unique
   value       String
   description String?
-  updatedAt   DateTime
+  updatedAt   DateTime @updatedAt
 }
 
 model sessions {
-  id           String   @id
+  id           String   @id @default(uuid())
   sessionToken String   @unique
   userId       String
   expires      DateTime
@@ -473,7 +473,7 @@ model sessions {
 }
 
 model user_profiles {
-  id             String    @id
+  id             String    @id @default(uuid())
   userId         String    @unique
   gender         String?
   birthday       DateTime?
@@ -482,12 +482,12 @@ model user_profiles {
   education      Json?
   skills         String[]
   bio            String?
-  updatedAt      DateTime
+  updatedAt      DateTime @updatedAt
   users          users     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model user_referrals {
-  id             String         @id
+  id             String         @id @default(uuid())
   userId         String         @unique
   promoterId     String
   linkId         String
@@ -502,14 +502,14 @@ model user_referrals {
 }
 
 model users {
-  id                    String                  @id
+  id                    String                  @id @default(uuid())
   email                 String                  @unique
   name                  String
   password              String
   role                  UserRole                @default(USER)
   avatar                String?
   createdAt             DateTime                @default(now())
-  updatedAt             DateTime
+  updatedAt             DateTime @updatedAt
   phone                 String?
   status                UserStatus              @default(ACTIVE)
   balance               Decimal                 @default(0.0) @db.Decimal(18, 8)
@@ -530,7 +530,7 @@ model users {
 }
 
 model withdrawal_records {
-  id            String           @id
+  id            String           @id @default(uuid())
   promoterId    String
   amount        Decimal          @db.Decimal(18, 8)
   walletAddress String

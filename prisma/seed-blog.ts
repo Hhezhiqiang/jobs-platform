@@ -3,7 +3,7 @@ import { PrismaClient, PageType, PageStatus } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
-  const admin = await prisma.user.findFirst({ where: { email: "admin@example.com" } });
+  const admin = await prisma.users.findFirst({ where: { email: "admin@example.com" } });
   if (!admin) {
     console.log("Admin not found");
     process.exit(1);
@@ -234,7 +234,7 @@ A: 技术经验全球通用。
   ];
 
   for (const blog of blogs) {
-    await prisma.page.upsert({
+    await prisma.pages.upsert({
       where: { slug: blog.slug },
       update: {},
       create: {

@@ -34,7 +34,7 @@ export async function PATCH(
     }
     if (status !== undefined) updateData.status = status;
 
-    const link = await prisma.promoterLink.update({
+    const link = await prisma.promoter_links.update({
       where: { id: params.id },
       data: updateData,
     });

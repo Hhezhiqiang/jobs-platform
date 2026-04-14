@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     }
 
     // 获取用户的所有简历
-    const resumes = await prisma.resume.findMany({
+    const resumes = await prisma.resumes.findMany({
       where: { userId: session.user.id },
       take: 50,
       orderBy: [{ isDefault: "desc" }, { createdAt: "desc" }],

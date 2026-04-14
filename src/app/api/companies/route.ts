@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "请求过于频繁" }, { status: 429 });
     }
 
-    const companies = await prisma.company.findMany({
+    const companies = await prisma.companies.findMany({
       take: 100,
       include: {
         _count: {
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 检查 slug 是否已存在
-    const existingCompany = await prisma.company.findUnique({
+    const existingCompany = await prisma.companies.findUnique({
       where: { slug: body.slug },
     });
 
@@ -67,9 +67,9 @@ export async function POST(request: NextRequest) {
     }
 
     // 限制每个用户最多创建 3 家公司
-    const existingCount = await prisma.company.count({
+    const existingCount = await prisma.companies.count({
       where: {
-        members: {
+        company_members: {
           some: {
             userId: session.user.id,
             role: "ADMIN",
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const company = await prisma.company.create({
+    const company = await prisma.companies.create({
       data: {
         name: body.name,
         slug: body.slug,
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
         description: body.description || null,
         metaTitle: body.metaTitle || null,
         metaDescription: body.metaDescription || null,
-        members: {
+        company_members: {
           create: {
             userId: session.user.id,
             role: "ADMIN",

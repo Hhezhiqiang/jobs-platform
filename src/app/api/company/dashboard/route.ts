@@ -15,12 +15,12 @@ export async function GET(request: NextRequest) {
     }
 
     // 获取用户关联的企业
-    const membership = await prisma.companyMember.findFirst({
+    const membership = await prisma.company_members.findFirst({
       where: {
         userId: session.user.id,
       },
       include: {
-        company: true,
+        companies: true,
       },
     });
 
@@ -35,56 +35,52 @@ export async function GET(request: NextRequest) {
     const companyId = membership?.companyId;
 
     // 统计职位数量
-    const jobsCount = await prisma.job.count({
+    const jobsCount = await prisma.jobs.count({
       where: companyId ? { companyId } : {},
     });
 
-    const activeJobsCount = await prisma.job.count({
+    const activeJobsCount = await prisma.jobs.count({
       where: companyId
         ? { companyId, status: "ACTIVE" }
         : { status: "ACTIVE" },
     });
 
     // 统计申请数量
-    const applicationsCount = await prisma.jobApplication.count({
+    const applicationsCount = await prisma.job_applications.count({
       where: companyId
         ? {
-            job: {
-              companyId,
+            jobs: { companyId,
             },
           }
         : {},
     });
 
-    const pendingApplicationsCount = await prisma.jobApplication.count({
+    const pendingApplicationsCount = await prisma.job_applications.count({
       where: companyId
         ? {
             status: "PENDING",
-            job: {
-              companyId,
+            jobs: { companyId,
             },
           }
         : { status: "PENDING" },
     });
 
     // 获取最近的申请
-    const recentApplications = await prisma.jobApplication.findMany({
+    const recentApplications = await prisma.job_applications.findMany({
       where: companyId
         ? {
-            job: {
-              companyId,
+            jobs: { companyId,
             },
           }
         : {},
-      include: {
-        job: {
+      include: { jobs: {
           select: {
             id: true,
             title: true,
             slug: true,
           },
         },
-        user: {
+        users: {
           select: {
             id: true,
             name: true,
@@ -97,18 +93,15 @@ export async function GET(request: NextRequest) {
     });
 
     // 获取最近的职位
-    const recentJobs = await prisma.job.findMany({
+    const recentJobs = await prisma.jobs.findMany({
       where: companyId ? { companyId } : {},
-      include: {
-        company: {
+      include: { companies: {
           select: {
             id: true,
             name: true,
           },
         },
-        _count: {
-          select: {
-            applications: true,
+        _count: { select: { job_applications: true,
           },
         },
       },
@@ -117,7 +110,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json({
-      company: membership?.company || null,
+      company: membership?.companies || null,
       memberRole: membership?.role || null,
       stats: {
         jobsCount,

@@ -14,7 +14,7 @@ export async function GET() {
   const { promoter } = auth;
 
   try {
-    const links = await prisma.promoterLink.findMany({
+    const links = await prisma.promoter_links.findMany({
       where: { promoterId: promoter.id },
       orderBy: { createdAt: "desc" },
     });
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jobs-platform.com";
     const fullUrl = `${siteUrl}${lp}${lp.includes("?") ? "&" : "?"}ref=${code}`;
 
-    const link = await prisma.promoterLink.create({
+    const link = await prisma.promoter_links.create({
       data: {
         promoterId: promoter.id,
         name,

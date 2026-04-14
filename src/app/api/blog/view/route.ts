@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing slug" }, { status: 400 });
     }
 
-    const post = await prisma.page.update({
+    const post = await prisma.pages.update({
       where: { slug, type: "BLOG", status: "PUBLISHED" },
       data: { viewCount: { increment: 1 } },
       select: { viewCount: true },

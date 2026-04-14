@@ -56,20 +56,20 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
       }
 
       setFormData({
-        title: data.job.title || "",
-        description: data.job.description || "",
-        requirements: data.job.requirements || "",
-        benefits: data.job.benefits || "",
-        employmentType: data.job.employmentType || "FULL_TIME",
-        experience: data.job.experience || "MID",
-        salaryMin: data.job.salaryMin?.toString() || "",
-        salaryMax: data.job.salaryMax?.toString() || "",
-        location: data.job.location || "",
-        city: data.job.city || "",
-        isRemote: data.job.isRemote || false,
-        isHybrid: data.job.isHybrid || false,
-        applyUrl: data.job.applyUrl || "",
-        status: data.job.status || "ACTIVE",
+        title: data.jobs.title || "",
+        description: data.jobs.description || "",
+        requirements: data.jobs.requirements || "",
+        benefits: data.jobs.benefits || "",
+        employmentType: data.jobs.employmentType || "FULL_TIME",
+        experience: data.jobs.experience || "MID",
+        salaryMin: data.jobs.salaryMin?.toString() || "",
+        salaryMax: data.jobs.salaryMax?.toString() || "",
+        location: data.jobs.location || "",
+        city: data.jobs.city || "",
+        isRemote: data.jobs.isRemote || false,
+        isHybrid: data.jobs.isHybrid || false,
+        applyUrl: data.jobs.applyUrl || "",
+        status: data.jobs.status || "ACTIVE",
       });
     } catch (err: any) {
       setError(err.message);

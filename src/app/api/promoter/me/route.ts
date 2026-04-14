@@ -46,7 +46,7 @@ export async function PATCH(request: Request) {
     const updateData: Record<string, any> = {};
     if (walletAddress !== undefined) updateData.walletAddress = walletAddress;
 
-    const updated = await prisma.promoter.update({
+    const updated = await prisma.promoters.update({
       where: { id: promoter.id },
       data: updateData,
     });

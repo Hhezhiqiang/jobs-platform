@@ -164,7 +164,7 @@ export default function ApplicationDetailPage({
             <div>
               <h1 className="text-xl font-bold">简历详情</h1>
               <p className="text-sm text-gray-500">
-                {application?.job?.title} · {application?.job?.company?.name}
+                {application?.job?.title} · {application?.job?.companies?.name}
               </p>
             </div>
           </div>
@@ -229,7 +229,7 @@ export default function ApplicationDetailPage({
                     <MapPin className="w-5 h-5 text-gray-400" />
                     <div>
                       <p className="text-sm text-gray-500">所在地</p>
-                      <p>{application.user.profile.location}</p>
+                      <p>{application.user.user_profiles.location}</p>
                     </div>
                   </div>
                 )}
@@ -282,11 +282,11 @@ export default function ApplicationDetailPage({
               <div className="bg-white rounded-lg shadow p-6">
                 <h3 className="font-semibold mb-4">工作经历</h3>
                 <div className="space-y-4">
-                  {application.user.profile.workExperience.map(
+                  {application.user.user_profiles.workExperience.map(
                     (exp: any, index: number) => (
                       <div key={index} className="border-l-2 border-gray-200 pl-4">
                         <p className="font-medium">{exp.position}</p>
-                        <p className="text-gray-600">{exp.company}</p>
+                        <p className="text-gray-600">{exp.companies}</p>
                         <p className="text-sm text-gray-500">
                           {exp.startDate} - {exp.endDate || "至今"}
                         </p>
@@ -303,7 +303,7 @@ export default function ApplicationDetailPage({
               <div className="bg-white rounded-lg shadow p-6">
                 <h3 className="font-semibold mb-4">教育背景</h3>
                 <div className="space-y-4">
-                  {application.user.profile.education.map(
+                  {application.user.user_profiles.education.map(
                     (edu: any, index: number) => (
                       <div key={index} className="border-l-2 border-gray-200 pl-4">
                         <p className="font-medium">{edu.school}</p>

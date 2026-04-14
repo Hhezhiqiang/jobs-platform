@@ -25,16 +25,16 @@ export async function GET(request: NextRequest) {
     if (source) where.source = source;
 
     const [items, total] = await Promise.all([
-      prisma.keywordMonitor.findMany({
+      prisma.keyword_monitors.findMany({
         where,
         orderBy: { lastSeenAt: "desc" },
         take: limit,
         skip: offset,
         include: {
-          _count: { select: { archives: true, seoPlans: true } },
+          _count: { select: { keyword_archives: true, seo_plans: true } },
         },
       }),
-      prisma.keywordMonitor.count({ where }),
+      prisma.keyword_monitors.count({ where }),
     ]);
 
     return NextResponse.json({ items, total, limit, offset });

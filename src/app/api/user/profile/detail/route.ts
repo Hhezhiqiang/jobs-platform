@@ -27,7 +27,7 @@ export async function PUT(request: NextRequest) {
     } = body;
 
     // 查找或创建用户资料
-    const profile = await prisma.userProfile.upsert({
+    const profile = await prisma.user_profiles.upsert({
       where: { userId: session.user.id },
       create: {
         userId: session.user.id,
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 获取用户信息（包含密码）
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: session.user.id },
     });
 
@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(newPassword, 12);
 
     // 更新密码
-    await prisma.user.update({
+    await prisma.users.update({
       where: { id: session.user.id },
       data: { password: hashedPassword },
     });

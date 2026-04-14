@@ -21,7 +21,7 @@ export async function GET(
 
     const { id } = await params;
 
-    const resume = await prisma.resume.findFirst({
+    const resume = await prisma.resumes.findFirst({
       where: {
         id,
         userId: session.user.id,
@@ -53,7 +53,7 @@ export async function DELETE(
     const { id } = await params;
 
     // 查找简历
-    const resume = await prisma.resume.findFirst({
+    const resume = await prisma.resumes.findFirst({
       where: {
         id,
         userId: session.user.id,
@@ -82,19 +82,19 @@ export async function DELETE(
     }
 
     // 删除数据库记录
-    await prisma.resume.delete({
+    await prisma.resumes.delete({
       where: { id },
     });
 
     // 如果删除的是默认简历，将最新的简历设为默认
     if (resume.isDefault) {
-      const latestResume = await prisma.resume.findFirst({
+      const latestResume = await prisma.resumes.findFirst({
         where: { userId: session.user.id },
         orderBy: { createdAt: "desc" },
       });
       
       if (latestResume) {
-        await prisma.resume.update({
+        await prisma.resumes.update({
           where: { id: latestResume.id },
           data: { isDefault: true },
         });
@@ -123,7 +123,7 @@ export async function PATCH(
     const body = await req.json();
 
     // 查找简历
-    const resume = await prisma.resume.findFirst({
+    const resume = await prisma.resumes.findFirst({
       where: {
         id,
         userId: session.user.id,
@@ -136,7 +136,7 @@ export async function PATCH(
 
     // 如果设置为默认，先将其他简历设为非默认
     if (body.isDefault) {
-      await prisma.resume.updateMany({
+      await prisma.resumes.updateMany({
         where: {
           userId: session.user.id,
           isDefault: true,
@@ -146,7 +146,7 @@ export async function PATCH(
     }
 
     // 更新简历
-    const updatedResume = await prisma.resume.update({
+    const updatedResume = await prisma.resumes.update({
       where: { id },
       data: {
         isDefault: body.isDefault,
@@ -154,7 +154,7 @@ export async function PATCH(
       },
     });
 
-    return NextResponse.json({ success: true, resume: updatedResume });
+    return NextResponse.json({ success: true, resumes: updatedResume });
   } catch (error) {
     console.error("更新简历失败:", error);
     return NextResponse.json({ error: "更新失败" }, { status: 500 });

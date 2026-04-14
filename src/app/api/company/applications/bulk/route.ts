@@ -8,14 +8,11 @@ export const dynamic = "force-dynamic";
 async function checkPermission(userId: string, role: string, applicationId: string) {
   if (role === "ADMIN") return true;
 
-  const application = await prisma.jobApplication.findUnique({
+  const application = await prisma.job_applications.findUnique({
     where: { id: applicationId },
-    include: {
-      job: {
-        include: {
-          company: {
-            include: {
-              members: { where: { userId } },
+    include: { jobs: {
+        include: { companies: {
+            include: { company_members: { where: { userId } },
             },
           },
         },
@@ -24,7 +21,7 @@ async function checkPermission(userId: string, role: string, applicationId: stri
   });
 
   if (!application) return false;
-  const membership = application.job.company.members[0];
+  const membership = application.jobs.companies.company_members[0];
   if (!membership) return false;
   return membership.role === "ADMIN" || membership.role === "RECRUITER";
 }
@@ -79,28 +76,27 @@ export async function POST(request: NextRequest) {
       updateData.viewedAt = new Date();
     }
 
-    await prisma.jobApplication.updateMany({
+    await prisma.job_applications.updateMany({
       where: { id: { in: ids } },
       data: updateData,
     });
 
     // 给申请者发通知
-    const applications = await prisma.jobApplication.findMany({
+    const applications = await prisma.job_applications.findMany({
       where: { id: { in: ids } },
-      include: {
-        job: { select: { title: true } },
-        user: { select: { id: true } },
+      include: { jobs: { select: { title: true } },
+        users: { select: { id: true } },
       },
     });
 
     for (const app of applications) {
       try {
-        await prisma.notification.create({
+        await prisma.notifications.create({
           data: {
             userId: app.userId,
             type: "APPLICATION_UPDATE",
             title: "申请状态更新",
-            content: `您在「${app.job.title}」职位的申请状态已更新为：${getStatusText(status)}`,
+            content: `您在「${app.jobs.title}」职位的申请状态已更新为：${getStatusText(status)}`,
             metadata: { applicationId: app.id, jobId: app.jobId, status },
           },
         });

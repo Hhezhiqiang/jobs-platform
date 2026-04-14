@@ -19,7 +19,7 @@ export async function GET(
     }
 
     // 检查是否是该企业成员
-    const membership = await prisma.companyMember.findFirst({
+    const membership = await prisma.company_members.findFirst({
       where: {
         companyId: id,
         userId: session.user.id,
@@ -30,12 +30,11 @@ export async function GET(
       return NextResponse.json({ error: "无权访问" }, { status: 403 });
     }
 
-    const company = await prisma.company.findUnique({
+    const company = await prisma.companies.findUnique({
       where: { id },
-      include: {
-        members: {
+      include: { company_members: {
           include: {
-            user: {
+            users: {
               select: {
                 id: true,
                 name: true,
@@ -78,7 +77,7 @@ export async function PATCH(
     }
 
     // 检查权限
-    const membership = await prisma.companyMember.findFirst({
+    const membership = await prisma.company_members.findFirst({
       where: {
         companyId: id,
         userId: session.user.id,
@@ -104,7 +103,7 @@ export async function PATCH(
       contactEmail,
     } = body;
 
-    const company = await prisma.company.update({
+    const company = await prisma.companies.update({
       where: { id },
       data: {
         name,

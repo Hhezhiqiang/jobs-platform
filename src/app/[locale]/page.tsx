@@ -20,7 +20,7 @@ export default async function HomePage() {
     <div className="min-h-screen bg-white">
       <HeroSection jobCount={stats.jobCount} />
       
-      <StatsSection jobCount={stats.jobCount} companyCount={stats.companyCount} />
+      <StatsSection jobCount={stats.jobCount} companyCount={stats.companyCount} dailyNewJobs={stats.dailyNewJobs} />
 
       {/* 推荐职位 - 个性化推荐 */}
       <RecommendationSection limit={6} initialJobs={featuredJobs} />
@@ -45,9 +45,11 @@ export default async function HomePage() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
               {featuredJobs.slice(0, 6).map((job) => (
-                <JobCardV2 key={job.id} job={job} variant="featured" />
+                <div key={job.id} className="h-full">
+                  <JobCardV2 job={job} variant="featured" />
+                </div>
               ))}
             </div>
 

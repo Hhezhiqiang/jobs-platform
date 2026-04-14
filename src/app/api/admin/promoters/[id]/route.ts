@@ -29,7 +29,7 @@ export async function PATCH(
     if (defaultRate !== undefined) updateData.defaultRate = Number(defaultRate);
     if (walletAddress !== undefined) updateData.walletAddress = walletAddress;
 
-    const promoter = await prisma.promoter.update({
+    const promoter = await prisma.promoters.update({
       where: { id: params.id },
       data: updateData,
     });

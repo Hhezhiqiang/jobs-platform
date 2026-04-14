@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
 
   try {
     // 1. 从职位标题中匹配
-    const jobSuggestions = await prisma.job.findMany({
+    const jobSuggestions = await prisma.jobs.findMany({
       where: {
         status: "ACTIVE",
         title: {
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
     });
 
     // 2. 从公司名中匹配
-    const companySuggestions = await prisma.company.findMany({
+    const companySuggestions = await prisma.companies.findMany({
       where: {
         name: {
           contains: q,
@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
     });
 
     // 3. 从搜索历史中匹配热门查询
-    const historySuggestions = await prisma.searchQuery.findMany({
+    const historySuggestions = await prisma.search_queries.findMany({
       where: {
         query: {
           contains: q,

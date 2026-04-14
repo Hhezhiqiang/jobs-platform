@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     const sessionId = generateSessionId(ip, userAgent);
 
     // 保存访问记录
-    await prisma.pageView.create({
+    await prisma.page_views.create({
       data: {
         path: path || "/",
         userAgent: userAgent.substring(0, 500), // 限制长度

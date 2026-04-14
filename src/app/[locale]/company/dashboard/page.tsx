@@ -261,7 +261,7 @@ export default function CompanyDashboardPage() {
                           {app.user.name || app.user.email}
                         </p>
                         <p className="text-sm text-gray-500">
-                          申请职位: {app.job.title}
+                          申请职位: {app.jobs.title}
                         </p>
                         <p className="text-xs text-gray-400 mt-1">
                           {new Date(app.appliedAt).toLocaleDateString("zh-CN")}
@@ -317,7 +317,7 @@ export default function CompanyDashboardPage() {
                       <div>
                         <p className="font-medium text-gray-900">{job.title}</p>
                         <p className="text-sm text-gray-500">
-                          {job.location} · {job._count.applications} 份简历
+                          {job.location} · {job._count.job_applications} 份简历
                         </p>
                         <p className="text-xs text-gray-400 mt-1">
                           发布于{" "}

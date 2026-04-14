@@ -14,8 +14,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "请求过于频繁" }, { status: 429 });
     }
 
-    const ads = await prisma.ad.findMany({
-      include: { position: true },
+    const ads = await prisma.ads.findMany({
+      include: { ad_positions: true },
       orderBy: { createdAt: "desc" },
     });
 
@@ -37,12 +37,12 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // 查找或创建广告位
-    let position = await prisma.adPosition.findFirst({
+    let position = await prisma.ad_positions.findFirst({
       where: { name: body.positionId },
     });
 
     if (!position) {
-      position = await prisma.adPosition.create({
+      position = await prisma.ad_positions.create({
         data: {
           name: body.positionId,
           displayName: body.positionId,
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const ad = await prisma.ad.create({
+    const ad = await prisma.ads.create({
       data: {
         title: body.title,
         type: body.type,

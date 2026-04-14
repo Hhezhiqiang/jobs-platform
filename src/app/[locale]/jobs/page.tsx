@@ -41,13 +41,13 @@ export default async function JobsPage({ searchParams }: PageProps) {
 
   try {
     // 构建查询条件
-    const where: Prisma.JobWhereInput = { status: "ACTIVE" };
+    const where: Prisma.jobsWhereInput = { status: "ACTIVE" };
 
     if (params.q) {
       where.OR = [
         { title: { contains: params.q, mode: "insensitive" } },
         { description: { contains: params.q, mode: "insensitive" } },
-        { company: { name: { contains: params.q, mode: "insensitive" } } },
+        { companies: { name: { contains: params.q, mode: "insensitive" } } },
       ];
     }
 
@@ -56,33 +56,33 @@ export default async function JobsPage({ searchParams }: PageProps) {
     }
 
     if (params.type) {
-      where.employmentType = params.type as Prisma.EnumEmploymentTypeFilter<"Job">;
+      where.employmentType = params.type as Prisma.EnumEmploymentTypeFilter<"jobs">;
     }
 
     if (params.minSalary || params.maxSalary) {
       where.AND = [];
       if (params.minSalary) {
-        (where.AND as Prisma.JobWhereInput[]).push({
+        (where.AND as Prisma.jobsWhereInput[]).push({
           salaryMin: { gte: parseInt(params.minSalary) },
         });
       }
       if (params.maxSalary) {
-        (where.AND as Prisma.JobWhereInput[]).push({
+        (where.AND as Prisma.jobsWhereInput[]).push({
           salaryMax: { lte: parseInt(params.maxSalary) },
         });
       }
     }
 
     const [jobsData, totalData, citiesData] = await Promise.all([
-      prisma.job.findMany({
+      prisma.jobs.findMany({
         where,
-        include: { company: true },
+        include: { companies: true },
         orderBy: { datePosted: "desc" },
         skip,
         take: limit,
       }),
-      prisma.job.count({ where }),
-      prisma.job.findMany({
+      prisma.jobs.count({ where }),
+      prisma.jobs.findMany({
         select: { city: true },
         distinct: ["city"],
       }),

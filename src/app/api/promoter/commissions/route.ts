@@ -17,7 +17,7 @@ export async function GET(request: Request) {
 
   try {
     const [items, total] = await Promise.all([
-      prisma.commissionRecord.findMany({
+      prisma.commission_records.findMany({
         where: { promoterId: promoter.id },
         orderBy: { createdAt: "desc" },
         skip: (page - 1) * limit,
@@ -32,7 +32,7 @@ export async function GET(request: Request) {
           availableAt: true,
         },
       }),
-      prisma.commissionRecord.count({ where: { promoterId: promoter.id } }),
+      prisma.commission_records.count({ where: { promoterId: promoter.id } }),
     ]);
 
     return NextResponse.json({

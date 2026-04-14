@@ -227,7 +227,7 @@ export default function CompanyJobsPage() {
                       <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
                         <span>{job.location}</span>
                         <span>·</span>
-                        <span>{job._count.applications} 份简历</span>
+                        <span>{job._count.job_applications} 份简历</span>
                         <span>·</span>
                         <span>
                           发布于{" "}

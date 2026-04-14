@@ -21,14 +21,14 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     const [jobs, total] = await Promise.all([
-      prisma.job.findMany({
+      prisma.jobs.findMany({
         where: { status: "ACTIVE" },
-        include: { company: true },
+        include: { companies: true },
         orderBy: { datePosted: "desc" },
         skip,
         take: limit,
       }),
-      prisma.job.count({ where: { status: "ACTIVE" } }),
+      prisma.jobs.count({ where: { status: "ACTIVE" } }),
     ]);
 
     return NextResponse.json({ jobs, total, page, totalPages: Math.ceil(total / limit) });
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     // 如果没有公司，先创建默认公司
     let companyId = body.companyId;
     if (!companyId) {
-      const defaultCompany = await prisma.company.upsert({
+      const defaultCompany = await prisma.companies.upsert({
         where: { slug: "default-company" },
         update: {},
         create: {
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
       companyId = defaultCompany.id;
     }
 
-    const job = await prisma.job.create({
+    const job = await prisma.jobs.create({
       data: {
         title: body.title,
         description: body.description,

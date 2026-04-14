@@ -13,7 +13,7 @@ export async function GET(
   try {
     const { id } = await params;
     
-    const company = await prisma.company.findUnique({
+    const company = await prisma.companies.findUnique({
       where: { id },
       include: {
         _count: {
@@ -48,7 +48,7 @@ export async function PUT(
 
     // 权限校验：仅 ADMIN 或该公司 ADMIN 成员可操作
     if (session.user.role !== "ADMIN") {
-      const membership = await prisma.companyMember.findFirst({
+      const membership = await prisma.company_members.findFirst({
         where: { companyId: id, userId: session.user.id, role: "ADMIN" },
       });
       if (!membership) {
@@ -59,7 +59,7 @@ export async function PUT(
     const body = await request.json();
 
     // 检查公司是否存在
-    const existingCompany = await prisma.company.findUnique({
+    const existingCompany = await prisma.companies.findUnique({
       where: { id },
     });
 
@@ -69,7 +69,7 @@ export async function PUT(
 
     // 如果更改了 slug，检查新 slug 是否已存在
     if (body.slug && body.slug !== existingCompany.slug) {
-      const slugExists = await prisma.company.findUnique({
+      const slugExists = await prisma.companies.findUnique({
         where: { slug: body.slug },
       });
       if (slugExists) {
@@ -80,7 +80,7 @@ export async function PUT(
       }
     }
 
-    const company = await prisma.company.update({
+    const company = await prisma.companies.update({
       where: { id },
       data: {
         name: body.name,
@@ -118,7 +118,7 @@ export async function DELETE(
 
     // 权限校验：仅 ADMIN 或该公司 ADMIN 成员可操作
     if (session.user.role !== "ADMIN") {
-      const membership = await prisma.companyMember.findFirst({
+      const membership = await prisma.company_members.findFirst({
         where: { companyId: id, userId: session.user.id, role: "ADMIN" },
       });
       if (!membership) {
@@ -127,7 +127,7 @@ export async function DELETE(
     }
 
     // 检查公司是否存在
-    const company = await prisma.company.findUnique({
+    const company = await prisma.companies.findUnique({
       where: { id },
       include: { jobs: true },
     });
@@ -137,7 +137,7 @@ export async function DELETE(
     }
 
     // 删除公司（关联的职位会被级联删除）
-    await prisma.company.delete({
+    await prisma.companies.delete({
       where: { id },
     });
 

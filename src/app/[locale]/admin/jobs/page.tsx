@@ -65,23 +65,23 @@ export default async function AdminJobsPage({ searchParams }: PageProps) {
 
   // 获取职位列表（带分页）
   const [jobs, totalCount, companies] = await Promise.all([
-    prisma.job.findMany({
+    prisma.jobs.findMany({
       where,
       include: {
-        company: true,
-        author: {
+        companies: true,
+        users: {
           select: { name: true, email: true },
         },
         _count: {
-          select: { applications: true },
+          select: { job_applications: true },
         },
       },
       orderBy: { createdAt: "desc" },
       skip: (currentPage - 1) * ITEMS_PER_PAGE,
       take: ITEMS_PER_PAGE,
     }),
-    prisma.job.count({ where }),
-    prisma.company.findMany({
+    prisma.jobs.count({ where }),
+    prisma.companies.findMany({
       select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),
@@ -300,10 +300,10 @@ export default async function AdminJobsPage({ searchParams }: PageProps) {
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-2">
-                              {job.company.logo ? (
+                              {job.companies.logo ? (
                                 <Image
-                                  src={job.company.logo}
-                                  alt={job.company.name}
+                                  src={job.companies.logo}
+                                  alt={job.companies.name}
                                   width={24}
                                   height={24}
                                   className="w-6 h-6 rounded object-cover"
@@ -311,11 +311,11 @@ export default async function AdminJobsPage({ searchParams }: PageProps) {
                                 />
                               ) : (
                                 <div className="w-6 h-6 rounded bg-blue-100 flex items-center justify-center text-blue-600 text-xs font-bold">
-                                  {job.company.name.charAt(0)}
+                                  {job.companies.name.charAt(0)}
                                 </div>
                               )}
                               <span className="text-sm text-gray-700">
-                                {job.company.name}
+                                {job.companies.name}
                               </span>
                             </div>
                           </td>
@@ -344,7 +344,7 @@ export default async function AdminJobsPage({ searchParams }: PageProps) {
                           </td>
                           <td className="px-6 py-4">
                             <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-blue-700 text-sm font-medium">
-                              {job._count.applications}
+                              {job._count.job_applications}
                             </span>
                           </td>
                           <td className="px-6 py-4">

@@ -20,20 +20,20 @@ export function getPromoRef(request: Request): string | null {
 
 // 绑定用户与推广者关系（注册时调用）
 export async function bindUserReferral(userId: string, promoCode: string) {
-  const link = await prisma.promoterLink.findUnique({
+  const link = await prisma.promoter_links.findUnique({
     where: { code: promoCode },
-    include: { promoter: true },
+    include: { promoters: true },
   });
 
-  if (!link || link.promoter.status !== PromoterStatus.ACTIVE) return;
+  if (!link || link.promoters.status !== PromoterStatus.ACTIVE) return;
 
   // 终身锁客：只绑定首次注册
-  const existing = await prisma.userReferral.findUnique({
+  const existing = await prisma.user_referrals.findUnique({
     where: { userId },
   });
   if (existing) return;
 
-  await prisma.userReferral.create({
+  await prisma.user_referrals.create({
     data: {
       userId,
       promoterId: link.promoterId,
@@ -43,7 +43,7 @@ export async function bindUserReferral(userId: string, promoCode: string) {
   });
 
   // 增加链接注册计数
-  await prisma.promoterLink.update({
+  await prisma.promoter_links.update({
     where: { id: link.id },
     data: { registerCount: { increment: 1 } },
   });
@@ -52,12 +52,12 @@ export async function bindUserReferral(userId: string, promoCode: string) {
 // 计算佣金比例：优先使用链接自定义比例，否则使用推广者默认比例
 export async function getCommissionRate(linkId?: string | null): Promise<number> {
   if (!linkId) return 0;
-  const link = await prisma.promoterLink.findUnique({
+  const link = await prisma.promoter_links.findUnique({
     where: { id: linkId },
-    include: { promoter: true },
+    include: { promoters: true },
   });
   if (!link) return 0;
-  return Number(link.customRate ?? link.promoter.defaultRate);
+  return Number(link.customRate ?? link.promoters.defaultRate);
 }
 
 // 创建佣金记录（支付成功后调用）
@@ -67,12 +67,12 @@ export async function createCommission(
   orderAmount: number | Prisma.Decimal
 ) {
   // 幂等：已存在则直接返回
-  const existing = await prisma.commissionRecord.findUnique({
+  const existing = await prisma.commission_records.findUnique({
     where: { orderId },
   });
   if (existing) return existing;
 
-  const referral = await prisma.userReferral.findUnique({
+  const referral = await prisma.user_referrals.findUnique({
     where: { userId },
   });
   if (!referral) return;
@@ -85,7 +85,7 @@ export async function createCommission(
   const availableAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // T+1
 
   const commission = await prisma.$transaction(async (tx) => {
-    const created = await tx.commissionRecord.create({
+    const created = await tx.commission_records.create({
       data: {
         orderId,
         promoterId: referral.promoterId,
@@ -99,7 +99,7 @@ export async function createCommission(
       },
     });
 
-    await tx.promoterLink.update({
+    await tx.promoter_links.update({
       where: { id: referral.linkId },
       data: {
         orderCount: { increment: 1 },
@@ -107,7 +107,7 @@ export async function createCommission(
       },
     });
 
-    await tx.promoter.update({
+    await tx.promoters.update({
       where: { id: referral.promoterId },
       data: {
         frozenBalance: { increment: commissionAmount },
@@ -124,7 +124,7 @@ export async function createCommission(
 // 佣金解冻 Cron 逻辑
 export async function settleCommissions(): Promise<number> {
   const now = new Date();
-  const frozenRecords = await prisma.commissionRecord.findMany({
+  const frozenRecords = await prisma.commission_records.findMany({
     where: {
       status: CommissionStatus.FROZEN,
       availableAt: { lte: now },
@@ -135,7 +135,7 @@ export async function settleCommissions(): Promise<number> {
 
   await prisma.$transaction(async (tx) => {
     for (const record of frozenRecords) {
-      await tx.promoter.update({
+      await tx.promoters.update({
         where: { id: record.promoterId },
         data: {
           frozenBalance: { decrement: record.commissionAmount },
@@ -143,7 +143,7 @@ export async function settleCommissions(): Promise<number> {
         },
       });
 
-      await tx.commissionRecord.update({
+      await tx.commission_records.update({
         where: { id: record.id },
         data: { status: CommissionStatus.AVAILABLE },
       });
@@ -155,7 +155,7 @@ export async function settleCommissions(): Promise<number> {
 
 // 退款/争议追回佣金
 export async function clawbackCommission(orderId: string) {
-  const commission = await prisma.commissionRecord.findFirst({
+  const commission = await prisma.commission_records.findFirst({
     where: { orderId },
   });
   if (!commission || commission.status === CommissionStatus.CLAWED_BACK) return;
@@ -170,7 +170,7 @@ export async function clawbackCommission(orderId: string) {
         : null;
 
     if (balanceField) {
-      await tx.promoter.update({
+      await tx.promoters.update({
         where: { id: commission.promoterId },
         data: {
           [balanceField]: { decrement: commission.commissionAmount },
@@ -179,7 +179,7 @@ export async function clawbackCommission(orderId: string) {
       });
     } else if (commission.status === CommissionStatus.WITHDRAWN) {
       // 已提现的佣金追回：直接扣 availableBalance（允许负余额，记录为债务）
-      await tx.promoter.update({
+      await tx.promoters.update({
         where: { id: commission.promoterId },
         data: {
           availableBalance: { decrement: commission.commissionAmount },
@@ -188,7 +188,7 @@ export async function clawbackCommission(orderId: string) {
       });
     }
 
-    await tx.commissionAdjustment.create({
+    await tx.commission_adjustments.create({
       data: {
         commissionRecordId: commission.id,
         promoterId: commission.promoterId,
@@ -198,7 +198,7 @@ export async function clawbackCommission(orderId: string) {
       },
     });
 
-    await tx.commissionRecord.update({
+    await tx.commission_records.update({
       where: { id: commission.id },
       data: { status: CommissionStatus.CLAWED_BACK },
     });
@@ -217,7 +217,7 @@ export async function generateUniquePromoCode(): Promise<string> {
         chars.charAt(Math.floor(Math.random() * chars.length))
       ).join("");
 
-    const found = await prisma.promoterLink.findUnique({ where: { code } });
+    const found = await prisma.promoter_links.findUnique({ where: { code } });
     exists = !!found;
   }
   return code;
@@ -230,7 +230,7 @@ export function isValidTrc20Address(address: string): boolean {
 
 // 支付相关辅助函数（供 webhook 调用）
 export async function markOrderPaid(orderId: string) {
-  const order = await prisma.contactUnlockOrder.findUnique({
+  const order = await prisma.contact_unlock_orders.findUnique({
     where: { id: orderId },
   });
   if (!order) throw new Error("Order not found");
@@ -239,7 +239,7 @@ export async function markOrderPaid(orderId: string) {
     return order;
   }
 
-  const updated = await prisma.contactUnlockOrder.update({
+  const updated = await prisma.contact_unlock_orders.update({
     where: { id: orderId },
     data: { status: "PAID", paidAt: new Date() },
   });
@@ -251,7 +251,7 @@ export async function markOrderPaid(orderId: string) {
 }
 
 export async function markOrderRefunded(orderId: string) {
-  await prisma.contactUnlockOrder.update({
+  await prisma.contact_unlock_orders.update({
     where: { id: orderId },
     data: { status: "REFUNDED" },
   });

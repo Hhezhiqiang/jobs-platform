@@ -9,7 +9,7 @@ export async function getAuthenticatedPromoter() {
   }
 
   // 优先通过 userId 关联查找（最可靠）
-  const promoter = await prisma.promoter.findFirst({
+  const promoter = await prisma.promoters.findFirst({
     where: {
       OR: [
         { userId: session.user.id },

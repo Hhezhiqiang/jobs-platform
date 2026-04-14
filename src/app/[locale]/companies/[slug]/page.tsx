@@ -17,7 +17,7 @@ export const revalidate = 3600;
 
 export async function generateStaticParams() {
   try {
-    const companies = await prisma.company.findMany({
+    const companies = await prisma.companies.findMany({
       where: { slug: { not: "" } },
       select: { slug: true },
       take: 500,
@@ -31,7 +31,7 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
     const { slug } = await params;
-    const company = await prisma.company.findUnique({
+    const company = await prisma.companies.findUnique({
       where: { slug },
     });
 
@@ -49,13 +49,13 @@ export default async function CompanyDetailPage({ params }: PageProps) {
   try {
     const { slug } = await params;
     
-    const company = await prisma.company.findUnique({
+    const company = await prisma.companies.findUnique({
       where: { slug },
       include: {
         jobs: {
           where: { status: "ACTIVE" },
           orderBy: { datePosted: "desc" },
-          include: { company: true },
+          include: { companies: true },
         },
       },
     });
@@ -68,7 +68,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(orgSchema) }} />
 
       <div className="min-h-screen bg-gray-50">
 

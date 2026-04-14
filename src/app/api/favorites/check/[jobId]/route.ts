@@ -19,7 +19,7 @@ export async function GET(
 
     const { jobId } = params;
 
-    const favorite = await prisma.favorite.findUnique({
+    const favorite = await prisma.favorites.findUnique({
       where: {
         userId_jobId: {
           userId: session.user.id,

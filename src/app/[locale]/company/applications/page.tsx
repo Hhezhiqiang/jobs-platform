@@ -94,7 +94,7 @@ function CompanyApplicationsContent() {
     (app) =>
       app.user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       app.user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      app.job.title?.toLowerCase().includes(searchQuery.toLowerCase())
+      app.jobs.title?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const toggleSelect = (id: string) => {
@@ -142,7 +142,7 @@ function CompanyApplicationsContent() {
       姓名: app.user.name || "",
       邮箱: app.user.email || "",
       电话: app.user.phone || "",
-      职位: app.job.title || "",
+      职位: app.jobs.title || "",
       状态: app.status,
       投递时间: new Date(app.appliedAt).toLocaleString("zh-CN"),
     }));
@@ -313,7 +313,7 @@ function CompanyApplicationsContent() {
                         </div>
 
                         <p className="text-blue-600 font-medium mb-2">
-                          {app.job.title}
+                          {app.jobs.title}
                         </p>
 
                         <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">

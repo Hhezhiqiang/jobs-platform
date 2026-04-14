@@ -129,7 +129,7 @@ export async function getApplicationConversionStats(days: number = 30) {
 
   const prevStart = startOfDay(subDays(dateRange[0], days));
   const prevEnd = endOfDay(subDays(dateRange[0], 1));
-  const prevApplications = await prisma.jobApplication.count({
+  const prevApplications = await prisma.job_applications.count({
     where: { appliedAt: { gte: prevStart, lte: prevEnd } },
   });
 
@@ -150,13 +150,13 @@ export async function getApplicationConversionStats(days: number = 30) {
 }
 
 export async function getTopJobs(limit: number = 10) {
-  const jobs = await prisma.job.findMany({
+  const jobs = await prisma.jobs.findMany({
     take: limit,
     orderBy: { viewCount: "desc" },
     include: {
-      company: true,
+      companies: true,
       _count: {
-        select: { applications: true },
+        select: { job_applications: true },
       },
     },
     where: {
@@ -168,11 +168,11 @@ export async function getTopJobs(limit: number = 10) {
     rank: index + 1,
     id: job.id,
     title: job.title,
-    company: job.company.name,
+    company: job.companies.name,
     viewCount: job.viewCount,
-    applicationCount: job._count.applications,
+    applicationCount: job._count.job_applications,
     conversionRate: job.viewCount > 0
-      ? +((job._count.applications / job.viewCount) * 100).toFixed(2)
+      ? +((job._count.job_applications / job.viewCount) * 100).toFixed(2)
       : 0,
     location: job.location,
     salaryMin: job.salaryMin,
@@ -197,7 +197,7 @@ export async function getUserGrowthStats(days: number = 30) {
   `;
 
   // 获取截至 startDate 前一天的总用户数（作为累加基数）
-  const baseCount = await prisma.user.count({
+  const baseCount = await prisma.users.count({
     where: { createdAt: { lt: startDate } },
   });
 
@@ -222,7 +222,7 @@ export async function getUserGrowthStats(days: number = 30) {
 
   const prevStart = startOfDay(subDays(dateRange[0], days));
   const prevEnd = endOfDay(subDays(dateRange[0], 1));
-  const prevNewUsers = await prisma.user.count({
+  const prevNewUsers = await prisma.users.count({
     where: { createdAt: { gte: prevStart, lte: prevEnd } },
   });
 
@@ -272,7 +272,7 @@ export async function getJobGrowthStats(days: number = 30) {
   // 更准确的累计活跃数：对于历史数据，最简单的方式是一次性 count 当前活跃数作为最后一天，
   // 但报告中要求每天的趋势。既然 job 的有效期通常较长，我们估算：
   // 先获取 endDate 之前的所有职位的 createdAt 和 status，但只查需要的字段且限制 90 天范围。
-  const allJobsForActive = await prisma.job.findMany({
+  const allJobsForActive = await prisma.jobs.findMany({
     where: {
       createdAt: { lte: endDate },
     },
@@ -305,7 +305,7 @@ export async function getJobGrowthStats(days: number = 30) {
 
   const totalNewJobs = dailyStats.reduce((sum, d) => sum + d.newJobs, 0);
   const currentActiveJobs = dailyStats[dailyStats.length - 1]?.activeJobs || 0;
-  const totalJobs = await prisma.job.count();
+  const totalJobs = await prisma.jobs.count();
 
   return {
     dailyStats,

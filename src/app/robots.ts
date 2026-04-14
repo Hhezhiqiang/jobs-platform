@@ -1,9 +1,8 @@
-import { MetadataRoute } from "next";
-
-// 强制使用生产域名（可通过环境变量覆盖）
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobs-platform-gold.vercel.app";
+import type { MetadataRoute } from "next";
 
 export default function robots(): MetadataRoute.Robots {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jobs-platform-gold.vercel.app";
+
   return {
     rules: [
       {
@@ -11,35 +10,23 @@ export default function robots(): MetadataRoute.Robots {
         allow: "/",
         disallow: [
           "/admin",
-          "/admin/*",
-          "/api",
-          "/api/*",
-          "/auth",
-          "/auth/*",
-          "/_next",
-          "/_next/*",
-          "/dashboard",
-          "/dashboard/*",
-          "/company",
-          "/company/*",
-          "/user",
-          "/user/*",
-          "/promoter",
-          "/promoter/*",
+          "/api/",
+          "/_next/",
+          "/private",
         ],
       },
       {
         userAgent: "Googlebot",
         allow: "/",
-        disallow: ["/admin", "/api", "/dashboard", "/company", "/user", "/promoter"],
+        disallow: ["/admin", "/api/"],
       },
       {
-        userAgent: "Baiduspider",
+        userAgent: "Bingbot",
         allow: "/",
-        disallow: ["/admin", "/api", "/dashboard", "/company", "/user", "/promoter"],
+        disallow: ["/admin", "/api/"],
       },
     ],
-    sitemap: `${SITE_URL}/sitemap.xml`,
-    host: SITE_URL,
+    sitemap: `${baseUrl}/sitemap.xml`,
+    host: baseUrl,
   };
 }

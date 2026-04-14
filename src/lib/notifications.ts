@@ -23,7 +23,7 @@ export async function createNotification({
   sendEmail: shouldSendEmail,
 }: CreateNotificationParams) {
   try {
-    const notification = await prisma.notification.create({
+    const notification = await prisma.notifications.create({
       data: {
         userId,
         type,
@@ -36,7 +36,7 @@ export async function createNotification({
 
     // 如果需要发送邮件通知
     if (shouldSendEmail) {
-      const user = await prisma.user.findUnique({
+      const user = await prisma.users.findUnique({
         where: { id: userId },
         select: { email: true, name: true },
       });
@@ -77,7 +77,7 @@ export async function createNotifications(
   notifications: CreateNotificationParams[]
 ) {
   try {
-    const result = await prisma.notification.createMany({
+    const result = await prisma.notifications.createMany({
       data: notifications.map((n) => ({
         userId: n.userId,
         type: n.type,
@@ -196,7 +196,7 @@ export async function createJobAlertNotification(
  */
 export async function getUnreadNotificationCount(userId: string) {
   try {
-    const count = await prisma.notification.count({
+    const count = await prisma.notifications.count({
       where: {
         userId,
         isRead: false,

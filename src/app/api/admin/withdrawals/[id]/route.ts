@@ -28,7 +28,7 @@ export async function PATCH(
       return NextResponse.json({ error: "无效状态" }, { status: 400 });
     }
 
-    const current = await prisma.withdrawalRecord.findUnique({
+    const current = await prisma.withdrawal_records.findUnique({
       where: { id: params.id },
     });
 
@@ -60,7 +60,7 @@ export async function PATCH(
 
       // 只有从 PENDING/APPROVED/TRANSFERRING 转为 REJECTED 时才退款
       if (["PENDING", "APPROVED", "TRANSFERRING"].includes(current.status)) {
-        await prisma.promoter.update({
+        await prisma.promoters.update({
           where: { id: current.promoterId },
           data: {
             availableBalance: { increment: current.amount },
@@ -83,7 +83,7 @@ export async function PATCH(
       updateData.txHash = txHash;
     }
 
-    const record = await prisma.withdrawalRecord.update({
+    const record = await prisma.withdrawal_records.update({
       where: { id: params.id },
       data: updateData,
     });

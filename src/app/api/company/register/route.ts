@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 检查 slug 是否已存在
-    const existingCompany = await prisma.company.findUnique({
+    const existingCompany = await prisma.companies.findUnique({
       where: { slug },
     });
     if (existingCompany) {
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 检查统一社会信用代码是否已存在
-    const existingCreditCode = await prisma.company.findUnique({
+    const existingCreditCode = await prisma.companies.findUnique({
       where: { creditCode },
     });
     if (existingCreditCode) {
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 创建企业
-    const company = await prisma.company.create({
+    const company = await prisma.companies.create({
       data: {
         name,
         slug,
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
     });
 
     // 将当前用户添加为企业管理员
-    await prisma.companyMember.create({
+    await prisma.company_members.create({
       data: {
         companyId: company.id,
         userId: session.user.id,
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
     });
 
     // 更新用户角色为 COMPANY
-    await prisma.user.update({
+    await prisma.users.update({
       where: { id: session.user.id },
       data: { role: "COMPANY" },
     });
@@ -122,16 +122,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "未登录" }, { status: 401 });
     }
 
-    const companies = await prisma.company.findMany({
+    const companies = await prisma.companies.findMany({
       where: {
-        members: {
+        company_members: {
           some: {
             userId: session.user.id,
           },
         },
       },
-      include: {
-        members: {
+      include: { company_members: {
           where: {
             userId: session.user.id,
           },

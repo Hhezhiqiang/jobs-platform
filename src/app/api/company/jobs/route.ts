@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status");
 
     // 获取用户关联的企业
-    const membership = await prisma.companyMember.findFirst({
+    const membership = await prisma.company_members.findFirst({
       where: {
         userId: session.user.id,
       },
@@ -35,18 +35,15 @@ export async function GET(request: NextRequest) {
       where.status = status;
     }
 
-    const jobs = await prisma.job.findMany({
+    const jobs = await prisma.jobs.findMany({
       where,
-      include: {
-        company: {
+      include: { companies: {
           select: {
             id: true,
             name: true,
           },
         },
-        _count: {
-          select: {
-            applications: true,
+        _count: { select: { job_applications: true,
           },
         },
       },
@@ -70,7 +67,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 获取用户关联的企业
-    const membership = await prisma.companyMember.findFirst({
+    const membership = await prisma.company_members.findFirst({
       where: {
         userId: session.user.id,
       },
@@ -84,7 +81,7 @@ export async function POST(request: NextRequest) {
 
     // 检查企业是否已通过审核
     if (membership) {
-      const company = await prisma.company.findUnique({
+      const company = await prisma.companies.findUnique({
         where: { id: companyId },
         select: { verificationStatus: true },
       });
@@ -123,7 +120,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 检查 slug 是否已存在
-    const existingJob = await prisma.job.findUnique({
+    const existingJob = await prisma.jobs.findUnique({
       where: { slug },
     });
     if (existingJob) {
@@ -142,7 +139,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "无效参数" }, { status: 400 });
     }
 
-    const job = await prisma.job.create({
+    const job = await prisma.jobs.create({
       data: {
         title,
         slug,

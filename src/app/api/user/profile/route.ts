@@ -14,10 +14,10 @@ export async function GET() {
       return NextResponse.json({ error: "未登录" }, { status: 401 });
     }
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: session.user.id },
       include: {
-        profile: true,
+        user_profiles: true,
         resumes: {
           orderBy: { createdAt: "desc" },
         },
@@ -29,7 +29,7 @@ export async function GET() {
     }
 
     return NextResponse.json({
-      user: {
+      users: {
         id: user.id,
         name: user.name,
         email: user.email,
@@ -39,7 +39,7 @@ export async function GET() {
         status: user.status,
         createdAt: user.createdAt,
       },
-      profile: user.profile,
+      profile: user.user_profiles,
       resumes: user.resumes,
     });
   } catch (error) {
@@ -61,7 +61,7 @@ export async function PATCH(request: NextRequest) {
     const { name, phone, avatar } = body;
 
     // 更新用户基本信息
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await prisma.users.update({
       where: { id: session.user.id },
       data: {
         ...(name && { name }),
@@ -72,7 +72,7 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({
       message: "更新成功",
-      user: {
+      users: {
         id: updatedUser.id,
         name: updatedUser.name,
         email: updatedUser.email,

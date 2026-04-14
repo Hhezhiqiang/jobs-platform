@@ -3,16 +3,35 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { Metadata } from "next";
 import { BookOpen, Users, Clock, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { safeJsonLdStringify } from "@/lib/utils";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobs-platform-gold.vercel.app";
 
 export const metadata: Metadata = {
-  title: "求职博客 - 薪资报告、面试攻略、行业趋势 | 招聘平台",
-  description: "互联网求职干货：2026薪资报告、产品经理面试攻略、东京IT求职指南、简历优化技巧。专家级内容助你快速拿到理想Offer。",
-  keywords: ["求职博客", "薪资报告", "面试攻略", "产品经理", "东京IT求职"],
+  title: "求职博客 - 薪资报告、面试攻略、行业趋势与职业发展 | JobsBro招聘平台",
+  description: "专业的互联网求职博客，提供2026最新薪资报告、大厂面试攻略、简历优化技巧、职业规划指南。涵盖前端、后端、产品、运营、数据分析等热门岗位，专家级原创内容助你快速拿到理想Offer。",
+  keywords: ["求职博客", "薪资报告", "面试攻略", "简历优化", "职业规划", "大厂面经", "互联网求职", "产品经理面试", "程序员面试", "运营求职", "数据分析求职", "2026求职趋势"],
   openGraph: {
-    images: ["https://jobs-platform-gold.vercel.app/logo.png"],
+    title: "求职博客 - 薪资报告、面试攻略、行业趋势与职业发展 | JobsBro招聘平台",
+    description: "专业的互联网求职博客，提供2026最新薪资报告、大厂面试攻略、简历优化技巧、职业规划指南。",
+    url: `${SITE_URL}/blog`,
+    siteName: "JobsBro招聘平台",
+    type: "website",
+    locale: "zh_CN",
+    images: [`${SITE_URL}/logo.png`],
   },
   twitter: {
-    images: ["https://jobs-platform-gold.vercel.app/logo.png"],
+    card: "summary_large_image",
+    title: "求职博客 - 薪资报告、面试攻略、行业趋势与职业发展 | JobsBro招聘平台",
+    description: "专业的互联网求职博客，提供2026最新薪资报告、大厂面试攻略、简历优化技巧、职业规划指南。",
+    images: [`${SITE_URL}/logo.png`],
+  },
+  alternates: {
+    canonical: `${SITE_URL}/blog`,
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 
@@ -32,6 +51,48 @@ interface PageProps {
   searchParams: Promise<{ q?: string; category?: string; page?: string }>;
 }
 
+// 生成博客列表页的 Schema 数据
+function generateBlogListSchema(posts: any[], total: number) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    name: "JobsBro求职博客",
+    description: "专业的互联网求职博客，提供薪资报告、面试攻略、行业趋势与职业发展建议。",
+    url: `${SITE_URL}/blog`,
+    publisher: {
+      "@type": "Organization",
+      name: "JobsBro招聘平台",
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE_URL}/logo.png`,
+      },
+    },
+    blogPost: posts.slice(0, 10).map((post) => ({
+      "@type": "BlogPosting",
+      headline: post.title,
+      description: post.excerpt,
+      url: `${SITE_URL}/blog/${post.slug}`,
+      datePublished: post.createdAt.toISOString(),
+      dateModified: post.updatedAt.toISOString(),
+      author: {
+        "@type": "Person",
+        name: post.users?.name || "JobsBro",
+      },
+    })),
+  };
+}
+
+function generateBreadcrumbSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "首页", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "博客", item: `${SITE_URL}/blog` },
+    ],
+  };
+}
+
 export default async function BlogPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const searchQuery = params.q || "";
@@ -41,7 +102,7 @@ export default async function BlogPage({ searchParams }: PageProps) {
   const skip = (page - 1) * limit;
 
   // 获取真实博客数据
-  const posts = await prisma.page.findMany({
+  const posts = await prisma.pages.findMany({
     where: {
       type: "BLOG",
       status: "PUBLISHED",
@@ -52,7 +113,7 @@ export default async function BlogPage({ searchParams }: PageProps) {
         ],
       } : {}),
     },
-    include: { author: true },
+    include: { users: true },
     orderBy: { createdAt: "desc" },
   });
 
@@ -68,6 +129,9 @@ export default async function BlogPage({ searchParams }: PageProps) {
   const paginatedPosts = filteredPosts.slice(skip, skip + limit);
   const totalPages = Math.ceil(total / limit);
 
+  const blogListSchema = generateBlogListSchema(paginatedPosts, total);
+  const breadcrumbSchema = generateBreadcrumbSchema();
+
   const buildPageUrl = (pageNum: number) => {
     const sp = new URLSearchParams();
     if (searchQuery) sp.set("q", searchQuery);
@@ -77,7 +141,16 @@ export default async function BlogPage({ searchParams }: PageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(blogListSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(breadcrumbSchema) }}
+      />
+      <div className="min-h-screen bg-gray-50">
 
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white">
@@ -192,7 +265,7 @@ export default async function BlogPage({ searchParams }: PageProps) {
                     <div className="flex items-center justify-between text-sm text-gray-400">
                       <div className="flex items-center gap-2">
                         <Users className="w-4 h-4" />
-                        {post.author?.name || "JobsBro"}
+                        {post.users?.name || "JobsBro"}
                       </div>
                       <div className="flex items-center gap-2">
                         <Clock className="w-4 h-4" />
@@ -298,5 +371,6 @@ export default async function BlogPage({ searchParams }: PageProps) {
         </div>
       </main>
     </div>
+    </>
   );
 }

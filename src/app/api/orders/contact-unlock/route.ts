@@ -24,7 +24,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "缺少 jobId" }, { status: 400 });
     }
 
-    const job = await prisma.job.findUnique({
+    const job = await prisma.jobs.findUnique({
       where: { id: jobId },
       select: { id: true, status: true },
     });
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     const price = Number(process.env.CONTACT_UNLOCK_PRICE || CONTACT_UNLOCK_PRICE);
 
     // 检查是否已解锁
-    const existingPaid = await prisma.contactUnlockOrder.findFirst({
+    const existingPaid = await prisma.contact_unlock_orders.findFirst({
       where: { userId, jobId, status: "PAID" },
     });
 
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
     }
 
     // 查询用户余额
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: userId },
       select: { balance: true },
     });
@@ -66,13 +66,13 @@ export async function POST(request: Request) {
     // 扣款、创建解锁记录、生成佣金（事务）
     const result = await prisma.$transaction(async (tx) => {
       // 1. 扣减余额
-      const updatedUser = await tx.user.update({
+      const updatedUser = await tx.users.update({
         where: { id: userId },
         data: { balance: { decrement: price } },
       });
 
       // 2. 创建余额流水
-      const txRecord = await tx.balanceTransaction.create({
+      const txRecord = await tx.balance_transactions.create({
         data: {
           userId,
           type: TransactionType.DEDUCTION,
@@ -83,7 +83,7 @@ export async function POST(request: Request) {
       });
 
       // 3. 创建解锁订单
-      const order = await tx.contactUnlockOrder.create({
+      const order = await tx.contact_unlock_orders.create({
         data: {
           userId,
           jobId,
@@ -94,7 +94,7 @@ export async function POST(request: Request) {
       });
 
       // 关联流水与订单（BalanceTransaction 持有 orderId）
-      await tx.balanceTransaction.update({
+      await tx.balance_transactions.update({
         where: { id: txRecord.id },
         data: { orderId: order.id },
       });

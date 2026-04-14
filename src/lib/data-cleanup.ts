@@ -12,13 +12,13 @@ export async function cleanupOldData(): Promise<{
   const cutoffPage = subDays(new Date(), DRAFT_PAGE_DAYS);
 
   const [monitorsResult, pagesResult] = await prisma.$transaction([
-    prisma.keywordMonitor.deleteMany({
+    prisma.keyword_monitors.deleteMany({
       where: {
         status: "JUNK",
         firstSeenAt: { lt: cutoffMonitor },
       },
     }),
-    prisma.page.deleteMany({
+    prisma.pages.deleteMany({
       where: {
         status: "DRAFT",
         createdAt: { lt: cutoffPage },

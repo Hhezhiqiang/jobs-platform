@@ -18,24 +18,24 @@ export async function GET() {
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const thirtyDaysAgo = new Date(todayStart.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-    const promoterWithLinks = await prisma.promoter.findUnique({
+    const promoterWithLinks = await prisma.promoters.findUnique({
       where: { id: promoterId },
-      include: { links: true },
+      include: { promoter_links: true },
     });
 
     // 今日数据（按实际创建时间）
     const [todayRegisters, todayOrders, todayGmv, todayCommission] = await Promise.all([
-      prisma.userReferral.count({
+      prisma.user_referrals.count({
         where: { promoterId, createdAt: { gte: todayStart } },
       }),
-      prisma.contactUnlockOrder.count({
-        where: { commission: { promoterId }, status: "PAID", createdAt: { gte: todayStart } },
+      prisma.contact_unlock_orders.count({
+        where: { commission_records: { promoterId }, status: "PAID", createdAt: { gte: todayStart } },
       }),
-      prisma.contactUnlockOrder.aggregate({
-        where: { commission: { promoterId }, status: "PAID", createdAt: { gte: todayStart } },
+      prisma.contact_unlock_orders.aggregate({
+        where: { commission_records: { promoterId }, status: "PAID", createdAt: { gte: todayStart } },
         _sum: { amount: true },
       }),
-      prisma.commissionRecord.aggregate({
+      prisma.commission_records.aggregate({
         where: { promoterId, createdAt: { gte: todayStart } },
         _sum: { commissionAmount: true },
       }),
@@ -43,22 +43,22 @@ export async function GET() {
 
     // 累计数据
     const [totalRegisters, totalOrders, totalGmv, totalCommissionPaid] = await Promise.all([
-      prisma.userReferral.count({ where: { promoterId } }),
-      prisma.contactUnlockOrder.count({
-        where: { commission: { promoterId }, status: "PAID" },
+      prisma.user_referrals.count({ where: { promoterId } }),
+      prisma.contact_unlock_orders.count({
+        where: { commission_records: { promoterId }, status: "PAID" },
       }),
-      prisma.contactUnlockOrder.aggregate({
-        where: { commission: { promoterId }, status: "PAID" },
+      prisma.contact_unlock_orders.aggregate({
+        where: { commission_records: { promoterId }, status: "PAID" },
         _sum: { amount: true },
       }),
-      prisma.commissionRecord.aggregate({
+      prisma.commission_records.aggregate({
         where: { promoterId, status: { in: ["AVAILABLE", "WITHDRAWN"] } },
         _sum: { commissionAmount: true },
       }),
     ]);
 
     // 近30天趋势（按天聚合）
-    const commissions = await prisma.commissionRecord.groupBy({
+    const commissions = await prisma.commission_records.groupBy({
       by: ["createdAt"],
       where: { promoterId, createdAt: { gte: thirtyDaysAgo } },
       _sum: { commissionAmount: true },
@@ -83,7 +83,7 @@ export async function GET() {
       .map(([date, commission]) => ({ date, commission: Number(commission.toFixed(8)) }))
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-    const totalClicks = promoterWithLinks?.links.reduce((sum, l) => sum + l.clickCount, 0) || 0;
+    const totalClicks = promoterWithLinks?.promoter_links.reduce((sum, l) => sum + l.clickCount, 0) || 0;
 
     return NextResponse.json({
       success: true,

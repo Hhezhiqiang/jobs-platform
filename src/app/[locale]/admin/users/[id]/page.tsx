@@ -18,14 +18,14 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
     redirect("/auth/login/admin");
   }
 
-  const user = await prisma.user.findUnique({
+  const user = await prisma.users.findUnique({
     where: { id },
     include: {
-      profile: true,
-      applications: {
+      user_profiles: true,
+      job_applications: {
         include: {
-          job: {
-            include: { company: true },
+          jobs: {
+            include: { companies: true },
           },
         },
         orderBy: { appliedAt: "desc" },
@@ -35,7 +35,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
         orderBy: { createdAt: "desc" },
       },
       jobs: {
-        include: { company: true },
+        include: { companies: true },
         orderBy: { createdAt: "desc" },
         take: 10,
       },
@@ -135,7 +135,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
                     <form
                       action={async () => {
                         "use server";
-                        await prisma.user.update({
+                        await prisma.users.update({
                           where: { id: user.id },
                           data: { status: "DISABLED" },
                         });
@@ -152,7 +152,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
                     <form
                       action={async () => {
                         "use server";
-                        await prisma.user.update({
+                        await prisma.users.update({
                           where: { id: user.id },
                           data: { status: "ACTIVE" },
                         });
@@ -170,7 +170,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
                   <form
                     action={async () => {
                       "use server";
-                      await prisma.user.update({
+                      await prisma.users.update({
                         where: { id: user.id },
                         data: {
                           role:
@@ -195,27 +195,27 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
             </div>
 
             {/* 个人资料 */}
-            {user.profile && (
+            {user.user_profiles && (
               <div className="bg-white rounded-lg shadow p-6 mt-6">
                 <h3 className="font-medium mb-4">个人资料</h3>
                 <div className="space-y-3 text-sm">
-                  {user.profile.gender && (
+                  {user.user_profiles.gender && (
                     <div className="flex justify-between">
                       <span className="text-gray-500">性别</span>
-                      <span>{user.profile.gender}</span>
+                      <span>{user.user_profiles.gender}</span>
                     </div>
                   )}
-                  {user.profile.location && (
+                  {user.user_profiles.location && (
                     <div className="flex justify-between">
                       <span className="text-gray-500">所在城市</span>
-                      <span>{user.profile.location}</span>
+                      <span>{user.user_profiles.location}</span>
                     </div>
                   )}
-                  {user.profile.skills && user.profile.skills.length > 0 && (
+                  {user.user_profiles.skills && user.user_profiles.skills.length > 0 && (
                     <div>
                       <span className="text-gray-500">技能标签</span>
                       <div className="flex flex-wrap gap-2 mt-2">
-                        {user.profile.skills.map((skill) => (
+                        {user.user_profiles.skills.map((skill) => (
                           <span
                             key={skill}
                             className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs"
@@ -226,10 +226,10 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
                       </div>
                     </div>
                   )}
-                  {user.profile.bio && (
+                  {user.user_profiles.bio && (
                     <div className="mt-4">
                       <span className="text-gray-500">自我介绍</span>
-                      <p className="mt-2 text-gray-700">{user.profile.bio}</p>
+                      <p className="mt-2 text-gray-700">{user.user_profiles.bio}</p>
                     </div>
                   )}
                 </div>
@@ -243,7 +243,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="bg-white p-4 rounded-lg shadow">
                 <p className="text-gray-500 text-sm">职位申请</p>
-                <p className="text-2xl font-bold">{user.applications.length}</p>
+                <p className="text-2xl font-bold">{user.job_applications.length}</p>
               </div>
               <div className="bg-white p-4 rounded-lg shadow">
                 <p className="text-gray-500 text-sm">发布职位</p>
@@ -260,17 +260,17 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
             </div>
 
             {/* 最近申请 */}
-            {user.applications.length > 0 && (
+            {user.job_applications.length > 0 && (
               <div className="bg-white rounded-lg shadow">
                 <div className="p-4 border-b">
                   <h3 className="font-medium">最近申请</h3>
                 </div>
                 <div className="divide-y">
-                  {user.applications.map((app) => (
+                  {user.job_applications.map((app) => (
                     <div key={app.id} className="p-4 flex items-center justify-between">
                       <div>
-                        <p className="font-medium">{app.job.title}</p>
-                        <p className="text-sm text-gray-500">{app.job.company.name}</p>
+                        <p className="font-medium">{app.jobs.title}</p>
+                        <p className="text-sm text-gray-500">{app.jobs.companies.name}</p>
                         <p className="text-xs text-gray-400">
                           申请时间: {app.appliedAt.toLocaleDateString("zh-CN")}
                         </p>
@@ -326,7 +326,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
                     <div key={job.id} className="p-4 flex items-center justify-between">
                       <div>
                         <p className="font-medium">{job.title}</p>
-                        <p className="text-sm text-gray-500">{job.company.name}</p>
+                        <p className="text-sm text-gray-500">{job.companies.name}</p>
                       </div>
                       <span
                         className={`px-3 py-1 rounded-full text-sm ${

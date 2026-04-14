@@ -16,11 +16,10 @@ export async function GET(
     }
 
     const { id } = await params;
-    const item = await prisma.keywordMonitor.findUnique({
+    const item = await prisma.keyword_monitors.findUnique({
       where: { id },
-      include: {
-        archives: { orderBy: { fetchedAt: "desc" } },
-        seoPlans: { orderBy: { generatedAt: "desc" } },
+      include: { keyword_archives: { orderBy: { fetchedAt: "desc" } },
+        seo_plans: { orderBy: { generatedAt: "desc" } },
       },
     });
 
@@ -49,7 +48,7 @@ export async function PATCH(
     const body = await request.json();
     const { category, status, intent, trendScore } = body;
 
-    const updated = await prisma.keywordMonitor.update({
+    const updated = await prisma.keyword_monitors.update({
       where: { id },
       data: {
         ...(category !== undefined && { category }),
@@ -77,7 +76,7 @@ export async function DELETE(
     }
 
     const { id } = await params;
-    await prisma.keywordMonitor.delete({ where: { id } });
+    await prisma.keyword_monitors.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("[api/admin/keywords/id] DELETE error:", error);

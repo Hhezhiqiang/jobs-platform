@@ -26,13 +26,12 @@ export async function GET(request: NextRequest) {
       where.verificationStatus = status;
     }
 
-    const companies = await prisma.company.findMany({
+    const companies = await prisma.companies.findMany({
       where,
       take: 200,
-      include: {
-        members: {
+      include: { company_members: {
           include: {
-            user: {
+            users: {
               select: {
                 id: true,
                 name: true,
@@ -100,13 +99,12 @@ export async function PATCH(request: NextRequest) {
       updateData.rejectionReason = rejectionReason;
     }
 
-    const company = await prisma.company.update({
+    const company = await prisma.companies.update({
       where: { id: companyId },
       data: updateData,
-      include: {
-        members: {
+      include: { company_members: {
           include: {
-            user: {
+            users: {
               select: {
                 id: true,
               },
@@ -133,10 +131,10 @@ export async function PATCH(request: NextRequest) {
           }。请修改后重新提交。`
         : `您的企业「${company.name}」账号已被暂停，请联系管理员。`;
 
-    for (const member of company.members) {
-      await prisma.notification.create({
+    for (const member of company.company_members) {
+      await prisma.notifications.create({
         data: {
-          userId: member.user.id,
+          userId: member.users.id,
           type: "SYSTEM",
           title: notificationTitle,
           content: notificationContent,

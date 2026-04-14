@@ -31,12 +31,12 @@ export async function GET(request: Request) {
     end.setHours(23, 59, 59, 999);
 
     const [ordersAgg, commissionAgg, withdrawalsAgg, adjustmentsAgg] = await Promise.all([
-      prisma.contactUnlockOrder.aggregate({
+      prisma.contact_unlock_orders.aggregate({
         where: { status: "PAID", createdAt: { gte: start, lte: end } },
         _sum: { amount: true },
         _count: { id: true },
       }),
-      prisma.commissionRecord.aggregate({
+      prisma.commission_records.aggregate({
         where: {
           createdAt: { gte: start, lte: end },
           status: { in: ["AVAILABLE", "WITHDRAWN"] },
@@ -44,7 +44,7 @@ export async function GET(request: Request) {
         _sum: { commissionAmount: true },
         _count: { id: true },
       }),
-      prisma.withdrawalRecord.aggregate({
+      prisma.withdrawal_records.aggregate({
         where: {
           status: { in: ["PENDING", "APPROVED", "TRANSFERRING", "COMPLETED"] },
           requestedAt: { gte: start, lte: end },
@@ -52,7 +52,7 @@ export async function GET(request: Request) {
         _sum: { amount: true },
         _count: { id: true },
       }),
-      prisma.commissionAdjustment.aggregate({
+      prisma.commission_adjustments.aggregate({
         where: { createdAt: { gte: start, lte: end }, type: "REFUND" },
         _sum: { amount: true },
         _count: { id: true },

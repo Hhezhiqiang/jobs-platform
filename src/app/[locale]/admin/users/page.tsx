@@ -11,7 +11,7 @@ async function toggleUserStatus(formData: FormData) {
   if (!session?.user?.id) {
     throw new Error("未登录");
   }
-  const currentUser = await prisma.user.findUnique({
+  const currentUser = await prisma.users.findUnique({
     where: { id: session.user.id },
     select: { role: true },
   });
@@ -23,7 +23,7 @@ async function toggleUserStatus(formData: FormData) {
   const status = formData.get("status") as UserStatus;
   if (!userId || !status) throw new Error("参数不完整");
 
-  await prisma.user.update({
+  await prisma.users.update({
     where: { id: userId },
     data: { status },
   });
@@ -37,12 +37,12 @@ export default async function UsersPage() {
   }
 
   // 获取所有用户
-  const users = await prisma.user.findMany({
+  const users = await prisma.users.findMany({
     include: {
-      profile: true,
+      user_profiles: true,
       _count: {
         select: {
-          applications: true,
+          job_applications: true,
           jobs: true,
         },
       },
@@ -171,7 +171,7 @@ export default async function UsersPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">
-                      <div>申请: {user._count.applications}</div>
+                      <div>申请: {user._count.job_applications}</div>
                       <div>发布: {user._count.jobs}</div>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">

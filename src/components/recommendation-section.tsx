@@ -2,16 +2,16 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useSession } from "next-auth/react";
-import { JobCardV2 } from "./job-card-v2";
-import { Job, Company } from "@prisma/client";
+import { jobs, companies } from "@prisma/client";
 import { getUserBehaviorData } from "@/lib/recommendations";
 import { Sparkles, Loader2, RefreshCw, User } from "lucide-react";
 
-type JobWithCompany = Job & { company: Company };
+type JobWithCompany = jobs & { companies: companies };
 
-interface RecommendedJob extends Job {
-  company: Company;
+interface RecommendedJob extends jobs {
+  companies: companies;
   matchScore: number;
   matchReasons: string[];
 }
@@ -228,36 +228,125 @@ export function RecommendationSection({
         </div>
 
         {/* Job Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
           {recommendations.jobs.map((job) => (
-            <div key={job.id} className="relative group">
-              <JobCardV2 job={job} variant="featured" />
-              
-              {/* 匹配度标签 */}
-              {recommendations?.isPersonalized && job.matchScore > 0 && (
-                <div className="absolute top-3 right-3 z-10">
-                  <div 
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      job.matchScore >= 80 
-                        ? "bg-green-500 text-white" 
-                        : job.matchScore >= 60 
-                          ? "bg-blue-500 text-white" 
-                          : "bg-gray-500 text-white"
-                    }`}
-                  >
-                    匹配度 {Math.round(job.matchScore)}%
-                  </div>
-                </div>
-              )}
+            <div key={job.id} className="relative group h-full">
+              <Link
+                href={`/jobs/${job.slug}`}
+                className="group flex flex-col h-full bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+              >
+                {/* Featured Badge */}
+                <div className="relative flex-shrink-0">
+                  {job.imageUrl ? (
+                    <div className="h-40 relative overflow-hidden">
+                      <Image
+                        src={job.imageUrl}
+                        alt={`${job.title} 职位图片`}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                    </div>
+                  ) : (
+                    <div className="h-40 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 relative">
+                      <div className="absolute inset-0 opacity-20">
+                        <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                          <path d="M0 100 C 20 0 50 0 100 100 Z" fill="white" />
+                        </svg>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* 匹配度标签 - 集成到卡片内部 */}
+                  {recommendations?.isPersonalized && job.matchScore > 0 && (
+                    <div className="absolute top-3 right-3 z-10">
+                      <div 
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          job.matchScore >= 80 
+                            ? "bg-green-500 text-white" 
+                            : job.matchScore >= 60 
+                              ? "bg-blue-500 text-white" 
+                              : "bg-gray-500 text-white"
+                        }`}
+                      >
+                        匹配度 {Math.round(job.matchScore)}%
+                      </div>
+                    </div>
+                  )}
 
-              {/* 推荐理由提示 */}
-              {recommendations?.isPersonalized && job.matchReasons.length > 0 && (
-                <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                  <div className="bg-black/80 backdrop-blur-sm text-white text-xs px-3 py-2 rounded-lg">
-                    {job.matchReasons[0]}
+                  <div className="absolute top-3 left-3">
+                    <span className="px-3 py-1 bg-red-500 text-white text-xs font-medium rounded-full shadow-lg">
+                      🔥 热招
+                    </span>
                   </div>
                 </div>
-              )}
+
+                <div className="p-5 flex flex-col flex-1">
+                  {/* Company */}
+                  <div className="flex items-center gap-3 mb-3">
+                    {job.companies.logo ? (
+                      <Image
+                        src={job.companies.logo}
+                        alt={`${job.companies.name} 公司Logo`}
+                        width={40}
+                        height={40}
+                        className="rounded-lg"
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+                        {job.companies.name.charAt(0)}
+                      </div>
+                    )}
+                    <div>
+                      <p className="font-medium text-gray-900">{job.companies.name}</p>
+                      <p className="text-xs text-gray-500">{job.companies.industry || "互联网"}</p>
+                    </div>
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
+                    {job.title}
+                  </h3>
+
+                  {/* 推荐理由 - 悬停显示 */}
+                  {recommendations?.isPersonalized && job.matchReasons.length > 0 && (
+                    <div className="mb-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="bg-blue-50 text-blue-700 text-xs px-3 py-2 rounded-lg">
+                        {job.matchReasons[0]}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-2 mb-4 mt-auto">
+                    <span className="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs rounded-lg font-medium">
+                      {job.location}
+                    </span>
+                    <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs rounded-lg">
+                      {job.employmentType}
+                    </span>
+                    {job.isRemote && (
+                      <span className="px-2.5 py-1 bg-green-50 text-green-700 text-xs rounded-lg">
+                        远程
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                    <span className="text-xl font-bold text-blue-600">
+                      {job.salaryMin && job.salaryMax 
+                        ? `${job.salaryMin}-${job.salaryMax}K`
+                        : "薪资面议"}
+                    </span>
+                    <span className="text-sm text-gray-400">
+                      {new Date(job.datePosted).toLocaleDateString("zh-CN")}
+                    </span>
+                  </div>
+                </div>
+              </Link>
             </div>
           ))}
         </div>

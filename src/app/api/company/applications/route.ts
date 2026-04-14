@@ -10,13 +10,13 @@ export const dynamic = "force-dynamic";
 async function checkPermission(userId: string, role: string, companyId?: string) {
   if (role === "ADMIN") return { allowed: true, companyId: null };
 
-  const membership = await prisma.companyMember.findFirst({
+  const membership = await prisma.company_members.findFirst({
     where: {
       userId,
       ...(companyId && { companyId }),
     },
     include: {
-      company: true,
+      companies: true,
     },
   });
 
@@ -49,10 +49,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "无权访问" }, { status: 403 });
     }
 
-    const where: Prisma.JobApplicationWhereInput = {};
+    const where: Prisma.job_applicationsWhereInput = {};
 
     if (companyId) {
-      where.job = {
+      where.jobs = {
         companyId,
       };
     }
@@ -71,26 +71,25 @@ export async function GET(request: NextRequest) {
       where.jobId = jobId;
     }
 
-    const applications = await prisma.jobApplication.findMany({
+    const applications = await prisma.job_applications.findMany({
       where,
-      include: {
-        job: {
+      include: { jobs: {
           select: {
             id: true,
             title: true,
             slug: true,
           },
         },
-        user: {
+        users: {
           select: {
             id: true,
             name: true,
             email: true,
             phone: true,
-            profile: true,
+            user_profiles: true,
           },
         },
-        resume: true,
+        resumes: true,
       },
       orderBy: { appliedAt: "desc" },
       skip: (page - 1) * limit,

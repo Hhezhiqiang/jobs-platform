@@ -14,7 +14,7 @@ async function acquireCronLock(): Promise<boolean> {
   const now = new Date();
   const ttlAgo = new Date(now.getTime() - LOCK_TTL_MINUTES * 60 * 1000);
 
-  const updated = await prisma.sEOSetting.updateMany({
+  const updated = await prisma.seo_settings.updateMany({
     where: { key: CRON_LOCK_KEY, updatedAt: { lt: ttlAgo } },
     data: { value: now.toISOString(), updatedAt: now },
   });
@@ -24,7 +24,7 @@ async function acquireCronLock(): Promise<boolean> {
   }
 
   try {
-    await prisma.sEOSetting.create({
+    await prisma.seo_settings.create({
       data: { key: CRON_LOCK_KEY, value: now.toISOString(), description: "cron lock" },
     });
     return true;
@@ -38,7 +38,7 @@ async function acquireCronLock(): Promise<boolean> {
 
 async function releaseCronLock(): Promise<void> {
   const stale = new Date(Date.now() - (LOCK_TTL_MINUTES + 1) * 60 * 1000);
-  await prisma.sEOSetting.updateMany({
+  await prisma.seo_settings.updateMany({
     where: { key: CRON_LOCK_KEY },
     data: { updatedAt: stale },
   });

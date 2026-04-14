@@ -107,14 +107,14 @@ export default async function CityJobsPage({ params }: PageProps) {
     notFound();
   }
 
-  const jobs = await prisma.job.findMany({
+  const jobs = await prisma.jobs.findMany({
     where: {
       status: "ACTIVE",
       slug: { not: "" },
       city,
     },
     include: {
-      company: true,
+      companies: true,
     },
     orderBy: { datePosted: "desc" },
     take: 20,

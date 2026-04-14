@@ -4,11 +4,22 @@ import { googleTrendsAdapter } from "./keyword-sources/google-trends";
 import { zhihuAdapter } from "./keyword-sources/zhihu";
 import { redditAdapter } from "./keyword-sources/reddit";
 import { jobMarketAdapter } from "./keyword-sources/job-market";
-import { llmChat, isLLMConfigured } from "@/lib/llm";
+import { weiboAdapter } from "./keyword-sources/weibo";
+import { baiduTrendsAdapter } from "./keyword-sources/baidu-trends";
 
-const ADAPTERS = [jobMarketAdapter, googleTrendsAdapter, zhihuAdapter, redditAdapter];
+const ADAPTERS = [
+  jobMarketAdapter,      // 本地数据库，最可靠
+  googleTrendsAdapter,   // Google Trends
+  zhihuAdapter,          // 知乎
+  redditAdapter,         // Reddit
+  weiboAdapter,          // 微博
+  baiduTrendsAdapter,    // 百度指数
+];
 
-// Recruitment-related whitelist for quick pre-filtering
+// 每个适配器的超时时间（毫秒）
+const ADAPTER_TIMEOUT = 15000;
+
+// 招聘相关关键词正则（快速预过滤）
 const JOB_KEYWORDS_REGEX =
   /job|hiring|career|interview|resume|salary|recruit|offer|layoff|firing|engineer|manager|developer|programmer|designer|analyst|校招|春招|秋招|面试|简历|求职|招聘|薪资|大厂|裁员|算法|工程师|产品经理|程序员|设计师|数据分析师|运营/i;
 
@@ -21,22 +32,66 @@ export interface ClassificationResult {
   reasoning: string;
 }
 
-export async function collectKeywords(): Promise<{ inserted: number; duplicates: number; errors: number; newIds: string[] }> {
-  let allItems: RawKeywordItem[] = [];
+// 带超时的适配器调用
+async function fetchWithTimeout<T>(
+  adapter: { name: string; fetch(): Promise<T> },
+  timeoutMs: number
+): Promise<{ success: true; data: T; name: string } | { success: false; error: string; name: string }> {
+  const startTime = Date.now();
+  
+  try {
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error(`timeout after ${timeoutMs}ms`)), timeoutMs);
+    });
+    
+    const data = await Promise.race([adapter.fetch(), timeoutPromise]);
+    const elapsed = Date.now() - startTime;
+    console.log(`[keyword-monitor] ✓ ${adapter.name} 完成 (${elapsed}ms)`);
+    return { success: true, data, name: adapter.name };
+  } catch (err) {
+    const elapsed = Date.now() - startTime;
+    const errorMsg = (err as Error).message;
+    console.error(`[keyword-monitor] ✗ ${adapter.name} 失败 (${elapsed}ms): ${errorMsg}`);
+    return { success: false, error: errorMsg, name: adapter.name };
+  }
+}
 
-  for (const adapter of ADAPTERS) {
-    try {
-      const items = await adapter.fetch();
+export async function collectKeywords(): Promise<{
+  inserted: number;
+  duplicates: number;
+  errors: number;
+  newIds: string[];
+  stats: { adapter: string; count: number; status: string }[];
+}> {
+  const startTime = Date.now();
+  console.log(`[keyword-monitor] 启动 ${ADAPTERS.length} 个适配器采集...`);
+
+  // 并行获取所有数据源（带超时）
+  const results = await Promise.all(
+    ADAPTERS.map(adapter => fetchWithTimeout(adapter, ADAPTER_TIMEOUT))
+  );
+
+  let allItems: RawKeywordItem[] = [];
+  const adapterStats: { adapter: string; count: number; status: string }[] = [];
+
+  for (const result of results) {
+    if (result.success) {
+      const items = result.data as RawKeywordItem[];
       allItems = allItems.concat(items);
-    } catch (err) {
-      console.error(`[keyword-monitor] adapter ${adapter.name} error:`, (err as Error).message);
+      adapterStats.push({ adapter: result.name, count: items.length, status: "ok" });
+    } else {
+      adapterStats.push({ adapter: result.name, count: 0, status: `error: ${result.error}` });
     }
   }
 
-  // Quick pre-filter: must contain job-related keywords
-  allItems = allItems.filter((item) => JOB_KEYWORDS_REGEX.test(item.keyword));
+  console.log(`[keyword-monitor] 原始数据: ${allItems.length} 条，来自 ${results.filter(r => r.success).length}/${ADAPTERS.length} 个适配器`);
 
-  // Deduplicate by normalized keyword
+  // 快速预过滤
+  const beforeFilter = allItems.length;
+  allItems = allItems.filter((item) => JOB_KEYWORDS_REGEX.test(item.keyword));
+  console.log(`[keyword-monitor] 预过滤后: ${allItems.length}/${beforeFilter} 条（排除非招聘相关）`);
+
+  // 按标准化关键词去重
   const uniqueMap = new Map<string, RawKeywordItem>();
   for (const item of allItems) {
     const norm = normalizeKeyword(item.keyword);
@@ -46,77 +101,96 @@ export async function collectKeywords(): Promise<{ inserted: number; duplicates:
     }
   }
 
+  console.log(`[keyword-monitor] 去重后: ${uniqueMap.size} 个唯一关键词`);
+
   let inserted = 0;
   let duplicates = 0;
   let errors = 0;
   const newIds: string[] = [];
 
-  for (const [norm, item] of uniqueMap) {
-    try {
-      const exists = await prisma.keywordMonitor.findFirst({
-        where: { normalized: norm },
-      });
+  // 批量处理，每 10 个一组
+  const entries = Array.from(uniqueMap.entries());
+  const batchSize = 10;
+  
+  for (let i = 0; i < entries.length; i += batchSize) {
+    const batch = entries.slice(i, i + batchSize);
+    
+    await Promise.all(
+      batch.map(async ([norm, item]) => {
+        try {
+          const exists = await prisma.keyword_monitors.findFirst({
+            where: { normalized: norm },
+          });
 
-      if (exists) {
-        await prisma.keywordMonitor.update({
-          where: { id: exists.id },
-          data: {
-            lastSeenAt: new Date(),
-            trendScore: Math.max(exists.trendScore, item.trendScore || 0),
-            source: item.source || exists.source,
-          },
-        });
-        duplicates++;
-        continue;
-      }
+          if (exists) {
+            await prisma.keyword_monitors.update({
+              where: { id: exists.id },
+              data: {
+                lastSeenAt: new Date(),
+                trendScore: Math.max(exists.trendScore, item.trendScore || 0),
+                source: item.source || exists.source,
+              },
+            });
+            duplicates++;
+            return;
+          }
 
-      const classification = await classifyKeyword(item.keyword);
+          // 使用规则分类（更快，无需 LLM）
+          const classification = fallbackClassify(item.keyword);
 
-      const created = await prisma.keywordMonitor.create({
-        data: {
-          keyword: item.keyword,
-          normalized: norm,
-          source: item.source || "unknown",
-          sourceUrl: item.sourceUrl || null,
-          trendScore: item.trendScore || 50,
-          hotLevel: scoreToHotLevel(item.trendScore || 50),
-          category: classification.category,
-          intent: classification.intent,
-          status: "PENDING",
-          metadata: (item.metadata || {}) as any,
-        },
-      });
-      newIds.push(created.id);
-      inserted++;
-    } catch (err: any) {
-      if (err.code === "P2002") {
-        // Race condition: another instance created the same normalized keyword.
-        // Try to update it.
-        const exists = await prisma.keywordMonitor.findFirst({
-          where: { normalized: norm },
-        });
-        if (exists) {
-          await prisma.keywordMonitor.update({
-            where: { id: exists.id },
+          const created = await prisma.keyword_monitors.create({
             data: {
+              keyword: item.keyword,
+              normalized: norm,
+              source: item.source || "unknown",
+              sourceUrl: item.sourceUrl || null,
+              trendScore: item.trendScore || 50,
+              hotLevel: scoreToHotLevel(item.trendScore || 50),
+              category: classification.category as string,
+              intent: classification.intent as string,
+              status: "PENDING" as string,
               lastSeenAt: new Date(),
-              trendScore: Math.max(exists.trendScore, item.trendScore || 0),
-              source: item.source || exists.source,
+              metadata: (item.metadata || {}) as any,
             },
           });
-          duplicates++;
-        } else {
-          console.error(`[keyword-monitor] race condition but record missing for "${norm}"`);
-          errors++;
+          newIds.push(created.id);
+          inserted++;
+        } catch (err: any) {
+          if (err.code === "P2002") {
+            // 竞态条件：另一个实例创建了相同的关键词
+            try {
+              const exists = await prisma.keyword_monitors.findFirst({
+                where: { normalized: norm },
+              });
+              if (exists) {
+                await prisma.keyword_monitors.update({
+                  where: { id: exists.id },
+                  data: {
+                    lastSeenAt: new Date(),
+                    trendScore: Math.max(exists.trendScore, item.trendScore || 0),
+                    source: item.source || exists.source,
+                  },
+                });
+                duplicates++;
+              } else {
+                errors++;
+              }
+            } catch {
+              errors++;
+            }
+          } else {
+            console.error(`[keyword-monitor] 处理 "${norm}" 失败:`, (err as Error).message);
+            errors++;
+          }
         }
-      } else {
-        console.error(`[keyword-monitor] failed to upsert "${norm}":`, (err as Error).message);
-        errors++;
-      }
-    }
+      })
+    );
   }
 
-  return { inserted, duplicates, errors, newIds };
+  const elapsed = Date.now() - startTime;
+  console.log(`[keyword-monitor] 处理完成: 新增${inserted}, 重复${duplicates}, 错误${errors} (${elapsed}ms)`);
+
+  return { inserted, duplicates, errors, newIds, stats: adapterStats };
 }
 
 function scoreToHotLevel(score: number): number {
@@ -127,52 +201,12 @@ function scoreToHotLevel(score: number): number {
   return 1;
 }
 
-async function classifyKeyword(keyword: string): Promise<ClassificationResult> {
-  if (!isLLMConfigured()) {
-    return fallbackClassify(keyword);
-  }
-
-  try {
-    const systemPrompt = `你是一位招聘平台 SEO 专家。请分析关键词的商业价值并输出 JSON。只输出 JSON，不要 markdown 代码块。`;
-    const userPrompt = `关键词: "${keyword}"
-
-请从以下维度输出 JSON：
-{
-  "category": "PRIMARY" | "TRAFFIC" | "JUNK" | "HOLD",
-  "intent": "INFORMATIONAL" | "NAVIGATIONAL" | "TRANSACTIONAL" | "UNKNOWN",
-  "searchVolumeEstimate": "LOW" | "MEDIUM" | "HIGH",
-  "competition": "LOW" | "MEDIUM" | "HIGH",
-  "contentRecommendation": "建议发布的内容类型（博客/专题页/FAQ/不做）",
-  "reasoning": "50字以内的判断依据"
-}
-
-定义：
-- PRIMARY: 直接招聘相关，求职者会搜索并投递简历的词（如"Java工程师招聘"）
-- TRAFFIC: 与职场相关但转化弱，适合引流（如"35岁程序员出路"）
-- JUNK: 与招聘无关或明显负面/争议
-- HOLD: 暂时看不清，先观望`;
-
-    const content = await llmChat(
-      [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-      ],
-      { temperature: 0.2, maxTokens: 600 }
-    );
-
-    const jsonText = content.replace(/```json|```/g, "").trim();
-    const parsed = JSON.parse(jsonText) as ClassificationResult;
-    return parsed;
-  } catch (err) {
-    console.error("[keyword-monitor] LLM classification failed, using fallback:", (err as Error).message);
-    return fallbackClassify(keyword);
-  }
-}
-
-function fallbackClassify(keyword: string): ClassificationResult {
+export function fallbackClassify(keyword: string): ClassificationResult {
   const k = keyword.toLowerCase();
+  
+  // PRIMARY: 直接招聘相关
   if (
-    /招聘|求职|hire|hiring|jobs? near me|software engineer|data scientist|product manager|前端|后端|算法|工程师/i.test(k)
+    /招聘|求职|hire|hiring|jobs?\s*near\s*me|software\s*engineer|data\s*scientist|product\s*manager|前端|后端|算法|工程师/i.test(k)
   ) {
     return {
       category: "PRIMARY",
@@ -183,7 +217,9 @@ function fallbackClassify(keyword: string): ClassificationResult {
       reasoning: "包含明确岗位和招聘意图，属于核心交易型关键词",
     };
   }
-  if (/面试|简历|salary|offer|裁员|出路|职场|career advice/i.test(k)) {
+  
+  // TRAFFIC: 与职场相关但转化弱
+  if (/面试|简历|salary|offer|裁员|出路|职场|career\s*advice|interview\s*tips|resume/i.test(k)) {
     return {
       category: "TRAFFIC",
       intent: "INFORMATIONAL",
@@ -193,6 +229,8 @@ function fallbackClassify(keyword: string): ClassificationResult {
       reasoning: "与招聘间接相关，信息型搜索为主，适合内容引流",
     };
   }
+  
+  // HOLD: 暂时看不清
   return {
     category: "HOLD",
     intent: "UNKNOWN",
@@ -202,5 +240,3 @@ function fallbackClassify(keyword: string): ClassificationResult {
     reasoning: "规则引擎无法明确分类，标记为观望",
   };
 }
-
-export { fallbackClassify };

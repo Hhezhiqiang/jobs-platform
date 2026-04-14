@@ -21,7 +21,7 @@ export async function PATCH(
     }
 
     // 检查用户是否有权限（职位发布者或管理员）
-    const user = await prisma.user.findUnique({
+    const user = await prisma.users.findUnique({
       where: { id: session.user.id },
       select: { role: true },
     });
@@ -38,13 +38,12 @@ export async function PATCH(
     }
 
     // 获取申请信息
-    const application = await prisma.jobApplication.findUnique({
+    const application = await prisma.job_applications.findUnique({
       where: { id: applicationId },
-      include: {
-        job: {
-          include: { company: true },
+      include: { jobs: {
+          include: { companies: true },
         },
-        user: true,
+        users: true,
       },
     });
 
@@ -69,7 +68,7 @@ export async function PATCH(
     const oldStatus = application.status;
 
     // 更新申请状态
-    const updateData: Prisma.JobApplicationUpdateInput = {
+    const updateData: Prisma.job_applicationsUpdateInput = {
       status: newStatus,
     };
 
@@ -88,14 +87,13 @@ export async function PATCH(
       updateData.responseNote = responseNote;
     }
 
-    const updatedApplication = await prisma.jobApplication.update({
+    const updatedApplication = await prisma.job_applications.update({
       where: { id: applicationId },
       data: updateData,
-      include: {
-        job: {
-          include: { company: true },
+      include: { jobs: {
+          include: { companies: true },
         },
-        user: true,
+        users: true,
       },
     });
 
@@ -104,8 +102,8 @@ export async function PATCH(
       await createApplicationStatusNotification(
         application.userId,
         applicationId,
-        application.job.title,
-        application.job.company.name,
+        application.jobs.title,
+        application.jobs.companies.name,
         oldStatus,
         newStatus
       );

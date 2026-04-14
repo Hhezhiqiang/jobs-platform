@@ -6,6 +6,7 @@ import { Metadata } from "next";
 import ReactMarkdown from "react-markdown";
 import { formatSalary, safeJsonLdStringify } from "@/lib/utils";
 import { ViewCounter } from "@/components/view-counter";
+import { TableOfContents } from "@/components/blog/table-of-contents";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -15,7 +16,7 @@ export const revalidate = 3600;
 
 export async function generateStaticParams() {
   try {
-    const posts = await prisma.page.findMany({
+    const posts = await prisma.pages.findMany({
       where: { type: "BLOG", status: "PUBLISHED", slug: { not: "" } },
       select: { slug: true },
       take: 500,
@@ -29,9 +30,9 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
     const { slug } = await params;
-  const post = await prisma.page.findUnique({
+  const post = await prisma.pages.findUnique({
     where: { slug, type: "BLOG", status: "PUBLISHED" },
-    include: { author: true },
+    include: { users: true },
   });
 
   if (!post) {
@@ -52,7 +53,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       type: "article",
       publishedTime: post.createdAt.toISOString(),
       modifiedTime: post.updatedAt.toISOString(),
-      authors: [post.author.name],
+      authors: [post.users.name],
       images: post.featuredImage ? [post.featuredImage] : [],
     },
     twitter: {
@@ -83,7 +84,7 @@ function generateArticleSchema(post: any) {
     dateModified: post.updatedAt.toISOString(),
     author: {
       "@type": "Person",
-      name: post.author.name,
+      name: post.users.name,
     },
     publisher: {
       "@type": "Organization",
@@ -130,9 +131,9 @@ function generateFAQSchema(faqs: { question: string; answer: string }[]) {
 export default async function BlogDetailPage({ params }: PageProps) {
   try {
     const { slug } = await params;
-    const post = await prisma.page.findUnique({
+    const post = await prisma.pages.findUnique({
       where: { slug, type: "BLOG", status: "PUBLISHED" },
-      include: { author: true },
+      include: { users: true },
     });
 
     if (!post) {
@@ -141,7 +142,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
 
     // 获取相关职位（基于关键词匹配）
   const keyword = post.keywords?.[0] || "";
-  const relatedJobs = keyword ? await prisma.job.findMany({
+  const relatedJobs = keyword ? await prisma.jobs.findMany({
     where: {
       status: "ACTIVE",
       slug: { not: "" }, // 确保有 slug
@@ -150,18 +151,18 @@ export default async function BlogDetailPage({ params }: PageProps) {
         { description: { contains: keyword, mode: "insensitive" } },
       ],
     },
-    include: { company: true },
+    include: { companies: true },
     take: 3,
   }) : [];
 
   // 如果没有匹配到，获取最新职位
   const fallbackJobs = relatedJobs.length === 0 
-    ? await prisma.job.findMany({
+    ? await prisma.jobs.findMany({
         where: { 
           status: "ACTIVE",
           slug: { not: "" }, // 确保有 slug
         },
-        include: { company: true },
+        include: { companies: true },
         orderBy: { datePosted: "desc" },
         take: 3,
       })
@@ -245,9 +246,9 @@ export default async function BlogDetailPage({ params }: PageProps) {
               <div className="flex items-center gap-4 text-gray-600 mb-8 pb-8 border-b">
                 <div className="flex items-center gap-2">
                   <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
-                    {post.author?.name?.[0] || "A"}
+                    {post.users?.name?.[0] || "A"}
                   </div>
-                  <span>{post.author?.name || "匿名作者"}</span>
+                  <span>{post.users?.name || "匿名作者"}</span>
                 </div>
                 <span>·</span>
                 <time dateTime={post.createdAt.toISOString()}>
@@ -268,9 +269,27 @@ export default async function BlogDetailPage({ params }: PageProps) {
                 </div>
               )}
 
+              {/* 目录导航 */}
+              <TableOfContents content={post.content} />
+
               {/* 文章内容 */}
               <div className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-a:text-blue-600">
-                <ReactMarkdown>{post.content}</ReactMarkdown>
+                <ReactMarkdown
+                  components={{
+                    h2: ({ children }) => {
+                      const text = String(children);
+                      const id = text.replace(/[^\w\s-]/g, "").replace(/\s+/g, "-").slice(0, 30);
+                      return <h2 id={`heading-${id}`} className="scroll-mt-24">{children}</h2>;
+                    },
+                    h3: ({ children }) => {
+                      const text = String(children);
+                      const id = text.replace(/[^\w\s-]/g, "").replace(/\s+/g, "-").slice(0, 30);
+                      return <h3 id={`heading-${id}`} className="scroll-mt-24">{children}</h3>;
+                    },
+                  }}
+                >
+                  {post.content}
+                </ReactMarkdown>
               </div>
 
               {/* 关键词标签 */}
@@ -306,7 +325,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
                     <div className="flex justify-between items-start">
                       <div>
                         <h3 className="font-semibold text-gray-900">{job.title}</h3>
-                        <p className="text-sm text-gray-600">{job.company?.name}</p>
+                        <p className="text-sm text-gray-600">{job.companies?.name}</p>
                         <div className="flex gap-2 mt-2 text-sm text-gray-500">
                           <span>{job.location}</span>
                           <span>·</span>

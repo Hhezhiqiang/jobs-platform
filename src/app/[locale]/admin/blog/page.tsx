@@ -12,7 +12,7 @@ export default async function AdminBlogPage() {
   }
 
   // 检查是否是管理员
-  const user = await prisma.user.findUnique({
+  const user = await prisma.users.findUnique({
     where: { id: session.user.id },
   });
 
@@ -20,10 +20,10 @@ export default async function AdminBlogPage() {
     redirect("/");
   }
 
-  const posts = await prisma.page.findMany({
+  const posts = await prisma.pages.findMany({
     where: { type: "BLOG" },
     orderBy: { createdAt: "desc" },
-    include: { author: true },
+    include: { users: true },
   });
 
   return (
@@ -88,7 +88,7 @@ export default async function AdminBlogPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="text-sm text-gray-900">{post.author.name}</span>
+                    <span className="text-sm text-gray-900">{post.users.name}</span>
                   </td>
                   <td className="px-6 py-4">
                     <span

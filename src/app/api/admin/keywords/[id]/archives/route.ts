@@ -39,7 +39,7 @@ export async function GET(
     }
 
     const { id } = params;
-    const archives = await prisma.keywordArchive.findMany({
+    const archives = await prisma.keyword_archives.findMany({
       where: { monitorId: id },
       orderBy: { fetchedAt: "desc" },
     });

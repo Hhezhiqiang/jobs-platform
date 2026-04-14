@@ -1,12 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Job, Company } from "@prisma/client";
+import { jobs, companies } from "@prisma/client";
 import { formatDistanceToNow, formatSalary } from "@/lib/utils";
 import { HeartButton } from "./heart-button";
 import { HighlightedText } from "./highlighted-text";
 
 interface JobCardV2Props {
-  job: Job & { company: Company };
+  job: jobs & { companies: companies };
   variant?: "default" | "compact" | "featured";
   showFavorite?: boolean;
   highlightQuery?: string;
@@ -24,11 +24,11 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
       >
         {/* Company Logo */}
         <div className="flex-shrink-0">
-          {job.company.logo ? (
+          {job.companies.logo ? (
             <div className="w-12 h-12 rounded-xl overflow-hidden ring-2 ring-gray-100 group-hover:ring-blue-200 transition-all">
               <Image
-                src={job.company.logo}
-                alt={`${job.company.name} 公司Logo`}
+                src={job.companies.logo}
+                alt={`${job.companies.name} 公司Logo`}
                 width={48}
                 height={48}
                 className="w-full h-full object-cover"
@@ -37,7 +37,7 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
             </div>
           ) : (
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-lg">
-              {job.company.name.charAt(0)}
+              {job.companies.name.charAt(0)}
             </div>
           )}
         </div>
@@ -53,9 +53,9 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
           </h3>
           <p className="text-sm text-gray-500 truncate">
             {highlightQuery ? (
-              <HighlightedText text={job.company.name} highlight={highlightQuery} />
+              <HighlightedText text={job.companies.name} highlight={highlightQuery} />
             ) : (
-              job.company.name
+              job.companies.name
             )}
           </p>
           <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
@@ -84,10 +84,10 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
     return (
       <Link
         href={`/jobs/${job.slug}`}
-        className="group block bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+        className="group flex flex-col h-full bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
       >
         {/* Featured Badge */}
-        <div className="relative">
+        <div className="relative flex-shrink-0">
           {job.imageUrl ? (
             <div className="h-40 relative overflow-hidden">
               <Image
@@ -100,7 +100,7 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
             </div>
           ) : (
-            <div className="h-32 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 relative">
+            <div className="h-40 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 relative">
               <div className="absolute inset-0 opacity-20">
                 <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
                   <path d="M0 100 C 20 0 50 0 100 100 Z" fill="white" />
@@ -119,10 +119,10 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
         <div className="p-5">
           {/* Company */}
           <div className="flex items-center gap-3 mb-3">
-            {job.company.logo ? (
+            {job.companies.logo ? (
               <Image
-                src={job.company.logo}
-                alt={`${job.company.name} 公司Logo`}
+                src={job.companies.logo}
+                alt={`${job.companies.name} 公司Logo`}
                 width={40}
                 height={40}
                 className="rounded-lg"
@@ -130,12 +130,12 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
               />
             ) : (
               <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
-                {job.company.name.charAt(0)}
+                {job.companies.name.charAt(0)}
               </div>
             )}
             <div>
-              <p className="font-medium text-gray-900">{job.company.name}</p>
-              <p className="text-xs text-gray-500">{job.company.industry || "互联网"}</p>
+              <p className="font-medium text-gray-900">{job.companies.name}</p>
+              <p className="text-xs text-gray-500">{job.companies.industry || "互联网"}</p>
             </div>
           </div>
 
@@ -182,11 +182,11 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
         <div className="flex items-start gap-4">
           {/* Logo */}
           <div className="flex-shrink-0">
-            {job.company.logo ? (
+            {job.companies.logo ? (
               <div className="w-14 h-14 rounded-xl overflow-hidden ring-2 ring-gray-100 group-hover:ring-blue-200 transition-all">
                 <Image
-                  src={job.company.logo}
-                  alt={`${job.company.name} 公司Logo`}
+                  src={job.companies.logo}
+                  alt={`${job.companies.name} 公司Logo`}
                   width={56}
                   height={56}
                   className="w-full h-full object-cover"
@@ -195,7 +195,7 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
               </div>
             ) : (
               <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-md">
-                {job.company.name.charAt(0)}
+                {job.companies.name.charAt(0)}
               </div>
             )}
           </div>
@@ -207,7 +207,7 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
                 <h3 className="font-bold text-lg text-gray-900 group-hover:text-blue-600 transition-colors">
                   {job.title}
                 </h3>
-                <p className="text-gray-600">{job.company.name}</p>
+                <p className="text-gray-600">{job.companies.name}</p>
               </div>
               <span className="text-lg font-bold text-blue-600 flex-shrink-0">{salaryText}</span>
             </div>

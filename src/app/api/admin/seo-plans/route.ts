@@ -22,12 +22,12 @@ export async function GET(request: NextRequest) {
     if (monitorId) where.monitorId = monitorId;
     if (status) where.status = status;
 
-    const items = await prisma.sEOPlan.findMany({
+    const items = await prisma.seo_plans.findMany({
       where,
       orderBy: { generatedAt: "desc" },
       take: limit,
       skip: offset,
-      include: { monitor: true },
+      include: { keyword_monitors: true },
     });
 
     return NextResponse.json({ items, limit, offset });
@@ -53,7 +53,7 @@ export async function PATCH(request: NextRequest) {
     if (status === "APPROVED") data.approvedAt = new Date();
     if (status === "PUBLISHED") data.publishedAt = new Date();
 
-    const updated = await prisma.sEOPlan.update({ where: { id }, data });
+    const updated = await prisma.seo_plans.update({ where: { id }, data });
     return NextResponse.json(updated);
   } catch (error) {
     console.error("[api/admin/seo-plans] PATCH error:", error);

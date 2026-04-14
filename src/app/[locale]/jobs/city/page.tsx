@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 };
 
 export default async function CitiesPage() {
-  const cityCounts = await prisma.job.groupBy({
+  const cityCounts = await prisma.jobs.groupBy({
     by: ["city"],
     where: { status: "ACTIVE", slug: { not: "" } },
     _count: { id: true },

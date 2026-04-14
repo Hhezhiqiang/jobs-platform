@@ -1,10 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Job, Company } from "@prisma/client";
+import { jobs, companies } from "@prisma/client";
 import { formatSalary, safeJsonLdStringify } from "@/lib/utils";
 
 interface JobCardProps {
-  job: Job & { company: Company };
+  job: jobs & { companies: companies };
   compact?: boolean;
 }
 
@@ -16,14 +16,14 @@ export function JobCard({ job, compact = false }: JobCardProps) {
     "@context": "https://schema.org",
     "@type": "JobPosting",
     "title": job.title,
-    "description": job.description?.slice(0, 200) || `${job.company.name}招聘${job.title}`,
+    "description": job.description?.slice(0, 200) || `${job.companies.name}招聘${job.title}`,
     "datePosted": job.datePosted.toISOString(),
     "validThrough": job.validThrough?.toISOString() || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
     "employmentType": getEmploymentType(job.employmentType),
     "hiringOrganization": {
       "@type": "Organization",
-      "name": job.company.name,
-      "logo": job.company.logo || undefined,
+      "name": job.companies.name,
+      "logo": job.companies.logo || undefined,
     },
     "jobLocation": {
       "@type": "Place",
@@ -65,10 +65,10 @@ export function JobCard({ job, compact = false }: JobCardProps) {
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-3">
-              {job.company.logo ? (
+              {job.companies.logo ? (
                 <Image
-                  src={job.company.logo}
-                  alt={`${job.company.name} Logo`}
+                  src={job.companies.logo}
+                  alt={`${job.companies.name} Logo`}
                   width={48}
                   height={48}
                   className="rounded-lg object-cover"
@@ -76,13 +76,13 @@ export function JobCard({ job, compact = false }: JobCardProps) {
                 />
               ) : (
                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 font-bold">
-                  {job.company.name.charAt(0)}
+                  {job.companies.name.charAt(0)}
                 </div>
               )}
               <div>
                 <h3 className="font-semibold text-gray-900" itemProp="title">{job.title}</h3>
                 <p className="text-sm text-gray-600" itemProp="hiringOrganization" itemScope itemType="https://schema.org/Organization">
-                  <span itemProp="name">{job.company.name}</span>
+                  <span itemProp="name">{job.companies.name}</span>
                 </p>
               </div>
             </div>
@@ -131,10 +131,10 @@ export function JobCard({ job, compact = false }: JobCardProps) {
       <Link href={`/jobs/${job.slug}`} className="block p-5">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-3">
-            {job.company.logo ? (
+            {job.companies.logo ? (
               <Image
-                src={job.company.logo}
-                alt={`${job.company.name} Logo`}
+                src={job.companies.logo}
+                alt={`${job.companies.name} Logo`}
                 width={50}
                 height={50}
                 className="rounded-lg object-cover"
@@ -142,13 +142,13 @@ export function JobCard({ job, compact = false }: JobCardProps) {
               />
             ) : (
               <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 font-bold">
-                {job.company.name.charAt(0)}
+                {job.companies.name.charAt(0)}
               </div>
             )}
             <div>
               <h3 className="font-semibold text-lg text-gray-900" itemProp="title">{job.title}</h3>
               <p className="text-sm text-gray-600" itemProp="hiringOrganization" itemScope itemType="https://schema.org/Organization">
-                <span itemProp="name">{job.company.name}</span>
+                <span itemProp="name">{job.companies.name}</span>
               </p>
             </div>
           </div>

@@ -28,7 +28,7 @@ async function updatePromoterStatus(formData: FormData) {
   const data: any = {};
   if (status) data.status = status;
   if (defaultRate) data.defaultRate = Number(defaultRate);
-  await prisma.promoter.update({ where: { id }, data });
+  await prisma.promoters.update({ where: { id }, data });
 }
 
 export default async function AdminPromotersPage({ searchParams }: PageProps) {
@@ -52,13 +52,13 @@ export default async function AdminPromotersPage({ searchParams }: PageProps) {
   }
 
   const [promoters, total] = await Promise.all([
-    prisma.promoter.findMany({
+    prisma.promoters.findMany({
       where,
       skip: (currentPage - 1) * ITEMS_PER_PAGE,
       take: ITEMS_PER_PAGE,
       orderBy: { createdAt: "desc" },
     }),
-    prisma.promoter.count({ where }),
+    prisma.promoters.count({ where }),
   ]);
 
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE);

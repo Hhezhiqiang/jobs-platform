@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
   // 记录搜索查询（用于热门搜索统计）
   if (q && q.length > 0) {
     try {
-      await prisma.searchQuery.upsert({
+      await prisma.search_queries.upsert({
         where: { query: q.toLowerCase() },
         update: {
           count: { increment: 1 },
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
 
   try {
     // 构建查询条件
-    const where: Prisma.JobWhereInput = {
+    const where: Prisma.jobsWhereInput = {
       status: "ACTIVE",
     };
 
@@ -73,8 +73,8 @@ export async function GET(request: NextRequest) {
         { description: { contains: q, mode: "insensitive" } },
         { requirements: { contains: q, mode: "insensitive" } },
         { benefits: { contains: q, mode: "insensitive" } },
-        { company: { name: { contains: q, mode: "insensitive" } } },
-        { company: { description: { contains: q, mode: "insensitive" } } },
+        { companies: { name: { contains: q, mode: "insensitive" } } },
+        { companies: { description: { contains: q, mode: "insensitive" } } },
         { location: { contains: q, mode: "insensitive" } },
         { city: { contains: q, mode: "insensitive" } },
       ];
@@ -86,7 +86,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (type && type !== "all") {
-      where.employmentType = type as Prisma.EnumEmploymentTypeFilter<"Job">;
+      where.employmentType = type as Prisma.EnumEmploymentTypeFilter<"jobs">;
     }
 
     if (minSalary || maxSalary) {
@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
       }
       where.AND = [];
       if (parsedMin !== null) {
-        (where.AND as Prisma.JobWhereInput[]).push({
+        (where.AND as Prisma.jobsWhereInput[]).push({
           OR: [
             { salaryMin: { gte: parsedMin } },
             { salaryMax: { gte: parsedMin } },
@@ -108,7 +108,7 @@ export async function GET(request: NextRequest) {
         });
       }
       if (parsedMax !== null) {
-        (where.AND as Prisma.JobWhereInput[]).push({
+        (where.AND as Prisma.jobsWhereInput[]).push({
           OR: [
             { salaryMin: { lte: parsedMax } },
             { salaryMax: { lte: parsedMax } },
@@ -119,10 +119,9 @@ export async function GET(request: NextRequest) {
 
     // 并行执行查询
     const [jobs, total] = await Promise.all([
-      prisma.job.findMany({
+      prisma.jobs.findMany({
         where,
-        include: {
-          company: {
+        include: { companies: {
             select: {
               id: true,
               name: true,
@@ -138,7 +137,7 @@ export async function GET(request: NextRequest) {
         skip,
         take: limit,
       }),
-      prisma.job.count({ where }),
+      prisma.jobs.count({ where }),
     ]);
 
     return NextResponse.json({
