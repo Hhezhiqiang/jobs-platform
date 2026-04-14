@@ -8,8 +8,8 @@ interface BlogPost {
   excerpt?: string | null;
   slug: string;
   featuredImage?: string | null;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Date | string;
+  updatedAt: Date | string;
   author?: { name: string } | null;
 }
 
@@ -61,8 +61,8 @@ export function BlogArticleStructuredData({ post }: { post: BlogPost }) {
     headline: post.title,
     description: post.excerpt || post.title,
     image: post.featuredImage || `${baseUrl}/logo.png`,
-    datePublished: post.createdAt.toISOString(),
-    dateModified: post.updatedAt.toISOString(),
+    datePublished: typeof post.createdAt === 'string' ? post.createdAt : post.createdAt.toISOString(),
+    dateModified: typeof post.updatedAt === 'string' ? post.updatedAt : post.updatedAt.toISOString(),
     author: {
       "@type": "Organization",
       name: post.author?.name || "JobsBro编辑",

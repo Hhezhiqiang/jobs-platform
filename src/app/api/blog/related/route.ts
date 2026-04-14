@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     // 获取当前博客
     const currentBlog = await prisma.pages.findUnique({
       where: { slug },
-      select: { category: true, keywords: true },
+      select: { keywords: true },
     });
 
     if (!currentBlog) {
@@ -37,24 +37,19 @@ export async function GET(request: NextRequest) {
       ...keywords,
     ].filter(Boolean);
 
-    // 查找相关博客（基于相同分类或关键词）
+    // 查找相关博客（基于关键词匹配）
     const relatedBlogs = await prisma.pages.findMany({
       where: {
         type: "BLOG",
         status: "PUBLISHED",
         slug: { not: slug },
-        OR: [
-          { category: currentBlog.category },
-          ...(allKeywords.length > 0
-            ? [
-                {
-                  keywords: {
-                    hasSome: allKeywords,
-                  },
-                },
-              ]
-            : []),
-        ],
+        ...(allKeywords.length > 0
+          ? {
+              keywords: {
+                hasSome: allKeywords,
+              },
+            }
+          : {}),
       },
       orderBy: { viewCount: "desc" },
       take: limit,

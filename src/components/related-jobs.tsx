@@ -29,7 +29,7 @@ export async function RelatedJobs({ keywords = [], currentSlug, limit = 3 }: Rel
       id: true,
       title: true,
       slug: true,
-      company: {
+      companies: {
         select: {
           name: true,
           logo: true,
@@ -39,7 +39,8 @@ export async function RelatedJobs({ keywords = [], currentSlug, limit = 3 }: Rel
       salaryMin: true,
       salaryMax: true,
       salaryCurrency: true,
-      workMode: true,
+      isRemote: true,
+      isHybrid: true,
     },
   });
 
@@ -53,7 +54,7 @@ export async function RelatedJobs({ keywords = [], currentSlug, limit = 3 }: Rel
         id: true,
         title: true,
         slug: true,
-        company: {
+        companies: {
           select: {
             name: true,
             logo: true,
@@ -63,7 +64,8 @@ export async function RelatedJobs({ keywords = [], currentSlug, limit = 3 }: Rel
         salaryMin: true,
         salaryMax: true,
         salaryCurrency: true,
-        workMode: true,
+        isRemote: true,
+        isHybrid: true,
       },
     });
 
@@ -137,7 +139,7 @@ function JobCard({ job }: { job: any }) {
           <h4 className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-1">
             {job.title}
           </h4>
-          <p className="text-sm text-gray-500 mt-1">{job.company?.name || "未知公司"}</p>
+          <p className="text-sm text-gray-500 mt-1">{job.companies?.name || "未知公司"}</p>
           <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
             <span className="flex items-center gap-1">
               <MapPin className="w-3.5 h-3.5" />
@@ -147,10 +149,9 @@ function JobCard({ job }: { job: any }) {
               <DollarSign className="w-3.5 h-3.5" />
               {formatSalary()}
             </span>
-            {job.workMode && (
+            {(job.isRemote || job.isHybrid) && (
               <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
-                {job.workMode === "REMOTE" ? "远程" : 
-                 job.workMode === "HYBRID" ? "混合" : " onsite"}
+                {job.isRemote ? "远程" : job.isHybrid ? "混合" : " onsite"}
               </span>
             )}
           </div>

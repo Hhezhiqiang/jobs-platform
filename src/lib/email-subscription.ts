@@ -11,24 +11,8 @@ export async function subscribeEmail(email: string): Promise<{ success: boolean;
     // 验证邮箱格式
     emailSchema.parse(email);
 
-    // 检查是否已订阅
-    const existing = await prisma.subscribers?.findUnique({
-      where: { email },
-    });
-
-    if (existing) {
-      return { success: false, message: "该邮箱已订阅" };
-    }
-
-    // 创建订阅记录
-    // 注意: 需要在prisma schema中添加subscribers模型
-    // await prisma.subscribers.create({
-    //   data: {
-    //     email,
-    //     subscribedAt: new Date(),
-    //     active: true,
-    //   },
-    // });
+    // 注意: 需要在prisma schema中添加subscribers模型才能启用完整功能
+    // 目前仅记录日志，实际存储需要数据库支持
 
     console.log(`[Subscribe] New subscriber: ${email}`);
     

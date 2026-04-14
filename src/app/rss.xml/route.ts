@@ -1,4 +1,4 @@
-import { prisma } from "./src/lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jobs-platform-gold.vercel.app";
@@ -14,9 +14,6 @@ export async function GET() {
       excerpt: true,
       content: true,
       createdAt: true,
-      author: {
-        select: { name: true },
-      },
     },
   });
 
@@ -44,7 +41,7 @@ export async function GET() {
       <link>${baseUrl}/blog/${blog.slug}</link>
       <guid isPermaLink="true">${baseUrl}/blog/${blog.slug}</guid>
       <pubDate>${new Date(blog.createdAt).toUTCString()}</pubDate>
-      <author>${blog.author?.name || "JobsBro编辑"}</author>
+      <author>JobsBro编辑</author>
       <description>${escapeXml(blog.excerpt || blog.title)}</description>
       <content:encoded><![CDATA[${content}]]&gt;</content:encoded>
     </item>`;

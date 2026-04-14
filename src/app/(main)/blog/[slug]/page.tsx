@@ -36,12 +36,6 @@ const getBlogPost = cache(async (slug: string) => {
       metaDescription: true,
       metaTitleEn: true,
       metaDescriptionEn: true,
-      author: {
-        select: {
-          name: true,
-          image: true,
-        },
-      },
     },
   });
 
@@ -71,7 +65,7 @@ export async function generateMetadata({ params }: BlogPageProps): Promise<Metad
       type: "article",
       publishedTime: post.createdAt.toISOString(),
       modifiedTime: post.updatedAt.toISOString(),
-      authors: post.author?.name ? [post.author.name] : ["JobsBro编辑"],
+      authors: ["JobsBro编辑"],
       images: post.featuredImage ? [post.featuredImage] : [`${SITE_URL}/logo.png`],
     },
     twitter: {

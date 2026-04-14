@@ -31,10 +31,6 @@ interface BlogPost {
   createdAt: string;
   updatedAt: string;
   slug: string;
-  author?: {
-    name?: string | null;
-    image?: string | null;
-  } | null;
 }
 
 interface BlogDetailClientProps {
@@ -122,7 +118,7 @@ export function BlogDetailClient({ post, locale }: BlogDetailClientProps) {
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600" />
           )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" /
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
           
           <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-12">
             <div className="max-w-4xl mx-auto">
@@ -163,7 +159,7 @@ export function BlogDetailClient({ post, locale }: BlogDetailClientProps) {
               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-8 pb-8 border-b">
                 <div className="flex items-center gap-1">
                   <User className="w-4 h-4" />
-                  <span>{post.author?.name || "JobsBro编辑"}</span>
+                  <span>JobsBro编辑</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <CalendarDays className="w-4 h-4" />
