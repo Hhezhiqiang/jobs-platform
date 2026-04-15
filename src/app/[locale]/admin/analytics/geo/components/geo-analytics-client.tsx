@@ -1,31 +1,30 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import {
   Globe,
   MapPin,
   Users,
   Eye,
   Clock,
-  ArrowUp,
-  ArrowDown,
   BarChart3,
   PieChart,
   TrendingUp,
 } from "lucide-react";
-import { Bar, Pie } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-} from "chart.js";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
+// 导入 Chart.js 注册（只在客户端执行）
+import "@/lib/chart-registry";
+
+// 动态导入图表组件（避免SSR问题）
+const Bar = dynamic(
+  () => import("react-chartjs-2").then((mod) => mod.Bar),
+  { ssr: false }
+);
+const Pie = dynamic(
+  () => import("react-chartjs-2").then((mod) => mod.Pie),
+  { ssr: false }
+);
 
 interface GeoData {
   summary: {
@@ -62,17 +61,27 @@ export function GeoAnalyticsClient() {
   const [loading, setLoading] = useState(true);
   const [days, setDays] = useState(30);
   const [error, setError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    fetchGeoData();
-  }, [days]);
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted) {
+      fetchGeoData();
+    }
+  }, [days, mounted]);
 
   const fetchGeoData = async () => {
     try {
       setLoading(true);
       setError(null);
       const response = await fetch(`/api/admin/analytics/geo?days=${days}`);
-      if (!response.ok) throw new Error("Failed to fetch data");
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP ${response.status}`);
+      }
       const result = await response.json();
       setData(result);
     } catch (err) {
@@ -81,6 +90,17 @@ export function GeoAnalyticsClient() {
       setLoading(false);
     }
   };
+
+  if (!mounted) {
+    return (
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12">
+        <div className="flex flex-col items-center justify-center gap-4">
+          <div className="w-12 h-12 border-4 border-emerald-200 border-t-emerald-500 rounded-full animate-spin" />
+          <p className="text-gray-500">加载中...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -154,6 +174,37 @@ export function GeoAnalyticsClient() {
         borderColor: "#fff",
       },
     ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        grid: { color: "rgba(0,0,0,0.05)" },
+      },
+      x: {
+        grid: { display: false },
+      },
+    },
+  };
+
+  const pieOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: "right" as const,
+        labels: {
+          boxWidth: 12,
+          padding: 15,
+        },
+      },
+    },
   };
 
   return (
@@ -240,25 +291,7 @@ export function GeoAnalyticsClient() {
             <h3 className="font-bold text-gray-900">TOP10 国家/地区访问排行</h3>
           </div>
           <div className="h-80">
-            <Bar
-              data={countryChartData}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                  legend: { display: false },
-                },
-                scales: {
-                  y: {
-                    beginAtZero: true,
-                    grid: { color: "rgba(0,0,0,0.05)" },
-                  },
-                  x: {
-                    grid: { display: false },
-                  },
-                },
-              }}
-            />
+            <Bar data={countryChartData} options={chartOptions} />
           </div>
         </div>
 
@@ -269,22 +302,7 @@ export function GeoAnalyticsClient() {
             <h3 className="font-bold text-gray-900">国家/地区分布占比</h3>
           </div>
           <div className="h-80 flex items-center justify-center">
-            <Pie
-              data={pieChartData}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                  legend: {
-                    position: "right",
-                    labels: {
-                      boxWidth: 12,
-                      padding: 15,
-                    },
-                  },
-                },
-              }}
-            />
+            <Pie data={pieChartData} options={pieOptions} />
           </div>
         </div>
       </div>
@@ -483,6 +501,7 @@ function getCountryFlag(country: string): string {
     "Egypt": "🇪🇬",
     "Nigeria": "🇳🇬",
     "Kenya": "🇰🇪",
+    "Local": "🏠",
     "Unknown": "🌍",
   };
   return flagMap[country] || "🌐";
