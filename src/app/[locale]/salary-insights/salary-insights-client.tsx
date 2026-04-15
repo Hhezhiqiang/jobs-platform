@@ -84,7 +84,7 @@ export default function SalaryInsightsClient({ initialData }: SalaryInsightsClie
       } else {
         setError(result.error || "获取数据失败");
       }
-    } catch (err) {
+    } catch {
       setError("网络错误，请稍后重试");
     } finally {
       setLoading(false);
@@ -294,7 +294,7 @@ export default function SalaryInsightsClient({ initialData }: SalaryInsightsClie
                     dataKey="month"
                     tick={{ fontSize: 12 }}
                     tickFormatter={(value) => {
-                      const [year, month] = value.split("-");
+                      const [, month] = value.split("-");
                       return `${month}月`;
                     }}
                   />

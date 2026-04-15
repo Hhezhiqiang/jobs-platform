@@ -54,7 +54,7 @@ export default function ApplyModal({
       } else {
         setError(data.error || "申请失败，请稍后重试");
       }
-    } catch (err) {
+    } catch {
       setError("申请失败，请稍后重试");
     } finally {
       setLoading(false);

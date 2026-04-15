@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
 
     // 获取时间范围参数
     const { searchParams } = new URL(request.url);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const days = parseInt(searchParams.get("days") || "30");
 
     // 获取分析数据

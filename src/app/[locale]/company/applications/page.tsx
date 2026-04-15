@@ -1,6 +1,6 @@
 "use client";
 
-import type { job_applications, jobs, users } from "@prisma/client";
+import type { job_applications, jobs, users, ApplicationStatus } from "@prisma/client";
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -95,7 +95,7 @@ function CompanyApplicationsContent() {
     (app) =>
       app.user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       app.user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      app.jobs.title?.toLowerCase().includes(searchQuery.toLowerCase())
+      app.job.title?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const toggleSelect = (id: string) => {
@@ -113,7 +113,7 @@ function CompanyApplicationsContent() {
     }
   };
 
-  const handleBulkUpdate = async (newStatus: string) => {
+  const handleBulkUpdate = async (newStatus: ApplicationStatus) => {
     if (selectedIds.size === 0) return;
     setBulkUpdating(true);
     try {
@@ -143,7 +143,7 @@ function CompanyApplicationsContent() {
       姓名: app.user.name || "",
       邮箱: app.user.email || "",
       电话: app.user.phone || "",
-      职位: app.jobs.title || "",
+      职位: app.job.title || "",
       状态: app.status,
       投递时间: new Date(app.appliedAt).toLocaleString("zh-CN"),
     }));
@@ -243,7 +243,7 @@ function CompanyApplicationsContent() {
             <div className="mt-4 flex items-center gap-3 pt-4 border-t">
               <span className="text-sm text-gray-600">已选择 {selectedIds.size} 项</span>
               <div className="flex items-center gap-2">
-                {["VIEWED", "INTERVIEW", "REJECTED"].map((s) => (
+                {(["VIEWED", "INTERVIEW", "REJECTED"] as ApplicationStatus[]).map((s) => (
                   <button
                     key={s}
                     disabled={bulkUpdating}
@@ -315,7 +315,7 @@ function CompanyApplicationsContent() {
                         </div>
 
                         <p className="text-blue-600 font-medium mb-2">
-                          {app.jobs.title}
+                          {app.job.title}
                         </p>
 
                         <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">

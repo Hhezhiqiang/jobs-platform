@@ -250,67 +250,11 @@ export default function ApplicationDetailPage({
               </div>
             )}
 
-            {/* 简历文件 - 类型待修复：需要包含 resume 关联 */
-            {/* {application?.resume && (
-              <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="font-semibold mb-4">附件简历</h3>
-                <a
-                  href={application.resume.fileUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center space-x-3 p-4 border rounded-lg hover:bg-gray-50"
-                >
-                  <FileText className="w-8 h-8 text-blue-600" />
-                  <div>
-                    <p className="font-medium">{application.resume.name}</p>
-                    <p className="text-sm text-gray-500">
-                      {Math.round(application.resume.fileSize / 1024)} KB
-                    </p>
-                  </div>
-                </a>
-              </div>
-            )} */}
-
             {/* 工作经历 */}
-            {application?.user?.profile?.workExperience && (
+            {application?.user?.phone && (
               <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="font-semibold mb-4">工作经历</h3>
-                <div className="space-y-4">
-                  {application.user.profile?.workExperience?.map(
-                    (exp: any, index: number) => (
-                      <div key={index} className="border-l-2 border-gray-200 pl-4">
-                        <p className="font-medium">{exp.position}</p>
-                        <p className="text-gray-600">{exp.companies}</p>
-                        <p className="text-sm text-gray-500">
-                          {exp.startDate} - {exp.endDate || "至今"}
-                        </p>
-                        <p className="text-gray-700 mt-2">{exp.description}</p>
-                      </div>
-                    )
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* 教育背景 */}
-            {application?.user?.profile?.education && (
-              <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="font-semibold mb-4">教育背景</h3>
-                <div className="space-y-4">
-                  {application.user.user_profiles.education.map(
-                    (edu: any, index: number) => (
-                      <div key={index} className="border-l-2 border-gray-200 pl-4">
-                        <p className="font-medium">{edu.school}</p>
-                        <p className="text-gray-600">
-                          {edu.degree} · {edu.major}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {edu.startDate} - {edu.endDate || "至今"}
-                        </p>
-                      </div>
-                    )
-                  )}
-                </div>
+                <h3 className="font-semibold mb-4">联系方式</h3>
+                <p className="text-gray-600">电话: {application.user.phone}</p>
               </div>
             )}
           </div>

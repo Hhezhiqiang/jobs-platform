@@ -25,6 +25,7 @@ interface JobCardData {
   isHybrid: boolean;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function RelatedJobs({ keywords = [], currentSlug, limit = 3 }: RelatedJobsProps) {
   if (!keywords || keywords.length === 0) {
     return null;

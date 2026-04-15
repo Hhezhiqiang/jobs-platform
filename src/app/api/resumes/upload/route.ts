@@ -14,6 +14,7 @@ export const dynamic = "force-dynamic";
 const ALLOWED_EXTENSIONS = ["pdf", "doc", "docx", "txt", "md"];
 
 // MIME 到扩展名映射（仅用于参考，真实类型由魔数决定）
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const EXTENSION_MAP: Record<string, string> = {
   "application/pdf": ".pdf",
   "application/msword": ".doc",

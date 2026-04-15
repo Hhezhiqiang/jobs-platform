@@ -1,7 +1,7 @@
 "use client";
 
 import type { companies } from "@prisma/client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   Building2,
@@ -55,7 +55,7 @@ export default function AdminCompaniesPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [statusFilter]);
 
   const handleReview = async (status: "APPROVED" | "REJECTED" | "SUSPENDED") => {
     if (!selectedCompany) return;
@@ -385,9 +385,6 @@ export default function AdminCompaniesPage() {
           </div>
         </div>
       )}
-    </div>
-  );
-}   )}
     </div>
   );
 }

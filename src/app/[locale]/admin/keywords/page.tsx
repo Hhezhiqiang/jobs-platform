@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 
 interface KeywordItem {
@@ -71,7 +71,7 @@ export default function AdminKeywordsPage() {
   const [archiveModalKeyword, setArchiveModalKeyword] = useState("");
   const [collectingArchivesForId, setCollectingArchivesForId] = useState<string | null>(null);
 
-  async function fetchKeywords() {
+  const fetchKeywords = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams();
     if (filterCategory) params.set("category", filterCategory);
@@ -80,13 +80,13 @@ export default function AdminKeywordsPage() {
     const data = await res.json();
     setKeywords(data.items || []);
     setLoading(false);
-  }
+  }, [filterCategory, filterStatus]);
 
-  async function fetchPlans() {
+  const fetchPlans = useCallback(async () => {
     const res = await fetch(`/api/admin/seo-plans?limit=50`);
     const data = await res.json();
     setPlans(data.items || []);
-  }
+  }, []);
 
   async function triggerCollect() {
     setCollecting(true);
@@ -165,8 +165,11 @@ export default function AdminKeywordsPage() {
 
   useEffect(() => {
     fetchKeywords();
+  }, [fetchKeywords]);
+
+  useEffect(() => {
     fetchPlans();
-  }, [filterCategory, filterStatus]);
+  }, [fetchPlans]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -393,7 +396,7 @@ export default function AdminKeywordsPage() {
                               method: "PATCH",
                               headers: { "Content-Type": "application/json" },
                               body: JSON.stringify({ id: p.id, status: "APPROVED" }),
-                            }).then(fetchPlans)
+                            }).then(() => fetchPlans())
                           }
                           className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
                         >
@@ -405,7 +408,7 @@ export default function AdminKeywordsPage() {
                               method: "PATCH",
                               headers: { "Content-Type": "application/json" },
                               body: JSON.stringify({ id: p.id, status: "REJECTED" }),
-                            }).then(fetchPlans)
+                            }).then(() => fetchPlans())
                           }
                           className="px-3 py-1.5 bg-gray-200 text-gray-700 text-sm rounded-lg hover:bg-gray-300"
                         >
@@ -430,15 +433,6 @@ export default function AdminKeywordsPage() {
               </div>
             ))}
           </div>
-        )}
-      </main>
-    </div>
-  );
-}
-  </div>
-  );
-}
-
         )}
       </main>
     </div>

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { addExp, updateTaskProgress } from "@/lib/game/exp-system";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { ExpType } from "@prisma/client";
 
 export async function POST(request: Request) {

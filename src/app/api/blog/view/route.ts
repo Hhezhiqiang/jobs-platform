@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ viewCount: post.viewCount });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Post not found" }, { status: 404 });
   }
 }

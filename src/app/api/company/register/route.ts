@@ -114,6 +114,7 @@ export async function POST(request: NextRequest) {
 }
 
 // 获取当前用户的企业列表
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);

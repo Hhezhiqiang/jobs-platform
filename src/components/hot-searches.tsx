@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { TrendingUp, Flame } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 
 interface HotSearchesProps {
   onSelect: (term: string) => void;

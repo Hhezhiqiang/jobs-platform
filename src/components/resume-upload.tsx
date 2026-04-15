@@ -166,7 +166,7 @@ export default function ResumeUpload({
       } else {
         alert("设置默认简历失败");
       }
-    } catch (error) {
+    } catch {
       alert("设置默认简历失败");
     }
   };

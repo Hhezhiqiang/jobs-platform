@@ -334,9 +334,3 @@ export default function EditCompanyPage() {
     </div>
   );
 }
-     </form>
-        </div>
-      </main>
-    </div>
-  );
-}

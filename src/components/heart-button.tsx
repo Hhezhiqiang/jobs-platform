@@ -23,7 +23,7 @@ export function HeartButton({
 }: HeartButtonProps) {
   const [isFavorited, setIsFavorited] = useState(initialFavorited);
   const [isLoading, setIsLoading] = useState(false);
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const isAuthenticated = status === "authenticated";
 
