@@ -1,17 +1,5 @@
 import type { KeywordSourceAdapter, RawKeywordItem } from "./index";
 
-// 职场相关关键词库（用于模拟/补充数据源）
-const WORKPLACE_KEYWORDS = [
-  "求职", "面试技巧", "简历优化", "职业规划", "跳槽", "转行",
-  "大厂", "互联网", "程序员", "产品经理", "数据分析", "运营",
-  "35岁危机", "远程办公", "自由职业", "副业", "职场沟通",
-  "薪资谈判", "升职加薪", "离职", "裁员", "应届生", "校招",
-  "Java", "Python", "前端", "后端", "算法", "AI",
-  "产品经理面经", "运营面试", "设计师求职", "HR", "猎头",
-  "考公", "事业单位", "国企", "外企", "创业公司",
-  "WorkLifeBalance", "职场焦虑", "打工人", "社畜", "躺平",
-];
-
 // 热词组合生成器
 function generateHotKeywords(): RawKeywordItem[] {
   const items: RawKeywordItem[] = [];

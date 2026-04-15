@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Error({
   error,
@@ -9,9 +10,10 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const router = useRouter();
+  
   useEffect(() => {
     if (process.env.NODE_ENV === "development") {
-       
       console.error(error);
     }
   }, [error]);
@@ -36,7 +38,7 @@ export default function Error({
             重试
           </button>
           <button
-            onClick={() => (window.location.href = "/zh")}
+            onClick={() => router.push("/zh")}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             返回首页

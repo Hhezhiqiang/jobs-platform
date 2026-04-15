@@ -8,7 +8,8 @@ type JobWithCompany = Prisma.jobsGetPayload<{
   };
 }>;
 
-type CompanyBasic = Prisma.companiesGetPayload<{}>;
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+type CompanyBasic = Prisma.companiesGetPayload<object>;
 
 interface SiteStats {
   jobCount: number;

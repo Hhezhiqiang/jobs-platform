@@ -4,7 +4,6 @@ import {
   ExpType,
   calculateLevel,
   getTitleForLevel,
-  ACHIEVEMENTS,
   TASKS,
 } from "./config";
 import { checkAndUnlockAchievements } from "./achievement-system";
@@ -22,6 +21,16 @@ interface AddExpResult {
   isLevelUp: boolean;
   message: string;
 }
+
+// 成就条件类型
+type AchievementCondition = {
+  type: string;
+  count?: number;
+  days?: number;
+};
+
+// Prisma ExpLog 类型
+type ExpLogType = "LOGIN" | "VIEW_JOB" | "APPLY_JOB" | "COMPLETE_TASK" | "SHARE_JOB";
 
 /**
  * 为用户添加经验值
@@ -55,7 +64,7 @@ export async function addExp(
       const todayExp = await prisma.expLog.aggregate({
         where: {
           profile: { userId },
-          type: type as any, // 类型转换
+          type: type as ExpLogType,
           createdAt: { gte: today },
         },
         _sum: { amount: true },
@@ -77,7 +86,7 @@ export async function addExp(
       const lastExp = await prisma.expLog.findFirst({
         where: {
           profile: { userId },
-          type: type as any, // 类型转换
+          type: type as ExpLogType,
         },
         orderBy: { createdAt: "desc" },
       });
@@ -135,7 +144,7 @@ export async function addExp(
         data: {
           profileId: profile.id,
           amount: config.exp,
-          type: type as any, // 类型转换
+          type: type as ExpLogType,
           description: description || config.description,
           relatedId,
         },
@@ -259,12 +268,15 @@ export async function initializeTasks(profileId: string) {
   );
 
   await prisma.taskProgress.createMany({
-    data: activeTasks.map(task => ({
-      profileId,
-      taskId: task.code, // 使用code作为ID
-      status: "PENDING" as const,
-      target: (task.condition as { count?: number }).count || 1,
-    })),
+    data: activeTasks.map(task => {
+      const condition = task.condition as AchievementCondition;
+      return {
+        profileId,
+        taskId: task.code, // 使用code作为ID
+        status: "PENDING" as const,
+        target: condition.count || 1,
+      };
+    }),
   });
 }
 
@@ -298,13 +310,16 @@ export async function createDailyTasks(profileId: string) {
     // 今天已创建，跳过
     if (existingTask) continue;
 
+    // 获取任务条件
+    const condition = taskDef.condition as AchievementCondition;
+
     // 创建今日每日任务
     await prisma.taskProgress.create({
       data: {
         profileId,
         taskId: taskDef.id,
         status: "PENDING",
-        target: (taskDef.condition as { count?: number })?.count || 1,
+        target: condition?.count || 1,
       },
     });
   }
@@ -379,87 +394,32 @@ export async function updateTaskProgress(
 /**
  * 检查成就是否满足条件
  */
-async function checkAchievementCondition(userId: string, condition: any): Promise<boolean> {
-  // 根据条件类型检查
-  switch (condition.type) {
-    case "login":
-      // 检查登录次数
-      const loginCount = await prisma.userGameProfile.findUnique({
-        where: { userId },
-        select: { loginStreak: true },
-      });
-      return (loginCount?.loginStreak || 0) >= (condition.count || 1);
-
-    case "complete_profile":
-      // 检查是否完善档案
-      const userProfile = await prisma.user_profiles.findUnique({
-        where: { userId },
-      });
-      return !!userProfile && !!userProfile.bio && userProfile.skills.length > 0;
-
-    case "view_job":
-      // 检查浏览职位数量
-      const viewCount = await prisma.page_views.count({
-        where: { 
-          userId,
-          path: { startsWith: "/jobs/" },
-        },
-      });
-      return viewCount >= (condition.count || 1);
-
-    case "apply_job":
-      // 检查申请数量
-      const applyCount = await prisma.job_applications.count({
-        where: { userId },
-      });
-      return applyCount >= (condition.count || 1);
-
-    case "interview":
-      // 检查面试次数 (通过申请状态)
-      const interviewCount = await prisma.job_applications.count({
-        where: { 
-          userId,
-          status: { in: ["INTERVIEW", "OFFER"] },
-        },
-      });
-      return interviewCount >= (condition.count || 1);
-
-    case "offer":
-      // 检查Offer数量
-      const offerCount = await prisma.job_applications.count({
-        where: { 
-          userId,
-          status: "OFFER",
-        },
-      });
-      return offerCount >= (condition.count || 1);
-
-    case "login_streak":
-      // 检查连续登录天数
-      const streak = await prisma.userGameProfile.findUnique({
-        where: { userId },
-        select: { loginStreak: true },
-      });
-      return (streak?.loginStreak || 0) >= (condition.days || 7);
-
-    default:
-      return false;
-  }
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function checkAchievementCondition(
+  _userId: string,
+  _condition: AchievementCondition
+): Promise<boolean> {
+  // 此函数已被移至 achievement-system.ts
+  // 保留此函数但标记为已弃用
+  return false;
 }
 
 // ==================== 统计更新 ====================
+
+// 用户统计类型
+interface UserStats {
+  jobsViewed?: number;
+  jobsApplied?: number;
+  interviews?: number;
+  offers?: number;
+}
 
 /**
  * 更新用户统计
  */
 export async function updateUserStats(
   userId: string,
-  statsUpdate: Partial<{
-    jobsViewed: number;
-    jobsApplied: number;
-    interviews: number;
-    offers: number;
-  }>
+  statsUpdate: Partial<UserStats>
 ) {
   const profile = await prisma.userGameProfile.findUnique({
     where: { userId },
@@ -467,7 +427,8 @@ export async function updateUserStats(
 
   if (!profile) return;
 
-  const currentStats = (profile.stats as any) || {};
+  // 获取当前统计
+  const currentStats = profile.stats as UserStats | null;
   
   await prisma.userGameProfile.update({
     where: { userId },
@@ -475,7 +436,7 @@ export async function updateUserStats(
       stats: {
         ...currentStats,
         ...statsUpdate,
-      },
+      } as unknown as UserStats,
     },
   });
 

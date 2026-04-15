@@ -2,13 +2,22 @@ import { NextAuthOptions } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { SignJWT, jwtVerify } from "jose";
+import { SignJWT, jwtVerify, JWTPayload } from "jose";
 import { prisma } from "@/lib/prisma";
 
 const DEFAULT_MAX_AGE = 30 * 24 * 60 * 60;
 
+// 定义 JWT Token 类型
+interface AuthToken extends JWTPayload {
+  id?: string;
+  role?: string;
+  email?: string;
+  name?: string;
+}
+
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   adapter: PrismaAdapter(prisma) as unknown as NextAuthOptions["adapter"],
   providers: [
     CredentialsProvider({
@@ -55,7 +64,8 @@ export const authOptions: NextAuthOptions = {
     maxAge: DEFAULT_MAX_AGE,
     async encode({ token, secret }) {
       const signingKey = new TextEncoder().encode(secret as string);
-      return await new SignJWT(token as Record<string, unknown>)
+      const tokenRecord = token as Record<string, unknown>;
+      return await new SignJWT(tokenRecord)
         .setProtectedHeader({ alg: "HS256" })
         .setIssuedAt()
         .setExpirationTime("30d")
@@ -66,7 +76,7 @@ export const authOptions: NextAuthOptions = {
       try {
         const signingKey = new TextEncoder().encode(secret as string);
         const { payload } = await jwtVerify(token, signingKey);
-        return payload as any;
+        return payload as AuthToken;
       } catch {
         return null;
       }

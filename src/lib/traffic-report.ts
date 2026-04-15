@@ -54,8 +54,10 @@ export async function generateDailyTrafficReport(): Promise<TrafficReport> {
 
   // 计算增长（简化版）- 使用博客浏览量统计
   const todayViews = blogs.reduce((sum, b) => sum + b.viewCount, 0);
-  const yesterdayViews = todayViews; // 简化处理
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  void todayViews;
 
+  // 简化处理 - 昨天浏览量假设与今天相同
   const dailyGrowth = 0;
 
   return {

@@ -32,11 +32,16 @@ export interface ClassificationResult {
   reasoning: string;
 }
 
+// 适配器结果类型
+type AdapterResult<T> = 
+  | { success: true; data: T; name: string }
+  | { success: false; error: string; name: string };
+
 // 带超时的适配器调用
 async function fetchWithTimeout<T>(
   adapter: { name: string; fetch(): Promise<T> },
   timeoutMs: number
-): Promise<{ success: true; data: T; name: string } | { success: false; error: string; name: string }> {
+): Promise<AdapterResult<T>> {
   const startTime = Date.now();
   
   try {
@@ -138,6 +143,15 @@ export async function collectKeywords(): Promise<{
           // 使用规则分类（更快，无需 LLM）
           const classification = fallbackClassify(item.keyword);
 
+          // 定义元数据类型
+          type KeywordMetadata = {
+            description?: string;
+            related?: string[];
+            category?: string;
+          };
+
+          const metadata: KeywordMetadata = item.metadata || {};
+
           const created = await prisma.keyword_monitors.create({
             data: {
               keyword: item.keyword,
@@ -150,13 +164,14 @@ export async function collectKeywords(): Promise<{
               intent: classification.intent as string,
               status: "PENDING" as string,
               lastSeenAt: new Date(),
-              metadata: (item.metadata || {}) as any,
+              metadata: metadata as Record<string, unknown>,
             },
           });
           newIds.push(created.id);
           inserted++;
-        } catch (err: any) {
-          if (err.code === "P2002") {
+        } catch (err: unknown) {
+          const error = err as { code?: string; message?: string };
+          if (error.code === "P2002") {
             // 竞态条件：另一个实例创建了相同的关键词
             try {
               const exists = await prisma.keyword_monitors.findFirst({
@@ -179,7 +194,7 @@ export async function collectKeywords(): Promise<{
               errors++;
             }
           } else {
-            console.error(`[keyword-monitor] 处理 "${norm}" 失败:`, (err as Error).message);
+            console.error(`[keyword-monitor] 处理 "${norm}" 失败:`, error.message || String(error));
             errors++;
           }
         }

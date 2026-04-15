@@ -8,6 +8,23 @@ interface RelatedJobsProps {
   limit?: number;
 }
 
+// 职位卡片数据类型
+interface JobCardData {
+  id: string;
+  title: string;
+  slug: string;
+  companies: {
+    name: string;
+    logo: string | null;
+  } | null;
+  city: string | null;
+  salaryMin: number | null;
+  salaryMax: number | null;
+  salaryCurrency: string | null;
+  isRemote: boolean;
+  isHybrid: boolean;
+}
+
 export async function RelatedJobs({ keywords = [], currentSlug, limit = 3 }: RelatedJobsProps) {
   if (!keywords || keywords.length === 0) {
     return null;
@@ -122,7 +139,7 @@ export async function RelatedJobs({ keywords = [], currentSlug, limit = 3 }: Rel
   );
 }
 
-function JobCard({ job }: { job: any }) {
+function JobCard({ job }: { job: JobCardData }) {
   const formatSalary = () => {
     if (!job.salaryMin || !job.salaryMax) return "薪资面议";
     const currency = job.salaryCurrency === "USD" ? "$" : "¥";

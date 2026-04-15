@@ -153,8 +153,17 @@ async function fetchRedditSearch(keyword: string): Promise<RawArchive[]> {
       }
     );
 
+    // Reddit 帖子数据结构
+    interface RedditPost {
+      data: {
+        title: string;
+        selftext: string;
+        permalink: string;
+      };
+    }
+
     const posts = res.data?.data?.children || [];
-    return posts.slice(0, 3).map((post: any) => ({
+    return posts.slice(0, 3).map((post: RedditPost) => ({
       contentType: "REDDIT_POST",
       contentTitle: post?.data?.title,
       contentBody: post?.data?.selftext?.slice(0, 800) || post?.data?.title,

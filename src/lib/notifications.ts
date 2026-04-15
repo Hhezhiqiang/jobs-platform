@@ -2,12 +2,15 @@ import { prisma } from "./prisma";
 import { NotificationType } from "@prisma/client";
 import { sendNotificationEmail } from "./email";
 
+// 定义元数据值的类型
+export type NotificationMetadataValue = string | number | boolean | null | undefined;
+
 interface CreateNotificationParams {
   userId: string;
   type: NotificationType;
   title: string;
   content: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, NotificationMetadataValue>;
   sendEmail?: boolean; // 是否发送邮件通知
 }
 
@@ -29,7 +32,8 @@ export async function createNotification({
         type,
         title,
         content,
-        metadata: metadata as any || undefined,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        metadata: metadata as Record<string, any> || undefined,
         isRead: false,
       },
     });
@@ -57,7 +61,7 @@ export async function createNotification({
           title,
           content,
           actionUrl,
-        }).catch((error) => {
+        }).catch((error: Error) => {
           console.error("Failed to send notification email:", error);
         });
       }
@@ -83,7 +87,8 @@ export async function createNotifications(
         type: n.type,
         title: n.title,
         content: n.content,
-        metadata: n.metadata as any || undefined,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        metadata: n.metadata as Record<string, any> || undefined,
         isRead: false,
       })),
     });
@@ -156,7 +161,7 @@ export async function createSystemNotification(
   userId: string,
   title: string,
   content: string,
-  metadata?: Record<string, any>
+  metadata?: Record<string, NotificationMetadataValue>
 ) {
   return createNotification({
     userId,
@@ -175,7 +180,7 @@ export async function createJobAlertNotification(
   jobTitle: string,
   companyName: string,
   jobId: string,
-  metadata?: Record<string, any>
+  metadata?: Record<string, NotificationMetadataValue>
 ) {
   return createNotification({
     userId,

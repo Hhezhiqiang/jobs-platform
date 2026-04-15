@@ -97,8 +97,9 @@ ${jobContext ? `${jobContext}\n` : ""}
         ],
         { temperature: 0.4, maxTokens: 1500 }
       );
-    } catch (err) {
-      console.error("[seo-plan] LLM call failed, using fallback:", (err as Error).message);
+    } catch (_err: unknown) {
+      const error = _err as Error;
+      console.error("[seo-plan] LLM call failed, using fallback:", error.message);
       content = fallbackSEOPayload(keyword, category);
     }
   } else {
