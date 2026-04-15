@@ -1,19 +1,14 @@
-/**
- * Utility functions
- */
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 
-export function safeJsonLdStringify(obj: unknown): string {
-  return JSON.stringify(obj).replace(/</g, "\\u003c");
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
 }
 
-export function ensureHttpProtocol(url: string | null | undefined): string {
-  if (!url) return "#";
-  return url.startsWith("http://") || url.startsWith("https://") ? url : `https://${url}`;
-}
-
-export function formatDistanceToNow(date: Date): string {
+export function formatDistanceToNow(date: Date | string): string {
   const now = new Date();
-  const diffInMs = now.getTime() - new Date(date).getTime();
+  const targetDate = new Date(date);
+  const diffInMs = now.getTime() - targetDate.getTime();
   const diffInSecs = Math.floor(diffInMs / 1000);
   const diffInMins = Math.floor(diffInSecs / 60);
   const diffInHours = Math.floor(diffInMins / 60);
@@ -38,36 +33,11 @@ export function formatDistanceToNow(date: Date): string {
   }
 }
 
-export function formatNumber(num: number): string {
-  if (num >= 1000000) {
-    return (num / 1000000).toFixed(1) + "M";
-  } else if (num >= 1000) {
-    return (num / 1000).toFixed(1) + "K";
-  }
-  return num.toString();
-}
-
-export function cn(...classes: (string | boolean | undefined | null)[]): string {
-  return classes.filter(Boolean).join(" ");
-}
-
-/**
- * 格式化薪资显示
- * @param min 最低薪资
- * @param max 最高薪资
- * @returns 格式化后的薪资字符串
- * 
- * 示例:
- * - 5000, 8000 → "5-8K"
- * - 15000, 25000 → "15-25K"
- * - null, null → "薪资面议"
- */
 export function formatSalary(min: number | null | undefined, max: number | null | undefined): string {
   if (!min && !max) {
     return "薪资面议";
   }
   
-  // 转换为K为单位（除以1000）
   const minK = min ? Math.round(min / 1000) : null;
   const maxK = max ? Math.round(max / 1000) : null;
   
@@ -82,16 +52,6 @@ export function formatSalary(min: number | null | undefined, max: number | null 
   return "薪资面议";
 }
 
-/**
- * 格式化薪资显示（详细版）
- * @param min 最低薪资
- * @param max 最高薪资
- * @returns 格式化后的薪资字符串
- * 
- * 示例:
- * - 5000, 8000 → "5,000-8,000元/月"
- * - 15000, 25000 → "15,000-25,000元/月"
- */
 export function formatSalaryDetail(min: number | null | undefined, max: number | null | undefined): string {
   if (!min && !max) {
     return "薪资面议";
@@ -108,4 +68,22 @@ export function formatSalaryDetail(min: number | null | undefined, max: number |
   }
   
   return "薪资面议";
+}
+
+export function formatNumber(num: number): string {
+  if (num >= 1000000) {
+    return (num / 1000000).toFixed(1) + "M";
+  } else if (num >= 1000) {
+    return (num / 1000).toFixed(1) + "K";
+  }
+  return num.toString();
+}
+
+export function safeJsonLdStringify(obj: unknown): string {
+  return JSON.stringify(obj).replace(/</g, "\\u003c");
+}
+
+export function ensureHttpProtocol(url: string | null | undefined): string {
+  if (!url) return "#";
+  return url.startsWith("http://") || url.startsWith("https://") ? url : `https://${url}`;
 }

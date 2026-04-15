@@ -10,10 +10,11 @@ import { GameJobViewTracker } from "@/components/game/trackers";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { Metadata } from "next";
-import { MapPin, Briefcase, DollarSign, Clock, Building2, Share2, Heart, Calendar } from "lucide-react";
+import { MapPin, Briefcase, DollarSign, Clock, Building2, Share2, Heart, Calendar, MessageSquare, Target, TrendingUp } from "lucide-react";
 import { formatDistanceToNow, formatSalary } from "@/lib/utils";
 import { ensureHttpProtocol, safeJsonLdStringify } from "@/lib/utils";
 import { ContactUnlockCard } from "@/components/contact-unlock-card";
+import { InterviewExperienceCard } from "@/components/interview/interview-experience-card";
 
 const employmentTypeMap: Record<string, string> = {
   FULL_TIME: "全职",
@@ -24,7 +25,8 @@ const employmentTypeMap: Record<string, string> = {
 };
 
 interface PageProps {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string; locale: string }>;
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export const revalidate = 3600;
@@ -60,8 +62,93 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-export default async function JobDetailPage({ params }: PageProps) {
-  const { slug } = await params;
+/**
+ * 获取公司面试经验
+ */
+async function getCompanyInterviews(companyId: string, limit: number = 3) {
+  try {
+    const interviews = await prisma.careerStory.findMany({
+      where: {
+        type: "EXPERIENCE",
+      },
+      orderBy: [
+        { resonanceCount: "desc" },
+        { createdAt: "desc" },
+      ],
+      take: limit,
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            avatar: true,
+          },
+        },
+      },
+    });
+
+    return interviews.map((story) => {
+      const parsedData = parseInterviewContent(story.content);
+      return {
+        ...story,
+        ...parsedData,
+      };
+    });
+  } catch (error) {
+    console.error("获取面试经验失败:", error);
+    return [];
+  }
+}
+
+/**
+ * 解析面试故事内容
+ */
+function parseInterviewContent(content: string) {
+  const result: any = {};
+
+  result.summary = content.slice(0, 150).trim();
+  if (content.length > 150) result.summary += "...";
+
+  // 匹配部门
+  const departmentMatch = content.match(/部门[：:]\s*(.+?)(?:\n|$)/i);
+  if (departmentMatch) result.department = departmentMatch[1].trim();
+
+  // 匹配岗位
+  const positionMatch = content.match(/(?:岗位|职位)[：:]\s*(.+?)(?:\n|$)/i);
+  if (positionMatch) result.position = positionMatch[1].trim();
+
+  // 匹配面试结果
+  if (/面试通过|拿到offer|成功入职|已通过|录取/i.test(content)) {
+    result.result = "passed";
+  } else if (/面试未通过|没通过|被拒|失败|未录取/i.test(content)) {
+    result.result = "failed";
+  } else {
+    result.result = "unknown";
+  }
+
+  // 匹配难度
+  if (/非常难|很难|难度高/i.test(content)) result.difficulty = 5;
+  else if (/比较难|有难度/i.test(content)) result.difficulty = 4;
+  else if (/中等难度|一般/i.test(content)) result.difficulty = 3;
+  else if (/比较简单|不太难/i.test(content)) result.difficulty = 2;
+  else if (/很简单|非常容易/i.test(content)) result.difficulty = 1;
+
+  // 提取问题
+  const questionMatches = content.match(/(?:^|\n)(?:\d+[.．、]|Q\d*[：:]?|问题[\d]*[：:]?)\s*(.+?)(?=\n|$)/gi);
+  if (questionMatches) {
+    result.questions = questionMatches
+      .map((q) => q.replace(/(?:^|\n)(?:\d+[.．、]|Q\d*[：:]?|问题[\d]*[：:]?)\s*/, "").trim())
+      .filter((q) => q.length > 5 && q.length < 200)
+      .slice(0, 5);
+  }
+
+  return result;
+}
+
+export default async function JobDetailPage({ params, searchParams }: PageProps) {
+  const { slug, locale } = await params;
+  const resolvedSearchParams = await searchParams;
+  const activeTab = (resolvedSearchParams?.tab as string) || "description";
   
   let job = null;
   let dbError = false;
@@ -119,6 +206,10 @@ export default async function JobDetailPage({ params }: PageProps) {
     isContactUnlocked = !!order;
   }
 
+  // 获取公司面试经验
+  const companyInterviews = await getCompanyInterviews(job.companyId);
+  const hasInterviews = companyInterviews.length > 0;
+
   const jobSchema = generateJobPostingSchema(job);
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: "首页", url: "/" },
@@ -127,7 +218,6 @@ export default async function JobDetailPage({ params }: PageProps) {
   ]);
 
   const salaryText = formatSalary(job.salaryMin, job.salaryMax);
-
   const dateText = new Date(job.datePosted).toLocaleDateString("zh-CN");
 
   return (
@@ -170,7 +260,7 @@ export default async function JobDetailPage({ params }: PageProps) {
                 <h1 className="text-3xl md:text-4xl font-bold mb-4">{job.title}</h1>
                 <div className="flex flex-wrap items-center gap-4 text-blue-100">
                   <Link 
-                    href={`/companies/${job.companies.slug}`}
+                    href={`/${locale}/companies/${job.companies.slug}`}
                     className="flex items-center gap-2 hover:text-white transition-colors"
                   >
                     <Building2 className="w-4 h-4" />
@@ -229,39 +319,168 @@ export default async function JobDetailPage({ params }: PageProps) {
                 </div>
               </div>
 
-              {/* Job Description */}
+              {/* Tab Navigation */}
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="p-6 md:p-8">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4">职位描述</h2>
-                  <div className="prose prose-gray max-w-none text-gray-700 whitespace-pre-wrap leading-relaxed">
-                    {job.description}
-                  </div>
+                <div className="flex border-b border-gray-100">
+                  <Link
+                    href={`/${locale}/jobs/${job.slug}?tab=description`}
+                    className={`flex-1 px-6 py-4 text-sm font-medium text-center transition-all ${
+                      activeTab === "description" || !activeTab
+                        ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50/50"
+                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    }`}
+                  >
+                    职位详情
+                  </Link>
+                  {hasInterviews && (
+                    <Link
+                      href={`/${locale}/jobs/${job.slug}?tab=interviews`}
+                      className={`flex-1 px-6 py-4 text-sm font-medium text-center transition-all ${
+                        activeTab === "interviews"
+                          ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50/50"
+                          : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                      }`}
+                    >
+                      <span className="flex items-center justify-center gap-2">
+                        <MessageSquare className="w-4 h-4" />
+                        面试经验
+                        <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">
+                          {companyInterviews.length}
+                        </span>
+                      </span>
+                    </Link>
+                  )}
                 </div>
 
-                {job.requirements && (
-                  <>
-                    <hr className="border-gray-100" />
-                    <div className="p-6 md:p-8">
-                      <h2 className="text-xl font-bold text-gray-900 mb-4">任职要求</h2>
-                      <div className="prose prose-gray max-w-none text-gray-700 whitespace-pre-wrap leading-relaxed">
-                        {job.requirements}
+                {/* Tab Content */}
+                <div className="p-6 md:p-8">
+                  {activeTab === "interviews" && hasInterviews ? (
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h2 className="text-xl font-bold text-gray-900 mb-1 flex items-center gap-2">
+                            <Target className="w-5 h-5 text-blue-600" />
+                            {job.companies.name} 面试经验
+                          </h2>
+                          <p className="text-sm text-gray-500">
+                            来自真实求职者的面试分享，帮你更好地准备面试
+                          </p>
+                        </div>
+                        <Link
+                          href={`/${locale}/companies/${job.companies.slug}/interviews`}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-all"
+                        >
+                          查看全部
+                        </Link>
                       </div>
-                    </div>
-                  </>
-                )}
 
-                {job.benefits && (
-                  <>
-                    <hr className="border-gray-100" />
-                    <div className="p-6 md:p-8">
-                      <h2 className="text-xl font-bold text-gray-900 mb-4">福利待遇</h2>
-                      <div className="prose prose-gray max-w-none text-gray-700 whitespace-pre-wrap leading-relaxed">
-                        {job.benefits}
+                      <div className="space-y-4">
+                        {companyInterviews.map((interview) => (
+                          <InterviewExperienceCard
+                            key={interview.id}
+                            interview={interview}
+                            locale={locale}
+                            variant="compact"
+                          />
+                        ))}
+                      </div>
+
+                      {/* 面试统计 */}
+                      <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-100">
+                        <div className="text-center">
+                          <p className="text-2xl font-bold text-gray-900">
+                            {companyInterviews.filter(i => i.result === 'passed').length}
+                          </p>
+                          <p className="text-sm text-gray-500">已通过</p>
+                        </div>
+                        <div className="text-center border-x border-gray-100">
+                          <p className="text-2xl font-bold text-gray-900">
+                            {companyInterviews.filter(i => i.result === 'failed').length}
+                          </p>
+                          <p className="text-sm text-gray-500">未通过</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-2xl font-bold text-gray-900">
+                            {companyInterviews.length > 0 
+                              ? Math.round(companyInterviews.reduce((acc, i) => acc + (i.difficulty || 3), 0) / companyInterviews.length * 10) / 10
+                              : '-'
+                            }/5
+                          </p>
+                          <p className="text-sm text-gray-500">平均难度</p>
+                        </div>
+                      </div>
+
+                      <div className="bg-blue-50 rounded-xl p-4">
+                        <div className="flex items-start gap-3">
+                          <TrendingUp className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium text-gray-900">面试准备建议</p>
+                            <p className="text-sm text-gray-600 mt-1">
+                              根据面试经验分析，该公司的面试通常涉及技术能力、项目经验和行业理解。
+                              建议提前了解{job.companies.name}的产品和业务，准备好相关案例。
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </>
-                )}
+                  ) : (
+                    <div className="space-y-6">
+                      <div>
+                        <h2 className="text-xl font-bold text-gray-900 mb-4">职位描述</h2>
+                        <div className="prose prose-gray max-w-none text-gray-700 whitespace-pre-wrap leading-relaxed">
+                          {job.description}
+                        </div>
+                      </div>
+
+                      {job.requirements && (
+                        <div className="pt-6 border-t border-gray-100">
+                          <h2 className="text-xl font-bold text-gray-900 mb-4">任职要求</h2>
+                          <div className="prose prose-gray max-w-none text-gray-700 whitespace-pre-wrap leading-relaxed">
+                            {job.requirements}
+                          </div>
+                        </div>
+                      )}
+
+                      {job.benefits && (
+                        <div className="pt-6 border-t border-gray-100">
+                          <h2 className="text-xl font-bold text-gray-900 mb-4">福利待遇</h2>
+                          <div className="prose prose-gray max-w-none text-gray-700 whitespace-pre-wrap leading-relaxed">
+                            {job.benefits}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
+
+              {/* 移动端：面试经验区域（当不在Tab中显示时） */}
+              {hasInterviews && activeTab !== "interviews" && (
+                <div className="lg:hidden bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-bold text-gray-900 flex items-center gap-2">
+                      <MessageSquare className="w-5 h-5 text-blue-600" />
+                      面试经验
+                    </h3>
+                    <Link
+                      href={`/${locale}/jobs/${job.slug}?tab=interviews`}
+                      className="text-sm text-blue-600 hover:text-blue-700"
+                    >
+                      查看更多
+                    </Link>
+                  </div>
+                  <div className="space-y-3">
+                    {companyInterviews.slice(0, 2).map((interview) => (
+                      <InterviewExperienceCard
+                        key={interview.id}
+                        interview={interview}
+                        locale={locale}
+                        variant="compact"
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Sidebar */}
@@ -292,6 +511,32 @@ export default async function JobDetailPage({ params }: PageProps) {
                 isLoggedIn={isLoggedIn}
               />
 
+              {/* 面试经验快捷入口（桌面端） */}
+              {hasInterviews && activeTab !== "interviews" && (
+                <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                  <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <MessageSquare className="w-5 h-5 text-blue-600" />
+                    相关面试经验
+                  </h3>
+                  <div className="space-y-3">
+                    {companyInterviews.slice(0, 2).map((interview) => (
+                      <InterviewExperienceCard
+                        key={interview.id}
+                        interview={interview}
+                        locale={locale}
+                        variant="compact"
+                      />
+                    ))}
+                  </div>
+                  <Link
+                    href={`/${locale}/companies/${job.companies.slug}/interviews`}
+                    className="mt-4 block w-full py-2.5 text-center border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-all font-medium text-sm"
+                  >
+                    查看全部面试经验
+                  </Link>
+                </div>
+              )}
+
               {/* Company Card */}
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                 <h3 className="font-bold text-gray-900 mb-4">关于公司</h3>
@@ -311,7 +556,7 @@ export default async function JobDetailPage({ params }: PageProps) {
                   )}
                   <div>
                     <Link 
-                      href={`/companies/${job.companies.slug}`}
+                      href={`/${locale}/companies/${job.companies.slug}`}
                       className="font-bold text-gray-900 hover:text-blue-600 transition-colors"
                     >
                       {job.companies.name}
@@ -349,7 +594,7 @@ export default async function JobDetailPage({ params }: PageProps) {
                 </div>
 
                 <Link
-                  href={`/companies/${job.companies.slug}`}
+                  href={`/${locale}/companies/${job.companies.slug}`}
                   className="mt-4 block w-full py-2.5 text-center border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-all font-medium"
                 >
                   查看公司主页

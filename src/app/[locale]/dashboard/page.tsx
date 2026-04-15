@@ -20,6 +20,7 @@ import {
   Trophy,
   ScrollText,
   BarChart3,
+  Search,
 } from "lucide-react";
 import { LevelCard } from "@/components/game/level-card";
 import { getGameProfile } from "@/lib/game/exp-system";
@@ -105,6 +106,7 @@ export default async function DashboardPage() {
     { icon: LayoutDashboard, label: "概览", href: "/dashboard", active: true },
     { icon: FileText, label: "我的简历", href: "/dashboard/profile" },
     { icon: Briefcase, label: "我的申请", href: "/dashboard/applications" },
+    { icon: Search, label: "求职状态", href: "/dashboard/job-status" },
     { icon: Wallet, label: "账户余额", href: "/user/recharge" },
     { icon: Settings, label: "账号设置", href: "/dashboard/settings" },
   ];

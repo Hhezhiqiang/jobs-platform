@@ -1,109 +1,138 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
+import { Prisma } from "@prisma/client";
 
-export const dynamic = "force-dynamic";
+// 计算匹配度
+function calculateMatchScore(companyTags: string[], userTags: string[]): number {
+  if (!userTags.length || !companyTags.length) return 0;
+  
+  const matchingTags = companyTags.filter(tag => userTags.includes(tag));
+  return Math.round((matchingTags.length / userTags.length) * 100);
+}
 
-// 获取职位列表
 export async function GET(request: NextRequest) {
   try {
-    const ip = getClientIP(request);
-    const rateLimit = checkRateLimit(`jobs:get:${ip}`, 30, 60 * 1000);
-    if (!rateLimit.success) {
-      return NextResponse.json({ error: "请求过于频繁" }, { status: 429 });
-    }
-
     const { searchParams } = new URL(request.url);
+    
+    const q = searchParams.get("q") || undefined;
+    const city = searchParams.get("city") || undefined;
+    const type = searchParams.get("type") || undefined;
+    const minSalary = searchParams.get("minSalary") || undefined;
+    const maxSalary = searchParams.get("maxSalary") || undefined;
+    const cultureTag = searchParams.get("cultureTag") || undefined;
+    const onlyMatched = searchParams.get("onlyMatched") === "true";
+    const cultureTags = searchParams.getAll("cultureTags"); // 用户偏好标签
+    const sort = searchParams.get("sort") || "date";
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
     const skip = (page - 1) * limit;
 
+    // 构建查询条件
+    const where: Prisma.jobsWhereInput = { status: "ACTIVE" };
+
+    if (q) {
+      where.OR = [
+        { title: { contains: q, mode: "insensitive" } },
+        { description: { contains: q, mode: "insensitive" } },
+        { companies: { name: { contains: q, mode: "insensitive" } } },
+      ];
+    }
+
+    if (city) {
+      where.city = city;
+    }
+
+    if (type) {
+      where.employmentType = type as Prisma.EnumEmploymentTypeFilter<"jobs">;
+    }
+
+    if (minSalary || maxSalary) {
+      where.AND = [];
+      if (minSalary) {
+        (where.AND as Prisma.jobsWhereInput[]).push({
+          salaryMin: { gte: parseInt(minSalary) },
+        });
+      }
+      if (maxSalary) {
+        (where.AND as Prisma.jobsWhereInput[]).push({
+          salaryMax: { lte: parseInt(maxSalary) },
+        });
+      }
+    }
+
+    if (cultureTag) {
+      where.companies = {
+        cultureTags: {
+          has: cultureTag,
+        },
+      };
+    }
+
+    // 获取职位数据
     const [jobs, total] = await Promise.all([
       prisma.jobs.findMany({
-        where: { status: "ACTIVE" },
-        include: { companies: true },
-        orderBy: { datePosted: "desc" },
+        where,
+        include: {
+          companies: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              logo: true,
+              industry: true,
+              size: true,
+              location: true,
+              cultureTags: true,
+            },
+          },
+        },
         skip,
         take: limit,
       }),
-      prisma.jobs.count({ where: { status: "ACTIVE" } }),
+      prisma.jobs.count({ where }),
     ]);
 
-    return NextResponse.json({ jobs, total, page, totalPages: Math.ceil(total / limit) });
-  } catch {
-    return NextResponse.json({ error: "获取失败" }, { status: 500 });
-  }
-}
+    // 计算匹配度
+    let jobsWithMatchScore = jobs.map(job => ({
+      ...job,
+      matchScore: calculateMatchScore(
+        job.companies.cultureTags || [],
+        cultureTags
+      ),
+    }));
 
-// 创建新职位
-export async function POST(request: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "未登录" }, { status: 401 });
+    // 只显示文化契合职位（匹配度>=80%）
+    if (onlyMatched && cultureTags.length > 0) {
+      jobsWithMatchScore = jobsWithMatchScore.filter(job => job.matchScore >= 80);
     }
 
-    const body = await request.json();
-    
-    // 生成 slug
-    const slug = body.title
-      .toLowerCase()
-      .replace(/[^\w\s]/g, "")
-      .replace(/\s+/g, "-")
-      + "-" + Date.now();
-
-    // 如果没有公司，先创建默认公司
-    let companyId = body.companyId;
-    if (!companyId) {
-      const defaultCompany = await prisma.companies.upsert({
-        where: { slug: "default-company" },
-        update: {},
-        create: {
-          name: "默认公司",
-          slug: "default-company",
-        },
-      });
-      companyId = defaultCompany.id;
+    // 排序
+    if (sort === "match" && cultureTags.length > 0) {
+      jobsWithMatchScore.sort((a, b) => b.matchScore - a.matchScore);
+    } else {
+      jobsWithMatchScore.sort((a, b) => 
+        new Date(b.datePosted).getTime() - new Date(a.datePosted).getTime()
+      );
     }
 
-    const job = await prisma.jobs.create({
-      data: {
-        title: body.title,
-        description: body.description,
-        requirements: body.requirements,
-        benefits: body.benefits,
-        employmentType: body.employmentType,
-        experience: body.experience,
-        salaryMin: body.salaryMin,
-        salaryMax: body.salaryMax,
-        salaryCurrency: body.salaryCurrency,
-        salaryPeriod: body.salaryPeriod,
-        location: body.location,
-        city: body.city,
-        country: body.country,
-        isRemote: body.isRemote,
-        isHybrid: body.isHybrid,
-        applyUrl: body.applyUrl,
-        validThrough: body.validThrough,
-        metaTitle: body.metaTitle,
-        metaDescription: body.metaDescription,
-        keywords: body.keywords,
-        imageUrl: body.imageUrl,
-        schemaOrganizationName: body.schemaOrganizationName,
-        schemaOrganizationLogo: body.schemaOrganizationLogo,
-        slug,
-        companyId,
-        authorId: session.user.id,
-        status: "ACTIVE",
-      },
+    // 计算文化契合统计
+    const cultureFitCount = cultureTags.length > 0
+      ? jobsWithMatchScore.filter(job => job.matchScore >= 80).length
+      : 0;
+
+    return NextResponse.json({
+      jobs: jobsWithMatchScore,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+      cultureFitCount,
     });
-
-    return NextResponse.json(job, { status: 201 });
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: "创建失败" }, { status: 500 });
+    console.error("Jobs API error:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch jobs" },
+      { status: 500 }
+    );
   }
 }

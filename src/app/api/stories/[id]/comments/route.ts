@@ -34,7 +34,6 @@ export async function GET(
     let total = 0;
 
     try {
-      // @ts-expect-error - StoryComment模型可能不存在于当前schema
       comments = await prisma.storyComment.findMany({
         where: { storyId },
         include: {
@@ -51,7 +50,6 @@ export async function GET(
         take: pageSize,
       });
 
-      // @ts-expect-error - StoryComment模型可能不存在于当前schema
       total = await prisma.storyComment.count({
         where: { storyId },
       });
@@ -115,7 +113,6 @@ export async function POST(
     let comment: CommentWithAuthor;
 
     try {
-      // @ts-expect-error - StoryComment模型可能不存在于当前schema
       comment = await prisma.storyComment.create({
         data: {
           storyId,

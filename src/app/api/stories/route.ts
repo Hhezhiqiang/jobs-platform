@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 
 // 前端类型与数据库类型的映射
 export type StoryTypeUI = "ALL" | "TRANSFORMATION" | "INTERVIEW" | "INSIGHT" | "SKILL";
@@ -54,16 +56,24 @@ export interface Story {
   resonanceCount: number;
   commentCount: number;
   createdAt: string;
+  company?: {
+    id: string;
+    name: string;
+    logo: string | null;
+    slug: string;
+  } | null;
 }
 
 export const dynamic = "force-dynamic";
 
+// GET /api/stories - 获取故事列表
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const typeParam = (searchParams.get("type") as StoryTypeUI) || "ALL";
     const page = parseInt(searchParams.get("page") || "1", 10);
     const limit = parseInt(searchParams.get("limit") || "9", 10);
+    const companyId = searchParams.get("companyId");
 
     // 获取对应的数据库类型
     const dbTypes = typeMapping[typeParam];
@@ -74,6 +84,11 @@ export async function GET(request: NextRequest) {
     const where: any = {
       type: { in: dbTypes },
     };
+
+    // 如果指定了公司ID，添加过滤条件
+    if (companyId) {
+      where.companyId = companyId;
+    }
 
     // 获取总数
     const total = await prisma.careerStory.count({ where });
@@ -92,6 +107,14 @@ export async function GET(request: NextRequest) {
             avatar: true,
           },
         },
+        company: {
+          select: {
+            id: true,
+            name: true,
+            logo: true,
+            slug: true,
+          },
+        },
       },
     });
 
@@ -107,8 +130,9 @@ export async function GET(request: NextRequest) {
         avatar: story.author.avatar,
       },
       resonanceCount: story.resonanceCount,
-      commentCount: 0, // 暂时为0，因为没有comments关联
+      commentCount: 0,
       createdAt: story.createdAt.toISOString(),
+      company: story.company,
     }));
 
     return NextResponse.json({
@@ -125,6 +149,116 @@ export async function GET(request: NextRequest) {
     console.error("获取故事列表失败:", error);
     return NextResponse.json(
       { error: "获取故事列表失败" },
+      { status: 500 }
+    );
+  }
+}
+
+// POST /api/stories - 创建故事
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: "请先登录" },
+        { status: 401 }
+      );
+    }
+
+    const body = await request.json();
+    const { title, content, type, timeline, companyId } = body;
+
+    // 验证必填字段
+    if (!title || title.trim().length < 5) {
+      return NextResponse.json(
+        { error: "标题至少需要5个字符" },
+        { status: 400 }
+      );
+    }
+
+    if (!content || content.trim().length < 100) {
+      return NextResponse.json(
+        { error: "内容至少需要100个字符" },
+        { status: 400 }
+      );
+    }
+
+    if (!type || !["EXPERIENCE", "TRANSITION", "MILESTONE", "CHALLENGE", "INSIGHT"].includes(type)) {
+      return NextResponse.json(
+        { error: "请选择有效的故事类型" },
+        { status: 400 }
+      );
+    }
+
+    // 如果指定了 companyId，验证公司是否存在
+    if (companyId) {
+      const company = await prisma.companies.findUnique({
+        where: { id: companyId },
+        select: { id: true },
+      });
+      if (!company) {
+        return NextResponse.json(
+          { error: "指定的公司不存在" },
+          { status: 400 }
+        );
+      }
+    }
+
+    // 创建故事
+    const story = await prisma.careerStory.create({
+      data: {
+        title: title.trim(),
+        content: content.trim(),
+        type,
+        timeline: timeline || null,
+        authorId: session.user.id,
+        companyId: companyId || null,
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            avatar: true,
+          },
+        },
+        company: {
+          select: {
+            id: true,
+            name: true,
+            logo: true,
+            slug: true,
+          },
+        },
+      },
+    });
+
+    // 转换为前端格式
+    const formattedStory: Story = {
+      id: story.id,
+      title: story.title,
+      content: story.content,
+      type: getUIType(story.type),
+      author: {
+        id: story.author.id,
+        name: story.author.name,
+        avatar: story.author.avatar,
+      },
+      resonanceCount: story.resonanceCount,
+      commentCount: 0,
+      createdAt: story.createdAt.toISOString(),
+      company: story.company,
+    };
+
+    return NextResponse.json({
+      success: true,
+      story: formattedStory,
+    });
+  } catch (error) {
+    console.error("创建故事失败:", error);
+    return NextResponse.json(
+      { error: "创建故事失败" },
       { status: 500 }
     );
   }

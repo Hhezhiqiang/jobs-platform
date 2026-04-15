@@ -23,6 +23,24 @@ export async function GET(
             avatar: true,
           },
         },
+        company: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            logo: true,
+            description: true,
+            location: true,
+            industry: true,
+            size: true,
+            website: true,
+            _count: {
+              select: {
+                jobs: true,
+              },
+            },
+          },
+        },
         _count: {
           select: {
             resonances: true,
@@ -59,6 +77,19 @@ export async function GET(
         hasResonated = true;
       }
     }
+
+    // 检查用户是否有权限邀请（是公司成员）
+    let canInvite = false;
+    if (userId && story.companyId) {
+      const membership = await prisma.company_members.findFirst({
+        where: {
+          companyId: story.companyId,
+          userId: userId,
+          role: { in: ["ADMIN", "RECRUITER"] },
+        },
+      });
+      canInvite = !!membership;
+    }
     
     return NextResponse.json({
       success: true,
@@ -67,6 +98,7 @@ export async function GET(
         viewCount: story.viewCount + 1,
       },
       hasResonated,
+      canInvite,
     });
   } catch (error) {
     console.error("获取故事详情失败:", error);
@@ -111,15 +143,32 @@ export async function PATCH(
     }
     
     const body = await req.json();
-    const { title, content, type, timeline } = body;
+    const { title, content, type, timeline, companyId } = body;
     
+    // 如果修改了 companyId，验证公司是否存在
+    if (companyId !== undefined) {
+      if (companyId) {
+        const company = await prisma.companies.findUnique({
+          where: { id: companyId },
+          select: { id: true },
+        });
+        if (!company) {
+          return NextResponse.json(
+            { error: "指定的公司不存在" },
+            { status: 400 }
+          );
+        }
+      }
+    }
+
     const updatedStory = await prisma.careerStory.update({
       where: { id },
       data: {
-        ...(title && { title }),
-        ...(content && { content }),
+        ...(title && { title: title.trim() }),
+        ...(content && { content: content.trim() }),
         ...(type && { type }),
-        ...(timeline && { timeline }),
+        ...(timeline !== undefined && { timeline }),
+        ...(companyId !== undefined && { companyId: companyId || null }),
       },
       include: {
         author: {
@@ -127,6 +176,14 @@ export async function PATCH(
             id: true,
             name: true,
             avatar: true,
+          },
+        },
+        company: {
+          select: {
+            id: true,
+            name: true,
+            logo: true,
+            slug: true,
           },
         },
       },

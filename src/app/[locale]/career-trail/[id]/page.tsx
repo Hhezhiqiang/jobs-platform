@@ -44,6 +44,24 @@ export default async function StoryPage({ params }: StoryPageProps) {
           avatar: true,
         },
       },
+      company: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          logo: true,
+          description: true,
+          location: true,
+          industry: true,
+          size: true,
+          website: true,
+          _count: {
+            select: {
+              jobs: true,
+            },
+          },
+        },
+      },
       _count: {
         select: {
           resonances: true,
@@ -74,6 +92,22 @@ export default async function StoryPage({ params }: StoryPageProps) {
       })
     : null;
 
+  // 检查用户是否有权限邀请（是公司成员）
+  let canInvite = false;
+  if (userId && story.companyId) {
+    const membership = await prisma.company_members.findFirst({
+      where: {
+        companyId: story.companyId,
+        userId: userId,
+        role: { in: ["ADMIN", "RECRUITER"] },
+      },
+    });
+    canInvite = !!membership;
+  }
+
+  // 如果是作者，也显示邀请状态
+  const isAuthor = story.authorId === userId;
+
   const typeLabels: Record<string, string> = {
     EXPERIENCE: "经验分享",
     TRANSITION: "职业转型",
@@ -102,9 +136,10 @@ export default async function StoryPage({ params }: StoryPageProps) {
         <StoryDetail
           story={story}
           locale={locale}
-          isAuthor={story.authorId === userId}
+          isAuthor={isAuthor}
           viewCount={story.viewCount + 1}
           typeLabel={typeLabels[story.type] || story.type}
+          canInvite={canInvite}
         />
 
         {/* Resonance Section */}
