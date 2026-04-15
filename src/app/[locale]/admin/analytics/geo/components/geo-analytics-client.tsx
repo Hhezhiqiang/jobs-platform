@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
 import {
   Globe,
   MapPin,
@@ -13,19 +12,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-// 导入 Chart.js 注册（只在客户端执行）
-import "@/lib/chart-registry";
-
-// 动态导入图表组件（避免SSR问题）
-const Bar = dynamic(
-  () => import("react-chartjs-2").then((mod) => mod.Bar),
-  { ssr: false }
-);
-const Pie = dynamic(
-  () => import("react-chartjs-2").then((mod) => mod.Pie),
-  { ssr: false }
-);
-
+// 简单的数据展示组件，不使用 Chart.js 避免 SSR 问题
 interface GeoData {
   summary: {
     totalViews: number;
@@ -56,22 +43,113 @@ interface GeoData {
   }>;
 }
 
+// 进度条组件
+function ProgressBar({ percentage }: { percentage: string }) {
+  const numericValue = parseFloat(percentage);
+  return (
+    <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
+      <div
+        className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+        style={{ width: `${Math.min(numericValue, 100)}%` }}
+      />
+    </div>
+  );
+}
+
+// 简单的柱状图组件（纯 CSS）
+function SimpleBarChart({ data }: { data: Array<{ label: string; value: number; color: string }> }) {
+  const maxValue = Math.max(...data.map(d => d.value));
+  
+  return (
+    <div className="h-full flex items-end gap-2 px-4">
+      {data.map((item, index) => (
+        <div key={index} className="flex-1 flex flex-col items-center gap-2">
+          <div className="w-full flex flex-col items-center">
+            <span className="text-xs text-gray-500 mb-1">{item.value.toLocaleString()}</span>
+            <div
+              className="w-full rounded-t-lg transition-all duration-500"
+              style={{
+                height: `${(item.value / maxValue) * 200}px`,
+                backgroundColor: item.color,
+                minHeight: '20px'
+              }}
+            />
+          </div>
+          <span className="text-xs text-gray-600 text-center truncate w-full" title={item.label}>
+            {item.label}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// 简单的饼图组件（纯 CSS/SVG）
+function SimplePieChart({ data }: { data: Array<{ label: string; value: number; color: string }> }) {
+  const total = data.reduce((sum, item) => sum + item.value, 0);
+  let currentAngle = 0;
+  
+  const slices = data.map((item) => {
+    const angle = (item.value / total) * 360;
+    const startAngle = currentAngle;
+    const endAngle = currentAngle + angle;
+    currentAngle = endAngle;
+    
+    // 计算 SVG 路径
+    const startRad = (startAngle * Math.PI) / 180;
+    const endRad = (endAngle * Math.PI) / 180;
+    const x1 = 100 + 80 * Math.cos(startRad);
+    const y1 = 100 + 80 * Math.sin(startRad);
+    const x2 = 100 + 80 * Math.cos(endRad);
+    const y2 = 100 + 80 * Math.sin(endRad);
+    const largeArc = angle > 180 ? 1 : 0;
+    
+    return {
+      ...item,
+      path: `M 100 100 L ${x1} ${y1} A 80 80 0 ${largeArc} 1 ${x2} ${y2} Z`,
+      percentage: ((item.value / total) * 100).toFixed(1)
+    };
+  });
+  
+  return (
+    <div className="flex items-center gap-8">
+      <svg viewBox="0 0 200 200" className="w-48 h-48">
+        {slices.map((slice, index) => (
+          <path
+            key={index}
+            d={slice.path}
+            fill={slice.color}
+            stroke="white"
+            strokeWidth="2"
+          />
+        ))}
+        <circle cx="100" cy="100" r="40" fill="white" />
+      </svg>
+      <div className="space-y-2">
+        {slices.map((slice, index) => (
+          <div key={index} className="flex items-center gap-2">
+            <div
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: slice.color }}
+            />
+            <span className="text-sm text-gray-600">{slice.label}</span>
+            <span className="text-sm font-medium text-gray-900">{slice.percentage}%</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function GeoAnalyticsClient() {
   const [data, setData] = useState<GeoData | null>(null);
   const [loading, setLoading] = useState(true);
   const [days, setDays] = useState(30);
   const [error, setError] = useState<string | null>(null);
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (mounted) {
-      fetchGeoData();
-    }
-  }, [days, mounted]);
+    fetchGeoData();
+  }, [days]);
 
   const fetchGeoData = async () => {
     try {
@@ -85,22 +163,12 @@ export function GeoAnalyticsClient() {
       const result = await response.json();
       setData(result);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
+      console.error("Geo data fetch error:", err);
+      setError(err instanceof Error ? err.message : "加载失败");
     } finally {
       setLoading(false);
     }
   };
-
-  if (!mounted) {
-    return (
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12">
-        <div className="flex flex-col items-center justify-center gap-4">
-          <div className="w-12 h-12 border-4 border-emerald-200 border-t-emerald-500 rounded-full animate-spin" />
-          <p className="text-gray-500">加载中...</p>
-        </div>
-      </div>
-    );
-  }
 
   if (loading) {
     return (
@@ -116,11 +184,11 @@ export function GeoAnalyticsClient() {
   if (error) {
     return (
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12">
-        <div className="text-center text-red-500">
-          <p>加载失败: {error}</p>
+        <div className="text-center">
+          <p className="text-red-500 mb-4">加载失败: {error}</p>
           <button
             onClick={fetchGeoData}
-            className="mt-4 px-4 py-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600"
+            className="px-4 py-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition-colors"
           >
             重试
           </button>
@@ -129,83 +197,36 @@ export function GeoAnalyticsClient() {
     );
   }
 
-  if (!data) return null;
+  if (!data || data.countries.length === 0) {
+    return (
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12">
+        <div className="text-center text-gray-500">
+          <Globe className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+          <p>暂无地理位置数据</p>
+          <p className="text-sm text-gray-400 mt-2">请确保有访问记录并已配置地理位置解析</p>
+        </div>
+      </div>
+    );
+  }
 
   // 准备图表数据
-  const countryChartData = {
-    labels: data.countries.slice(0, 10).map(c => c.country),
-    datasets: [
-      {
-        label: "访问量",
-        data: data.countries.slice(0, 10).map(c => c.count),
-        backgroundColor: [
-          "rgba(16, 185, 129, 0.8)",
-          "rgba(59, 130, 246, 0.8)",
-          "rgba(245, 158, 11, 0.8)",
-          "rgba(239, 68, 68, 0.8)",
-          "rgba(139, 92, 246, 0.8)",
-          "rgba(236, 72, 153, 0.8)",
-          "rgba(14, 165, 233, 0.8)",
-          "rgba(99, 102, 241, 0.8)",
-          "rgba(20, 184, 166, 0.8)",
-          "rgba(249, 115, 22, 0.8)",
-        ],
-        borderRadius: 8,
-      },
-    ],
-  };
+  const countryChartData = data.countries.slice(0, 10).map((c, i) => ({
+    label: c.country,
+    value: c.count,
+    color: [
+      "#10b981", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6",
+      "#ec4899", "#0ea5e9", "#6366f1", "#14b8a6", "#f97316"
+    ][i] || "#6b7280"
+  }));
 
-  const pieChartData = {
-    labels: data.countries.slice(0, 8).map(c => c.country),
-    datasets: [
-      {
-        data: data.countries.slice(0, 8).map(c => c.count),
-        backgroundColor: [
-          "rgba(16, 185, 129, 0.8)",
-          "rgba(59, 130, 246, 0.8)",
-          "rgba(245, 158, 11, 0.8)",
-          "rgba(239, 68, 68, 0.8)",
-          "rgba(139, 92, 246, 0.8)",
-          "rgba(236, 72, 153, 0.8)",
-          "rgba(14, 165, 233, 0.8)",
-          "rgba(99, 102, 241, 0.8)",
-        ],
-        borderWidth: 2,
-        borderColor: "#fff",
-      },
-    ],
-  };
-
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { display: false },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        grid: { color: "rgba(0,0,0,0.05)" },
-      },
-      x: {
-        grid: { display: false },
-      },
-    },
-  };
-
-  const pieOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: "right" as const,
-        labels: {
-          boxWidth: 12,
-          padding: 15,
-        },
-      },
-    },
-  };
+  const pieChartData = data.countries.slice(0, 8).map((c, i) => ({
+    label: c.country,
+    value: c.count,
+    color: [
+      "#10b981", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6",
+      "#ec4899", "#0ea5e9", "#6366f1"
+    ][i] || "#6b7280"
+  }));
 
   return (
     <div className="space-y-6">
@@ -290,8 +311,8 @@ export function GeoAnalyticsClient() {
             <BarChart3 className="w-5 h-5 text-emerald-500" />
             <h3 className="font-bold text-gray-900">TOP10 国家/地区访问排行</h3>
           </div>
-          <div className="h-80">
-            <Bar data={countryChartData} options={chartOptions} />
+          <div className="h-64">
+            <SimpleBarChart data={countryChartData} />
           </div>
         </div>
 
@@ -301,8 +322,8 @@ export function GeoAnalyticsClient() {
             <PieChart className="w-5 h-5 text-emerald-500" />
             <h3 className="font-bold text-gray-900">国家/地区分布占比</h3>
           </div>
-          <div className="h-80 flex items-center justify-center">
-            <Pie data={pieChartData} options={pieOptions} />
+          <div className="h-64 flex items-center justify-center">
+            <SimplePieChart data={pieChartData} />
           </div>
         </div>
       </div>
@@ -353,12 +374,7 @@ export function GeoAnalyticsClient() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-emerald-500 rounded-full"
-                          style={{ width: country.percentage }}
-                        />
-                      </div>
+                      <ProgressBar percentage={country.percentage} />
                       <span className="text-sm text-gray-500">{country.percentage}</span>
                     </div>
                   </td>
@@ -454,7 +470,7 @@ export function GeoAnalyticsClient() {
   );
 }
 
-// 简单的国家emoji标志映射
+// 国家emoji标志映射
 function getCountryFlag(country: string): string {
   const flagMap: Record<string, string> = {
     "China": "🇨🇳",

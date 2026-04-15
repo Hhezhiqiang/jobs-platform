@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import Link from "next/link";
-import dynamic from "next/dynamic";
 import {
   LayoutDashboard,
   Briefcase,
@@ -18,22 +17,7 @@ import {
   ArrowLeft,
   Sparkles,
 } from "lucide-react";
-
-// 动态导入客户端组件（避免SSR问题）
-const GeoAnalyticsClient = dynamic(
-  () => import("./components/geo-analytics-client").then((mod) => mod.GeoAnalyticsClient),
-  { 
-    ssr: false, 
-    loading: () => (
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12">
-        <div className="flex flex-col items-center justify-center gap-4">
-          <div className="w-12 h-12 border-4 border-emerald-200 border-t-emerald-500 rounded-full animate-spin" />
-          <p className="text-gray-500">加载地理位置数据中...</p>
-        </div>
-      </div>
-    )
-  }
-);
+import { GeoAnalyticsClient } from "./components/geo-analytics-client";
 
 export const metadata: Metadata = {
   title: "地理位置分析 | 管理员控制台",
