@@ -152,12 +152,12 @@ export default async function JobsPage({ searchParams }: PageProps) {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">服务暂时不可用</h3>
                 <p className="text-gray-500 mb-6">数据库连接失败，请稍后重试</p>
-                <a
+                <Link
                   href="/jobs"
                   className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all"
                 >
                   重新加载
-                </a>
+                </Link>
               </div>
             ) : jobs.length === 0 ? (
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">

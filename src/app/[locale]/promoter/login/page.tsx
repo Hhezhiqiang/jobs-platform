@@ -1,8 +1,17 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+
+const subscribe = () => () => {};
+const getServerSnapshot = () => "/promoter/login";
+
+function getCallbackUrl(): string {
+  if (typeof window === "undefined") return "/promoter/login";
+  const sp = new URLSearchParams(window.location.search);
+  return sp.get("callbackUrl") || "/promoter/login";
+}
 
 export default function PromoterLoginPage() {
   const router = useRouter();
@@ -10,16 +19,13 @@ export default function PromoterLoginPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [hasSession, setHasSession] = useState(false);
-  const [callbackUrl, setCallbackUrl] = useState("/promoter/login");
+  const callbackUrl = useSyncExternalStore(
+    subscribe,
+    getCallbackUrl,
+    getServerSnapshot
+  );
 
   useEffect(() => {
-    // 解析 callbackUrl
-    if (typeof window !== "undefined") {
-      const sp = new URLSearchParams(window.location.search);
-      setCallbackUrl(sp.get("callbackUrl") || "/promoter/login");
-    }
-
-    // 1. 检查是否已有 Next-Auth 主站会话
     fetch("/api/auth/session", { credentials: "include" })
       .then((res) => res.json())
       .then((session) => {

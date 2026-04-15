@@ -1,5 +1,6 @@
 "use client";
 
+import type { job_applications, jobs, users } from "@prisma/client";
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -36,7 +37,7 @@ export default function CompanyApplicationsPage() {
 function CompanyApplicationsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [applications, setApplications] = useState<any[]>([]);
+  const [applications, setApplications] = useState<(job_applications & { job: jobs; user: users })[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [statusFilter, setStatusFilter] = useState(
@@ -67,8 +68,8 @@ function CompanyApplicationsContent() {
 
       setApplications(data.applications);
       setSelectedIds(new Set());
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "获取申请列表失败");
     } finally {
       setIsLoading(false);
     }
@@ -148,10 +149,11 @@ function CompanyApplicationsContent() {
     }));
     if (rows.length === 0) return;
     const headers = Object.keys(rows[0]);
+    type Row = typeof rows[0];
     const csv = [
       headers.join(","),
       ...rows.map((r) =>
-        headers.map((h) => `"${String((r as any)[h]).replace(/"/g, '""')}"`).join(",")
+        headers.map((h) => `"${String(r[h as keyof Row]).replace(/"/g, '""')}"`).join(",")
       ),
     ].join("\n");
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });

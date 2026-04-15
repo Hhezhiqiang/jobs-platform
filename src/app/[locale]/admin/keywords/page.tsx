@@ -345,7 +345,7 @@ export default function AdminKeywordsPage() {
               </div>
               <div className="p-6 overflow-y-auto space-y-4">
                 {selectedArchives.length === 0 && (
-                  <p className="text-gray-500">暂无素材，请点击"采集素材"按钮获取。</p>
+                  <p className="text-gray-500">暂无素材，请点击&quot;采集素材&quot;按钮获取。</p>
                 )}
                 {selectedArchives.map((a) => (
                   <div key={a.id} className="border rounded-lg p-4 bg-gray-50">
@@ -430,6 +430,15 @@ export default function AdminKeywordsPage() {
               </div>
             ))}
           </div>
+        )}
+      </main>
+    </div>
+  );
+}
+  </div>
+  );
+}
+
         )}
       </main>
     </div>

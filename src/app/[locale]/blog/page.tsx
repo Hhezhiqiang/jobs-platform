@@ -1,3 +1,4 @@
+import type { pages, users } from "@prisma/client";
 import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
@@ -51,8 +52,10 @@ interface PageProps {
   searchParams: Promise<{ q?: string; category?: string; page?: string }>;
 }
 
+type PostWithAuthor = pages & { users: users | null };
+
 // 生成博客列表页的 Schema 数据
-function generateBlogListSchema(posts: any[], total: number) {
+function generateBlogListSchema(posts: PostWithAuthor[], total: number) {
   return {
     "@context": "https://schema.org",
     "@type": "Blog",

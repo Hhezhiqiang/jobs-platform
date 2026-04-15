@@ -1,3 +1,5 @@
+import type { Prisma } from "@prisma/client";
+import { JobStatus } from "@prisma/client";
 import Link from "next/link";
 import Image from "next/image";
 import { redirect } from "next/navigation";
@@ -16,8 +18,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Building2,
-  MapPin,
-  MoreHorizontal
+  MapPin
 } from "lucide-react";
 
 interface PageProps {
@@ -45,7 +46,7 @@ export default async function AdminJobsPage({ searchParams }: PageProps) {
   const companyFilter = params.companyId || "";
 
   // 构建查询条件
-  const where: any = {};
+  const where: Prisma.jobsWhereInput = {};
   
   if (search) {
     where.OR = [
@@ -56,7 +57,7 @@ export default async function AdminJobsPage({ searchParams }: PageProps) {
   }
   
   if (statusFilter) {
-    where.status = statusFilter;
+    where.status = statusFilter as JobStatus;
   }
   
   if (companyFilter) {

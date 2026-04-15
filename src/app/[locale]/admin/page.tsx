@@ -13,14 +13,12 @@ import {
   Eye,
   Plus,
   TrendingUp,
-  Clock,
   ChevronRight,
   BarChart3,
   Sparkles,
   Wallet,
   PieChart,
 } from "lucide-react";
-import { formatDistanceToNow } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "管理员控制台 | 求职平台",

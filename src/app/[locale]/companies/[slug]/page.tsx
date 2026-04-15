@@ -45,10 +45,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-export default async function CompanyDetailPage({ params }: PageProps) {
+async function getCompanyData(slug: string) {
   try {
-    const { slug } = await params;
-    
     const company = await prisma.companies.findUnique({
       where: { slug },
       include: {
@@ -59,12 +57,22 @@ export default async function CompanyDetailPage({ params }: PageProps) {
         },
       },
     });
+    return company;
+  } catch {
+    return null;
+  }
+}
 
-    if (!company) {
-      notFound();
-    }
+export default async function CompanyDetailPage({ params }: PageProps) {
+  const { slug } = await params;
+  const company = await getCompanyData(slug);
+
+  if (!company) {
+    notFound();
+  }
 
   const orgSchema = generateOrganizationSchema(company);
+  const validJobs = company.jobs.filter(job => job.slug);
 
   return (
     <>
@@ -165,9 +173,6 @@ export default async function CompanyDetailPage({ params }: PageProps) {
               )}
 
               {/* Job Listings */}
-              {(() => {
-                const validJobs = company.jobs.filter(job => job.slug);
-                return (
               <div>
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-bold text-gray-900">在招职位</h2>
@@ -192,8 +197,6 @@ export default async function CompanyDetailPage({ params }: PageProps) {
                   </div>
                 )}
               </div>
-                );
-              })()}
             </div>
 
             {/* Sidebar */}
@@ -266,7 +269,4 @@ export default async function CompanyDetailPage({ params }: PageProps) {
       </div>
     </>
   );
-  } catch {
-    notFound();
-  }
 }

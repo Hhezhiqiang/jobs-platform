@@ -1,5 +1,6 @@
 "use client";
 
+import type { jobs, job_applications } from "@prisma/client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -28,8 +29,8 @@ interface DashboardData {
     applicationsCount: number;
     pendingApplicationsCount: number;
   };
-  recentApplications: any[];
-  recentJobs: any[];
+  recentApplications: (job_applications & { job: jobs })[];
+  recentJobs: jobs[];
 }
 
 export default function CompanyDashboardPage() {
@@ -60,8 +61,8 @@ export default function CompanyDashboardPage() {
       }
 
       setData(result);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "获取数据失败");
     } finally {
       setIsLoading(false);
     }

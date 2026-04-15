@@ -56,7 +56,7 @@ export function SalaryCalculator() {
       } else {
         setError(data.error || "计算失败");
       }
-    } catch (err) {
+    } catch {
       setError("网络错误，请稍后重试");
     } finally {
       setLoading(false);

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function NewJobPage() {
   const router = useRouter();
@@ -175,12 +176,12 @@ export default function NewJobPage() {
             >
               {loading ? "发布中..." : "发布职位"}
             </button>
-            <a
+            <Link
               href="/admin"
-              className="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300"
+              className="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 inline-block"
             >
               取消
-            </a>
+            </Link>
           </div>
         </form>
       </main>

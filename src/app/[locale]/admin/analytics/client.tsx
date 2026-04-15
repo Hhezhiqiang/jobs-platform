@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -20,6 +20,7 @@ import {
   RefreshCw,
   ArrowUpRight,
   Target,
+  type LucideIcon,
 } from "lucide-react";
 import {
   LineChart,
@@ -33,9 +34,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
 } from "recharts";
 import { formatNumber } from "@/lib/utils";
 
@@ -118,6 +116,15 @@ interface AnalyticsClientProps {
   data: AnalyticsData;
 }
 
+interface StatCardProps {
+  title: string;
+  value: string | number;
+  icon: LucideIcon;
+  color: string;
+  subtitle?: string;
+  trend?: { value: number; positive: boolean };
+}
+
 const navItems = [
   { icon: LayoutDashboard, label: "概览", href: "/admin" },
   { icon: Briefcase, label: "职位管理", href: "/admin/jobs" },
@@ -127,43 +134,12 @@ const navItems = [
   { icon: BarChart3, label: "数据分析", href: "/admin/analytics", active: true },
 ];
 
-const COLORS = ["#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#EC4899", "#06B6D4", "#84CC16"];
+const subscribe = () => () => {};
+const getSnapshot = () => true;
+const getServerSnapshot = () => false;
 
-export default function AnalyticsClient({ data }: AnalyticsClientProps) {
-  const router = useRouter();
-  const [timeRange, setTimeRange] = useState<7 | 30 | 90>(30);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const handleRefresh = () => {
-    setIsRefreshing(true);
-    router.refresh();
-  };
-
-  // 根据时间范围过滤数据
-  const getFilteredData = (stats: any[]) => {
-    return stats.slice(-timeRange);
-  };
-
-  const StatCard = ({ 
-    title, 
-    value, 
-    icon: Icon, 
-    color, 
-    subtitle, 
-    trend 
-  }: { 
-    title: string;
-    value: string | number;
-    icon: any;
-    color: string;
-    subtitle?: string;
-    trend?: { value: number; positive: boolean };
-  }) => (
+function StatCard({ title, value, icon: Icon, color, subtitle, trend }: StatCardProps) {
+  return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
       <div className="flex items-start justify-between">
         <div className="flex-1">
@@ -184,6 +160,23 @@ export default function AnalyticsClient({ data }: AnalyticsClientProps) {
       </div>
     </div>
   );
+}
+
+export default function AnalyticsClient({ data }: AnalyticsClientProps) {
+  const router = useRouter();
+  const [timeRange, setTimeRange] = useState<7 | 30 | 90>(30);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const mounted = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    router.refresh();
+  };
+
+  // 根据时间范围过滤数据
+  const getFilteredData = <T extends Array<{ date: string; dateDisplay: string }>>(stats: T): T => {
+    return stats.slice(-timeRange) as T;
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">

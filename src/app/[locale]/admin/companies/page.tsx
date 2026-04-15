@@ -1,5 +1,6 @@
 "use client";
 
+import type { companies } from "@prisma/client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -11,6 +12,8 @@ import {
   Filter,
 } from "lucide-react";
 
+type Company = companies;
+
 const statusOptions = [
   { value: "", label: "全部状态" },
   { value: "PENDING", label: "待审核" },
@@ -21,21 +24,17 @@ const statusOptions = [
 
 export default function AdminCompaniesPage() {
   const router = useRouter();
-  const [companies, setCompanies] = useState<any[]>([]);
+  const [companies, setCompanies] = useState<Company[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [statusFilter, setStatusFilter] = useState("PENDING");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCompany, setSelectedCompany] = useState<any>(null);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
-  useEffect(() => {
-    fetchCompanies();
-  }, [statusFilter]);
-
-  const fetchCompanies = async () => {
+  const fetchCompanies = useCallback(async () => {
     try {
       setIsLoading(true);
       const params = new URLSearchParams();
@@ -51,8 +50,8 @@ export default function AdminCompaniesPage() {
       }
 
       setCompanies(data.companies);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "获取企业列表失败");
     } finally {
       setIsLoading(false);
     }
@@ -83,8 +82,8 @@ export default function AdminCompaniesPage() {
       setSelectedCompany(null);
       setRejectionReason("");
       fetchCompanies();
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "操作失败");
     } finally {
       setIsProcessing(false);
     }
@@ -213,10 +212,7 @@ export default function AdminCompaniesPage() {
 
                       <div className="mt-2 text-xs text-gray-400">
                         提交时间：
-                        {new Date(company.createdAt).toLocaleString("zh-CN")} ·
-                        职位数：{company._count.jobs} ·
-                        管理员：
-                        {company.members.map((m: any) => m.user.name).join(", ")}
+                        {new Date(company.createdAt).toLocaleString("zh-CN")}
                       </div>
 
                       {company.rejectionReason && (
@@ -389,6 +385,9 @@ export default function AdminCompaniesPage() {
           </div>
         </div>
       )}
+    </div>
+  );
+}   )}
     </div>
   );
 }

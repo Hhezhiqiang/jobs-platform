@@ -15,7 +15,7 @@ import {
 import { RelatedJobs } from "@/components/related-jobs";
 import { ShareButtons } from "@/components/share-buttons";
 import { BlogContent } from "@/components/blog-content";
-import { TableOfContents } from "@/components/table-of-contents";
+import { useTableOfContents } from "@/components/table-of-contents";
 import { ConversionTools } from "@/components/conversion-tools";
 import { EmailSubscription } from "@/components/email-subscription";
 
@@ -44,6 +44,7 @@ export function BlogDetailClient({ post, locale }: BlogDetailClientProps) {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [hasLiked, setHasLiked] = useState(false);
   const currentUrl = typeof window !== "undefined" ? window.location.href : "";
+  const { headings, activeId } = useTableOfContents(post.content);
 
   // 计算阅读时间
   useEffect(() => {
@@ -245,7 +246,29 @@ export function BlogDetailClient({ post, locale }: BlogDetailClientProps) {
 
             {/* 侧边栏 */}
             <aside className="lg:w-72 space-y-6">
-              <TableOfContents content={post.content} />
+              {headings.length > 0 && (
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                  <h3 className="font-semibold text-gray-900 mb-3">目录</h3>
+                  <nav className="space-y-2">
+                    {headings.map((heading) => (
+                      <a
+                        key={heading.id}
+                        href={`#${heading.id}`}
+                        className={`block text-sm hover:text-blue-600 transition-colors ${
+                          heading.level === 1 ? "font-medium" : ""
+                        } ${
+                          activeId === heading.id
+                            ? "text-blue-600 font-medium"
+                            : "text-gray-600"
+                        }`}
+                        style={{ paddingLeft: `${(heading.level - 1) * 12}px` }}
+                      >
+                        {heading.text}
+                      </a>
+                    ))}
+                  </nav>
+                </div>
+              )}
               <EmailSubscription />
             </aside>
           </div>

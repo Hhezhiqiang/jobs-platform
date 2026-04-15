@@ -1,3 +1,5 @@
+import type { Prisma } from "@prisma/client";
+import { WithdrawalStatus } from "@prisma/client";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth/next";
@@ -24,7 +26,7 @@ async function updateWithdrawal(formData: FormData) {
   const txHash = formData.get("txHash") as string;
   const remark = formData.get("remark") as string;
 
-  const updateData: any = { status };
+  const updateData: Prisma.withdrawal_recordsUpdateInput = { status: status as WithdrawalStatus };
   if (status === "APPROVED" || status === "REJECTED") updateData.reviewedAt = new Date();
   if (status === "TRANSFERRING" || status === "COMPLETED") {
     if (!txHash) throw new Error("缺少 TXID");
@@ -59,8 +61,8 @@ export default async function AdminWithdrawalsPage({ searchParams }: PageProps) 
   const currentPage = Math.max(1, parseInt(params.page || "1"));
   const statusFilter = params.status || "";
 
-  const where: any = {};
-  if (statusFilter) where.status = statusFilter;
+  const where: Prisma.withdrawal_recordsWhereInput = {};;
+  if (statusFilter) where.status = statusFilter as WithdrawalStatus;
 
   const [records, total] = await Promise.all([
     prisma.withdrawal_records.findMany({

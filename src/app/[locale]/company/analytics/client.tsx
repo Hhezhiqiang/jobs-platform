@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import {
   Briefcase,
@@ -39,14 +39,17 @@ interface Props {
   }[];
 }
 
+const subscribe = () => () => {};
+const getSnapshot = () => true;
+const getServerSnapshot = () => false;
+
 export default function CompanyAnalyticsClient({
   companyName,
   stats,
   trend,
   topJobs,
 }: Props) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const mounted = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -117,7 +120,7 @@ export default function CompanyAnalyticsClient({
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="display" tick={{ fontSize: 12 }} />
                   <YAxis tick={{ fontSize: 12 }} allowDecimals={false} />
-                  <Tooltip formatter={(value: any) => [`${value} 份`, "简历"]} />
+                  <Tooltip formatter={(value) => [`${value} 份`, "简历"]} />
                   <Line
                     type="monotone"
                     dataKey="applications"

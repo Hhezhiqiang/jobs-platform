@@ -1,5 +1,6 @@
 "use client";
 
+import type { jobs } from "@prisma/client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -23,7 +24,7 @@ const statusOptions = [
 
 export default function CompanyJobsPage() {
   const router = useRouter();
-  const [jobs, setJobs] = useState<any[]>([]);
+  const [jobs, setJobs] = useState<jobs[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -50,8 +51,8 @@ export default function CompanyJobsPage() {
       }
 
       setJobs(data.jobs);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "获取职位列表失败");
     } finally {
       setIsLoading(false);
     }

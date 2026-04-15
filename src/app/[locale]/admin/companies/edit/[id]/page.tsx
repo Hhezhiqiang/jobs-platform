@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 
-interface Company {
+interface CompanyData {
   id: string;
   name: string;
   slug: string;
@@ -329,6 +329,12 @@ export default function EditCompanyPage() {
               </Link>
             </div>
           </form>
+        </div>
+      </main>
+    </div>
+  );
+}
+     </form>
         </div>
       </main>
     </div>

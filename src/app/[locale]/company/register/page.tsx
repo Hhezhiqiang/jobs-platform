@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 export default function CompanyRegisterPage() {
   const router = useRouter();
@@ -77,12 +78,12 @@ export default function CompanyRegisterPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">请先登录</h1>
           <p className="text-gray-600 mb-4">注册企业账号需要先登录</p>
-          <a
+          <Link
             href="/auth/login?callbackUrl=/company/register"
             className="text-blue-600 hover:underline"
           >
             前往登录
-          </a>
+          </Link>
         </div>
       </div>
     );

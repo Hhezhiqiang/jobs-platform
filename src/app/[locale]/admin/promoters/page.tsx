@@ -1,3 +1,4 @@
+import type { Prisma } from "@prisma/client";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth/next";
@@ -25,7 +26,7 @@ async function updatePromoterStatus(formData: FormData) {
   const status = formData.get("status") as PromoterStatus;
   const defaultRate = formData.get("defaultRate") as string;
   if (!id) throw new Error("参数不完整");
-  const data: any = {};
+  const data: Prisma.promotersUpdateInput = {};
   if (status) data.status = status;
   if (defaultRate) data.defaultRate = Number(defaultRate);
   await prisma.promoters.update({ where: { id }, data });
@@ -42,7 +43,7 @@ export default async function AdminPromotersPage({ searchParams }: PageProps) {
   const statusFilter = params.status;
   const query = params.query || "";
 
-  const where: any = {};
+  const where: Prisma.promotersWhereInput = {};
   if (statusFilter) where.status = statusFilter;
   if (query) {
     where.OR = [
