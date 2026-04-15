@@ -1,6 +1,6 @@
 "use client";
 
-import type { jobs, job_applications } from "@prisma/client";
+import type { jobs, job_applications, users } from "@prisma/client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -29,7 +29,7 @@ interface DashboardData {
     applicationsCount: number;
     pendingApplicationsCount: number;
   };
-  recentApplications: (job_applications & { job: jobs })[];
+  recentApplications: (job_applications & { job: jobs; user?: users })[];
   recentJobs: jobs[];
 }
 
@@ -259,10 +259,10 @@ export default function CompanyDashboardPage() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="font-medium text-gray-900">
-                          {app.user.name || app.user.email}
+                          {app.user?.name || app.user?.email}
                         </p>
                         <p className="text-sm text-gray-500">
-                          申请职位: {app.jobs.title}
+                          申请职位: {app.job.title}
                         </p>
                         <p className="text-xs text-gray-400 mt-1">
                           {new Date(app.appliedAt).toLocaleDateString("zh-CN")}
@@ -318,7 +318,7 @@ export default function CompanyDashboardPage() {
                       <div>
                         <p className="font-medium text-gray-900">{job.title}</p>
                         <p className="text-sm text-gray-500">
-                          {job.location} · {job._count.job_applications} 份简历
+                          {job.location}
                         </p>
                         <p className="text-xs text-gray-400 mt-1">
                           发布于{" "}

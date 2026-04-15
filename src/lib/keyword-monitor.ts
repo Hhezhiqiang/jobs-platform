@@ -164,7 +164,7 @@ export async function collectKeywords(): Promise<{
               intent: classification.intent as string,
               status: "PENDING" as string,
               lastSeenAt: new Date(),
-              metadata: metadata as Record<string, unknown>,
+              metadata: metadata as any,
             },
           });
           newIds.push(created.id);

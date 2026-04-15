@@ -64,7 +64,7 @@ export async function addExp(
       const todayExp = await prisma.expLog.aggregate({
         where: {
           profile: { userId },
-          type: type as ExpLogType,
+          type: type as any,
           createdAt: { gte: today },
         },
         _sum: { amount: true },
@@ -86,7 +86,7 @@ export async function addExp(
       const lastExp = await prisma.expLog.findFirst({
         where: {
           profile: { userId },
-          type: type as ExpLogType,
+          type: type as any,
         },
         orderBy: { createdAt: "desc" },
       });
@@ -144,7 +144,7 @@ export async function addExp(
         data: {
           profileId: profile.id,
           amount: config.exp,
-          type: type as ExpLogType,
+          type: type as any,
           description: description || config.description,
           relatedId,
         },
@@ -436,7 +436,7 @@ export async function updateUserStats(
       stats: {
         ...currentStats,
         ...statsUpdate,
-      } as unknown as UserStats,
+      } as any,
     },
   });
 

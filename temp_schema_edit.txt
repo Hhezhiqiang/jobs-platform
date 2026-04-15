@@ -1,0 +1,39 @@
+  // 关联
+  resonances  StoryResonance[]
+  comments    StoryComment[]
+  
+  @@index([authorId, createdAt])
+  @@index([type, createdAt])
+  @@index([isFeatured, createdAt])
+  @@map("career_stories")
+}
+
+// 故事共鸣（点赞）
+model StoryResonance {
+  id        String   @id @default(cuid())
+  storyId   String
+  story     CareerStory @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime @default(now())
+  
+  @@unique([storyId, userId])
+  @@index([storyId])
+  @@index([userId])
+  @@map("story_resonances")
+}
+
+// 故事评论
+model StoryComment {
+  id        String   @id @default(cuid())
+  storyId   String
+  story     CareerStory @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    users  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([storyId, createdAt])
+  @@index([authorId])
+  @@map("story_comments")
+}

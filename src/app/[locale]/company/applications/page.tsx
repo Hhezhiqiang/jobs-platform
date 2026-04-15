@@ -331,7 +331,7 @@ function CompanyApplicationsContent() {
                               <span>{app.user.phone}</span>
                             </span>
                           )}
-                          {app.resume && (
+                          {app.resumeId && (
                             <span className="flex items-center space-x-1">
                               <FileText className="w-4 h-4" />
                               <span>已上传简历</span>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Footer } from "@/components/footer";
 import { Wallet, Coins, Loader2, CheckCircle2 } from "lucide-react";
 

@@ -42,7 +42,17 @@ export function Header({ transparent = false }: HeaderProps) {
     { label: t("nav.jobs"), href: `/${locale}/jobs`, icon: "💼" },
     { label: t("nav.companies"), href: `/${locale}/companies`, icon: "🏢" },
     { label: t("nav.blog"), href: `/${locale}/blog`, icon: "📝" },
+    { label: t("nav.careerTrail"), href: `/${locale}/career-trail`, icon: "📊" },
   ];
+
+  // Check if current path matches nav item for highlighting
+  const isActivePath = (href: string) => {
+    // Remove locale prefix for comparison
+    const pathWithoutLocale = pathname?.substring(locale.length + 1) || "";
+    const hrefWithoutLocale = href.substring(locale.length + 1);
+    return pathWithoutLocale === hrefWithoutLocale || 
+           pathWithoutLocale.startsWith(hrefWithoutLocale + "/");
+  };
 
   return (
     <header
@@ -66,17 +76,26 @@ export function Header({ transparent = false }: HeaderProps) {
 
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-1">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all hover:bg-gray-100/50 ${
-                  transparent ? "text-white/90 hover:text-white" : "text-gray-600 hover:text-gray-900"
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              const isActive = isActivePath(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all hover:bg-gray-100/50 ${
+                    transparent
+                      ? isActive
+                        ? "text-white bg-white/20"
+                        : "text-white/90 hover:text-white"
+                      : isActive
+                        ? "text-blue-600 bg-blue-50"
+                        : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Desktop Actions */}
@@ -313,17 +332,24 @@ export function Header({ transparent = false }: HeaderProps) {
         {mobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-200 animate-fade-in">
             <nav className="flex flex-col gap-2">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <span aria-hidden="true">{item.icon}</span>
-                  {item.label}
-                </Link>
-              ))}
+              {navItems.map((item) => {
+                const isActive = isActivePath(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                      isActive
+                        ? "bg-blue-50 text-blue-600"
+                        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                    }`}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <span aria-hidden="true">{item.icon}</span>
+                    {item.label}
+                  </Link>
+                );
+              })}
               <hr className="my-2" />
 
               {/* Mobile Locale Switcher */}

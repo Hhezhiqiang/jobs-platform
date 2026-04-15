@@ -528,6 +528,9 @@ model users {
   user_profiles         user_profiles?
   user_referrals        user_referrals?
   
+  // 职业叙事关联
+  careerStories         CareerStory[]
+  
   // 游戏化关联
   gameProfile           UserGameProfile?
 }
@@ -547,6 +550,54 @@ model withdrawal_records {
 
   @@index([promoterId, status])
   @@index([status, requestedAt])
+}
+
+// 职业叙事（职业故事）
+model CareerStory {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  type        StoryType  @default(EXPERIENCE)
+  timeline    Json?      // 可选时间线数据
+  authorId    String
+  author      users      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  
+  viewCount     Int    @default(0)
+  resonanceCount Int   @default(0)  // 共鸣数（点赞）
+  isFeatured    Boolean @default(false)
+  
+  createdAt   DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // 关联
+  resonances  StoryResonance[]
+  
+  @@index([authorId, createdAt])
+  @@index([type, createdAt])
+  @@index([isFeatured, createdAt])
+  @@map("career_stories")
+}
+
+// 故事共鸣（点赞）
+model StoryResonance {
+  id        String   @id @default(cuid())
+  storyId   String
+  story     CareerStory @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime @default(now())
+  
+  @@unique([storyId, userId])
+  @@index([storyId])
+  @@index([userId])
+  @@map("story_resonances")
+}
+
+enum StoryType {
+  EXPERIENCE    // 经验分享
+  TRANSITION    // 职业转型
+  MILESTONE     // 职业里程碑
+  CHALLENGE     // 挑战与成长
+  INSIGHT       // 行业洞察
 }
 
 enum AdStatus {
