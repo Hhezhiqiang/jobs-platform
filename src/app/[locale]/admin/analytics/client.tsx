@@ -20,6 +20,8 @@ import {
   RefreshCw,
   ArrowUpRight,
   Target,
+  Globe,
+  MapPin,
   type LucideIcon,
 } from "lucide-react";
 import {
@@ -132,6 +134,7 @@ const navItems = [
   { icon: FileText, label: "博客管理", href: "/admin/blog" },
   { icon: Users, label: "用户管理", href: "/admin/users" },
   { icon: BarChart3, label: "数据分析", href: "/admin/analytics", active: true },
+  { icon: Globe, label: "地理位置", href: "/admin/analytics/geo" },
 ];
 
 const subscribe = () => () => {};
@@ -286,6 +289,28 @@ export default function AnalyticsClient({ data }: AnalyticsClientProps) {
                 trend={{ value: data.jobGrowth.summary.activeRate, positive: true }}
               />
             </div>
+
+            {/* Geo Analytics Link */}
+            <Link
+              href="/admin/analytics/geo"
+              className="block bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl shadow-sm p-6 hover:shadow-lg transition-all group"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center">
+                    <Globe className="w-7 h-7 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white">地理位置分析</h3>
+                    <p className="text-emerald-100 mt-1">查看用户国家来源、城市分布和IP访问统计</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-white group-hover:translate-x-1 transition-transform">
+                  <span className="font-medium">查看详情</span>
+                  <ChevronRight className="w-5 h-5" />
+                </div>
+              </div>
+            </Link>
 
             {/* Visit Trends Chart */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">

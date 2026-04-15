@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { getClientIP, checkRateLimit } from "@/lib/rate-limit";
+import { updatePageViewGeoLocation } from "@/lib/geo-location";
 export const dynamic = "force-dynamic";
 
 // 生成会话ID（基于IP + User-Agent的简单哈希）
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest) {
     const sessionId = generateSessionId(ip, userAgent);
 
     // 保存访问记录
-    await prisma.page_views.create({
+    const pageView = await prisma.page_views.create({
       data: {
         path: path || "/",
         userAgent: userAgent.substring(0, 500), // 限制长度
@@ -51,6 +52,11 @@ export async function POST(request: NextRequest) {
         userId,
         sessionId,
       },
+    });
+
+    // 异步更新地理位置信息（不阻塞响应）
+    updatePageViewGeoLocation(pageView.id, ip).catch(error => {
+      console.error("Geo location update failed:", error);
     });
 
     return NextResponse.json({ success: true });

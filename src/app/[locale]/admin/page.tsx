@@ -18,6 +18,7 @@ import {
   Sparkles,
   Wallet,
   PieChart,
+  Globe,
 } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -69,6 +70,7 @@ export default async function AdminPage() {
     { icon: TrendingUp, label: "推广者管理", href: "/admin/promoters" },
     { icon: Wallet, label: "提现审核", href: "/admin/withdrawals" },
     { icon: PieChart, label: "CPS 报表", href: "/admin/reports/cps" },
+    { icon: Globe, label: "地理位置", href: "/admin/analytics/geo" },
   ];
 
   const stats = [
