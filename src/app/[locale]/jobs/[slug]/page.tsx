@@ -6,6 +6,7 @@ import { generateJobMetadata } from "@/lib/metadata";
 import { generateJobPostingSchema, generateBreadcrumbSchema } from "@/lib/schema";
 import { ApplyButton } from "@/components/apply-button";
 import { JobViewTracker } from "@/components/job-view-tracker";
+import { GameJobViewTracker } from "@/components/game/trackers";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { Metadata } from "next";
@@ -133,6 +134,9 @@ export default async function JobDetailPage({ params }: PageProps) {
     <>
       {/* 浏览追踪器 - 客户端组件 */}
       <JobViewTracker job={job} />
+      
+      {/* 游戏化浏览追踪 */}
+      <GameJobViewTracker jobId={job.id} />
       
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(jobSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(breadcrumbSchema) }} />

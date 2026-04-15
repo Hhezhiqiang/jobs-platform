@@ -9,6 +9,7 @@ import { FeaturesSection } from "@/components/features-section";
 import { JobCardV2 } from "@/components/job-card-v2";
 import { AdBanner } from "@/components/ad-banner";
 import { RecommendationSection } from "@/components/recommendation-section";
+import { HomeCheckinWrapper } from "@/components/game/home-checkin-wrapper";
 
 export const revalidate = 60;
 export const metadata: Metadata = generateHomeMetadata();
@@ -18,6 +19,9 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-white">
+      {/* 签到弹窗 */}
+      <HomeCheckinWrapper />
+
       <HeroSection jobCount={stats.jobCount} />
       
       <StatsSection jobCount={stats.jobCount} companyCount={stats.companyCount} dailyNewJobs={stats.dailyNewJobs} />

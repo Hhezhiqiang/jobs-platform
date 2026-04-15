@@ -17,7 +17,12 @@ import {
   Award,
   Clock,
   Wallet,
+  Trophy,
+  ScrollText,
+  BarChart3,
 } from "lucide-react";
+import { LevelCard } from "@/components/game/level-card";
+import { getGameProfile } from "@/lib/game/exp-system";
 
 export const metadata: Metadata = {
   title: "个人中心 | 求职平台",
@@ -93,6 +98,9 @@ export default async function DashboardPage() {
 
   const interviewCount = validApplications.filter((a) => a.status === "INTERVIEW").length;
 
+  // 获取游戏档案
+  const gameProfile = await getGameProfile(session.user.id);
+
   const navItems = [
     { icon: LayoutDashboard, label: "概览", href: "/dashboard", active: true },
     { icon: FileText, label: "我的简历", href: "/dashboard/profile" },
@@ -130,7 +138,12 @@ export default async function DashboardPage() {
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar Navigation */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 space-y-4">
+            {/* 等级卡片 */}
+            {gameProfile && (
+              <LevelCard />
+            )}
+
             <nav className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 space-y-1 sticky top-24">
               {navItems.map((item) => (
                 <Link
@@ -146,6 +159,32 @@ export default async function DashboardPage() {
                   {item.label}
                 </Link>
               ))}
+
+              {/* 游戏化菜单 */}
+              <hr className="my-4 border-gray-100" />
+              <div className="px-4 pb-2 text-xs font-medium text-gray-400 uppercase">游戏中心</div>
+              
+              <Link
+                href="/dashboard/achievements"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all"
+              >
+                <Trophy className="w-5 h-5" />
+                我的成就
+              </Link>
+              <Link
+                href="/dashboard/quests"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all"
+              >
+                <ScrollText className="w-5 h-5" />
+                我的任务
+              </Link>
+              <Link
+                href="/dashboard/leaderboard"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all"
+              >
+                <BarChart3 className="w-5 h-5" />
+                排行榜
+              </Link>
 
               <hr className="my-4 border-gray-100" />
 

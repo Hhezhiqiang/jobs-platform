@@ -7,6 +7,7 @@ import ReactMarkdown from "react-markdown";
 import { formatSalary, safeJsonLdStringify } from "@/lib/utils";
 import { ViewCounter } from "@/components/view-counter";
 import { TableOfContents } from "@/components/blog/table-of-contents";
+import { ArticleReadTracker } from "@/components/game/article-read-tracker";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -193,6 +194,9 @@ export default async function BlogDetailPage({ params }: PageProps) {
 
   return (
     <>
+      {/* 文章阅读追踪 */}
+      <ArticleReadTracker articleId={post.id} />
+      
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(articleSchema) }}

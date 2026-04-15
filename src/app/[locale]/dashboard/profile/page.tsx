@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import ResumeUpload from "@/components/resume-upload";
+import { useProfileCompleteTracker } from "@/components/game/trackers";
+import { ExpToast } from "@/components/game/exp-toast";
 
 interface WorkExperience {
   company: string;

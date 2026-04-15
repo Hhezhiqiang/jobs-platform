@@ -33,9 +33,23 @@ export function ApplyButton({
     setShowModal(true);
   };
 
-  const handleSuccess = () => {
+  const handleSuccess = async () => {
     setApplied(true);
     setShowModal(false);
+    
+    // 追踪申请成功，奖励经验
+    try {
+      await fetch("/api/game/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "APPLY_JOB",
+          jobId,
+        }),
+      });
+    } catch (error) {
+      console.error("追踪申请失败:", error);
+    }
   };
 
   // 未登录状态

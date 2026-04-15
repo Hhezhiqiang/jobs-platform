@@ -34,7 +34,7 @@ const ITEMS_PER_PAGE = 10;
 export default async function AdminJobsPage({ searchParams }: PageProps) {
   const session = await getServerSession(authOptions);
 
-  if (!session) {
+  if (!session || session.user?.role !== "ADMIN") {
     redirect("/auth/login/admin");
   }
 

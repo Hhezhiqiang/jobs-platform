@@ -7,17 +7,8 @@ import { authOptions } from "@/lib/auth";
 export default async function AdminBlogPage() {
   const session = await getServerSession(authOptions);
 
-  if (!session?.user?.id) {
+  if (!session || session.user?.role !== "ADMIN") {
     redirect("/auth/login/admin");
-  }
-
-  // 检查是否是管理员
-  const user = await prisma.users.findUnique({
-    where: { id: session.user.id },
-  });
-
-  if (user?.role !== "ADMIN") {
-    redirect("/");
   }
 
   const posts = await prisma.pages.findMany({

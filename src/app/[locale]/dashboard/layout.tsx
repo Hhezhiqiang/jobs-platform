@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { DashboardEffects } from "@/components/game/dashboard-effects";
 
 export const metadata: Metadata = {
   robots: {
@@ -8,5 +9,10 @@ export const metadata: Metadata = {
 };
 
 export default function PrivateLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      <DashboardEffects />
+    </>
+  );
 }

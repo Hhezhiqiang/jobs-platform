@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { addExp, updateTaskProgress } from "@/lib/game/exp-system";
 export const dynamic = "force-dynamic";
 
 // 更新用户详细资料（工作经历、教育背景、技能等）
@@ -25,6 +26,16 @@ export async function PUT(request: NextRequest) {
       workExperience,
       education,
     } = body;
+
+    // 检查是否是首次完善资料（通过检查之前是否有工作经历/教育背景）
+    const existingProfile = await prisma.user_profiles.findUnique({
+      where: { userId: session.user.id },
+      select: { workExperience: true, education: true },
+    });
+
+    const isFirstComplete = !existingProfile || 
+      (((existingProfile.workExperience as unknown as any[])?.length || 0) === 0 && 
+       ((existingProfile.education as unknown as any[])?.length || 0) === 0);
 
     // 查找或创建用户资料
     const profile = await prisma.user_profiles.upsert({
@@ -49,6 +60,12 @@ export async function PUT(request: NextRequest) {
         ...(education !== undefined && { education }),
       },
     });
+
+    // 首次完善资料奖励经验
+    if (isFirstComplete && (workExperience?.length > 0 || education?.length > 0)) {
+      await addExp(session.user.id, "COMPLETE_PROFILE", "完善个人资料");
+      await updateTaskProgress(session.user.id, "GUIDE_COMPLETE_PROFILE", 1);
+    }
 
     return NextResponse.json({
       message: "资料更新成功",

@@ -527,6 +527,9 @@ model users {
   sessions              sessions[]
   user_profiles         user_profiles?
   user_referrals        user_referrals?
+  
+  // 游戏化关联
+  gameProfile           UserGameProfile?
 }
 
 model withdrawal_records {
@@ -677,4 +680,190 @@ enum WithdrawalStatus {
   TRANSFERRING
   COMPLETED
   REJECTED
+}
+
+// ==================== 游戏化系统表 (渐进式添加) ====================
+
+// 用户游戏档案
+model UserGameProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // 基础游戏属性
+  level           Int      @default(1)
+  exp             Int      @default(0)
+  nextLevelExp    Int      @default(100)
+  
+  // 货币系统
+  coins           Int      @default(100)
+  
+  // 称号
+  title           String   @default("求职新人")
+  
+  // 统计 (JSON格式存储)
+  stats           Json     @default("{\"jobsViewed\":0,\"jobsApplied\":0,\"interviews\":0,\"offers\":0}")
+  
+  // 时间
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  lastLoginAt     DateTime @default(now())
+  loginStreak     Int      @default(0)
+  
+  // 关联
+  achievements    UserAchievement[]
+  dailyCheckins   DailyCheckin[]
+  taskProgress    TaskProgress[]
+  expLogs         ExpLog[]
+  
+  @@map("user_game_profiles")
+}
+
+// 成就定义
+model Achievement {
+  id              String   @id @default(cuid())
+  code            String   @unique
+  name            String
+  description     String
+  icon            String   @default("🏆")
+  category        AchievementCategory @default(BASIC)
+  expReward       Int      @default(50)
+  coinReward      Int      @default(20)
+  condition       Json     // 解锁条件配置
+  isHidden        Boolean  @default(false)
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+  
+  // 关联
+  userAchievements UserAchievement[]
+  
+  @@map("achievements")
+}
+
+// 用户成就
+model UserAchievement {
+  id              String   @id @default(cuid())
+  profileId       String
+  profile         UserGameProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  achievementId   String
+  achievement     Achievement @relation(fields: [achievementId], references: [id])
+  
+  unlockedAt      DateTime @default(now())
+  
+  @@unique([profileId, achievementId])
+  @@map("user_achievements")
+}
+
+// 每日签到
+model DailyCheckin {
+  id              String   @id @default(cuid())
+  profileId       String
+  profile         UserGameProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  
+  checkinDate     DateTime @db.Date
+  expReward       Int      @default(10)
+  coinReward      Int      @default(10)
+  isConsecutive   Boolean  @default(false)
+  
+  createdAt       DateTime @default(now())
+  
+  @@unique([profileId, checkinDate])
+  @@map("daily_checkins")
+}
+
+// 任务定义
+model TaskDefinition {
+  id              String   @id @default(cuid())
+  code            String   @unique
+  name            String
+  description     String
+  category        TaskCategory @default(MAIN)
+  type            String   // 具体类型标识
+  
+  condition       Json     // 完成条件
+  
+  expReward       Int      @default(10)
+  coinReward      Int      @default(5)
+  
+  sortOrder       Int      @default(0)
+  isActive        Boolean  @default(true)
+  
+  createdAt       DateTime @default(now())
+  
+  // 关联
+  taskProgress    TaskProgress[]
+  
+  @@map("task_definitions")
+}
+
+// 用户任务进度
+model TaskProgress {
+  id              String   @id @default(cuid())
+  profileId       String
+  profile         UserGameProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  taskId          String
+  task            TaskDefinition @relation(fields: [taskId], references: [id])
+  
+  status          TaskStatus @default(PENDING)
+  progress        Int      @default(0)
+  target          Int      @default(1)
+  
+  startedAt       DateTime @default(now())
+  completedAt     DateTime?
+  
+  @@unique([profileId, taskId])
+  @@map("task_progress")
+}
+
+// 经验值日志
+model ExpLog {
+  id              String   @id @default(cuid())
+  profileId       String
+  profile         UserGameProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  
+  amount          Int
+  type            ExpType
+  description     String
+  relatedId       String?
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([profileId, createdAt])
+  @@map("exp_logs")
+}
+
+// 游戏化枚举
+enum AchievementCategory {
+  BASIC
+  JOB
+  INTERVIEW
+  SOCIAL
+  LEARNING
+}
+
+enum TaskCategory {
+  MAIN
+  DAILY
+  ACHIEVEMENT
+  GUIDE
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum ExpType {
+  VIEW_JOB
+  APPLY_JOB
+  LOGIN
+  COMPLETE_PROFILE
+  POST_TOPIC
+  REPLY_TOPIC
+  GET_LIKE
+  READ_ARTICLE
+  COMPLETE_TASK
+  CHECKIN
+  ACHIEVEMENT
 }
