@@ -163,13 +163,15 @@ export default function AdminKeywordsPage() {
     }
   }
 
+  // 初始加载数据
   useEffect(() => {
-    fetchKeywords();
-  }, [fetchKeywords]);
-
-  useEffect(() => {
-    fetchPlans();
-  }, [fetchPlans]);
+    const load = async () => {
+      await fetchKeywords();
+      await fetchPlans();
+    };
+    void load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">

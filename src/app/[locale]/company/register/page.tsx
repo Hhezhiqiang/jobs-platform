@@ -54,8 +54,8 @@ export default function CompanyRegisterPage() {
       }
 
       router.push("/company/dashboard");
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "操作失败");
     } finally {
       setIsLoading(false);
     }

@@ -28,24 +28,23 @@ export function SearchBox({
   const [query, setQuery] = useState(initialValue);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [history, setHistory] = useState<string[]>([]);
+  const [history, setHistory] = useState<string[]>(() => {
+    if (typeof window === "undefined") return [];
+    const saved = localStorage.getItem(SEARCH_HISTORY_KEY);
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        // parse failed
+      }
+    }
+    return [];
+  });
   const [hotSearches, setHotSearches] = useState<{ term: string; count: number }[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // 从 localStorage 加载搜索历史
-  useEffect(() => {
-    const saved = localStorage.getItem(SEARCH_HISTORY_KEY);
-    if (saved) {
-      try {
-        setHistory(JSON.parse(saved));
-      } catch (e) {
-        console.error("Failed to parse search history:", e);
-      }
-    }
-  }, []);
 
   // 保存搜索历史
   const saveHistory = useCallback((newHistory: string[]) => {
@@ -121,7 +120,7 @@ export function SearchBox({
     if (showDropdown && !query.trim() && hotSearches.length === 0) {
       fetchHotSearches();
     }
-  }, [showDropdown, query, hotSearches.length, fetchHotSearches]);
+  }, [showDropdown, query, hotSearches.length, fetchHotSearches]); // eslint-disable-line react-hooks/set-state-in-effect
 
   // 点击外部关闭下拉框
   useEffect(() => {

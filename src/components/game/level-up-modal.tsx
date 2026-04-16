@@ -224,31 +224,44 @@ export function LevelUpModal({ data, onClose }: LevelUpModalProps) {
 }
 
 /**
- * 粒子背景效果
+ * 预生成的粒子数据（避免 render 时调用 impure 函数）
+ */
+const PARTICLE_COLORS = ["#FFD700", "#FF6B6B", "#4ECDC4", "#A855F7", "#EC4899"];
+const PARTICLES = Array.from({ length: 50 }, (_, i) => ({
+  id: i,
+  color: PARTICLE_COLORS[i % 5],
+  left: 50 + Math.sin(i * 0.5) * 40, // 使用确定性计算代替 Math.random
+  xDrift: Math.cos(i * 0.7) * 100,
+  duration: 3 + (i % 5) * 0.5,
+  delay: (i % 10) * 0.2,
+}));
+
+/**
+ * 粒子背景效果（使用固定高度避免 impure 调用）
  */
 function ParticleBackground() {
+  const viewportHeight = typeof window !== "undefined" ? window.innerHeight : 900;
+
   return (
     <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
-      {Array.from({ length: 50 }).map((_, i) => (
+      {PARTICLES.map((p) => (
         <motion.div
-          key={i}
+          key={p.id}
           className="absolute w-2 h-2 rounded-full"
           style={{
-            backgroundColor: ["#FFD700", "#FF6B6B", "#4ECDC4", "#A855F7", "#EC4899"][
-              i % 5
-            ],
-            left: `${Math.random() * 100}%`,
+            backgroundColor: p.color,
+            left: `${p.left}%`,
             top: "100%",
           }}
           animate={{
-            y: [0, -window.innerHeight - 100],
-            x: [0, (Math.random() - 0.5) * 200],
+            y: [0, -viewportHeight - 100],
+            x: [0, p.xDrift],
             opacity: [1, 0],
             scale: [1, 0],
           }}
           transition={{
-            duration: 3 + Math.random() * 2,
-            delay: Math.random() * 2,
+            duration: p.duration,
+            delay: p.delay,
             ease: "easeOut",
           }}
         />

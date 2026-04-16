@@ -8,10 +8,13 @@ import { formatSalary, safeJsonLdStringify } from "@/lib/utils";
 import { ViewCounter } from "@/components/view-counter";
 import { TableOfContents } from "@/components/blog/table-of-contents";
 import { ArticleReadTracker } from "@/components/game/article-read-tracker";
+import type { pages, users } from "@prisma/client";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
+
+type BlogPostWithAuthor = pages & { users: users };
 
 export const revalidate = 3600;
 
@@ -73,7 +76,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 // 生成 Article Schema
-function generateArticleSchema(post: any) {
+function generateArticleSchema(post: BlogPostWithAuthor) {
   const siteUrl = "https://jobs-platform-gold.vercel.app";
   return {
     "@context": "https://schema.org",

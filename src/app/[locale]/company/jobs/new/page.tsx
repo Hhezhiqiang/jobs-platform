@@ -68,8 +68,8 @@ export default function NewJobPage() {
       }
 
       router.push("/company/jobs");
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "操作失败");
     } finally {
       setIsLoading(false);
     }

@@ -1,6 +1,8 @@
 // Plisio 加密货币支付服务
 // 文档: https://plisio.net/documentation/api
 
+import { createHmac } from "crypto";
+
 const PLISIO_API_KEY = process.env.PLISIO_API_KEY;
 const PLISIO_API_URL = "https://api.plisio.net/api/v1";
 
@@ -80,8 +82,7 @@ export function verifyCallbackSignature(
     .map((key) => `${key}=${payload[key]}`)
     .join("&");
 
-  const expectedSignature = require("crypto")
-    .createHmac("sha256", PLISIO_API_KEY)
+  const expectedSignature = createHmac("sha256", PLISIO_API_KEY)
     .update(sortedParams)
     .digest("hex");
 

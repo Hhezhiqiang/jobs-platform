@@ -59,6 +59,7 @@ export default function ApplicationsPage() {
     if (status === "authenticated") {
       fetchApplications();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, router, filter]);
 
   const fetchApplications = async () => {

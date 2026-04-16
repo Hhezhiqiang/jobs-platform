@@ -18,21 +18,19 @@ function generateHeadingId(text: string): string {
 }
 
 export function TableOfContents({ content }: TableOfContentsProps) {
-  const [items, setItems] = useState<TOCItem[]>([]);
   const [activeId, setActiveId] = useState<string>("");
   const [isOpen, setIsOpen] = useState(false);
 
-  useEffect(() => {
-    // 从内容中提取标题
+  // 从内容中提取标题（直接计算，避免在 effect 中 setState）
+  const items = (() => {
     const headings = content.match(/^#{2,3}\s+(.+)$/gm) || [];
-    const tocItems: TOCItem[] = headings.map((heading) => {
+    return headings.map((heading) => {
       const level = heading.startsWith("###") ? 3 : 2;
       const text = heading.replace(/^#{2,3}\s+/, "");
       const id = generateHeadingId(text);
       return { id, text, level };
     });
-    setItems(tocItems);
-  }, [content]);
+  })();
 
   useEffect(() => {
     if (items.length === 0) return;

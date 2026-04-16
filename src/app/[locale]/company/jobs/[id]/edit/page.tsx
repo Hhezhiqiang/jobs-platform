@@ -71,8 +71,8 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
         applyUrl: data.jobs.applyUrl || "",
         status: data.jobs.status || "ACTIVE",
       });
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "操作失败");
     } finally {
       setIsFetching(false);
     }
@@ -97,8 +97,8 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
       }
 
       router.push("/company/jobs");
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "操作失败");
     } finally {
       setIsLoading(false);
     }

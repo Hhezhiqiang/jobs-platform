@@ -11,18 +11,12 @@ interface StatCardProps {
 }
 
 function AnimatedNumber({ value, suffix = "" }: { value: number; suffix?: string }) {
-  const [displayValue, setDisplayValue] = useState(value);
-  const [isClient, setIsClient] = useState(false);
+  const [displayValue, setDisplayValue] = useState(0);
   const [hasAnimated, setHasAnimated] = useState(false);
   const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    setIsClient(true);
-    setDisplayValue(0);
-  }, []);
-
-  useEffect(() => {
-    if (!isClient) return;
+    if (hasAnimated) return;
     
     let timer: ReturnType<typeof setInterval> | null = null;
     const observer = new IntersectionObserver(
@@ -56,16 +50,7 @@ function AnimatedNumber({ value, suffix = "" }: { value: number; suffix?: string
       if (timer) clearInterval(timer);
       observer.disconnect();
     };
-  }, [value, hasAnimated, isClient]);
-
-  // SSR时直接显示数字，避免hydration不匹配
-  if (!isClient) {
-    return (
-      <span>
-        {value.toLocaleString()}{suffix}
-      </span>
-    );
-  }
+  }, [value, hasAnimated]);
 
   return (
     <span ref={ref}>

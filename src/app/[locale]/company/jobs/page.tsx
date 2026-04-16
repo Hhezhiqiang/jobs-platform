@@ -33,6 +33,7 @@ export default function CompanyJobsPage() {
 
   useEffect(() => {
     fetchJobs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter]);
 
   const fetchJobs = async () => {

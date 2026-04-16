@@ -29,11 +29,7 @@ function LinkedInIcon({ className }: { className?: string }) {
 
 export function ShareButtons({ title, url, description }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
-  const [canShare, setCanShare] = useState(false);
-
-  useEffect(() => {
-    setCanShare(typeof navigator !== "undefined" && !!navigator.share);
-  }, []);
+  const canShare = typeof navigator !== "undefined" && !!navigator.share;
 
   const shareData = {
     title,

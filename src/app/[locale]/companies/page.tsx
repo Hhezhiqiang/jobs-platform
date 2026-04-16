@@ -113,7 +113,7 @@ export default async function CompaniesPage({ searchParams }: PageProps) {
           <div className="mb-6 flex items-center justify-between">
             <p className="text-gray-600">
               找到 <span className="font-semibold">{companies.length}</span> 家公司
-              匹配 "<span className="font-semibold">{searchQuery}</span>"
+              匹配 &quot;<span className="font-semibold">{searchQuery}</span>&quot;
             </p>
             <Link href="/companies" className="text-blue-600 hover:text-blue-700 text-sm">
               清除搜索

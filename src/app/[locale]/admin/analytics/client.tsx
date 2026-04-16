@@ -21,7 +21,6 @@ import {
   ArrowUpRight,
   Target,
   Globe,
-  MapPin,
   type LucideIcon,
 } from "lucide-react";
 import {

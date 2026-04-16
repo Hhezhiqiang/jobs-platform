@@ -6,13 +6,12 @@ import { prisma } from "@/lib/prisma";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { getClientIP, checkRateLimit } from "@/lib/rate-limit";
 import { updatePageViewGeoLocation } from "@/lib/geo-location";
+import { createHash } from "crypto";
 export const dynamic = "force-dynamic";
 
 // 生成会话ID（基于IP + User-Agent的简单哈希）
 function generateSessionId(ip: string, userAgent: string): string {
-  const crypto = require("crypto");
-  return crypto
-    .createHash("md5")
+  return createHash("md5")
     .update(ip + userAgent + new Date().toISOString().split("T")[0])
     .digest("hex")
     .substring(0, 16);

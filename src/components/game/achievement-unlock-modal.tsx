@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Trophy, Star, Sparkles } from "lucide-react";
 
@@ -54,10 +54,15 @@ export function AchievementUnlockModal({
   achievement,
   onClose,
 }: AchievementUnlockModalProps) {
+  // 当 achievement 变化时自动显示 confetti 动画
   const [showConfetti, setShowConfetti] = useState(false);
+  const prevAchievementIdRef = useRef<string | undefined>(undefined);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
-    if (achievement) {
+    if (!achievement) return;
+    if (prevAchievementIdRef.current !== achievement.id) {
+      prevAchievementIdRef.current = achievement.id;
       setShowConfetti(true);
       const timer = setTimeout(() => setShowConfetti(false), 3000);
       return () => clearTimeout(timer);
@@ -191,23 +196,28 @@ export function AchievementUnlockModal({
 }
 
 /**
+ * 预生成的礼花粒子数据（避免 render 时调用 impure 函数）
+ */
+const CONFETTI_PARTICLES = Array.from({ length: 30 }, (_, i) => {
+  const colors = ["#FFD700", "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4"];
+  return {
+    id: i,
+    x: Math.sin(i * 1.2) * 180,
+    y: Math.cos(i * 0.9) * 180,
+    color: colors[i % 5],
+    size: 4 + (i % 5) * 2,
+    rotation: i * 12,
+    borderRadius: i % 2 === 0 ? "50%" : "2px",
+  };
+});
+
+/**
  * 礼花粒子效果
  */
 function ConfettiEffect() {
-  const particles = Array.from({ length: 30 }, (_, i) => ({
-    id: i,
-    x: Math.random() * 400 - 200,
-    y: Math.random() * 400 - 200,
-    color: ["#FFD700", "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4"][
-      Math.floor(Math.random() * 5)
-    ],
-    size: Math.random() * 8 + 4,
-    rotation: Math.random() * 360,
-  }));
-
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden">
-      {particles.map((particle) => (
+      {CONFETTI_PARTICLES.map((particle) => (
         <motion.div
           key={particle.id}
           initial={{
@@ -233,7 +243,7 @@ function ConfettiEffect() {
             width: particle.size,
             height: particle.size,
             backgroundColor: particle.color,
-            borderRadius: Math.random() > 0.5 ? "50%" : "2px",
+            borderRadius: particle.borderRadius,
           }}
         />
       ))}

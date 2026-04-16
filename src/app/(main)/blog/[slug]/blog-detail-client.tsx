@@ -38,38 +38,23 @@ interface BlogDetailClientProps {
   locale: string;
 }
 
-export function BlogDetailClient({ post, locale }: BlogDetailClientProps) {
-  const [readingTime, setReadingTime] = useState(0);
+export function BlogDetailClient({ post, locale: _locale }: BlogDetailClientProps) {
+  // 计算阅读时间（避免在 effect 中 setState）
+  const readingTime = Math.ceil(post.content.replace(/\s/g, "").length / 300);
+  // 初始化收藏状态（使用懒初始化避免 effect 中 setState）
+  const [isBookmarked, setIsBookmarked] = useState(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      const bookmarks = JSON.parse(localStorage.getItem("blogBookmarks") || "[]");
+      return bookmarks.includes(post.id);
+    } catch {
+      return false;
+    }
+  });
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [isBookmarked, setIsBookmarked] = useState(false);
   const [hasLiked, setHasLiked] = useState(false);
   const currentUrl = typeof window !== "undefined" ? window.location.href : "";
   const { headings, activeId } = useTableOfContents(post.content);
-
-  // 计算阅读时间
-  useEffect(() => {
-    const wordCount = post.content.replace(/\s/g, "").length;
-    setReadingTime(Math.ceil(wordCount / 300));
-  }, [post.content]);
-
-  // 滚动进度
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = (scrollTop / docHeight) * 100;
-      setScrollProgress(progress);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // 检查是否已收藏
-  useEffect(() => {
-    const bookmarks = JSON.parse(localStorage.getItem("blogBookmarks") || "[]");
-    setIsBookmarked(bookmarks.includes(post.id));
-  }, [post.id]);
 
   // 收藏功能
   const toggleBookmark = () => {

@@ -5,8 +5,6 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import ResumeUpload from "@/components/resume-upload";
-import { useProfileCompleteTracker } from "@/components/game/trackers";
-import { ExpToast } from "@/components/game/exp-toast";
 
 interface WorkExperience {
   company: string;
@@ -44,17 +42,6 @@ interface Resume {
   fileSize: number;
   isDefault: boolean;
   createdAt: string;
-}
-
-interface UserData {
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    phone?: string;
-    avatar?: string;
-  };
-  profile: UserProfile | null;
 }
 
 export default function ProfilePage() {

@@ -55,7 +55,7 @@ interface PageProps {
 type PostWithAuthor = pages & { users: users | null };
 
 // 生成博客列表页的 Schema 数据
-function generateBlogListSchema(posts: PostWithAuthor[], total: number) {
+function generateBlogListSchema(posts: PostWithAuthor[], _total: number) {
   return {
     "@context": "https://schema.org",
     "@type": "Blog",
@@ -120,10 +120,11 @@ export default async function BlogPage({ searchParams }: PageProps) {
     orderBy: { createdAt: "desc" },
   });
 
-  // 根据分类筛选（简单匹配标题关键词）
+  // 根据分类筛选（优先匹配关键词，其次匹配标题/摘要）
   const filteredPosts = selectedCategory === "全部"
     ? posts
     : posts.filter(post =>
+        post.keywords?.some(kw => kw.includes(selectedCategory)) ||
         post.title.includes(selectedCategory) ||
         post.excerpt?.includes(selectedCategory)
       );
@@ -215,7 +216,7 @@ export default async function BlogPage({ searchParams }: PageProps) {
               {searchQuery && (
                 <>
                   {" "}
-                  匹配 "<span className="font-semibold">{searchQuery}</span>"
+                  匹配 &quot;<span className="font-semibold">{searchQuery}</span>&quot;
                 </>
               )}
             </p>

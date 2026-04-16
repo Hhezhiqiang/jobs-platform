@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Globe,
   MapPin,
@@ -87,30 +87,36 @@ function SimpleBarChart({ data }: { data: Array<{ label: string; value: number; 
 // 简单的饼图组件（纯 CSS/SVG）
 function SimplePieChart({ data }: { data: Array<{ label: string; value: number; color: string }> }) {
   const total = data.reduce((sum, item) => sum + item.value, 0);
-  let currentAngle = 0;
   
-  const slices = data.map((item) => {
-    const angle = (item.value / total) * 360;
-    const startAngle = currentAngle;
-    const endAngle = currentAngle + angle;
-    currentAngle = endAngle;
-    
-    // 计算 SVG 路径
-    const startRad = (startAngle * Math.PI) / 180;
-    const endRad = (endAngle * Math.PI) / 180;
-    const x1 = 100 + 80 * Math.cos(startRad);
-    const y1 = 100 + 80 * Math.sin(startRad);
-    const x2 = 100 + 80 * Math.cos(endRad);
-    const y2 = 100 + 80 * Math.sin(endRad);
-    const largeArc = angle > 180 ? 1 : 0;
-    
-    return {
-      ...item,
-      path: `M 100 100 L ${x1} ${y1} A 80 80 0 ${largeArc} 1 ${x2} ${y2} Z`,
-      percentage: ((item.value / total) * 100).toFixed(1)
-    };
-  });
-  
+  // 使用 reduce 替代可变的 currentAngle 变量
+  const slices = data.reduce<{
+    acc: Array<{ label: string; value: number; color: string; path: string; percentage: string }>;
+    angle: number;
+  }>(
+    (prev, item) => {
+      const angle = (item.value / total) * 360;
+      const startAngle = prev.angle;
+      const endAngle = prev.angle + angle;
+
+      const startRad = (startAngle * Math.PI) / 180;
+      const endRad = (endAngle * Math.PI) / 180;
+      const x1 = 100 + 80 * Math.cos(startRad);
+      const y1 = 100 + 80 * Math.sin(startRad);
+      const x2 = 100 + 80 * Math.cos(endRad);
+      const y2 = 100 + 80 * Math.sin(endRad);
+      const largeArc = angle > 180 ? 1 : 0;
+
+      prev.acc.push({
+        ...item,
+        path: `M 100 100 L ${x1} ${y1} A 80 80 0 ${largeArc} 1 ${x2} ${y2} Z`,
+        percentage: ((item.value / total) * 100).toFixed(1),
+      });
+
+      return { acc: prev.acc, angle: endAngle };
+    },
+    { acc: [], angle: 0 },
+  ).acc;
+
   return (
     <div className="flex items-center gap-8">
       <svg viewBox="0 0 200 200" className="w-48 h-48">
@@ -147,11 +153,7 @@ export function GeoAnalyticsClient() {
   const [days, setDays] = useState(30);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchGeoData();
-  }, [days]);
-
-  const fetchGeoData = async () => {
+  const fetchGeoData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -168,7 +170,11 @@ export function GeoAnalyticsClient() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [days]);
+
+  useEffect(() => {
+    void fetchGeoData();
+  }, [fetchGeoData]);
 
   if (loading) {
     return (

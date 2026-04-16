@@ -107,40 +107,37 @@ model commission_records {
 }
 
 model companies {
-  id                 String        @id @default(uuid())
+  id                 String              @id @default(uuid())
   name               String
-  slug               String        @unique
+  slug               String              @unique
   logo               String?
   website            String?
   description        String?
   industry           String?
   size               String?
   location           String?
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
   metaTitle          String?
   metaDescription    String?
   businessLicense    String?
   contactEmail       String?
   contactPhone       String?
-  creditCode         String?       @unique
+  creditCode         String?             @unique
   legalPersonName    String?
   rejectionReason    String?
-  verificationStatus CompanyStatus @default(PENDING)
+  verificationStatus CompanyStatus       @default(PENDING)
   verifiedAt         DateTime?
   verifiedBy         String?
   descriptionEn      String?
   metaDescriptionEn  String?
   metaTitleEn        String?
   nameEn             String?
-
-  // 公司文化标签
-  cultureTags String[] @default([])
-
-  company_members   company_members[]
-  jobs              jobs[]
-  careerStories     CareerStory[] // 关联的职业故事（面试经验等）
-  CompanyCultureTag CompanyCultureTag[]
+  cultureTags        String[]            @default([])
+  careerStories      CareerStory[]
+  CompanyCultureTag  CompanyCultureTag[]
+  company_members    company_members[]
+  jobs               jobs[]
 }
 
 model company_members {
@@ -509,46 +506,38 @@ model user_referrals {
 }
 
 model users {
-  id                    String                  @id @default(uuid())
-  email                 String                  @unique
-  name                  String
-  password              String
-  role                  UserRole                @default(USER)
-  avatar                String?
-  createdAt             DateTime                @default(now())
-  updatedAt             DateTime                @updatedAt
-  phone                 String?
-  status                UserStatus              @default(ACTIVE)
-  balance               Decimal                 @default(0.0) @db.Decimal(18, 8)
-  ads                   ads[]
-  balance_transactions  balance_transactions[]
-  company_members       company_members[]
-  contact_unlock_orders contact_unlock_orders[]
-  favorites             favorites[]
-  job_applications      job_applications[]
-  jobs                  jobs[]
-  notifications         notifications[]
-  pages                 pages[]
-  promoters             promoters?
-  resumes               resumes[]
-  sessions              sessions[]
-  user_profiles         user_profiles?
-  user_referrals        user_referrals?
-
-  // 职业叙事关联
-  careerStories CareerStory[]
-
-  // 游戏化关联
-  gameProfile UserGameProfile?
-
-  // 关系修复占位
-  recommendationsSent     JobRecommendation[] @relation("RecommendationsSent")
-  recommendationsReceived JobRecommendation[] @relation("RecommendationsReceived")
+  id                      String                  @id @default(uuid())
+  email                   String                  @unique
+  name                    String
+  password                String
+  role                    UserRole                @default(USER)
+  avatar                  String?
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime                @updatedAt
+  phone                   String?
+  status                  UserStatus              @default(ACTIVE)
+  balance                 Decimal                 @default(0.0) @db.Decimal(18, 8)
+  ads                     ads[]
+  balance_transactions    balance_transactions[]
+  careerStories           CareerStory[]
+  company_members         company_members[]
+  contact_unlock_orders   contact_unlock_orders[]
+  favorites               favorites[]
+  job_applications        job_applications[]
+  recommendationsReceived JobRecommendation[]     @relation("RecommendationsReceived")
+  recommendationsSent     JobRecommendation[]     @relation("RecommendationsSent")
   jobSeekingStatus        JobSeekingStatus?
-
-  // 评论关联
-  storyComments      StoryComment[]
-  UserJobPreferences UserJobPreferences?
+  jobs                    jobs[]
+  notifications           notifications[]
+  pages                   pages[]
+  promoters               promoters?
+  resumes                 resumes[]
+  sessions                sessions[]
+  storyComments           StoryComment[]
+  gameProfile             UserGameProfile?
+  UserJobPreferences      UserJobPreferences?
+  user_profiles           user_profiles?
+  user_referrals          user_referrals?
 }
 
 model withdrawal_records {
@@ -568,30 +557,23 @@ model withdrawal_records {
   @@index([status, requestedAt])
 }
 
-// 职业叙事（职业故事）
 model CareerStory {
-  id       String    @id @default(cuid())
-  title    String
-  content  String
-  type     StoryType @default(EXPERIENCE)
-  timeline Json? // 可选时间线数据
-  authorId String
-  author   users     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-
-  // 关联公司（可选）
-  companyId String?
-  company   companies? @relation(fields: [companyId], references: [id], onDelete: SetNull)
-
-  viewCount      Int     @default(0)
-  resonanceCount Int     @default(0) // 共鸣数（点赞）
-  isFeatured     Boolean @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // 关联
-  resonances    StoryResonance[]
-  storyComments StoryComment[]
+  id             String           @id @default(cuid())
+  title          String
+  content        String
+  type           StoryType        @default(EXPERIENCE)
+  timeline       Json?
+  authorId       String
+  companyId      String?
+  viewCount      Int              @default(0)
+  resonanceCount Int              @default(0)
+  isFeatured     Boolean          @default(false)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  author         users            @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  company        companies?       @relation(fields: [companyId], references: [id])
+  storyComments  StoryComment[]
+  resonances     StoryResonance[]
 
   @@index([authorId, createdAt])
   @@index([type, createdAt])
@@ -600,13 +582,12 @@ model CareerStory {
   @@map("career_stories")
 }
 
-// 故事共鸣（点赞）
 model StoryResonance {
   id        String      @id @default(cuid())
   storyId   String
-  story     CareerStory @relation(fields: [storyId], references: [id], onDelete: Cascade)
   userId    String
   createdAt DateTime    @default(now())
+  story     CareerStory @relation(fields: [storyId], references: [id], onDelete: Cascade)
 
   @@unique([storyId, userId])
   @@index([storyId])
@@ -614,12 +595,214 @@ model StoryResonance {
   @@map("story_resonances")
 }
 
+model UserGameProfile {
+  id            String            @id @default(cuid())
+  userId        String            @unique
+  level         Int               @default(1)
+  exp           Int               @default(0)
+  nextLevelExp  Int               @default(100)
+  coins         Int               @default(100)
+  title         String            @default("求职新人")
+  stats         Json              @default("{\"offers\": 0, \"interviews\": 0, \"jobsViewed\": 0, \"jobsApplied\": 0}")
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  lastLoginAt   DateTime          @default(now())
+  loginStreak   Int               @default(0)
+  dailyCheckins DailyCheckin[]
+  expLogs       ExpLog[]
+  taskProgress  TaskProgress[]
+  achievements  UserAchievement[]
+  user          users             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_game_profiles")
+}
+
+model Achievement {
+  id               String              @id @default(cuid())
+  code             String              @unique
+  name             String
+  description      String
+  icon             String              @default("🏆")
+  category         AchievementCategory @default(BASIC)
+  expReward        Int                 @default(50)
+  coinReward       Int                 @default(20)
+  condition        Json
+  isHidden         Boolean             @default(false)
+  sortOrder        Int                 @default(0)
+  createdAt        DateTime            @default(now())
+  userAchievements UserAchievement[]
+
+  @@map("achievements")
+}
+
+model UserAchievement {
+  id            String          @id @default(cuid())
+  profileId     String
+  achievementId String
+  unlockedAt    DateTime        @default(now())
+  achievement   Achievement     @relation(fields: [achievementId], references: [id])
+  profile       UserGameProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, achievementId])
+  @@map("user_achievements")
+}
+
+model DailyCheckin {
+  id            String          @id @default(cuid())
+  profileId     String
+  checkinDate   DateTime        @db.Date
+  expReward     Int             @default(10)
+  coinReward    Int             @default(10)
+  isConsecutive Boolean         @default(false)
+  createdAt     DateTime        @default(now())
+  profile       UserGameProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, checkinDate])
+  @@map("daily_checkins")
+}
+
+model TaskDefinition {
+  id           String         @id @default(cuid())
+  code         String         @unique
+  name         String
+  description  String
+  category     TaskCategory   @default(MAIN)
+  type         String
+  condition    Json
+  expReward    Int            @default(10)
+  coinReward   Int            @default(5)
+  sortOrder    Int            @default(0)
+  isActive     Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  taskProgress TaskProgress[]
+
+  @@map("task_definitions")
+}
+
+model TaskProgress {
+  id          String          @id @default(cuid())
+  profileId   String
+  taskId      String
+  status      TaskStatus      @default(PENDING)
+  progress    Int             @default(0)
+  target      Int             @default(1)
+  startedAt   DateTime        @default(now())
+  completedAt DateTime?
+  profile     UserGameProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  task        TaskDefinition  @relation(fields: [taskId], references: [id])
+
+  @@unique([profileId, taskId])
+  @@map("task_progress")
+}
+
+model ExpLog {
+  id          String          @id @default(cuid())
+  profileId   String
+  amount      Int
+  type        ExpType
+  description String
+  relatedId   String?
+  createdAt   DateTime        @default(now())
+  profile     UserGameProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId, createdAt])
+  @@map("exp_logs")
+}
+
+model CompanyCultureTag {
+  id        String    @id @default(cuid())
+  companyId String
+  tagName   String
+  voteCount Int       @default(1)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  company   companies @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, tagName])
+  @@index([companyId, voteCount])
+  @@map("company_culture_tags")
+}
+
+model UserJobPreferences {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  cultureTags      String[]
+  salaryMin        Int?
+  salaryMax        Int?
+  employmentTypes  String[]
+  locations        String[]
+  remotePreference String?
+  experienceLevel  String?
+  updatedAt        DateTime @updatedAt
+  createdAt        DateTime @default(now())
+  user             users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("user_job_preferences")
+}
+
+model JobSeekingStatus {
+  id             String               @id @default(cuid())
+  userId         String               @unique
+  status         JobSeekingStatusEnum @default(CLOSED)
+  expectTags     String[]             @default([])
+  expectSalary   String?
+  bio            String?
+  privacy        JobSeekingPrivacy    @default(CIRCLES)
+  viewCount      Int                  @default(0)
+  recommendCount Int                  @default(0)
+  lastActiveAt   DateTime             @default(now())
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  user           users                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status, privacy])
+  @@map("job_seeking_status")
+}
+
+model JobRecommendation {
+  id          String               @id @default(cuid())
+  senderId    String
+  receiverId  String
+  jobId       String
+  storyId     String?
+  status      RecommendationStatus @default(PENDING)
+  message     String?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  respondedAt DateTime?
+  job         jobs                 @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  receiver    users                @relation("RecommendationsReceived", fields: [receiverId], references: [id], onDelete: Cascade)
+  sender      users                @relation("RecommendationsSent", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId, jobId])
+  @@index([receiverId, status])
+  @@index([senderId, createdAt])
+  @@map("job_recommendations")
+}
+
+model StoryComment {
+  id        String      @id @default(cuid())
+  storyId   String
+  authorId  String
+  content   String
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  author    users       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  story     CareerStory @relation(fields: [storyId], references: [id], onDelete: Cascade)
+
+  @@index([storyId, createdAt])
+  @@index([authorId])
+  @@map("story_comments")
+}
+
 enum StoryType {
-  EXPERIENCE // 经验分享
-  TRANSITION // 职业转型
-  MILESTONE // 职业里程碑
-  CHALLENGE // 挑战与成长
-  INSIGHT // 行业洞察
+  EXPERIENCE
+  TRANSITION
+  MILESTONE
+  CHALLENGE
+  INSIGHT
 }
 
 enum AdStatus {
@@ -755,157 +938,6 @@ enum WithdrawalStatus {
   REJECTED
 }
 
-// ==================== 游戏化系统表 (渐进式添加) ====================
-
-// 用户游戏档案
-model UserGameProfile {
-  id     String @id @default(cuid())
-  userId String @unique
-  user   users  @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // 基础游戏属性
-  level        Int @default(1)
-  exp          Int @default(0)
-  nextLevelExp Int @default(100)
-
-  // 货币系统
-  coins Int @default(100)
-
-  // 称号
-  title String @default("求职新人")
-
-  // 统计 (JSON格式存储)
-  stats Json @default("{\"jobsViewed\":0,\"jobsApplied\":0,\"interviews\":0,\"offers\":0}")
-
-  // 时间
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  lastLoginAt DateTime @default(now())
-  loginStreak Int      @default(0)
-
-  // 关联
-  achievements  UserAchievement[]
-  dailyCheckins DailyCheckin[]
-  taskProgress  TaskProgress[]
-  expLogs       ExpLog[]
-
-  @@map("user_game_profiles")
-}
-
-// 成就定义
-model Achievement {
-  id          String              @id @default(cuid())
-  code        String              @unique
-  name        String
-  description String
-  icon        String              @default("🏆")
-  category    AchievementCategory @default(BASIC)
-  expReward   Int                 @default(50)
-  coinReward  Int                 @default(20)
-  condition   Json // 解锁条件配置
-  isHidden    Boolean             @default(false)
-  sortOrder   Int                 @default(0)
-  createdAt   DateTime            @default(now())
-
-  // 关联
-  userAchievements UserAchievement[]
-
-  @@map("achievements")
-}
-
-// 用户成就
-model UserAchievement {
-  id            String          @id @default(cuid())
-  profileId     String
-  profile       UserGameProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  achievementId String
-  achievement   Achievement     @relation(fields: [achievementId], references: [id])
-
-  unlockedAt DateTime @default(now())
-
-  @@unique([profileId, achievementId])
-  @@map("user_achievements")
-}
-
-// 每日签到
-model DailyCheckin {
-  id        String          @id @default(cuid())
-  profileId String
-  profile   UserGameProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-
-  checkinDate   DateTime @db.Date
-  expReward     Int      @default(10)
-  coinReward    Int      @default(10)
-  isConsecutive Boolean  @default(false)
-
-  createdAt DateTime @default(now())
-
-  @@unique([profileId, checkinDate])
-  @@map("daily_checkins")
-}
-
-// 任务定义
-model TaskDefinition {
-  id          String       @id @default(cuid())
-  code        String       @unique
-  name        String
-  description String
-  category    TaskCategory @default(MAIN)
-  type        String // 具体类型标识
-
-  condition Json // 完成条件
-
-  expReward  Int @default(10)
-  coinReward Int @default(5)
-
-  sortOrder Int     @default(0)
-  isActive  Boolean @default(true)
-
-  createdAt DateTime @default(now())
-
-  // 关联
-  taskProgress TaskProgress[]
-
-  @@map("task_definitions")
-}
-
-// 用户任务进度
-model TaskProgress {
-  id        String          @id @default(cuid())
-  profileId String
-  profile   UserGameProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  taskId    String
-  task      TaskDefinition  @relation(fields: [taskId], references: [id])
-
-  status   TaskStatus @default(PENDING)
-  progress Int        @default(0)
-  target   Int        @default(1)
-
-  startedAt   DateTime  @default(now())
-  completedAt DateTime?
-
-  @@unique([profileId, taskId])
-  @@map("task_progress")
-}
-
-// 经验值日志
-model ExpLog {
-  id        String          @id @default(cuid())
-  profileId String
-  profile   UserGameProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-
-  amount      Int
-  type        ExpType
-  description String
-  relatedId   String?
-
-  createdAt DateTime @default(now())
-
-  @@index([profileId, createdAt])
-  @@map("exp_logs")
-}
-
-// 游戏化枚举
 enum AchievementCategory {
   BASIC
   JOB
@@ -941,149 +973,22 @@ enum ExpType {
   ACHIEVEMENT
 }
 
-// ==================== 文化匹配系统 ====================
-
-// 公司文化标签（计算匹配度用）
-model CompanyCultureTag {
-  id        String    @id @default(cuid())
-  companyId String
-  company   companies @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  tagName   String // 标签名称（如"扁平管理"）
-  voteCount Int    @default(1) // 认同人数（权重依据）
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([companyId, tagName]) // 每公司每标签唯一
-  @@index([companyId, voteCount])
-  @@map("company_culture_tags")
-}
-
-// 用户求职偏好（用于文化匹配）
-model UserJobPreferences {
-  id     String @id @default(cuid())
-  userId String @unique
-  user   users  @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // 文化标签偏好
-  cultureTags String[] // 期望的公司文化标签 ["扁平管理", "技术驱动"]
-
-  // 薪资偏好
-  salaryMin Int? // 最低期望薪资
-  salaryMax Int? // 最高期望薪资
-
-  // 工作类型偏好
-  employmentTypes String[] // ["FULL_TIME", "CONTRACT"]
-
-  // 地点偏好
-  locations String[] // ["北京", "上海"]
-
-  // 远程偏好
-  remotePreference String? // "FULL_REMOTE" | "HYBRID" | "ONSITE" | "ANY"
-
-  // 经验级别
-  experienceLevel String? // "ENTRY" | "MID" | "SENIOR" | "EXECUTIVE"
-
-  // 更新时间
-  updatedAt DateTime @updatedAt
-  createdAt DateTime @default(now())
-
-  @@index([userId])
-  @@map("user_job_preferences")
-}
-
-// ==================== 用户求职状态 ====================
-
 enum JobSeekingStatusEnum {
-  OPEN // 积极求职中
-  PASSIVE // 被动看看
-  CLOSED // 暂不求职
+  OPEN
+  PASSIVE
+  CLOSED
 }
 
 enum JobSeekingPrivacy {
-  PUBLIC // 公开
-  FOLLOWERS // 仅关注者
-  CIRCLES // 仅圈子
-  PRIVATE // 私密
+  PUBLIC
+  FOLLOWERS
+  CIRCLES
+  PRIVATE
 }
-
-model JobSeekingStatus {
-  id     String @id @default(cuid())
-  userId String @unique
-  user   users  @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  status       JobSeekingStatusEnum @default(CLOSED)
-  expectTags   String[]             @default([]) // 期望标签
-  expectSalary String? // 期望薪资范围文本
-  bio          String? // 求职简介
-  privacy      JobSeekingPrivacy    @default(CIRCLES)
-
-  viewCount      Int @default(0) // 被查看次数
-  recommendCount Int @default(0) // 被推荐次数
-
-  lastActiveAt DateTime @default(now())
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  @@index([userId])
-  @@index([status, privacy])
-  @@map("job_seeking_status")
-}
-
-// ==================== 内推/推荐记录 ====================
 
 enum RecommendationStatus {
-  PENDING // 待处理
-  ACCEPTED // 已接受
-  REJECTED // 已拒绝
-  COMPLETED // 已完成
-}
-
-model JobRecommendation {
-  id String @id @default(cuid())
-
-  // 推荐人（HR/员工）
-  senderId String
-  sender   users  @relation("RecommendationsSent", fields: [senderId], references: [id], onDelete: Cascade)
-
-  // 被推荐人（求职者）
-  receiverId String
-  receiver   users  @relation("RecommendationsReceived", fields: [receiverId], references: [id], onDelete: Cascade)
-
-  // 关联职位
-  jobId String
-  job   jobs   @relation(fields: [jobId], references: [id], onDelete: Cascade)
-
-  // 关联故事（如果是通过故事发起的邀请）
-  storyId String?
-
-  status  RecommendationStatus @default(PENDING)
-  message String? // 推荐留言
-
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  respondedAt DateTime? // 响应时间
-
-  @@unique([senderId, receiverId, jobId])
-  @@index([receiverId, status])
-  @@index([senderId, createdAt])
-  @@map("job_recommendations")
-}
-
-// ==================== 故事评论 ====================
-
-model StoryComment {
-  id        String      @id @default(cuid())
-  storyId   String
-  story     CareerStory @relation(fields: [storyId], references: [id], onDelete: Cascade)
-  authorId  String
-  author    users       @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  content   String
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-
-  @@index([storyId, createdAt])
-  @@index([authorId])
-  @@map("story_comments")
+  PENDING
+  ACCEPTED
+  REJECTED
+  COMPLETED
 }

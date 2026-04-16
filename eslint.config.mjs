@@ -14,6 +14,14 @@ const eslintConfig = defineConfig([
     ".vercel/**",
     "next-env.d.ts",
   ]),
+  {
+    rules: {
+      // Downgrade `any` usage to warning (requires gradual type refinement)
+      "@typescript-eslint/no-explicit-any": "warn",
+      // Downgrade set-state-in-effect to warning (existing codebase patterns)
+      "react-hooks/set-state-in-effect": "warn",
+    },
+  },
 ]);
 
 export default eslintConfig;

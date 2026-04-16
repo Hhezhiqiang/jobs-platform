@@ -49,6 +49,7 @@ function CompanyApplicationsContent() {
 
   useEffect(() => {
     fetchApplications();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter]);
 
   const fetchApplications = async () => {

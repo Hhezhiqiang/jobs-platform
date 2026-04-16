@@ -106,7 +106,8 @@ export function JobPreferencesForm({
   const [saveError, setSaveError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  // 初始化表单数据
+  // 初始化表单数据（当 preferences 变化时同步表单）
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (preferences) {
       setSelectedTags(preferences.cultureTags || []);

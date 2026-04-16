@@ -11,18 +11,18 @@ interface SearchHistoryProps {
 const SEARCH_HISTORY_KEY = "job_search_history";
 
 export function SearchHistory({ onSelect, limit = 8 }: SearchHistoryProps) {
-  const [history, setHistory] = useState<string[]>([]);
-
-  useEffect(() => {
+  const [history, setHistory] = useState<string[]>(() => {
+    if (typeof window === "undefined") return [];
     const saved = localStorage.getItem(SEARCH_HISTORY_KEY);
     if (saved) {
       try {
-        setHistory(JSON.parse(saved));
-      } catch (e) {
-        console.error("Failed to parse search history:", e);
+        return JSON.parse(saved);
+      } catch {
+        // parse failed
       }
     }
-  }, []);
+    return [];
+  });
 
   const removeItem = (term: string, e: React.MouseEvent) => {
     e.stopPropagation();

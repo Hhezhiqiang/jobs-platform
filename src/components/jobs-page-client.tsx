@@ -74,15 +74,11 @@ interface JobsPageClientProps {
 
 export function JobsPageClient({ initialJobs, total, cities, dbError, currentParams }: JobsPageClientProps) {
   const [isPreferenceModalOpen, setIsPreferenceModalOpen] = useState(false);
-  const [preferences, setPreferences] = useState<JobPreferences | null>(null);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    // 从本地存储加载偏好设置
-    const stored = getStoredPreferences();
-    setPreferences(stored);
-  }, []);
+  const [preferences, setPreferences] = useState<JobPreferences | null>(() => {
+    if (typeof window === "undefined") return null;
+    return getStoredPreferences();
+  });
+  const mounted = typeof window !== "undefined";
 
   // 重新加载偏好设置（当模态框关闭时）
   const handlePreferencesChange = useCallback(() => {

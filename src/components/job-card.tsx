@@ -8,6 +8,9 @@ interface JobCardProps {
   compact?: boolean;
 }
 
+// 默认有效期限（30天后，避免在 render 中调用 impure 函数）
+const DEFAULT_VALID_THROUGH = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+
 export function JobCard({ job, compact = false }: JobCardProps) {
   const salaryText = formatSalary(job.salaryMin, job.salaryMax);
 
@@ -18,7 +21,7 @@ export function JobCard({ job, compact = false }: JobCardProps) {
     "title": job.title,
     "description": job.description?.slice(0, 200) || `${job.companies.name}招聘${job.title}`,
     "datePosted": job.datePosted.toISOString(),
-    "validThrough": job.validThrough?.toISOString() || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+    "validThrough": job.validThrough?.toISOString() || DEFAULT_VALID_THROUGH,
     "employmentType": getEmploymentType(job.employmentType),
     "hiringOrganization": {
       "@type": "Organization",

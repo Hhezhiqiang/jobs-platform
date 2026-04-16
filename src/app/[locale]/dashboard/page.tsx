@@ -11,7 +11,6 @@ import {
   FileText, 
   Briefcase, 
   Settings, 
-  Bell,
   ChevronRight,
   TrendingUp,
   Award,

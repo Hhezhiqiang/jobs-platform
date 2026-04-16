@@ -23,6 +23,7 @@ interface INPEntry extends PerformanceEventTiming {
 export function PerformanceMonitor() {
   const [metrics, setMetrics] = useState<PerformanceMetrics>({});
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -39,7 +40,6 @@ export function PerformanceMonitor() {
         observers.push(lcpObserver);
       } catch {
         if (process.env.NODE_ENV === "development") {
-           
           console.log("LCP observation not supported");
         }
       }
@@ -56,7 +56,6 @@ export function PerformanceMonitor() {
         observers.push(fidObserver);
       } catch {
         if (process.env.NODE_ENV === "development") {
-           
           console.log("FID observation not supported");
         }
       }
@@ -76,7 +75,6 @@ export function PerformanceMonitor() {
         observers.push(clsObserver);
       } catch {
         if (process.env.NODE_ENV === "development") {
-           
           console.log("CLS observation not supported");
         }
       }
@@ -93,7 +91,6 @@ export function PerformanceMonitor() {
         observers.push(fcpObserver);
       } catch {
         if (process.env.NODE_ENV === "development") {
-           
           console.log("FCP observation not supported");
         }
       }
@@ -112,7 +109,6 @@ export function PerformanceMonitor() {
         observers.push(inpObserver);
       } catch {
         if (process.env.NODE_ENV === "development") {
-           
           console.log("INP observation not supported");
         }
       }

@@ -1,8 +1,7 @@
 "use client";
 
 import type { companies } from "@prisma/client";
-import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useCallback } from "react";
 import {
   Building2,
   CheckCircle,
@@ -23,7 +22,6 @@ const statusOptions = [
 ];
 
 export default function AdminCompaniesPage() {
-  const router = useRouter();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");

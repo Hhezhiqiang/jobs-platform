@@ -99,10 +99,10 @@ interface JobPreferenceModalProps {
 
 export function JobPreferenceModal({ isOpen, onClose, onSave }: JobPreferenceModalProps) {
   const [preferences, setPreferences] = useState<JobPreferences>(DEFAULT_PREFERENCES);
-  const [mounted, setMounted] = useState(false);
+  const mounted = typeof window !== "undefined";
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
-    setMounted(true);
     if (isOpen) {
       setPreferences(getStoredPreferences());
     }
