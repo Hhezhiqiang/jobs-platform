@@ -26,6 +26,11 @@ export default async function HomePage() {
       
       <StatsSection jobCount={stats.jobCount} companyCount={stats.companyCount} dailyNewJobs={stats.dailyNewJobs} />
 
+      {/* 首页横幅广告 */}
+      <div className="max-w-7xl mx-auto px-4">
+        <AdBanner position="HP_BANNER_01" className="my-8" />
+      </div>
+
       {/* 推荐职位 - 个性化推荐 */}
       <RecommendationSection limit={6} initialJobs={featuredJobs} />
 
@@ -126,6 +131,11 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      {/* 职位列表顶部广告 */}
+      <div className="max-w-5xl mx-auto px-4">
+        <AdBanner position="JOB_LIST_TOP" className="my-6" />
+      </div>
 
       {/* Latest Jobs */}
       {latestJobs.length > 0 && (
