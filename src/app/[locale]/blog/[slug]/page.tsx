@@ -58,7 +58,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       type: "article",
       publishedTime: post.createdAt.toISOString(),
       modifiedTime: post.updatedAt.toISOString(),
-      authors: [post.users.name],
+      authors: [post.users?.name || "JobsBro"],
       images: post.featuredImage ? [post.featuredImage] : [],
     },
     twitter: {
@@ -89,7 +89,7 @@ function generateArticleSchema(post: BlogPostWithAuthor) {
     dateModified: post.updatedAt.toISOString(),
     author: {
       "@type": "Person",
-      name: post.users.name,
+      name: post.users?.name || "JobsBro",
     },
     publisher: {
       "@type": "Organization",

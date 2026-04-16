@@ -71,7 +71,7 @@ export function HotBlogsSidebar() {
         {hotBlogs.map((blog, index) => (
           <Link
             key={blog.id}
-            href={`/blog/${blog.slug}`}
+            href={`/blog/${encodeURIComponent(blog.slug)}`}
             className="flex gap-3 group hover:bg-gray-50 p-2 -mx-2 rounded-lg transition-colors"
           >
             <div className="relative w-16 h-16 flex-shrink-0 rounded overflow-hidden">

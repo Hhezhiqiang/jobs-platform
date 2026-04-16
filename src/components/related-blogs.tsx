@@ -60,7 +60,7 @@ export function RelatedBlogs({ currentSlug, keywords, limit = 4 }: RelatedBlogsP
         {relatedBlogs.map((blog) => (
           <Link
             key={blog.id}
-            href={`/blog/${blog.slug}`}
+            href={`/blog/${encodeURIComponent(blog.slug)}`}
             className="group bg-white rounded-lg shadow hover:shadow-lg transition-all duration-300 overflow-hidden"
           >
             <div className="relative h-40 overflow-hidden">
