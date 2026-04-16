@@ -10,7 +10,7 @@ interface GeoLocation {
 }
 
 // 简单的IP地理位置解析
-// 使用免费的 ipapi.co 服务（非商业用途 1000次/天免费额度）
+// 使用 ip-api.com 服务（非商业用途 1000次/天免费额度）
 async function fetchGeoLocation(ip: string): Promise<GeoLocation | null> {
   // 本地IP或私有IP返回空
   if (
@@ -37,8 +37,8 @@ async function fetchGeoLocation(ip: string): Promise<GeoLocation | null> {
   }
 
   try {
-    // 使用 ipapi.co 免费API
-    const response = await fetch(`https://ipapi.co/${ip}/json/`, {
+    // 使用 ip-api.com 免费API
+    const response = await fetch(`http://ip-api.com/json/${ip}?fields=status,country,city`, {
       headers: {
         "User-Agent": "Mozilla/5.0 (compatible; JobPlatform/1.0)",
       },
@@ -56,7 +56,7 @@ async function fetchGeoLocation(ip: string): Promise<GeoLocation | null> {
     }
 
     const result: GeoLocation = {
-      country: data.country_name || data.country || "Unknown",
+      country: data.country || "Unknown",
       city: data.city || "Unknown",
     };
 

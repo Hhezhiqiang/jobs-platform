@@ -109,7 +109,7 @@ export default async function AdminBlogPage() {
                   <td className="px-6 py-4 text-right text-sm font-medium">
                     <div className="flex justify-end gap-2">
                       <Link
-                        href={`/blog/${post.slug}`}
+                        href={`/blog/${encodeURIComponent(post.slug)}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-blue-600 hover:text-blue-900"

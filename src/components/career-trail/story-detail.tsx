@@ -171,7 +171,7 @@ export function StoryDetail({
       </div>
 
       {/* Content */}
-      <div className="prose prose-lg max-w-none mb-8 whitespace-pre-wrap">
+      <div className="prose prose-lg max-w-3xl mx-auto mb-8">
         {story.content}
       </div>
 

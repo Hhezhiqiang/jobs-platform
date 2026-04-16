@@ -240,7 +240,7 @@ export default async function BlogPage({ searchParams }: PageProps) {
               {paginatedPosts.map((post) => (
                 <Link
                   key={post.id}
-                  href={`/blog/${post.slug}`}
+                  href={`/blog/${encodeURIComponent(post.slug)}`}
                   className="group bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all"
                 >
                   <div className="relative h-48">

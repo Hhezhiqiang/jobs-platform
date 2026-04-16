@@ -27,7 +27,7 @@ export function HeroSection({ jobCount }: HeroSectionProps) {
     : ["北京", "上海", "深圳", "杭州", "广州", "成都"];
 
   return (
-    <section className="relative min-h-[600px] flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[500px] flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-white/5 rounded-full blur-3xl animate-pulse-slow" />

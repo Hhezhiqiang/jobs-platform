@@ -110,7 +110,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                     key={post.id}
                     className="bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden group"
                   >
-                    <Link href={`/blog/${post.slug}`} className="block">
+                    <Link href={`/blog/${encodeURIComponent(post.slug)}`} className="block">
                       {/* 封面图 */}
                       <div className="relative h-48 overflow-hidden">
                         {post.featuredImage ? (

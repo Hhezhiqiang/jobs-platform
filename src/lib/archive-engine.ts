@@ -57,10 +57,10 @@ interface RawArchive {
 }
 
 async function fetchPerplexity(keyword: string): Promise<RawArchive[]> {
-  const apiKey = process.env.PERPLEXITY_API_KEY;
+  const apiKey = process.env.KIMI_API_KEY;
   if (!apiKey) return [];
 
-  const res = await fetch("https://api.perplexity.ai/chat/completions", {
+  const res = await fetch("https://api.moonshot.cn/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -85,7 +85,7 @@ async function fetchPerplexity(keyword: string): Promise<RawArchive[]> {
 
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`Perplexity API error ${res.status}: ${text}`);
+    throw new Error(`KIMI API error ${res.status}: ${text}`);
   }
 
   const data = await res.json();
@@ -94,7 +94,7 @@ async function fetchPerplexity(keyword: string): Promise<RawArchive[]> {
 
   return [
     {
-      contentType: "PERPLEXITY_QA",
+      contentType: "KIMI_QA",
       contentTitle: `Trend analysis: ${keyword}`,
       contentBody: content,
       relevanceScore: 0.9,

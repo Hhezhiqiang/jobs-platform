@@ -21,6 +21,14 @@ function stripLocalePrefix(pathname: string): string {
   return pathname;
 }
 
+function getCurrentLocale(pathname: string): string {
+  const parts = pathname.split("/");
+  if (parts.length >= 2 && locales.includes(parts[1] as (typeof locales)[number])) {
+    return parts[1];
+  }
+  return defaultLocale;
+}
+
 function decodeBase64Url(str: string): string {
   str = str.replace(/-/g, "+").replace(/_/g, "/");
   while (str.length % 4) {
@@ -73,6 +81,7 @@ export function middleware(request: NextRequest) {
 
   // 2. 获取无 locale 前缀的路径用于 auth 判断
   const cleanPath = stripLocalePrefix(pathname);
+  const locale = getCurrentLocale(pathname);
 
   const isAdminPath = cleanPath.startsWith("/admin");
   const isDashboardPath = cleanPath.startsWith("/dashboard");
@@ -85,30 +94,31 @@ export function middleware(request: NextRequest) {
   const payload = sessionToken ? getJwtPayload(sessionToken) : null;
   const role = payload?.role as string | undefined;
 
+  // 未登录 → redirect 到带 locale 的登录页
   if (!sessionToken) {
     if (isAdminPath) {
-      return NextResponse.redirect(new URL("/auth/login/admin", request.url));
+      return NextResponse.redirect(new URL(`/${locale}/auth/login/admin`, request.url));
     }
     if (isCompanyPath) {
-      return NextResponse.redirect(new URL("/auth/login/company", request.url));
+      return NextResponse.redirect(new URL(`/${locale}/auth/login/company`, request.url));
     }
     if (isDashboardPath || isUserRechargePath || isPromoterPath) {
-      return NextResponse.redirect(new URL("/auth/login", request.url));
+      return NextResponse.redirect(new URL(`/${locale}/auth/login`, request.url));
     }
     return intlMiddleware(request);
   }
 
-  // Token 存在时做角色校验（JWT payload 未验证签名，页面级会做完整校验）
+  // 已登录但角色不对 → redirect 到带 locale 的 unauthorized
   if (isAdminPath && role !== "ADMIN") {
-    return NextResponse.redirect(new URL("/unauthorized", request.url));
+    return NextResponse.redirect(new URL(`/${locale}/unauthorized`, request.url));
   }
 
   if (isCompanyPath && role !== "COMPANY" && role !== "ADMIN") {
-    return NextResponse.redirect(new URL("/unauthorized", request.url));
+    return NextResponse.redirect(new URL(`/${locale}/unauthorized`, request.url));
   }
 
   if (isDashboardPath && role !== "USER" && role !== "ADMIN") {
-    return NextResponse.redirect(new URL("/unauthorized", request.url));
+    return NextResponse.redirect(new URL(`/${locale}/unauthorized`, request.url));
   }
 
   return intlMiddleware(request);
