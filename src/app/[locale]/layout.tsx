@@ -130,6 +130,14 @@ export default async function RootLayout({
             __html: safeJsonLdStringify(websiteSchema),
           }}
         />
+        {/* 预连接到关键外部资源，提升加载速度 */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+        <link rel="dns-prefetch" href="https://vercel.live" />
+        {/* 预加载关键资源 */}
+        <link rel="preload" href="/logo.png" as="image" />
       </head>
       <body className={inter.className}>
         <NextIntlClientProvider messages={messages} locale={locale}>

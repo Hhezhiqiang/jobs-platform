@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { generateJobMetadata } from "@/lib/metadata";
-import { generateJobPostingSchema, generateBreadcrumbSchema } from "@/lib/schema";
+import { generateJobPostingSchema, generateBreadcrumbSchema, generateFAQSchema } from "@/lib/schema";
 import { ApplyButton } from "@/components/apply-button";
 import { JobViewTracker } from "@/components/job-view-tracker";
 import { GameJobViewTracker } from "@/components/game/trackers";
@@ -220,6 +220,26 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
   const salaryText = formatSalary(job.salaryMin, job.salaryMax);
   const dateText = new Date(job.datePosted).toLocaleDateString("zh-CN");
 
+  // FAQ Schema - 基于职位信息生成常见问题
+  const faqData = generateFAQSchema([
+    {
+      question: `${job.title} 的薪资待遇如何？`,
+      answer: salaryText ? `${job.companies.name}招聘${job.title}，薪资范围为 ${salaryText}。具体待遇还包括${job.benefits ? job.benefits.slice(0, 100) : '公司提供的福利待遇'}。` : `${job.companies.name}正在招聘${job.title}，具体薪资面议。`,
+    },
+    {
+      question: `${job.title} 的工作地点在哪里？`,
+      answer: `该职位工作地点为 ${job.location}${job.city ? `（${job.city}）` : ''}。${job.isRemote ? '支持远程办公。' : job.isHybrid ? '支持混合办公模式。' : '需要到办公室办公。'}`,
+    },
+    {
+      question: `${job.companies.name} 是一家什么公司？`,
+      answer: job.companies.description ? `${job.companies.name}：${job.companies.description.slice(0, 200)}` : `${job.companies.name}是一家位于${job.companies.location || job.location}的企业，正在招聘${job.title}等职位。`,
+    },
+    {
+      question: `如何申请 ${job.title} 职位？`,
+      answer: `您可以通过 JobsBro招聘平台在线申请 ${job.companies.name} 的 ${job.title} 职位。点击"立即申请"按钮，填写相关信息并提交简历即可完成申请。`,
+    },
+  ]);
+
   return (
     <>
       {/* 浏览追踪器 - 客户端组件 */}
@@ -230,6 +250,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
       
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(jobSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(breadcrumbSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(faqData) }} />
 
       <div className="min-h-screen bg-gray-50">
 

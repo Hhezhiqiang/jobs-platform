@@ -174,20 +174,37 @@ export default async function BlogDetailPage({ params }: PageProps) {
 
   const displayJobs = relatedJobs.length > 0 ? relatedJobs : fallbackJobs;
 
-  // 从文章内容提取 FAQ（简化版：查找 ## FAQ 或 ## 常见问题 部分）
-  const faqMatch = post.content.match(/## (FAQ|常见问题)[\\s\\S]*?(?=##|$)/i);
+  // 从文章内容提取 FAQ（支持多种格式）
   const faqs: { question: string; answer: string }[] = [];
   
+  // 方式 1: 查找 ## FAQ 或 ## 常见问题 部分
+  const faqMatch = post.content.match(/## (FAQ|常见问题)[\s\S]*?(?=##|$)/i);
   if (faqMatch) {
     const faqContent = faqMatch[0];
-    const qaMatches = faqContent.matchAll(/\\*\\*Q[:：]?\\s*(.+?)\\*\\*[\\s\\S]*?A[:：]?\\s*(.+?)(?=\\*\\*Q[:：]?|$)/gi);
+    const qaMatches = faqContent.matchAll(/\*\*Q[:：]?\s*(.+?)\*\*[\s\S]*?A[:：]?\s*(.+?)(?=\*\*Q[:：]?|$)/gi);
     for (const match of qaMatches) {
       if (match[1] && match[2]) {
         faqs.push({
           question: match[1].trim(),
-          answer: match[2].trim().replace(/\\n/g, " "),
+          answer: match[2].trim().replace(/\n/g, " "),
         });
       }
+    }
+  }
+  
+  // 方式 2: 如果文章没有 FAQ，基于标题和关键词生成基础 FAQ
+  if (faqs.length === 0) {
+    const keywords = post.keywords || [];
+    const mainKeyword = keywords[0] || post.title.slice(0, 10);
+    faqs.push({
+      question: `${post.title} 主要讲了什么？`,
+      answer: post.excerpt || `${post.title}是 JobsBro招聘平台的一篇专业文章，为您提供详细的求职/职业发展指导。`,
+    });
+    if (keywords.length > 0) {
+      faqs.push({
+        question: `${mainKeyword} 相关的职业发展建议有哪些？`,
+        answer: `本文围绕 ${keywords.slice(0, 3).join('、')} 等关键词，为您提供实用的职业发展建议和行业洞察。`,
+      });
     }
   }
 

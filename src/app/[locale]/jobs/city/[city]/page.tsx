@@ -46,8 +46,9 @@ const CITY_INTRO: Record<string, string> = {
 };
 
 function generateCityMetadata(city: string): Metadata {
-  const title = `${city}招聘信息 - 最新高薪职位 | ${SITE_NAME}`;
-  const description = `查看${city}最新招聘信息，汇聚互联网、科技、金融等热门行业高薪职位。实时更新，快速找到${city}的理想工作。`;
+  const cityIntro = CITY_INTRO[city] || `${city}最新招聘信息`;
+  const title = `${city}招聘信息 - ${city}最新高薪职位 | ${SITE_NAME}`;
+  const description = `查看${city}最新招聘信息，汇聚互联网、科技、金融等热门行业高薪职位。${cityIntro.slice(0, 120)}实时更新，快速找到${city}的理想工作。`;
   const url = `${SITE_URL}/jobs/city/${encodeURIComponent(city)}`;
   return {
     title,
@@ -58,6 +59,9 @@ function generateCityMetadata(city: string): Metadata {
       `${city}找工作`,
       `${city}高薪职位`,
       `${city}互联网招聘`,
+      `${city}最新招聘`,
+      `${city}人才网`,
+      `${city}招聘信息`,
     ],
     openGraph: {
       title,
@@ -66,11 +70,13 @@ function generateCityMetadata(city: string): Metadata {
       siteName: SITE_NAME,
       type: "website",
       locale: "zh_CN",
+      images: [`${SITE_URL}/logo.png`],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
+      images: [`${SITE_URL}/logo.png`],
     },
     alternates: {
       canonical: url,
