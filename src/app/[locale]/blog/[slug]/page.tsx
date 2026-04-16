@@ -34,8 +34,9 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
     const { slug } = await params;
-  const post = await prisma.pages.findUnique({
-    where: { slug, type: "BLOG", status: "PUBLISHED" },
+    const decodedSlug = decodeURIComponent(slug);
+    const post = await prisma.pages.findUnique({
+    where: { slug: decodedSlug, type: "BLOG", status: "PUBLISHED" },
     include: { users: true },
   });
 
@@ -134,7 +135,8 @@ function generateFAQSchema(faqs: { question: string; answer: string }[]) {
 
 export default async function BlogDetailPage({ params }: PageProps) {
   try {
-    const { slug } = await params;
+    const rawSlug = (await params).slug;
+    const slug = decodeURIComponent(rawSlug);
     const post = await prisma.pages.findUnique({
       where: { slug, type: "BLOG", status: "PUBLISHED" },
       include: { users: true },
