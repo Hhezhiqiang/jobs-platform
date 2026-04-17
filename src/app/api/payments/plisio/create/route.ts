@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     const userId = session.user.id;
     const orderId = generateOrderId(userId);
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://jobs-platform-gold.vercel.app";
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://jobquip.com";
 
     // 创建 Plisio 支付订单
     const invoice = await createInvoice({

@@ -23,7 +23,7 @@ interface BlogStructuredDataProps {
  * 生成博客列表页的Structured Data
  */
 export function BlogStructuredData({ posts = [], total = 0 }: BlogStructuredDataProps) {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jobs-platform-gold.vercel.app";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 
   const itemListElement = posts.map((post, index) => ({
     "@type": "ListItem",
@@ -53,7 +53,7 @@ export function BlogStructuredData({ posts = [], total = 0 }: BlogStructuredData
  * 生成博客详情页的Article Structured Data
  */
 export function BlogArticleStructuredData({ post }: { post: BlogPost }) {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jobs-platform-gold.vercel.app";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 
   const structuredData = {
     "@context": "https://schema.org",

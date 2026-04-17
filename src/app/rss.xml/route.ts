@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 
 export async function GET() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jobs-platform-gold.vercel.app";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 
   // 获取最新博客
   const blogs = await prisma.pages.findMany({

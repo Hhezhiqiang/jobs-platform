@@ -5,7 +5,7 @@ import { BlogDetailClient } from "./blog-detail-client";
 import { BlogArticleStructuredData } from "@/components/structured-data";
 import { cache } from "react";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobs-platform-gold.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 
 interface BlogPageProps {
   params: Promise<{ slug: string }>;

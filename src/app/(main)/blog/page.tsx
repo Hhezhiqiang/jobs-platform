@@ -8,7 +8,7 @@ import { notFound } from "next/navigation";
 import { HotBlogsSidebar } from "@/components/hot-blogs-sidebar";
 import { BlogStructuredData } from "@/components/blog-structured-data";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobs-platform-gold.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 
 // 缓存获取博客数据
 const getBlogPosts = cache(async (searchQuery?: string, page = 1) => {

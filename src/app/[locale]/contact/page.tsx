@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Metadata } from "next";
 
 const SITE_NAME = "JobsBro招聘平台";
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobs-platform-gold.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 
 export const metadata: Metadata = {
   title: `联系我们 - ${SITE_NAME}`,

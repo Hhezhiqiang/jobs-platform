@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import NotFoundClient from "./not-found-client";
 
 const SITE_NAME = "JobsBro";
-const SITE_URL = "https://jobs-platform-gold.vercel.app";
+const SITE_URL = "https://jobquip.com";
 
 export const metadata: Metadata = {
   title: `404 | ${SITE_NAME}`,

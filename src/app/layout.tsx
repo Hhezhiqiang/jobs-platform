@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://jobs-platform-gold.vercel.app"),
+  metadataBase: new URL("https://jobquip.com"),
 };
 
 export default function RootLayout({

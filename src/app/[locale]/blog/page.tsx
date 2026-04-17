@@ -6,7 +6,7 @@ import { Metadata } from "next";
 import { BookOpen, Users, Clock, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { safeJsonLdStringify } from "@/lib/utils";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobs-platform-gold.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 
 export const metadata: Metadata = {
   title: "求职博客 - 薪资报告、面试攻略、行业趋势与职业发展 | JobsBro招聘平台",

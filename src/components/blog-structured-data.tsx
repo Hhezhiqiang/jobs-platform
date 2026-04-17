@@ -20,7 +20,7 @@ interface BlogStructuredDataProps {
  * 博客列表页结构化数据 (ItemList + Organization)
  */
 export function BlogStructuredData({ posts, total }: BlogStructuredDataProps) {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jobs-platform-gold.vercel.app";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 
   const itemListSchema = {
     "@context": "https://schema.org",

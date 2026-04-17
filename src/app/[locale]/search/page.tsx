@@ -13,7 +13,7 @@ interface PageProps {
 }
 
 const SITE_NAME = "JobsBro招聘平台";
-const SITE_URL = "https://jobs-platform-gold.vercel.app";
+const SITE_URL = "https://jobquip.com";
 const DEFAULT_OG_IMAGE = `${SITE_URL}/logo.png`;
 
 export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {

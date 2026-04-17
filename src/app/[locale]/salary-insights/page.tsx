@@ -3,7 +3,7 @@ import SalaryInsightsClient from "./salary-insights-client";
 import { getSalaryInsightsData } from "@/lib/salary-insights";
 
 const SITE_NAME = "JobsBro招聘平台";
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobs-platform-gold.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 
 export const metadata: Metadata = {
   title: `薪资洞察分析 - 行业薪资趋势 | ${SITE_NAME}`,

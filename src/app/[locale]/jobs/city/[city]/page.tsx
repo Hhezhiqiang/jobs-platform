@@ -7,7 +7,7 @@ import { JobCardV2 } from "@/components/job-card-v2";
 import { generateJobPostingSchema, generateBreadcrumbSchema } from "@/lib/schema";
 
 const SITE_NAME = "JobsBro招聘平台";
-const SITE_URL = "https://jobs-platform-gold.vercel.app";
+const SITE_URL = "https://jobquip.com";
 
 const VALID_CITIES = [
   "北京",

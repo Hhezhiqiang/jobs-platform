@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { PenLine, TrendingUp, Heart, MessageCircle, Briefcase, ArrowRight } from "lucide-react";
 import { JobSeekerCard } from "@/components/career-trail/job-seeker-card";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobs-platform-gold.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 
 // 前端类型与数据库类型的映射
 type StoryTypeUI = "all" | "transformation" | "interview" | "insight" | "skill";

@@ -13,7 +13,7 @@ import ReactMarkdown from "react-markdown";
 import { safeJsonLdStringify } from "@/lib/utils";
 
 const SITE_NAME = "JobsBro招聘平台";
-const SITE_URL = "https://jobs-platform-gold.vercel.app";
+const SITE_URL = "https://jobquip.com";
 
 const VALID_SLUGS = [
   "java-developer",

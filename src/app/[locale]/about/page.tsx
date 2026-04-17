@@ -20,20 +20,20 @@ export const metadata: Metadata = {
   openGraph: {
     title: "关于我们 - JobsBro招聘平台",
     description: "了解JobsBro招聘平台的使命、团队和价值观。我们致力于为求职者和招聘企业提供最优质的连接服务。",
-    url: "https://jobs-platform-gold.vercel.app/about",
+    url: "https://jobquip.com/about",
     siteName: "JobsBro招聘平台",
     type: "website",
     locale: "zh_CN",
-    images: ["https://jobs-platform-gold.vercel.app/logo.png"],
+    images: ["https://jobquip.com/logo.png"],
   },
   twitter: {
     card: "summary_large_image",
     title: "关于我们 - JobsBro招聘平台",
     description: "了解JobsBro招聘平台的使命、团队和价值观。",
-    images: ["https://jobs-platform-gold.vercel.app/logo.png"],
+    images: ["https://jobquip.com/logo.png"],
   },
   alternates: {
-    canonical: "https://jobs-platform-gold.vercel.app/about",
+    canonical: "https://jobquip.com/about",
   },
 };
 

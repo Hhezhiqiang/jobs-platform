@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: "文章未找到" };
   }
 
-  const siteUrl = "https://jobs-platform-gold.vercel.app";
+  const siteUrl = "https://jobquip.com";
   const postUrl = `${siteUrl}/blog/${post.slug}`;
 
   return {
@@ -78,7 +78,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 // 生成 Article Schema
 function generateArticleSchema(post: BlogPostWithAuthor) {
-  const siteUrl = "https://jobs-platform-gold.vercel.app";
+  const siteUrl = "https://jobquip.com";
   return {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -105,7 +105,7 @@ function generateArticleSchema(post: BlogPostWithAuthor) {
 
 // 生成 Breadcrumb Schema
 function generateBreadcrumbSchema(slug: string, title: string) {
-  const siteUrl = "https://jobs-platform-gold.vercel.app";
+  const siteUrl = "https://jobquip.com";
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",

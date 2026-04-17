@@ -128,7 +128,7 @@ export async function GET(request: NextRequest) {
   console.log("[Plisio Webhook GET]:", { status, invoiceId });
 
   // 重定向到结果页面
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://jobs-platform-gold.vercel.app";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://jobquip.com";
   
   if (status === "completed" || status === "paid") {
     return NextResponse.redirect(`${baseUrl}/user/recharge?status=success`);

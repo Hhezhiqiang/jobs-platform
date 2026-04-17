@@ -1,6 +1,6 @@
 import { jobs, companies } from "@prisma/client";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobs-platform-gold.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 
 // JobPosting Schema 生成（Google for Jobs 支持）
 export function generateJobPostingSchema(job: jobs & { companies: companies }) {
