@@ -171,8 +171,10 @@ export function StoryDetail({
       </div>
 
       {/* Content */}
-      <div className="prose prose-lg max-w-3xl mx-auto mb-8">
-        {story.content}
+      <div className="prose prose-lg max-w-3xl mx-auto mb-8 break-words overflow-wrap-anywhere">
+        <div className="whitespace-pre-wrap leading-relaxed text-gray-700">
+          {story.content}
+        </div>
       </div>
 
       {/* 公司卡片（如果故事@了公司） */}
