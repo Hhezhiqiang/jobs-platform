@@ -6,6 +6,25 @@ import { Metadata } from "next";
 import { BookOpen, Users, Clock, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { safeJsonLdStringify } from "@/lib/utils";
 
+// 根据 ID 生成随机渐变色，用于无封面时的占位图
+function getGradient(id: string) {
+  const gradients = [
+    "from-blue-400 to-blue-600",
+    "from-indigo-400 to-purple-600",
+    "from-pink-400 to-rose-600",
+    "from-teal-400 to-emerald-600",
+    "from-orange-400 to-red-600",
+    "from-cyan-400 to-blue-600",
+    "from-violet-400 to-fuchsia-600",
+  ];
+  // 将字符串转为 hash
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = id.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return gradients[Math.abs(hash) % gradients.length];
+}
+
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 
 export const metadata: Metadata = {
@@ -253,8 +272,10 @@ export default async function BlogPage({ searchParams }: PageProps) {
                         className="object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                        <BookOpen className="w-12 h-12 text-gray-300" />
+                      <div className={`w-full h-full bg-gradient-to-br ${getGradient(post.id)} flex items-center justify-center`}>
+                        <span className="text-6xl font-bold text-white/20">
+                          {post.title.charAt(0)}
+                        </span>
                       </div>
                     )}
                   </div>
