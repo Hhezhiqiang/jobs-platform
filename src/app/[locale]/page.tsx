@@ -2,6 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { getHomePageData } from "@/lib/optimized-queries";
 import { generateHomeMetadata } from "@/lib/metadata";
+import { generateFAQSchema, generateOrganizationSchema } from "@/lib/schema";
+import { safeJsonLdStringify } from "@/lib/utils";
 import { Metadata } from "next";
 import { HeroSection } from "@/components/hero-section";
 import { StatsSection } from "@/components/stats-section";
@@ -13,6 +15,26 @@ import { HomeCheckinWrapper } from "@/components/game/home-checkin-wrapper";
 
 export const revalidate = 60;
 export const metadata: Metadata = generateHomeMetadata();
+
+// 首页 FAQ Schema (Google 富摘要)
+const homeFAQ = [
+  {
+    question: "JobsBro 是什么平台？",
+    answer: "JobsBro 是专业的求职招聘平台，汇聚海量优质 Web3、互联网、科技行业职位，为求职者和企业提供高效对接服务。我们提供职位搜索、公司推荐、薪资查询、面试攻略等功能。",
+  },
+  {
+    question: "如何找到合适的工作？",
+    answer: "在 JobsBro 上，您可以通过关键词搜索职位、按城市筛选、查看公司详情，还可以通过我们的智能推荐系统获取个性化职位推荐。注册账号后还可以收藏职位、跟踪申请进度。",
+  },
+  {
+    question: "平台上的职位是真实的吗？",
+    answer: "是的，JobsBro 上的所有职位都来自真实企业的发布。我们审核企业资质，确保职位信息真实有效。您也可以查看公司详情和员工评价，了解真实工作环境。",
+  },
+  {
+    question: "JobsBro 提供免费服务吗？",
+    answer: "是的，JobsBro 对求职者完全免费。您可以搜索职位、查看公司详情、收藏职位、投递简历，所有功能免费使用。我们仅对企业用户收取职位发布费用。",
+  },
+];
 
 export default async function HomePage() {
   const { featuredJobs, latestJobs, hotCompanies, stats } = await getHomePageData();
@@ -234,6 +256,33 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* FAQ Section — SEO + AI 索引优化 */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4">
+          <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
+            常见问题
+          </h2>
+          <div className="space-y-4">
+            {homeFAQ.map((faq) => (
+              <details
+                key={faq.question}
+                className="group bg-white rounded-xl shadow-sm border border-gray-100 p-6 [&_summary]:cursor-pointer [&_summary]:font-semibold [&_summary]:text-gray-900 [&_summary]:list-none [&_summary]:relative [&_summary]:pr-8 [&_summary::after]:content-['+'] [&_summary::after]:absolute [&_summary::after]:right-0 [&_summary::after]:text-xl [&_summary::after]:text-blue-600 [&_summary]:text-gray-900 [&_details[open]_summary::after]:content-['−']"
+              >
+                <summary>{faq.question}</summary>
+                <p className="mt-3 text-gray-600 leading-relaxed">{faq.answer}</p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Schema — Google 富摘要 */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: safeJsonLdStringify(generateFAQSchema(homeFAQ)),
+        }}
+      />
     </div>
   );
 }

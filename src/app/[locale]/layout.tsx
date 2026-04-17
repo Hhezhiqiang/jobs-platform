@@ -119,15 +119,56 @@ export default async function RootLayout({
   unstable_setRequestLocale(locale);
   const messages = await getMessages();
 
-  const websiteSchema = generateWebsiteSchema(SITE_URL, locale === "en" ? "JobsBro" : "JobsBro招聘平台");
+  const siteName = locale === "en" ? "JobsBro" : "JobsBro招聘平台";
+
+  // WebSite + Organization Schema (SEO + AI 索引)
+  const websiteSchema = generateWebsiteSchema(SITE_URL, siteName);
+
+  // Organization Schema
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: siteName,
+    url: SITE_URL,
+    logo: `${SITE_URL}/logo.png`,
+    sameAs: [
+      "https://twitter.com/jobsbro",
+      "https://linkedin.com/company/jobsbro",
+    ],
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer support",
+      availableLanguage: ["zh", "en"],
+    },
+  };
+
+  // hreflang 链接
+  const hreflangLinks = [
+    { rel: "alternate", hrefLang: "zh", href: `${SITE_URL}/zh` },
+    { rel: "alternate", hrefLang: "en", href: `${SITE_URL}/en` },
+    { rel: "alternate", hrefLang: "x-default", href: `${SITE_URL}/zh` },
+  ];
 
   return (
     <html lang={locale}>
       <head>
+        {/* hreflang 多语言标签 — 关键 SEO 配置 */}
+        {hreflangLinks.map((link) => (
+          <link key={link.hrefLang} rel={link.rel} hrefLang={link.hrefLang} href={link.href} />
+        ))}
+
+        {/* WebSite Schema — Google for Jobs 核心 */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: safeJsonLdStringify(websiteSchema),
+          }}
+        />
+        {/* Organization Schema — 品牌信任 */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: safeJsonLdStringify(organizationSchema),
           }}
         />
         {/* 预连接到关键外部资源，提升加载速度 */}

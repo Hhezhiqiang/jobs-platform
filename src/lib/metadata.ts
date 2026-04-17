@@ -8,38 +8,58 @@ const SITE_DESCRIPTION = "专业的求职招聘平台，汇聚海量优质Web3�
 const DEFAULT_OG_IMAGE = `${SITE_URL}/logo.png`;
 
 // 首页 Metadata（极致关键词覆盖）
-export function generateHomeMetadata(): Metadata {
-  const title = `${SITE_NAME} - 专业求职招聘平台，汇聚Web3、互联网高薪职位`;
+export function generateHomeMetadata(locale = "zh"): Metadata {
+  const isEn = locale === "en";
+  const title = isEn
+    ? `${SITE_NAME} - Professional Job Recruitment Platform, Web3 & Tech Jobs`
+    : `${SITE_NAME} - 专业求职招聘平台，汇聚Web3、互联网高薪职位`;
+  const desc = isEn
+    ? "A professional job recruitment platform connecting top talent with Web3, internet, and tech companies worldwide. Empower your career growth."
+    : SITE_DESCRIPTION;
+
   return {
     title,
-    description: SITE_DESCRIPTION,
-    keywords: [
-      // 核心词
-      "招聘", "求职", "找工作", "人才网", "招聘信息", "职位搜索",
-      // 行业词
-      "Web3招聘", "互联网招聘", "科技行业招聘", "程序员招聘", "产品经理招聘",
-      "运营招聘", "设计师招聘", "数据分析师招聘", "AI招聘",
-      // 长尾词
-      "高薪职位", "职业发展", "面试技巧", "薪资查询", "简历优化",
-      "内推", "远程工作", "远程职位", "居家办公职位",
-    ],
+    description: desc,
+    keywords: isEn
+      ? [
+          "jobs", "recruitment", "career", "job search", "hiring",
+          "Web3 jobs", "tech jobs", "internet jobs", "remote jobs",
+          "software engineer jobs", "product manager jobs", "designer jobs",
+          "data analyst jobs", "AI jobs", "high salary jobs",
+          "career development", "interview tips", "resume optimization",
+        ]
+      : [
+          // 核心词
+          "招聘", "求职", "找工作", "人才网", "招聘信息", "职位搜索",
+          // 行业词
+          "Web3招聘", "互联网招聘", "科技行业招聘", "程序员招聘", "产品经理招聘",
+          "运营招聘", "设计师招聘", "数据分析师招聘", "AI招聘",
+          // 长尾词
+          "高薪职位", "职业发展", "面试技巧", "薪资查询", "简历优化",
+          "内推", "远程工作", "远程职位", "居家办公职位",
+        ],
     openGraph: {
       title,
-      description: SITE_DESCRIPTION,
+      description: desc,
       url: SITE_URL,
       siteName: SITE_NAME,
       type: "website",
-      locale: "zh_CN",
+      locale: isEn ? "en_US" : "zh_CN",
       images: [DEFAULT_OG_IMAGE],
     },
     twitter: {
       card: "summary_large_image",
       title,
-      description: SITE_DESCRIPTION,
+      description: desc,
       images: [DEFAULT_OG_IMAGE],
     },
     alternates: {
       canonical: SITE_URL,
+      languages: {
+        "zh-CN": `${SITE_URL}/zh`,
+        "en": `${SITE_URL}/en`,
+        "x-default": `${SITE_URL}/zh`,
+      },
     },
   };
 }

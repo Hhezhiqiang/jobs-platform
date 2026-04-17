@@ -5,6 +5,7 @@ export default function robots(): MetadataRoute.Robots {
 
   return {
     rules: [
+      // ── 默认规则 ──
       {
         userAgent: "*",
         allow: "/",
@@ -30,6 +31,10 @@ export default function robots(): MetadataRoute.Robots {
         allow: "/",
       },
       {
+        userAgent: "Googlebot-News",
+        allow: "/",
+      },
+      {
         userAgent: "Bingbot",
         allow: "/",
         disallow: ["/admin", "/api/", "/_next/"],
@@ -49,35 +54,53 @@ export default function robots(): MetadataRoute.Robots {
         allow: "/",
         disallow: ["/admin", "/api/", "/_next/"],
       },
-      // ── AI / LLM 爬虫 ──
+      {
+        userAgent: "360Spider",
+        allow: "/",
+        disallow: ["/admin", "/api/", "/_next/"],
+      },
+      {
+        userAgent: "DuckDuckBot",
+        allow: "/",
+      },
+      {
+        userAgent: "YandexBot",
+        allow: "/",
+      },
+      // ── AI / LLM 爬虫 (让 ChatGPT, Claude, Gemini, Perplexity 索引你) ──
       {
         userAgent: "GPTBot", // ChatGPT 爬虫
-        allow: ["/jobs/", "/blog/", "/companies/"],
+        allow: ["/jobs/", "/blog/", "/companies/", "/salary-insights/"],
         disallow: ["/admin", "/api/", "/dashboard", "/company/"],
       },
       {
         userAgent: "Google-Extended", // Gemini / Google AI
-        allow: ["/jobs/", "/blog/", "/companies/"],
+        allow: ["/jobs/", "/blog/", "/companies/", "/salary-insights/"],
         disallow: ["/admin", "/api/", "/dashboard", "/company/"],
       },
       {
-        userAgent: "CCBot", // Common Crawl
-        allow: ["/jobs/", "/blog/", "/companies/"],
+        userAgent: "CCBot", // Common Crawl (Perplexity/Anthropic)
+        allow: ["/jobs/", "/blog/", "/companies/", "/salary-insights/"],
         disallow: ["/admin", "/api/"],
       },
       {
         userAgent: "anthropic-ai", // Claude 爬虫
-        allow: ["/jobs/", "/blog/", "/companies/"],
+        allow: ["/jobs/", "/blog/", "/companies/", "/salary-insights/"],
         disallow: ["/admin", "/api/", "/dashboard", "/company/"],
       },
       {
         userAgent: "ClaudeBot", // Claude 爬虫
-        allow: ["/jobs/", "/blog/", "/companies/"],
+        allow: ["/jobs/", "/blog/", "/companies/", "/salary-insights/"],
         disallow: ["/admin", "/api/", "/dashboard", "/company/"],
       },
       {
-        userAgent: "PerplexityBot", // Perplexity 爬虫
-        allow: ["/jobs/", "/blog/", "/companies/"],
+        userAgent: "Claude-Web", // Claude 网页索引
+        allow: ["/jobs/", "/blog/", "/companies/", "/salary-insights/"],
+        disallow: ["/admin", "/api/", "/dashboard", "/company/"],
+      },
+      {
+        userAgent: "PerplexityBot", // Perplexity AI
+        allow: ["/jobs/", "/blog/", "/companies/", "/salary-insights/"],
         disallow: ["/admin", "/api/", "/dashboard", "/company/"],
       },
       {
@@ -89,6 +112,19 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "FacebookBot", // Meta AI
         allow: ["/jobs/", "/blog/", "/companies/"],
         disallow: ["/admin", "/api/"],
+      },
+      {
+        userAgent: "Applebot", // Apple/Siri AI
+        allow: ["/jobs/", "/blog/", "/companies/"],
+      },
+      {
+        userAgent: "cohere-ai", // Cohere AI
+        allow: ["/jobs/", "/blog/", "/companies/"],
+        disallow: ["/admin", "/api/"],
+      },
+      {
+        userAgent: "Timpibot", // Timp AI
+        allow: ["/jobs/", "/blog/", "/companies/"],
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,
