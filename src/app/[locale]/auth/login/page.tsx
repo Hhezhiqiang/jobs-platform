@@ -18,7 +18,6 @@ export default function UserLoginPage() {
       registerLink={{ text: "立即注册", href: "/auth/register" }}
       alternateLinks={[
         { text: "企业用户登录 →", href: "/auth/login/company" },
-        { text: "管理员登录 →", href: "/auth/login/admin" },
       ]}
     />
   );

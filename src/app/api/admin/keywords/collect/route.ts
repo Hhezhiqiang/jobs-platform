@@ -6,6 +6,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { collectKeywords } from "@/lib/keyword-monitor";
 import { runAutoPipeline } from "@/lib/auto-publisher";
+import { runAutoBlogPipeline } from "@/lib/auto-blog-generator";
 
 const CRON_LOCK_KEY = "cron_lock_keyword_collect";
 const LOCK_TTL_MINUTES = 10;
@@ -76,6 +77,9 @@ export async function POST(request: NextRequest) {
       const result = await collectKeywords();
       const autoResult = await runAutoPipeline(result.newIds);
 
+      // KIMI 自动生成博客：每个关键词 → 深度专业内容
+      const blogResult = await runAutoBlogPipeline(result.newIds);
+
       let cleanupResult = { monitorsDeleted: 0, pagesDeleted: 0 };
       try {
         const { cleanupOldData } = await import("@/lib/data-cleanup");
@@ -92,7 +96,7 @@ export async function POST(request: NextRequest) {
         console.error("[data-cleanup] failed:", cleanupErr);
       }
 
-      return NextResponse.json({ success: true, result, autoResult, cleanup: cleanupResult });
+      return NextResponse.json({ success: true, result, autoResult, blogResult, cleanup: cleanupResult });
     } finally {
       await releaseCronLock();
     }

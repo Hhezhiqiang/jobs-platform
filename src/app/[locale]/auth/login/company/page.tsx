@@ -18,7 +18,6 @@ export default function CompanyLoginPage() {
       registerLink={{ text: "注册企业账户", href: "/company/register" }}
       alternateLinks={[
         { text: "← 用户登录", href: "/auth/login" },
-        { text: "管理员登录 →", href: "/auth/login/admin" },
       ]}
     />
   );
