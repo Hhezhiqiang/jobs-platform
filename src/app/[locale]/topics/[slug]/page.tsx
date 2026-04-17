@@ -12,7 +12,7 @@ import { Prisma } from "@prisma/client";
 import ReactMarkdown from "react-markdown";
 import { safeJsonLdStringify } from "@/lib/utils";
 
-const SITE_NAME = "JobsBro招聘平台";
+const SITE_NAME = "JobQuip招聘平台";
 const SITE_URL = "https://jobquip.com";
 
 const VALID_SLUGS = [

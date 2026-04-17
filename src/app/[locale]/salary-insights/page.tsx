@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import SalaryInsightsClient from "./salary-insights-client";
 import { getSalaryInsightsData } from "@/lib/salary-insights";
 
-const SITE_NAME = "JobsBro招聘平台";
+const SITE_NAME = "JobQuip招聘平台";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 
 export const metadata: Metadata = {

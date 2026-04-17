@@ -70,7 +70,7 @@ export function Header({ transparent = false }: HeaderProps) {
               J
             </div>
             <span className={`text-xl font-bold ${transparent ? "text-white" : "text-gray-900"}`}>
-              {isEn ? "JobsBro" : "招聘平台"}
+              {isEn ? "JobQuip" : "招聘平台"}
             </span>
           </Link>
 

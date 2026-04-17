@@ -21,7 +21,7 @@ export async function GET() {
   const rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
-    <title>JobsBro招聘平台 - 求职博客</title>
+    <title>JobQuip招聘平台 - 求职博客</title>
     <link>${baseUrl}/blog</link>
     <description>专业的互联网求职博客，提供最新薪资报告、大厂面试攻略、简历优化技巧、职业规划指南。</description>
     <language>zh-CN</language>
@@ -41,7 +41,7 @@ export async function GET() {
       <link>${baseUrl}/blog/${blog.slug}</link>
       <guid isPermaLink="true">${baseUrl}/blog/${blog.slug}</guid>
       <pubDate>${new Date(blog.createdAt).toUTCString()}</pubDate>
-      <author>JobsBro编辑</author>
+      <author>JobQuip编辑</author>
       <description>${escapeXml(blog.excerpt || blog.title)}</description>
       <content:encoded><![CDATA[${content}]]&gt;</content:encoded>
     </item>`;

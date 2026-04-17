@@ -145,7 +145,7 @@ export function BlogDetailClient({ post, locale: _locale }: BlogDetailClientProp
               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-8 pb-8 border-b">
                 <div className="flex items-center gap-1">
                   <User className="w-4 h-4" />
-                  <span>JobsBro编辑</span>
+                  <span>JobQuip编辑</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <CalendarDays className="w-4 h-4" />

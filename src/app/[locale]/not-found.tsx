@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import NotFoundClient from "./not-found-client";
 
-const SITE_NAME = "JobsBro";
+const SITE_NAME = "JobQuip";
 const SITE_URL = "https://jobquip.com";
 
 export const metadata: Metadata = {

@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { jobs, companies } from "@prisma/client";
 import { formatSalary } from "./utils";
 
-const SITE_NAME = "JobsBro招聘平台";
+const SITE_NAME = "JobQuip招聘平台";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 const SITE_DESCRIPTION = "专业的求职招聘平台，汇聚海量优质Web3、互联网、科技行业职位，为求职者和企业提供高效对接服务，助力职场发展";
 const DEFAULT_OG_IMAGE = `${SITE_URL}/logo.png`;

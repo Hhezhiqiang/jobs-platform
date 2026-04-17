@@ -10,26 +10,27 @@ import {
   Heart,
   MapPin,
   Mail,
-  Phone
+  Phone,
+  MessageCircle
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "关于我们 - JobsBro招聘平台",
-  description: "了解JobsBro招聘平台的使命、团队和价值观。我们致力于为求职者和招聘企业提供最优质的连接服务，打造专业的求职招聘体验。",
-  keywords: ["关于JobsBro", "招聘平台介绍", "求职网站", "JobsBro团队", "招聘服务"],
+  title: "关于我们 - JobQuip招聘平台",
+  description: "了解JobQuip招聘平台的使命、团队和价值观。我们致力于为求职者和招聘企业提供最优质的连接服务，打造专业的求职招聘体验。",
+  keywords: ["关于JobQuip", "招聘平台介绍", "求职网站", "JobQuip团队", "招聘服务"],
   openGraph: {
-    title: "关于我们 - JobsBro招聘平台",
-    description: "了解JobsBro招聘平台的使命、团队和价值观。我们致力于为求职者和招聘企业提供最优质的连接服务。",
+    title: "关于我们 - JobQuip招聘平台",
+    description: "了解JobQuip招聘平台的使命、团队和价值观。我们致力于为求职者和招聘企业提供最优质的连接服务。",
     url: "https://jobquip.com/about",
-    siteName: "JobsBro招聘平台",
+    siteName: "JobQuip招聘平台",
     type: "website",
     locale: "zh_CN",
     images: ["https://jobquip.com/logo.png"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "关于我们 - JobsBro招聘平台",
-    description: "了解JobsBro招聘平台的使命、团队和价值观。",
+    title: "关于我们 - JobQuip招聘平台",
+    description: "了解JobQuip招聘平台的使命、团队和价值观。",
     images: ["https://jobquip.com/logo.png"],
   },
   alternates: {
@@ -105,7 +106,7 @@ export default function AboutPage() {
               让每一次职业选择都更有价值
             </h1>
             <p className="text-xl text-blue-100 mb-8">
-              JobsBro致力于连接优秀人才与优质企业，
+              JobQuip致力于连接优秀人才与优质企业，
               通过技术创新和专业服务，打造极致的求职招聘体验。
             </p>
             <div className="flex flex-wrap justify-center gap-4">
@@ -258,44 +259,14 @@ export default function AboutPage() {
 
       {/* Contact */}
       <section className="py-20 bg-blue-600 text-white">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">联系我们</h2>
-            <p className="text-blue-100 max-w-2xl mx-auto">
-              有任何问题或建议？我们随时为您服务
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl mx-auto">
-            <div className="flex items-center gap-4 justify-center">
-              <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center">
-                <Mail className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-blue-200 text-sm">邮箱</p>
-                <p className="font-medium">support@jobs-platform.com</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4 justify-center">
-              <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center">
-                <Phone className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-blue-200 text-sm">电话</p>
-                <p className="font-medium">400-123-4567</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4 justify-center">
-              <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center">
-                <MapPin className="w-6 h-6" />
-              </div>
-              <div>
-                <p className="text-blue-200 text-sm">地址</p>
-                <p className="font-medium">北京市朝阳区xxx大厦</p>
-              </div>
-            </div>
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <h2 className="text-3xl font-bold mb-4">联系我们</h2>
+          <p className="text-blue-100 max-w-2xl mx-auto mb-8">
+            有任何问题或建议？我们随时为您服务
+          </p>
+          <div className="inline-flex items-center gap-3 px-6 py-3 bg-white/10 rounded-xl">
+            <MessageCircle className="w-5 h-5" />
+            <span>请通过页面右下角的在线客服与我们联系</span>
           </div>
         </div>
       </section>

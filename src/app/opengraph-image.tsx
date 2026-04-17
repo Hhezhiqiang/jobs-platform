@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "JobsBro招聘平台";
+export const alt = "JobQuip招聘平台";
 export const size = { width: 1200, height: 630 };
 
 export const contentType = "image/png";
@@ -29,7 +29,7 @@ export default function Image() {
             textShadow: "0 4px 12px rgba(0,0,0,0.2)",
           }}
         >
-          JobsBro
+          JobQuip
         </div>
         <div
           style={{

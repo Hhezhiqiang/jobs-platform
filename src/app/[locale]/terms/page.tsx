@@ -1,8 +1,8 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "用户服务协议 - JobsBro招聘平台 | 使用条款与法律声明",
-  description: "阅读JobsBro招聘平台的用户服务协议，了解平台使用规则、用户权利与义务、知识产权及免责声明等重要法律条款。",
+  title: "用户服务协议 - JobQuip招聘平台 | 使用条款与法律声明",
+  description: "阅读JobQuip招聘平台的用户服务协议，了解平台使用规则、用户权利与义务、知识产权及免责声明等重要法律条款。",
   keywords: ["用户协议", "服务条款", "法律声明", "招聘平台协议", "使用规则"],
   robots: {
     index: true,
@@ -97,7 +97,7 @@ export default function TermsPage() {
             <h2 className="text-xl font-semibold mt-8 mb-4">10. 联系我们</h2>
             <p className="mb-4">
               如您对本协议有任何疑问，请联系：<br />
-              邮箱：support@jobs-platform.com
+              
             </p>
           </div>
         </div>

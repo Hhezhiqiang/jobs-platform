@@ -25,7 +25,7 @@ export function BlogStructuredData({ posts, total }: BlogStructuredDataProps) {
   const itemListSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: "JobsBro求职博客",
+    name: "JobQuip求职博客",
     description: "专业的互联网求职博客，提供薪资报告、面试攻略、职业规划",
     url: `${baseUrl}/blog`,
     numberOfItems: total,
@@ -41,11 +41,11 @@ export function BlogStructuredData({ posts, total }: BlogStructuredDataProps) {
         datePublished: post.createdAt.toISOString(),
         author: {
           "@type": "Organization",
-          name: "JobsBro编辑",
+          name: "JobQuip编辑",
         },
         publisher: {
           "@type": "Organization",
-          name: "JobsBro",
+          name: "JobQuip",
           logo: {
             "@type": "ImageObject",
             url: `${baseUrl}/logo.png`,
@@ -59,7 +59,7 @@ export function BlogStructuredData({ posts, total }: BlogStructuredDataProps) {
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "JobsBro",
+    name: "JobQuip",
     url: baseUrl,
     logo: `${baseUrl}/logo.png`,
     description: "专业的求职招聘平台，汇聚Web3、互联网、科技行业高薪职位",

@@ -58,7 +58,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       type: "article",
       publishedTime: post.createdAt.toISOString(),
       modifiedTime: post.updatedAt.toISOString(),
-      authors: [post.users?.name || "JobsBro"],
+      authors: [post.users?.name || "JobQuip"],
       images: post.featuredImage ? [post.featuredImage] : [],
     },
     twitter: {
@@ -89,7 +89,7 @@ function generateArticleSchema(post: BlogPostWithAuthor) {
     dateModified: post.updatedAt.toISOString(),
     author: {
       "@type": "Person",
-      name: post.users?.name || "JobsBro",
+      name: post.users?.name || "JobQuip",
     },
     publisher: {
       "@type": "Organization",
@@ -200,7 +200,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
     const mainKeyword = keywords[0] || post.title.slice(0, 10);
     faqs.push({
       question: `${post.title} 主要讲了什么？`,
-      answer: post.excerpt || `${post.title}是 JobsBro招聘平台的一篇专业文章，为您提供详细的求职/职业发展指导。`,
+      answer: post.excerpt || `${post.title}是 JobQuip招聘平台的一篇专业文章，为您提供详细的求职/职业发展指导。`,
     });
     if (keywords.length > 0) {
       faqs.push({

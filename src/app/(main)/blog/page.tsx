@@ -53,7 +53,7 @@ const getBlogPosts = cache(async (searchQuery?: string, page = 1) => {
 });
 
 export const metadata: Metadata = {
-  title: "求职博客 | 薪资报告、面试攻略、职业规划 - JobsBro",
+  title: "求职博客 | 薪资报告、面试攻略、职业规划 - JobQuip",
   description: "专业的互联网求职博客，提供2026最新薪资报告、大厂面试攻略、简历优化技巧、职业规划指南。涵盖前端、后端、产品、运营等热门岗位，助你快速拿到理想Offer。",
   keywords: ["求职博客", "薪资报告", "面试攻略", "简历优化", "职业规划", "大厂面经", "互联网求职", "2026求职趋势"],
   alternates: {
@@ -123,7 +123,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                           />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                            <span className="text-white text-2xl font-bold">JobsBro</span>
+                            <span className="text-white text-2xl font-bold">JobQuip</span>
                           </div>
                         )}
                         

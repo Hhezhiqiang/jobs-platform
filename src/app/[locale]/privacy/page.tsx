@@ -1,8 +1,8 @@
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "隐私政策 - JobsBro招聘平台 | 用户信息保护说明",
-  description: "了解JobsBro招聘平台如何收集、使用和保护您的个人信息。我们采用银行级加密技术，严格保护用户隐私，确保您的求职数据安全。",
+  title: "隐私政策 - JobQuip招聘平台 | 用户信息保护说明",
+  description: "了解JobQuip招聘平台如何收集、使用和保护您的个人信息。我们采用银行级加密技术，严格保护用户隐私，确保您的求职数据安全。",
   keywords: ["隐私政策", "用户隐私保护", "招聘平台隐私", "个人信息安全", "数据保护"],
   robots: {
     index: true,
@@ -108,7 +108,7 @@ export default function PrivacyPage() {
             <p className="mb-4">
               如果您对本隐私政策有任何疑问或行使您的权利，请联系：<br />
               邮箱：privacy@jobs-platform.com<br />
-              地址：北京市朝阳区xxx街道xxx号
+              
             </p>
           </div>
         </div>

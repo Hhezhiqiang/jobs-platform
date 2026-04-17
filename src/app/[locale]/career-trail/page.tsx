@@ -42,14 +42,14 @@ function getUIType(dbType: StoryTypeDB): StoryTypeUI {
 }
 
 export const metadata: Metadata = {
-  title: "职迹 - 记录职业成长，分享真实经历 | JobsBro招聘平台",
-  description: "在JobsBro职迹社区分享你的职业转型故事、面试复盘、职场感悟和技能进化历程。与万千职场人共鸣，共同成长。",
+  title: "职迹 - 记录职业成长，分享真实经历 | JobQuip招聘平台",
+  description: "在JobQuip职迹社区分享你的职业转型故事、面试复盘、职场感悟和技能进化历程。与万千职场人共鸣，共同成长。",
   keywords: ["职迹", "职业成长", "转型故事", "面试复盘", "职场感悟", "技能进化", "职业发展", "职场社区"],
   openGraph: {
     title: "职迹 - 记录职业成长，分享真实经历",
     description: "分享你的职业转型故事、面试复盘、职场感悟和技能进化历程",
     url: `${SITE_URL}/career-trail`,
-    siteName: "JobsBro招聘平台",
+    siteName: "JobQuip招聘平台",
     type: "website",
     locale: "zh_CN",
     images: [`${SITE_URL}/logo.png`],

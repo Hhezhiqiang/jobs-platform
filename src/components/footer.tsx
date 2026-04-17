@@ -15,7 +15,7 @@ export function Footer() {
           links: [
             { label: "About Us", href: `/${locale}/about` },
             { label: "Contact", href: `/${locale}/contact` },
-            { label: "Join Us", href: `/${locale}/jobs?q=JobsBro` },
+            { label: "Join Us", href: `/${locale}/jobs?q=JobQuip` },
           ],
         },
         {
@@ -47,7 +47,7 @@ export function Footer() {
           links: [
             { label: "公司介绍", href: `/${locale}/about` },
             { label: "联系我们", href: `/${locale}/contact` },
-            { label: "加入我们", href: `/${locale}/jobs?q=JobsBro` },
+            { label: "加入我们", href: `/${locale}/jobs?q=JobQuip` },
           ],
         },
         {
@@ -98,7 +98,7 @@ export function Footer() {
 
         <div className="mt-8 pt-8 border-t border-gray-200">
           <p className="text-base text-gray-400 text-center">
-            © {new Date().getFullYear()} {isEn ? "JobsBro. All rights reserved." : "JobsBro招聘平台. 版权所有."}
+            © {new Date().getFullYear()} {isEn ? "JobQuip. All rights reserved." : "JobQuip招聘平台. 版权所有."}
           </p>
         </div>
       </div>

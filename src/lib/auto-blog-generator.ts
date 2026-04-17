@@ -24,7 +24,7 @@ function buildPrompt(keyword: string, archives: string[], intent: string): strin
     ? `以下是关于"${keyword}"的最新行业动态和背景资料：\n${archives.slice(0, 5).join("\n\n")}`
     : `请围绕"${keyword}"这个关键词，撰写一篇专业深度的求职/职场类博客文章。`;
 
-  return `你是一位资深的职场内容专家，拥有 10 年以上招聘、职业发展、行业分析经验。请为"JobsBro 招聘平台"撰写一篇关于"${keyword}"的深度专业博客文章。
+  return `你是一位资深的职场内容专家，拥有 10 年以上招聘、职业发展、行业分析经验。请为"JobQuip 招聘平台"撰写一篇关于"${keyword}"的深度专业博客文章。
 
 ${archiveContext}
 
@@ -64,7 +64,7 @@ async function callKIMI(prompt: string): Promise<string> {
       messages: [
         {
           role: "system",
-          content: "你是 JobsBro 招聘平台的资深内容专家，擅长撰写深度、专业、有洞察力的职场/招聘/职业发展类文章。你的文章数据驱动、案例丰富、建议可操作。",
+          content: "你是 JobQuip 招聘平台的资深内容专家，擅长撰写深度、专业、有洞察力的职场/招聘/职业发展类文章。你的文章数据驱动、案例丰富、建议可操作。",
         },
         { role: "user", content: prompt },
       ],
@@ -181,7 +181,7 @@ export async function generateAndPublishBlog(
         type: "BLOG",
         status: "PUBLISHED",
         authorId,
-        metaTitle: `${title} | JobsBro`,
+        metaTitle: `${title} | JobQuip`,
         metaDescription: excerpt,
         keywords,
       },

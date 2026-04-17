@@ -7,7 +7,7 @@ import { Metadata } from "next";
 
 export const revalidate = 3600;
 
-const SITE_NAME = "JobsBro招聘平台";
+const SITE_NAME = "JobQuip招聘平台";
 const SITE_URL = "https://jobquip.com";
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<{ q?: string }> }): Promise<Metadata> {

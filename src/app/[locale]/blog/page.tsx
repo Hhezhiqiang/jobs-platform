@@ -28,21 +28,21 @@ function getGradient(id: string) {
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 
 export const metadata: Metadata = {
-  title: "求职博客 - 薪资报告、面试攻略、行业趋势与职业发展 | JobsBro招聘平台",
+  title: "求职博客 - 薪资报告、面试攻略、行业趋势与职业发展 | JobQuip招聘平台",
   description: "专业的互联网求职博客，提供2026最新薪资报告、大厂面试攻略、简历优化技巧、职业规划指南。涵盖前端、后端、产品、运营、数据分析等热门岗位，专家级原创内容助你快速拿到理想Offer。",
   keywords: ["求职博客", "薪资报告", "面试攻略", "简历优化", "职业规划", "大厂面经", "互联网求职", "产品经理面试", "程序员面试", "运营求职", "数据分析求职", "2026求职趋势"],
   openGraph: {
-    title: "求职博客 - 薪资报告、面试攻略、行业趋势与职业发展 | JobsBro招聘平台",
+    title: "求职博客 - 薪资报告、面试攻略、行业趋势与职业发展 | JobQuip招聘平台",
     description: "专业的互联网求职博客，提供2026最新薪资报告、大厂面试攻略、简历优化技巧、职业规划指南。",
     url: `${SITE_URL}/blog`,
-    siteName: "JobsBro招聘平台",
+    siteName: "JobQuip招聘平台",
     type: "website",
     locale: "zh_CN",
     images: [`${SITE_URL}/logo.png`],
   },
   twitter: {
     card: "summary_large_image",
-    title: "求职博客 - 薪资报告、面试攻略、行业趋势与职业发展 | JobsBro招聘平台",
+    title: "求职博客 - 薪资报告、面试攻略、行业趋势与职业发展 | JobQuip招聘平台",
     description: "专业的互联网求职博客，提供2026最新薪资报告、大厂面试攻略、简历优化技巧、职业规划指南。",
     images: [`${SITE_URL}/logo.png`],
   },
@@ -78,12 +78,12 @@ function generateBlogListSchema(posts: PostWithAuthor[], _total: number) {
   return {
     "@context": "https://schema.org",
     "@type": "Blog",
-    name: "JobsBro求职博客",
+    name: "JobQuip求职博客",
     description: "专业的互联网求职博客，提供薪资报告、面试攻略、行业趋势与职业发展建议。",
     url: `${SITE_URL}/blog`,
     publisher: {
       "@type": "Organization",
-      name: "JobsBro招聘平台",
+      name: "JobQuip招聘平台",
       logo: {
         "@type": "ImageObject",
         url: `${SITE_URL}/logo.png`,
@@ -98,7 +98,7 @@ function generateBlogListSchema(posts: PostWithAuthor[], _total: number) {
       dateModified: post.updatedAt.toISOString(),
       author: {
         "@type": "Person",
-        name: post.users?.name || "JobsBro",
+        name: post.users?.name || "JobQuip",
       },
     })),
   };
@@ -290,7 +290,7 @@ export default async function BlogPage({ searchParams }: PageProps) {
                     <div className="flex items-center justify-between text-sm text-gray-400">
                       <div className="flex items-center gap-2">
                         <Users className="w-4 h-4" />
-                        {post.users?.name || "JobsBro"}
+                        {post.users?.name || "JobQuip"}
                       </div>
                       <div className="flex items-center gap-2">
                         <Clock className="w-4 h-4" />

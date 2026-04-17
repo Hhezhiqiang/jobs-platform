@@ -236,7 +236,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
     },
     {
       question: `如何申请 ${job.title} 职位？`,
-      answer: `您可以通过 JobsBro招聘平台在线申请 ${job.companies.name} 的 ${job.title} 职位。点击"立即申请"按钮，填写相关信息并提交简历即可完成申请。`,
+      answer: `您可以通过 JobQuip招聘平台在线申请 ${job.companies.name} 的 ${job.title} 职位。点击"立即申请"按钮，填写相关信息并提交简历即可完成申请。`,
     },
   ]);
 

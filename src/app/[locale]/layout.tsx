@@ -31,10 +31,10 @@ export async function generateMetadata({
   const { locale } = await params;
   const isEn = locale === "en";
 
-  const siteName = isEn ? "JobsBro" : "JobsBro招聘平台";
+  const siteName = isEn ? "JobQuip" : "JobQuip招聘平台";
   const title = isEn
-    ? "JobsBro - Professional Job Recruitment Platform"
-    : "JobsBro招聘平台 - 专业求职招聘平台，汇聚Web3、互联网高薪职位";
+    ? "JobQuip - Professional Job Recruitment Platform"
+    : "JobQuip招聘平台 - 专业求职招聘平台，汇聚Web3、互联网高薪职位";
   const description = isEn
     ? "A professional job recruitment platform connecting top talent with Web3, internet, and tech companies. Empower your career growth."
     : "专业的求职招聘平台，汇聚海量优质Web3、互联网、科技行业职位，为求职者和企业提供高效对接服务，助力职场发展";
@@ -119,7 +119,7 @@ export default async function RootLayout({
   unstable_setRequestLocale(locale);
   const messages = await getMessages();
 
-  const siteName = locale === "en" ? "JobsBro" : "JobsBro招聘平台";
+  const siteName = locale === "en" ? "JobQuip" : "JobQuip招聘平台";
 
   // WebSite + Organization Schema (SEO + AI 索引)
   const websiteSchema = generateWebsiteSchema(SITE_URL, siteName);

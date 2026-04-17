@@ -6,7 +6,7 @@ import { Breadcrumb } from "@/components/breadcrumb";
 import { JobCardV2 } from "@/components/job-card-v2";
 import { generateJobPostingSchema, generateBreadcrumbSchema } from "@/lib/schema";
 
-const SITE_NAME = "JobsBro招聘平台";
+const SITE_NAME = "JobQuip招聘平台";
 const SITE_URL = "https://jobquip.com";
 
 const VALID_CITIES = [

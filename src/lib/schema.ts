@@ -108,7 +108,7 @@ export function generateBreadcrumbSchema(items: { name: string; url: string }[])
 }
 
 // WebSite Schema 生成（带站内搜索框）
-export function generateWebsiteSchema(siteUrl: string = SITE_URL, siteName: string = "JobsBro招聘平台") {
+export function generateWebsiteSchema(siteUrl: string = SITE_URL, siteName: string = "JobQuip招聘平台") {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",

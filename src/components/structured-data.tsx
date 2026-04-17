@@ -65,12 +65,12 @@ export function BlogArticleStructuredData({ post }: { post: BlogPost }) {
     dateModified: typeof post.updatedAt === 'string' ? post.updatedAt : post.updatedAt.toISOString(),
     author: {
       "@type": "Organization",
-      name: post.author?.name || "JobsBro编辑",
+      name: post.author?.name || "JobQuip编辑",
       url: baseUrl,
     },
     publisher: {
       "@type": "Organization",
-      name: "JobsBro招聘平台",
+      name: "JobQuip招聘平台",
       logo: {
         "@type": "ImageObject",
         url: `${baseUrl}/logo.png`,

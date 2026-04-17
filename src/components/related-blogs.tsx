@@ -73,7 +73,7 @@ export function RelatedBlogs({ currentSlug, keywords, limit = 4 }: RelatedBlogsP
                 />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
-                  <span className="text-white text-lg font-bold">JobsBro</span>
+                  <span className="text-white text-lg font-bold">JobQuip</span>
                 </div>
               )}
             </div>
