@@ -253,7 +253,7 @@ function LoginFormContent({
               <div className="text-center space-y-3">
                 <p className="text-sm text-gray-500">
                   还没有企业账户？{" "}
-                  <Link href="/auth/register" className="text-emerald-600 font-medium hover:underline">
+                  <Link href="/company/register" className="text-emerald-600 font-medium hover:underline">
                     注册企业
                   </Link>
                 </p>
