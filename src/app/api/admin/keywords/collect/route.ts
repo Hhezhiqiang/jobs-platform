@@ -15,38 +15,39 @@ async function acquireCronLock(): Promise<boolean> {
   const now = new Date();
   const ttlAgo = new Date(now.getTime() - LOCK_TTL_MINUTES * 60 * 1000);
 
-  const updated = await prisma.seo_settings.updateMany({
-    where: { key: CRON_LOCK_KEY, updatedAt: { lt: ttlAgo } },
-    data: { value: now.toISOString(), updatedAt: now },
-  });
-
-  if (updated.count > 0) {
-    return true;
-  }
-
   try {
+    const updated = await prisma.seo_settings.updateMany({
+      where: { key: CRON_LOCK_KEY, updatedAt: { lt: ttlAgo } },
+      data: { value: now.toISOString(), updatedAt: now },
+    });
+
+    if (updated.count > 0) return true;
+
     await prisma.seo_settings.create({
       data: { key: CRON_LOCK_KEY, value: now.toISOString(), description: "cron lock" },
     });
     return true;
   } catch (err: any) {
-    if (err.code === "P2002") {
-      return false;
-    }
+    if (err.code === "P2002") return false;
     throw err;
   }
 }
 
 async function releaseCronLock(): Promise<void> {
-  const stale = new Date(Date.now() - (LOCK_TTL_MINUTES + 1) * 60 * 1000);
-  await prisma.seo_settings.updateMany({
-    where: { key: CRON_LOCK_KEY },
-    data: { updatedAt: stale },
-  });
+  try {
+    const stale = new Date(Date.now() - (LOCK_TTL_MINUTES + 1) * 60 * 1000);
+    await prisma.seo_settings.updateMany({
+      where: { key: CRON_LOCK_KEY },
+      data: { updatedAt: stale },
+    });
+  } catch (err) {
+    console.error("Failed to release cron lock:", err);
+  }
 }
 
 export async function POST(request: NextRequest) {
   try {
+    // 权限验证
     const secretHeader = request.headers.get("Authorization")?.replace("Bearer ", "");
     const { searchParams } = new URL(request.url);
     const secretQuery = searchParams.get("secret");
@@ -65,6 +66,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // 获取锁
     const locked = await acquireCronLock();
     if (!locked) {
       return NextResponse.json(
@@ -74,36 +76,43 @@ export async function POST(request: NextRequest) {
     }
 
     try {
+      console.log("[keyword-collect] Starting collection...");
       const result = await collectKeywords();
-      const autoResult = await runAutoPipeline(result.newIds);
+      console.log(`[keyword-collect] Result: ${JSON.stringify(result)}`);
 
-      // KIMI 自动生成博客：每个关键词 → 深度专业内容
-      const blogResult = await runAutoBlogPipeline(result.newIds);
-
-      let cleanupResult = { monitorsDeleted: 0, pagesDeleted: 0 };
-      try {
-        const { cleanupOldData } = await import("@/lib/data-cleanup");
-        cleanupResult = await cleanupOldData();
-        if (cleanupResult.monitorsDeleted > 0 || cleanupResult.pagesDeleted > 0) {
-          if (process.env.NODE_ENV === "development") {
-             
-            console.log(
-              `[data-cleanup] removed ${cleanupResult.monitorsDeleted} junk monitors and ${cleanupResult.pagesDeleted} draft pages`
-            );
-          }
+      // 运行自动发布流水线
+      let autoResult = { processed: 0, published: 0, errors: 0, details: [] };
+      if (result.newIds && result.newIds.length > 0) {
+        try {
+          autoResult = await runAutoPipeline(result.newIds);
+        } catch (err: any) {
+          console.error("Auto pipeline error:", err.message);
         }
-      } catch (cleanupErr) {
-        console.error("[data-cleanup] failed:", cleanupErr);
       }
 
-      return NextResponse.json({ success: true, result, autoResult, blogResult, cleanup: cleanupResult });
+      // 运行 KIMI 博客生成器
+      let blogResult = { processed: 0, published: 0, errors: 0, details: [] };
+      if (result.newIds && result.newIds.length > 0 && process.env.KIMI_API_KEY) {
+        try {
+          blogResult = await runAutoBlogPipeline(result.newIds);
+        } catch (err: any) {
+          console.error("Auto blog pipeline error:", err.message);
+        }
+      }
+
+      return NextResponse.json({
+        success: true,
+        result,
+        autoResult,
+        blogResult,
+      });
     } finally {
       await releaseCronLock();
     }
-  } catch (error) {
-    console.error("[api/admin/keywords/collect] error:", error);
+  } catch (error: any) {
+    console.error("[keyword-collect] Fatal error:", error);
     return NextResponse.json(
-      { error: "Internal server error", message: (error as Error).message },
+      { error: "Internal server error", message: error.message },
       { status: 500 }
     );
   }

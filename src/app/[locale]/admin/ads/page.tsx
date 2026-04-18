@@ -7,19 +7,27 @@ import { AdStatus } from "@prisma/client";
 
 async function toggleAdStatus(formData: FormData) {
   "use server";
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id || session.user.role !== "ADMIN") return;
-  const adId = formData.get("adId") as string;
-  const status = formData.get("status") as AdStatus;
-  await prisma.ads.update({ where: { id: adId }, data: { status } });
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id || session.user.role !== "ADMIN") return;
+    const adId = formData.get("adId") as string;
+    const status = formData.get("status") as AdStatus;
+    await prisma.ads.update({ where: { id: adId }, data: { status } });
+  } catch (error) {
+    console.error("Toggle ad status error:", error);
+  }
 }
 
 async function deleteAd(formData: FormData) {
   "use server";
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id || session.user.role !== "ADMIN") return;
-  const adId = formData.get("adId") as string;
-  await prisma.ads.delete({ where: { id: adId } });
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id || session.user.role !== "ADMIN") return;
+    const adId = formData.get("adId") as string;
+    await prisma.ads.delete({ where: { id: adId } });
+  } catch (error) {
+    console.error("Delete ad error:", error);
+  }
 }
 
 export default async function AdminAdsPage() {
@@ -28,12 +36,20 @@ export default async function AdminAdsPage() {
     redirect("/auth/login/admin");
   }
 
-  const adPositions = await prisma.ad_positions.findMany({
-    include: {
-      ads: { orderBy: { createdAt: "desc" } },
-    },
-    orderBy: { name: "asc" },
-  });
+  let adPositions = [];
+  let error = null;
+
+  try {
+    adPositions = await prisma.ad_positions.findMany({
+      include: {
+        ads: { orderBy: { createdAt: "desc" } },
+      },
+      orderBy: { name: "asc" },
+    });
+  } catch (err: any) {
+    console.error("Fetch ad positions error:", err);
+    error = err.message;
+  }
 
   const statusMap: Record<string, { label: string; color: string; next: string }> = {
     ACTIVE: { label: "投放中", color: "bg-green-100 text-green-700", next: "INACTIVE" },
@@ -57,57 +73,68 @@ export default async function AdminAdsPage() {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 py-6 space-y-4">
-        {adPositions.map((pos) => (
-          <div key={pos.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="px-5 py-3 bg-gray-50 border-b flex items-center justify-between">
-              <div>
-                <span className="font-semibold">{pos.displayName}</span>
-                <span className="ml-2 text-xs text-gray-400 font-mono">{pos.name}</span>
-              </div>
-              <span className={`text-xs px-2 py-0.5 rounded-full ${pos.isActive ? "bg-green-50 text-green-600" : "bg-gray-100 text-gray-500"}`}>
-                {pos.isActive ? "启用" : "禁用"}
-              </span>
-            </div>
-
-            {pos.ads.length === 0 ? (
-              <div className="px-5 py-6 text-center text-gray-400 text-sm">暂无广告</div>
-            ) : (
-              <div className="divide-y divide-gray-50">
-                {pos.ads.map((ad) => {
-                  const st = statusMap[ad.status] || statusMap.PENDING;
-                  return (
-                    <div key={ad.id} className="px-5 py-3 flex items-center justify-between">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium text-sm truncate">{ad.title}</span>
-                          <span className={`text-xs px-1.5 py-0.5 rounded ${st.color}`}>{st.label}</span>
-                        </div>
-                        <div className="text-xs text-gray-400 mt-0.5">
-                          {ad.type === "IMAGE" ? "图片" : "文字"} · {ad.linkUrl}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 ml-3 shrink-0">
-                        <form action={toggleAdStatus}>
-                          <input type="hidden" name="adId" value={ad.id} />
-                          <input type="hidden" name="status" value={st.next} />
-                          <button type="submit" className="text-xs px-2 py-1 rounded border hover:bg-gray-50">
-                            {ad.status === "ACTIVE" ? "暂停" : "启用"}
-                          </button>
-                        </form>
-                        <form action={deleteAd}>
-                          <input type="hidden" name="adId" value={ad.id} />
-                          <button type="submit" className="text-xs px-2 py-1 rounded border text-red-600 hover:bg-red-50" onClick={() => confirm("确定删除此广告？")}>
-                            删除
-                          </button>
-                        </form>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+        {error ? (
+          <div className="p-6 bg-red-50 text-red-600 rounded-xl">
+            <h3 className="font-bold mb-2">加载失败</h3>
+            <p>{error}</p>
           </div>
-        ))}
+        ) : adPositions.length === 0 ? (
+          <div className="p-12 bg-white rounded-xl shadow-sm border text-center text-gray-500">
+            <p>暂无广告位数据</p>
+          </div>
+        ) : (
+          adPositions.map((pos) => (
+            <div key={pos.id} className="bg-white rounded-xl shadow-sm border overflow-hidden">
+              <div className="px-6 py-4 bg-gray-50 border-b flex items-center justify-between">
+                <div>
+                  <h3 className="font-bold text-gray-900">{pos.displayName}</h3>
+                  <p className="text-sm text-gray-500 font-mono">{pos.name}</p>
+                </div>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${pos.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-600'}`}>
+                  {pos.isActive ? "启用中" : "已停用"}
+                </span>
+              </div>
+
+              <div className="divide-y">
+                {pos.ads.length === 0 ? (
+                  <div className="p-6 text-center text-gray-400 text-sm">暂无广告</div>
+                ) : (
+                  pos.ads.map((ad) => {
+                    const statusInfo = statusMap[ad.status] || { label: ad.status, color: "bg-gray-100 text-gray-600" };
+                    return (
+                      <div key={ad.id} className="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                        <div>
+                          <p className="font-medium text-gray-900">{ad.title}</p>
+                          <p className="text-sm text-gray-500">
+                            {ad.type} · {ad.linkUrl}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusInfo.color}`}>
+                            {statusInfo.label}
+                          </span>
+                          <form action={toggleAdStatus} className="inline">
+                            <input type="hidden" name="adId" value={ad.id} />
+                            <input type="hidden" name="status" value={statusInfo.next} />
+                            <button type="submit" className="text-xs text-blue-600 hover:underline">
+                              {ad.status === "ACTIVE" ? "暂停" : "启用"}
+                            </button>
+                          </form>
+                          <form action={deleteAd} className="inline">
+                            <input type="hidden" name="adId" value={ad.id} />
+                            <button type="submit" className="text-xs text-red-600 hover:underline" onClick={() => confirm("确定删除？")}>
+                              删除
+                            </button>
+                          </form>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          ))
+        )}
       </main>
     </div>
   );
