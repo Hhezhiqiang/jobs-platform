@@ -73,8 +73,12 @@ export default function CompanyRegisterPage() {
           redirect: false,
         });
         if (loginRes?.error) {
-          setError("账号创建成功，但自动登录失败，请手动登录");
-          setIsLoading(false);
+          // 登录失败，提示用户手动登录
+          setError("账号注册成功！请手动登录进入企业后台。");
+          // 清空密码，跳转到登录页
+          setTimeout(() => {
+            router.push(`/auth/login/company?registered=true&email=${encodeURIComponent(formData.email)}`);
+          }, 2000);
           return;
         }
       }
