@@ -36,7 +36,7 @@ export default async function AdminAdsPage() {
     redirect("/auth/login/admin");
   }
 
-  let adPositions = [];
+  let adPositions: any[] = [];
   let error = null;
 
   try {
