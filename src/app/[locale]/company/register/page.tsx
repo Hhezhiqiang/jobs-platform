@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { Building2, Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import { Building2, Loader2, AlertCircle } from "lucide-react";
 
 export default function CompanyRegisterPage() {
   const router = useRouter();
@@ -14,14 +14,9 @@ export default function CompanyRegisterPage() {
 
   const [formData, setFormData] = useState({
     name: "",
-    legalPersonName: "",
-    creditCode: "",
-    description: "",
     industry: "",
     size: "",
     location: "",
-    contactEmail: "",
-    contactPhone: "",
   });
 
   if (status === "loading") {
@@ -51,7 +46,7 @@ export default function CompanyRegisterPage() {
         throw new Error(data.error || "注册失败");
       }
 
-      // 注册成功后跳转到企业后台
+      // 注册成功后直接跳转到企业后台
       router.push("/company/dashboard");
       router.refresh();
     } catch (err: any) {
@@ -92,36 +87,6 @@ export default function CompanyRegisterPage() {
                 placeholder="例如：北京某某科技有限公司"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="legalPersonName" className="block text-sm font-medium text-gray-700 mb-1">
-                法人姓名
-              </label>
-              <input
-                id="legalPersonName"
-                name="legalPersonName"
-                type="text"
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="请输入法人姓名"
-                value={formData.legalPersonName}
-                onChange={(e) => setFormData({ ...formData, legalPersonName: e.target.value })}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="creditCode" className="block text-sm font-medium text-gray-700 mb-1">
-                统一社会信用代码
-              </label>
-              <input
-                id="creditCode"
-                name="creditCode"
-                type="text"
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="选填，不填将自动生成测试编码"
-                value={formData.creditCode}
-                onChange={(e) => setFormData({ ...formData, creditCode: e.target.value })}
               />
             </div>
 
@@ -172,7 +137,7 @@ export default function CompanyRegisterPage() {
               disabled={isLoading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
             >
-              {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "提交注册申请"}
+              {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "立即注册"}
             </button>
           </div>
         </form>

@@ -6,7 +6,6 @@ export const dynamic = "force-dynamic";
 
 // 辅助函数：生成安全的 slug
 function generateSlug(name: string): string {
-  // 移除特殊字符，保留字母数字，空格转连字符
   return name
     .replace(/[^\w\s-]/g, '')
     .replace(/\s+/g, '-')
@@ -22,43 +21,32 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    let { name, slug, creditCode } = body;
+    const { name } = body;
 
-    // 放宽必填项限制 (为了测试方便，允许测试数据)
     if (!name) {
       return NextResponse.json({ error: "请填写公司名称" }, { status: 400 });
     }
 
-    // 如果没有 slug 或格式不对，自动生成
-    const slugRegex = /^[a-z0-9-]+$/;
-    if (!slug || !slugRegex.test(slug)) {
-      slug = generateSlug(name);
-    }
+    // 生成 slug
+    const slug = generateSlug(name);
 
     // 检查 slug 是否已存在
     const existingCompany = await prisma.companies.findUnique({ where: { slug } });
     if (existingCompany) {
-      slug = generateSlug(name); // 冲突则重新生成
+      return NextResponse.json({ error: "该公司名称已被注册，请换一个" }, { status: 400 });
     }
 
-    // 处理 creditCode (允许为空或测试数据)
-    if (!creditCode) {
-      creditCode = "TEST-" + Date.now();
-    }
-
-    // 创建企业
+    // 创建企业（直接通过，无需审核）
     const company = await prisma.companies.create({
       data: {
         name,
         slug,
-        creditCode,
-        description: body.description || "",
+        creditCode: "REG-" + Date.now(),
+        description: "",
         industry: body.industry || "",
         size: body.size || "",
         location: body.location || "",
-        contactEmail: body.contactEmail || "",
-        contactPhone: body.contactPhone || "",
-        verificationStatus: "PENDING", // 默认待审核
+        verificationStatus: "APPROVED", // 注册即通过，无需审核
       },
     });
 
