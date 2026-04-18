@@ -25,12 +25,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     take: 500,
   });
 
-  const blogEntries: MetadataRoute.Sitemap = blogs.map((blog) => ({
-    url: `${baseUrl}/blog/${blog.slug}`,
-    lastModified: blog.updatedAt,
-    priority: 0.8,
-    changeFrequency: "weekly" as const,
-  }));
+  // 过滤测试 slug（包含时间戳或明显测试特征）
+  const isTestSlug = (slug: string) => {
+    if (!slug || slug.length < 3) return true;
+    // 包含长数字时间戳（如 -1776074227824）
+    if (/\d{10,}/.test(slug)) return true;
+    // 纯测试模式
+    if (/^test[-_]/i.test(slug)) return true;
+    // 单个字符
+    if (/^[a-z0-9]$/i.test(slug)) return true;
+    return false;
+  };
+
+  const blogEntries: MetadataRoute.Sitemap = blogs
+    .filter((blog) => !isTestSlug(blog.slug))
+    .map((blog) => ({
+      url: `${baseUrl}/blog/${blog.slug}`,
+      lastModified: blog.updatedAt,
+      priority: 0.8,
+      changeFrequency: "weekly" as const,
+    }));
 
   // ── 3. 职位页面（高频更新，Google for Jobs 核心）──
   const jobs = await prisma.jobs.findMany({

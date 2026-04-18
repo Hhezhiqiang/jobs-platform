@@ -71,8 +71,32 @@ export default async function CompaniesPage({ searchParams }: PageProps) {
     take: 50,
   });
 
+  // Organization Schema for each company
+  const organizationSchemas = companies.map((company) => ({
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: company.name,
+    url: `${SITE_URL}/companies/${company.slug}`,
+    description: company.description || `${company.name} - 在${company.industry || '互联网'}行业的招聘企业`,
+    ...(company.location && { address: { "@type": "PostalAddress", addressLocality: company.location } }),
+    ...(company.logo && { logo: company.logo }),
+    hasOfferCatalog: {
+      "@type": "OfferCatalog",
+      name: `${company.name} 招聘职位`,
+      url: `${SITE_URL}/companies/${company.slug}`,
+    },
+  }));
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+      {organizationSchemas.map((schema, i) => (
+        <script
+          key={i}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(schema) }}
+        />
+      ))}
+      <div className="min-h-screen bg-gray-50">
 
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white">
