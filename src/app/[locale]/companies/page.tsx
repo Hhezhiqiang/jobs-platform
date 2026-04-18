@@ -228,3 +228,4 @@ export default async function CompaniesPage({ searchParams }: PageProps) {
     </div>
   );
 }
+// trigger redeploy Sat Apr 18 09:51:01 PM CST 2026
