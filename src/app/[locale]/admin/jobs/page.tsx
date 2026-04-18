@@ -64,29 +64,62 @@ export default async function AdminJobsPage({ searchParams }: PageProps) {
     where.companyId = companyFilter;
   }
 
-  // 获取职位列表（带分页）
-  const [jobs, totalCount, companies] = await Promise.all([
-    prisma.jobs.findMany({
-      where,
-      include: {
-        companies: true,
-        users: {
-          select: { name: true, email: true },
+  let jobs: any[] = [];
+  let totalCount = 0;
+  let companies: any[] = [];
+  let dbError = "";
+
+  try {
+    // 获取职位列表（带分页）
+    const [jobsData, totalCountData, companiesData] = await Promise.all([
+      prisma.jobs.findMany({
+        where,
+        include: {
+          companies: true,
+          users: {
+            select: { name: true, email: true },
+          },
+          _count: {
+            select: { job_applications: true },
+          },
         },
-        _count: {
-          select: { job_applications: true },
-        },
-      },
-      orderBy: { createdAt: "desc" },
-      skip: (currentPage - 1) * ITEMS_PER_PAGE,
-      take: ITEMS_PER_PAGE,
-    }),
-    prisma.jobs.count({ where }),
-    prisma.companies.findMany({
-      select: { id: true, name: true },
-      orderBy: { name: "asc" },
-    }),
-  ]);
+        orderBy: { createdAt: "desc" },
+        skip: (currentPage - 1) * ITEMS_PER_PAGE,
+        take: ITEMS_PER_PAGE,
+      }),
+      prisma.jobs.count({ where }),
+      prisma.companies.findMany({
+        select: { id: true, name: true },
+        orderBy: { name: "asc" },
+      }),
+    ]);
+
+    jobs = jobsData;
+    totalCount = totalCountData;
+    companies = companiesData;
+  } catch (error: any) {
+    console.error("Admin jobs page database error:", error);
+    dbError = error.message || "数据库查询失败";
+  }
+
+  if (dbError) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 max-w-md text-center">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">数据库连接失败</h3>
+          <p className="text-gray-500 mb-4">{dbError}</p>
+          <Link href="/admin" className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all">
+            返回管理后台
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
