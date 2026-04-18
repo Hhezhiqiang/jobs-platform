@@ -4,6 +4,7 @@ import { Breadcrumb } from "@/components/breadcrumb";
 import { prisma } from "@/lib/prisma";
 import { Building2, MapPin, Users, Briefcase, Search } from "lucide-react";
 import { Metadata } from "next";
+import { safeJsonLdStringify } from "@/lib/utils";
 
 export const revalidate = 3600;
 
