@@ -99,7 +99,7 @@ export default async function AdminAdsPage() {
                 {pos.ads.length === 0 ? (
                   <div className="p-6 text-center text-gray-400 text-sm">暂无广告</div>
                 ) : (
-                  pos.ads.map((ad) => {
+                  pos.ads.map((ad: any) => {
                     const statusInfo = statusMap[ad.status] || { label: ad.status, color: "bg-gray-100 text-gray-600" };
                     return (
                       <div key={ad.id} className="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition-colors">

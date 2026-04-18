@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
       console.log(`[keyword-collect] Result: ${JSON.stringify(result)}`);
 
       // 运行自动发布流水线
-      let autoResult = { processed: 0, published: 0, errors: 0, details: [] };
+      let autoResult: any = { processed: 0, published: 0, errors: 0, details: [] };
       if (result.newIds && result.newIds.length > 0) {
         try {
           autoResult = await runAutoPipeline(result.newIds);
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
       }
 
       // 运行 KIMI 博客生成器
-      let blogResult = { processed: 0, published: 0, errors: 0, details: [] };
+      let blogResult: any = { processed: 0, published: 0, errors: 0, details: [] };
       if (result.newIds && result.newIds.length > 0 && process.env.KIMI_API_KEY) {
         try {
           blogResult = await runAutoBlogPipeline(result.newIds);
