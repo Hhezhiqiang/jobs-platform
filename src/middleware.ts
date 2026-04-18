@@ -85,17 +85,21 @@ export function middleware(request: NextRequest) {
 
   const isAdminPath = cleanPath.startsWith("/admin");
   const isDashboardPath = cleanPath.startsWith("/dashboard");
-  const isCompanyPath = cleanPath.startsWith("/company") && cleanPath !== "/company/register";
+  const isCompanyPath = cleanPath.startsWith("/company");
   const isUserRechargePath = cleanPath.startsWith("/user/recharge");
   const isPromoterPath =
     cleanPath.startsWith("/promoter/dashboard") || cleanPath.startsWith("/promoter/links");
+
+  // 公开路径（不需要登录）
+  const publicPaths = ["/company/register"];
+  const isPublicPath = publicPaths.includes(cleanPath);
 
   const sessionToken = getSessionToken(request);
   const payload = sessionToken ? getJwtPayload(sessionToken) : null;
   const role = payload?.role as string | undefined;
 
-  // 未登录 → redirect 到带 locale 的登录页
-  if (!sessionToken) {
+  // 未登录 → redirect 到带 locale 的登录页（公开路径除外）
+  if (!sessionToken && !isPublicPath) {
     if (isAdminPath) {
       return NextResponse.redirect(new URL(`/${locale}/auth/login/admin`, request.url));
     }
@@ -113,7 +117,7 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(`/${locale}/unauthorized`, request.url));
   }
 
-  if (isCompanyPath && role !== "COMPANY" && role !== "ADMIN") {
+  if (isCompanyPath && !isPublicPath && role !== "COMPANY" && role !== "ADMIN") {
     return NextResponse.redirect(new URL(`/${locale}/unauthorized`, request.url));
   }
 

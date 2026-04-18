@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import { Building2, Loader2, AlertCircle } from "lucide-react";
+import { Building2, Loader2, AlertCircle, LogIn } from "lucide-react";
 
 export default function CompanyRegisterPage() {
   const router = useRouter();
@@ -23,9 +23,34 @@ export default function CompanyRegisterPage() {
     return <div className="min-h-screen flex items-center justify-center">加载中...</div>;
   }
 
+  // 未登录：显示登录提示，不再踢走
   if (!session) {
-    router.push("/auth/login");
-    return null;
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
+        <div className="max-w-md w-full bg-white p-8 rounded-xl shadow-lg text-center">
+          <div className="mx-auto h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+            <Building2 className="h-6 w-6 text-blue-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">注册企业账号</h2>
+          <p className="text-gray-500 mb-6">请先登录或注册个人账户，然后即可创建企业</p>
+          <div className="space-y-3">
+            <Link
+              href="/auth/login/company"
+              className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-all"
+            >
+              <LogIn className="w-5 h-5" />
+              已有账户？去登录
+            </Link>
+            <Link
+              href="/auth/register"
+              className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-white text-blue-600 font-medium rounded-xl border border-blue-200 hover:bg-blue-50 transition-all"
+            >
+              注册个人账户
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
