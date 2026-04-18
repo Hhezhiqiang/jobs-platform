@@ -4,7 +4,7 @@ import { useState, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle, User, Building2 } from "lucide-react";
 import { SkipLink } from "@/components/skip-link";
 
 interface LoginPageProps {
@@ -33,6 +33,9 @@ function LoginFormContent({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  
+  // Current role state
+  const [currentRole, setCurrentRole] = useState<"USER" | "COMPANY">(role as "USER" | "COMPANY");
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -43,6 +46,14 @@ function LoginFormContent({
       const formData = new FormData(e.currentTarget);
       const email = formData.get("email") as string;
       const password = formData.get("password") as string;
+
+      // Determine redirect based on role
+      let finalRedirect = redirectUrl;
+      if (currentRole === "USER") {
+        finalRedirect = "/dashboard";
+      } else if (currentRole === "COMPANY") {
+        finalRedirect = "/company/dashboard";
+      }
 
       const res = await signIn("credentials", {
         email,
@@ -58,22 +69,21 @@ function LoginFormContent({
         const session = await userRes.json();
         const userRole = session?.user?.role;
 
-        // 角色校验
-        if (role === "ADMIN" && userRole !== "ADMIN") {
-          setError("该账户不是管理员账户");
-          setLoading(false);
-          return;
+        // Role check logic
+        if (currentRole === "USER" && userRole !== "USER" && userRole !== "ADMIN") {
+           // If logging in as User but account is Company, warn or redirect
+           finalRedirect = "/company/dashboard"; 
         }
-        if (role === "COMPANY" && userRole !== "COMPANY" && userRole !== "ADMIN") {
-          setError("该账户不是企业账户");
-          setLoading(false);
-          return;
+        if (currentRole === "COMPANY" && userRole !== "COMPANY" && userRole !== "ADMIN") {
+           setError("该账户不是企业账户，请切换至求职者登录");
+           setLoading(false);
+           return;
         }
 
         if (callbackUrl) {
           router.push(callbackUrl);
         } else {
-          router.push(redirectUrl);
+          router.push(finalRedirect);
         }
         router.refresh();
       }
@@ -84,49 +94,51 @@ function LoginFormContent({
     }
   }
 
-  const borderClass = {
-    blue: "from-blue-600 to-blue-800",
-    emerald: "from-emerald-600 to-emerald-800",
-    purple: "from-purple-600 to-purple-800",
-  }[accentColor] || "from-blue-600 to-blue-800";
-
-  const buttonClass = {
-    blue: "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500/20",
-    emerald: "bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-500/20",
-    purple: "bg-purple-600 hover:bg-purple-700 focus:ring-purple-500/20",
-  }[accentColor] || "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500/20";
+  // Dynamic styles based on selection
+  const isUser = currentRole === "USER";
+  const bgClass = isUser 
+    ? "bg-gradient-to-br from-blue-500 to-indigo-600" 
+    : "bg-gradient-to-br from-emerald-500 to-teal-600";
+  
+  const btnClass = isUser
+    ? "bg-blue-600 hover:bg-blue-700"
+    : "bg-emerald-600 hover:bg-emerald-700";
 
   return (
     <div className="min-h-screen flex">
       <SkipLink />
       
-      <div className={`hidden lg:flex lg:w-1/2 relative bg-gradient-to-br ${borderClass}`}>
+      {/* Left Side - Visuals */}
+      <div className={`hidden lg:flex lg:w-1/2 relative ${bgClass}`}>
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-white/5 rounded-full blur-3xl" />
           <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-white/10 rounded-full blur-3xl" />
         </div>
         <div className="relative z-10 flex flex-col justify-center px-16 text-white">
-          <div className="mb-8">
-            <h2 className="text-4xl font-bold mb-6">{title}</h2>
-            <p className="text-xl text-white/90 mb-6">{subtitle}</p>
-            <ul className="space-y-4 text-white/80">
-              <li className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-white/60 rounded-full" />
-                <span>安全可靠的账户保护</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-white/60 rounded-full" />
-                <span>快速便捷的登录体验</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-white/60 rounded-full" />
-                <span>专业高效的服务支持</span>
-              </li>
-            </ul>
-          </div>
+          <h2 className="text-4xl font-bold mb-6">
+            {isUser ? "开启您的职业新篇章" : "寻找全球顶尖人才"}
+          </h2>
+          <p className="text-xl text-white/90 mb-8">
+            {isUser ? "连接优质企业，发现无限可能的职业机会" : "高效招聘工具，助您快速组建精英团队"}
+          </p>
+          <ul className="space-y-4 text-white/80">
+            <li className="flex items-center gap-3">
+              <div className="w-2 h-2 bg-white/60 rounded-full" />
+              <span>{isUser ? "海量优质职位" : "千万级人才库"}</span>
+            </li>
+            <li className="flex items-center gap-3">
+              <div className="w-2 h-2 bg-white/60 rounded-full" />
+              <span>{isUser ? "精准职位推荐" : "智能简历匹配"}</span>
+            </li>
+            <li className="flex items-center gap-3">
+              <div className="w-2 h-2 bg-white/60 rounded-full" />
+              <span>{isUser ? "简历一键投递" : "高效沟通协作"}</span>
+            </li>
+          </ul>
         </div>
       </div>
 
+      {/* Right Side - Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md">
           {registered && (
@@ -135,33 +147,48 @@ function LoginFormContent({
             </div>
           )}
 
+          {/* Role Switcher - Critical for UX */}
+          <div className="flex bg-gray-100 p-1 rounded-xl mb-8">
+            <button
+              onClick={() => setCurrentRole("USER")}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all ${
+                isUser ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <User className="w-4 h-4" />
+              求职者
+            </button>
+            <button
+              onClick={() => setCurrentRole("COMPANY")}
+              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-sm font-semibold transition-all ${
+                !isUser ? "bg-white text-emerald-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <Building2 className="w-4 h-4" />
+              企业
+            </button>
+          </div>
+
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">{title}</h1>
-            {registerLink ? (
-              <p className="text-gray-500">
-                还没有账户？{" "}
-                <Link href={registerLink.href} className="text-blue-600 hover:text-blue-700 font-medium">
-                  {registerLink.text}
-                </Link>
-              </p>
-            ) : (
-              <p className="text-gray-500">请输入账户信息登录</p>
-            )}
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              {isUser ? "欢迎回来" : "欢迎回来"}
+            </h1>
+            <p className="text-gray-500">
+              {isUser ? "登录您的账户，继续求职之旅" : "登录企业后台，管理您的招聘"}
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 邮箱地址
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
-                  id="email"
                   name="email"
                   type="email"
                   required
-                  autoComplete="email"
                   className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                   placeholder="your@email.com"
                 />
@@ -169,24 +196,21 @@ function LoginFormContent({
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
                 密码
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
-                  id="password"
                   name="password"
                   type={showPassword ? "text" : "password"}
                   required
-                  autoComplete="current-password"
                   className="w-full pl-10 pr-12 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                   placeholder="请输入密码"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? "隐藏密码" : "显示密码"}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -194,25 +218,8 @@ function LoginFormContent({
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <input
-                  id="remember"
-                  name="remember"
-                  type="checkbox"
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <label htmlFor="remember" className="ml-2 text-sm text-gray-600">
-                  记住我
-                </label>
-              </div>
-              <Link href="/auth/forgot-password" className="text-sm text-blue-600 hover:text-blue-700">
-                忘记密码？
-              </Link>
-            </div>
-
             {error && (
-              <div className="p-3 bg-red-50 text-red-600 rounded-xl text-sm flex items-center gap-2" role="alert">
+              <div className="p-3 bg-red-50 text-red-600 rounded-xl text-sm flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 {error}
               </div>
@@ -221,62 +228,40 @@ function LoginFormContent({
             <button
               type="submit"
               disabled={loading}
-              className={`w-full text-white py-3 rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${buttonClass}`}
+              className={`w-full text-white py-3 rounded-xl font-medium transition-all disabled:opacity-50 flex items-center justify-center gap-2 ${btnClass}`}
             >
-              {loading ? "登录中..." : "登录"}
+              {loading ? "登录中..." : (isUser ? "求职者登录" : "企业登录")}
               <ArrowRight className="w-5 h-5" />
             </button>
           </form>
 
-          <div className="mt-8">
-            {/* 角色切换标签 — 管理员页面不需要 */}
-            {role !== 'ADMIN' && (
-              <>
-                <div className="flex items-center justify-center gap-2 mb-6">
-                  <div className="text-sm text-gray-500 bg-gray-100 px-4 py-2 rounded-full">
-                    选择登录身份
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-2 mb-6">
-                  <Link
-                    href="/auth/login"
-                    className={`text-center py-3 px-2 rounded-xl text-sm font-medium transition-all ${
-                      role === 'USER'
-                        ? 'bg-blue-600 text-white shadow-lg'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    👤 求职者
+          {/* Links */}
+          <div className="mt-8 border-t pt-6">
+            {isUser ? (
+              <div className="text-center space-y-3">
+                <p className="text-sm text-gray-500">
+                  还没有账户？{" "}
+                  <Link href="/auth/register" className="text-blue-600 font-medium hover:underline">
+                    立即注册
                   </Link>
-                  <Link
-                    href="/auth/login/company"
-                    className={`text-center py-3 px-2 rounded-xl text-sm font-medium transition-all ${
-                      role === 'COMPANY'
-                        ? 'bg-emerald-600 text-white shadow-lg'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    🏢 企业
-                  </Link>
-                </div>
-              </>
-            )}
-
-            <div className="border-t border-gray-200 pt-6">
-              {alternateLinks?.map((link) => (
-                <div key={link.href} className="text-center">
-                  <Link href={link.href} className="text-sm text-gray-600 hover:text-gray-900 font-medium">
-                    {link.text}
-                  </Link>
-                </div>
-              ))}
-              <div className="text-center mt-3">
-                <Link href="/" className="text-sm text-gray-500 hover:text-gray-700">
-                  ← 返回首页
+                </p>
+                <Link href="/auth/login/company" className="text-sm text-emerald-600 font-medium hover:underline block">
+                  切换至企业登录 &rarr;
                 </Link>
               </div>
-            </div>
+            ) : (
+              <div className="text-center space-y-3">
+                <p className="text-sm text-gray-500">
+                  还没有企业账户？{" "}
+                  <Link href="/company/register" className="text-emerald-600 font-medium hover:underline">
+                    注册企业
+                  </Link>
+                </p>
+                <Link href="/auth/login" className="text-sm text-blue-600 font-medium hover:underline block">
+                  &larr; 切换至求职者登录
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>
