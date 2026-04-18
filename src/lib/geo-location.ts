@@ -12,7 +12,7 @@ interface GeoLocation {
 // 简单的IP地理位置解析
 // 使用 ip-api.com 服务（非商业用途 1000次/天免费额度）
 async function fetchGeoLocation(ip: string): Promise<GeoLocation | null> {
-  // 本地IP或私有IP返回空
+  // 本地IP或私有IP返回 Local
   if (
     !ip ||
     ip === "127.0.0.1" ||
@@ -38,7 +38,7 @@ async function fetchGeoLocation(ip: string): Promise<GeoLocation | null> {
 
   try {
     // 使用 ip-api.com 免费API
-    const response = await fetch(`http://ip-api.com/json/${ip}?fields=status,country,city`, {
+    const response = await fetch(`https://ip-api.com/json/${ip}?fields=status,country,city,regionName`, {
       headers: {
         "User-Agent": "Mozilla/5.0 (compatible; JobPlatform/1.0)",
       },
@@ -50,14 +50,19 @@ async function fetchGeoLocation(ip: string): Promise<GeoLocation | null> {
 
     const data = await response.json();
 
-    if (data.error) {
-      console.warn(`IP geo lookup failed for ${ip}:`, data.reason);
+    // ip-api 返回格式：成功时 status="success"，失败时 status="fail"
+    if (data.status === "fail") {
+      console.warn(`[Geo] Lookup failed for ${ip}: ${data.message}`);
+      // 如果是配额超限，暂时返回 Unknown，避免无限重试
+      if (data.message?.includes("over quota")) {
+        return { country: "Unknown", city: "Unknown" };
+      }
       return null;
     }
 
     const result: GeoLocation = {
       country: data.country || "Unknown",
-      city: data.city || "Unknown",
+      city: data.city || data.regionName || "Unknown",
     };
 
     // 存入缓存
@@ -65,7 +70,7 @@ async function fetchGeoLocation(ip: string): Promise<GeoLocation | null> {
 
     return result;
   } catch (error) {
-    console.error(`Failed to fetch geo location for ${ip}:`, error);
+    console.error(`[Geo] Network error for ${ip}:`, error);
     return null;
   }
 }
