@@ -29,7 +29,8 @@ export async function GET(request: NextRequest) {
     const companies = await prisma.companies.findMany({
       where,
       take: 200,
-      include: { company_members: {
+      include: {
+        company_members: {
           include: {
             users: {
               select: {
