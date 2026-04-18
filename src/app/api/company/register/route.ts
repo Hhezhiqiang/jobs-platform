@@ -2,64 +2,101 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import bcrypt from "bcryptjs";
 export const dynamic = "force-dynamic";
 
-// 辅助函数：生成安全的 slug
 function generateSlug(name: string): string {
   return name
     .replace(/[^\w\s-]/g, '')
     .replace(/\s+/g, '-')
     .toLowerCase()
-    .slice(0, 30) + '-' + Date.now().toString().slice(-4);
+    .slice(0, 30) + '-' + Date.now().toString().slice(-6);
 }
 
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "请先登录" }, { status: 401 });
-    }
-
     const body = await request.json();
-    const { name } = body;
+    const { name, email, password, industry, size, location } = body;
 
     if (!name) {
       return NextResponse.json({ error: "请填写公司名称" }, { status: 400 });
     }
 
-    // 生成 slug
-    const slug = generateSlug(name);
+    // 场景1：已登录用户直接创建企业
+    if (session?.user?.id) {
+      const slug = generateSlug(name);
+      const existingCompany = await prisma.companies.findUnique({ where: { slug } });
+      if (existingCompany) {
+        return NextResponse.json({ error: "该公司名称已被注册，请换一个" }, { status: 400 });
+      }
 
-    // 检查 slug 是否已存在
-    const existingCompany = await prisma.companies.findUnique({ where: { slug } });
-    if (existingCompany) {
-      return NextResponse.json({ error: "该公司名称已被注册，请换一个" }, { status: 400 });
+      const company = await prisma.companies.create({
+        data: {
+          name, slug,
+          creditCode: "REG-" + Date.now(),
+          description: "",
+          industry: industry || "",
+          size: size || "",
+          location: location || "",
+          verificationStatus: "APPROVED",
+        },
+      });
+
+      await prisma.company_members.create({
+        data: { companyId: company.id, userId: session.user.id, role: "ADMIN" },
+      });
+
+      return NextResponse.json({ success: true, companyId: company.id });
     }
 
-    // 创建企业（直接通过，无需审核）
+    // 场景2：未登录 → 自动创建用户 + 企业（一步注册）
+    if (!email || !password) {
+      return NextResponse.json({ error: "请提供邮箱和密码以创建企业账户" }, { status: 400 });
+    }
+
+    // 检查邮箱是否已存在
+    const existingUser = await prisma.users.findUnique({ where: { email } });
+    if (existingUser) {
+      return NextResponse.json({ error: "该邮箱已注册，请先登录" }, { status: 400 });
+    }
+
+    // 创建用户（COMPANY 角色）
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await prisma.users.create({
+      data: {
+        email,
+        name: name,
+        password: hashedPassword,
+        role: "COMPANY",
+      },
+    });
+
+    // 创建企业
+    const slug = generateSlug(name);
     const company = await prisma.companies.create({
       data: {
-        name,
-        slug,
+        name, slug,
         creditCode: "REG-" + Date.now(),
         description: "",
-        industry: body.industry || "",
-        size: body.size || "",
-        location: body.location || "",
-        verificationStatus: "APPROVED", // 注册即通过，无需审核
+        industry: industry || "",
+        size: size || "",
+        location: location || "",
+        verificationStatus: "APPROVED",
       },
     });
 
-    // 创建关联成员
+    // 绑定关系
     await prisma.company_members.create({
-      data: {
-        companyId: company.id,
-        userId: session.user.id,
-        role: "ADMIN",
-      },
+      data: { companyId: company.id, userId: user.id, role: "ADMIN" },
     });
 
-    return NextResponse.json({ success: true, companyId: company.id });
+    return NextResponse.json({
+      success: true,
+      companyId: company.id,
+      userId: user.id,
+      autoLogin: true,
+    });
   } catch (error: any) {
     console.error("Company register error:", error);
     return NextResponse.json({ error: error.message || "注册失败，请稍后重试" }, { status: 500 });
