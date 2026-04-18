@@ -5,7 +5,6 @@ import { prisma } from "@/lib/prisma";
 import { Building2, MapPin, Users, Briefcase, Search } from "lucide-react";
 import { Metadata } from "next";
 import { safeJsonLdStringify } from "@/lib/utils";
-
 export const revalidate = 3600;
 
 const SITE_NAME = "JobQuip招聘平台";
