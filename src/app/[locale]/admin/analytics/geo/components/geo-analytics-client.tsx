@@ -61,25 +61,27 @@ function SimpleBarChart({ data }: { data: Array<{ label: string; value: number; 
   const maxValue = Math.max(...data.map(d => d.value));
   
   return (
-    <div className="h-full flex items-end gap-2 px-4">
-      {data.map((item, index) => (
-        <div key={index} className="flex-1 flex flex-col items-center gap-2">
-          <div className="w-full flex flex-col items-center">
-            <span className="text-xs text-gray-500 mb-1">{item.value.toLocaleString()}</span>
-            <div
-              className="w-full rounded-t-lg transition-all duration-500"
-              style={{
-                height: `${(item.value / maxValue) * 200}px`,
-                backgroundColor: item.color,
-                minHeight: '20px'
-              }}
-            />
+    <div className="w-full overflow-x-auto">
+      <div className="min-w-[300px] h-full flex items-end gap-2 px-4">
+        {data.map((item, index) => (
+          <div key={index} className="flex-1 flex flex-col items-center gap-2 min-w-0">
+            <div className="w-full flex flex-col items-center">
+              <span className="text-xs text-gray-500 mb-1 truncate max-w-full">{item.value.toLocaleString()}</span>
+              <div
+                className="w-full rounded-t-lg transition-all duration-500"
+                style={{
+                  height: `${maxValue > 0 ? (item.value / maxValue) * 200 : 20}px`,
+                  backgroundColor: item.color,
+                  minHeight: '20px'
+                }}
+              />
+            </div>
+            <span className="text-xs text-gray-600 text-center truncate w-full" title={item.label}>
+              {item.label}
+            </span>
           </div>
-          <span className="text-xs text-gray-600 text-center truncate w-full" title={item.label}>
-            {item.label}
-          </span>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

@@ -14,6 +14,8 @@ export default function CompanyRegisterPage() {
 
   const [formData, setFormData] = useState({
     name: "",
+    legalPersonName: "",
+    creditCode: "",
     description: "",
     industry: "",
     size: "",
@@ -90,6 +92,36 @@ export default function CompanyRegisterPage() {
                 placeholder="例如：北京某某科技有限公司"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="legalPersonName" className="block text-sm font-medium text-gray-700 mb-1">
+                法人姓名
+              </label>
+              <input
+                id="legalPersonName"
+                name="legalPersonName"
+                type="text"
+                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                placeholder="请输入法人姓名"
+                value={formData.legalPersonName}
+                onChange={(e) => setFormData({ ...formData, legalPersonName: e.target.value })}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="creditCode" className="block text-sm font-medium text-gray-700 mb-1">
+                统一社会信用代码
+              </label>
+              <input
+                id="creditCode"
+                name="creditCode"
+                type="text"
+                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                placeholder="选填，不填将自动生成测试编码"
+                value={formData.creditCode}
+                onChange={(e) => setFormData({ ...formData, creditCode: e.target.value })}
               />
             </div>
 
