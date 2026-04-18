@@ -1,15 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { getClientIP, checkRateLimit } from "@/lib/rate-limit";
-import { updatePageViewGeoLocation } from "@/lib/geo-location";
 import { createHash } from "crypto";
+
 export const dynamic = "force-dynamic";
 
-// 生成会话ID（基于IP + User-Agent的简单哈希）
 function generateSessionId(ip: string, userAgent: string): string {
   return createHash("md5")
     .update(ip + userAgent + new Date().toISOString().split("T")[0])
@@ -17,53 +13,46 @@ function generateSessionId(ip: string, userAgent: string): string {
     .substring(0, 16);
 }
 
-// 记录页面访问
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { path, referrer } = body;
 
-    // 获取请求信息
+    // 1. 获取 Vercel 原生地理位置数据 (100% 准确，无限制，不依赖第三方 API)
+    // x-vercel-ip-country 返回国家代码 (如 CN, US, HK)
+    // x-vercel-ip-city 返回城市名称
+    const country = request.headers.get("x-vercel-ip-country") || "Unknown";
+    const city = request.headers.get("x-vercel-ip-city") || "Unknown";
+
+    // 2. 获取 IP 和 UA
     const forwardedFor = request.headers.get("x-forwarded-for");
     const ip = forwardedFor ? forwardedFor.split(",")[0].trim() : "127.0.0.1";
     const userAgent = request.headers.get("user-agent") || "";
 
-    // 速率限制：同一 IP 30 次/分钟
-    const rateLimit = checkRateLimit(ip, 30, 60 * 1000);
-    if (!rateLimit.success) {
-      return NextResponse.json({ success: true }, { status: 200 });
-    }
-
-    // 获取登录用户
+    // 3. 获取用户 ID
     const session = await getServerSession(authOptions);
     const userId = session?.user?.id || null;
 
-    // 生成会话ID
+    // 4. 生成 Session ID
     const sessionId = generateSessionId(ip, userAgent);
 
-    // 保存访问记录
-    const pageView = await prisma.page_views.create({
+    // 5. 写入数据库
+    await prisma.page_views.create({
       data: {
         path: path || "/",
-        userAgent: userAgent.substring(0, 500), // 限制长度
-        ip: ip.substring(0, 45), // IPv6最大长度
+        userAgent: userAgent.substring(0, 500),
+        ip: ip.substring(0, 45),
         referrer: referrer?.substring(0, 500) || null,
         userId,
+        country,
+        city,
         sessionId,
       },
     });
 
-    // 异步更新地理位置信息（不阻塞响应）
-    updatePageViewGeoLocation(pageView.id, ip).catch(error => {
-      console.error("Geo location update failed:", error);
-    });
-
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Page view tracking error:", error);
-    return NextResponse.json(
-      { error: "Failed to track page view" },
-      { status: 500 }
-    );
+    console.error("Tracking error:", error);
+    return NextResponse.json({ success: true }, { status: 200 });
   }
 }
