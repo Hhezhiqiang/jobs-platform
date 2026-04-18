@@ -85,7 +85,7 @@ export function middleware(request: NextRequest) {
 
   const isAdminPath = cleanPath.startsWith("/admin");
   const isDashboardPath = cleanPath.startsWith("/dashboard");
-  const isCompanyPath = cleanPath.startsWith("/company");
+  const isCompanyPath = cleanPath.startsWith("/company") && cleanPath !== "/company/register";
   const isUserRechargePath = cleanPath.startsWith("/user/recharge");
   const isPromoterPath =
     cleanPath.startsWith("/promoter/dashboard") || cleanPath.startsWith("/promoter/links");
