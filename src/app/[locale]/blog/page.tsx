@@ -27,33 +27,43 @@ function getGradient(id: string) {
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 
-export const metadata: Metadata = {
-  title: "求职博客 - 薪资报告、面试攻略、行业趋势与职业发展 | JobQuip招聘平台",
-  description: "专业的互联网求职博客，提供2026最新薪资报告、大厂面试攻略、简历优化技巧、职业规划指南。涵盖前端、后端、产品、运营、数据分析等热门岗位，专家级原创内容助你快速拿到理想Offer。",
-  keywords: ["求职博客", "薪资报告", "面试攻略", "简历优化", "职业规划", "大厂面经", "互联网求职", "产品经理面试", "程序员面试", "运营求职", "数据分析求职", "2026求职趋势"],
-  openGraph: {
-    title: "求职博客 - 薪资报告、面试攻略、行业趋势与职业发展 | JobQuip招聘平台",
-    description: "专业的互联网求职博客，提供2026最新薪资报告、大厂面试攻略、简历优化技巧、职业规划指南。",
-    url: `${SITE_URL}/blog`,
-    siteName: "JobQuip招聘平台",
-    type: "website",
-    locale: "zh_CN",
-    images: [`${SITE_URL}/logo.png`],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "求职博客 - 薪资报告、面试攻略、行业趋势与职业发展 | JobQuip招聘平台",
-    description: "专业的互联网求职博客，提供2026最新薪资报告、大厂面试攻略、简历优化技巧、职业规划指南。",
-    images: [`${SITE_URL}/logo.png`],
-  },
-  alternates: {
-    canonical: `${SITE_URL}/blog`,
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const zh = `${SITE_URL}/${locale}`;
+
+  return {
+    title: "求职博客 - 薪资报告、面试攻略、行业趋势与职业发展",
+    description: "专业的互联网求职博客，提供2026最新薪资报告、大厂面试攻略、简历优化技巧、职业规划指南。涵盖前端、后端、产品、运营、数据分析等热门岗位，专家级原创内容助你快速拿到理想Offer。",
+    keywords: ["求职博客", "薪资报告", "面试攻略", "简历优化", "职业规划", "大厂面经", "互联网求职", "产品经理面试", "程序员面试", "运营求职", "数据分析求职", "2026求职趋势"],
+    openGraph: {
+      title: "求职博客 - 薪资报告、面试攻略、行业趋势与职业发展",
+      description: "专业的互联网求职博客，提供2026最新薪资报告、大厂面试攻略、简历优化技巧、职业规划指南。",
+      url: `${zh}/blog`,
+      siteName: "JobQuip招聘平台",
+      type: "website",
+      locale: locale === "en" ? "en_US" : "zh_CN",
+      images: [`${SITE_URL}/logo.png`],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "求职博客 - 薪资报告、面试攻略、行业趋势与职业发展",
+      description: "专业的互联网求职博客，提供2026最新薪资报告、大厂面试攻略、简历优化技巧、职业规划指南。",
+      images: [`${SITE_URL}/logo.png`],
+    },
+    alternates: {
+      canonical: `${zh}/blog`,
+      languages: {
+        "zh-CN": `${SITE_URL}/zh/blog`,
+        "en": `${SITE_URL}/en/blog`,
+        "x-default": `${SITE_URL}/zh/blog`,
+      },
+    },
+    robots: {
+      index: true,
+      follow: true,
+    },
+  };
+}
 
 export const revalidate = 3600;
 

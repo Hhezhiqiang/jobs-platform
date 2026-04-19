@@ -11,7 +11,7 @@ import { ArticleReadTracker } from "@/components/game/article-read-tracker";
 import type { pages, users } from "@prisma/client";
 
 interface PageProps {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string; locale: string }>;
 }
 
 type BlogPostWithAuthor = pages & { users: users };
@@ -33,7 +33,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
-    const { slug } = await params;
+    const { slug, locale } = await params;
     const decodedSlug = decodeURIComponent(slug);
     const post = await prisma.pages.findUnique({
     where: { slug: decodedSlug, type: "BLOG", status: "PUBLISHED" },
@@ -44,8 +44,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: "文章未找到" };
   }
 
-  const siteUrl = "https://jobquip.com";
-  const postUrl = `${siteUrl}/blog/${post.slug}`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
+  const postUrl = `${siteUrl}/${locale}/blog/${post.slug}`;
 
   return {
     title: post.metaTitle || `${post.title} | 招聘平台博客`,
@@ -69,6 +69,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     alternates: {
       canonical: postUrl,
+      languages: {
+        "zh-CN": `${siteUrl}/zh/blog/${post.slug}`,
+        "en": `${siteUrl}/en/blog/${post.slug}`,
+        "x-default": `${siteUrl}/zh/blog/${post.slug}`,
+      },
     },
   };
   } catch {
