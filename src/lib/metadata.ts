@@ -115,6 +115,11 @@ export function generateJobMetadata(job: jobs & { companies: companies }, locale
     },
     alternates: {
       canonical: url,
+      languages: {
+        "zh-CN": url.replace(SITE_URL, `${SITE_URL}/zh`),
+        "en": url.replace(SITE_URL, `${SITE_URL}/en`),
+        "x-default": url.replace(SITE_URL, `${SITE_URL}/zh`),
+      },
     },
     robots: {
       index: job.status === "ACTIVE",
@@ -159,6 +164,11 @@ export function generateCompanyMetadata(company: companies, locale: string = 'zh
     },
     alternates: {
       canonical: url,
+      languages: {
+        "zh-CN": url.replace(SITE_URL, `${SITE_URL}/zh`),
+        "en": url.replace(SITE_URL, `${SITE_URL}/en`),
+        "x-default": url.replace(SITE_URL, `${SITE_URL}/zh`),
+      },
     },
     robots: {
       index: true,
