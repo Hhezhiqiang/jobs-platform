@@ -14,29 +14,40 @@ import {
   MessageCircle
 } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "关于我们 - JobQuip招聘平台",
-  description: "了解JobQuip招聘平台的使命、团队和价值观。我们致力于为求职者和招聘企业提供最优质的连接服务，打造专业的求职招聘体验。",
-  keywords: ["关于JobQuip", "招聘平台介绍", "求职网站", "JobQuip团队", "招聘服务"],
-  openGraph: {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
+  const zh = `${siteUrl}/${locale}`;
+
+  return {
     title: "关于我们 - JobQuip招聘平台",
-    description: "了解JobQuip招聘平台的使命、团队和价值观。我们致力于为求职者和招聘企业提供最优质的连接服务。",
-    url: "https://jobquip.com/about",
-    siteName: "JobQuip招聘平台",
-    type: "website",
-    locale: "zh_CN",
-    images: ["https://jobquip.com/logo.png"],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "关于我们 - JobQuip招聘平台",
-    description: "了解JobQuip招聘平台的使命、团队和价值观。",
-    images: ["https://jobquip.com/logo.png"],
-  },
-  alternates: {
-    canonical: "https://jobquip.com/about",
-  },
-};
+    description: "了解JobQuip招聘平台的使命、团队和价值观。我们致力于为求职者和招聘企业提供最优质的连接服务，打造专业的求职招聘体验。",
+    keywords: ["关于JobQuip", "招聘平台介绍", "求职网站", "JobQuip团队", "招聘服务"],
+    openGraph: {
+      title: "关于我们 - JobQuip招聘平台",
+      description: "了解JobQuip招聘平台的使命、团队和价值观。我们致力于为求职者和招聘企业提供最优质的连接服务。",
+      url: `${zh}/about`,
+      siteName: "JobQuip招聘平台",
+      type: "website",
+      locale: locale === "en" ? "en_US" : "zh_CN",
+      images: [`${siteUrl}/logo.png`],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "关于我们 - JobQuip招聘平台",
+      description: "了解JobQuip招聘平台的使命、团队和价值观。",
+      images: [`${siteUrl}/logo.png`],
+    },
+    alternates: {
+      canonical: `${zh}/about`,
+      languages: {
+        "zh-CN": `${siteUrl}/zh/about`,
+        "en": `${siteUrl}/en/about`,
+        "x-default": `${siteUrl}/zh/about`,
+      },
+    },
+  };
+}
 
 export default function AboutPage() {
   const features = [
