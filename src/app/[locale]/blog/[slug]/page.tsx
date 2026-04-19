@@ -59,13 +59,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       publishedTime: post.createdAt.toISOString(),
       modifiedTime: post.updatedAt.toISOString(),
       authors: [post.users?.name || "JobQuip"],
-      images: post.featuredImage ? [post.featuredImage] : [],
+      images: post.featuredImage ? [{ url: post.featuredImage }] : [{ url: `${siteUrl}/logo.png` }],
     },
     twitter: {
       card: "summary_large_image",
       title: post.title,
       description: post.excerpt || "",
-      images: post.featuredImage ? [post.featuredImage] : [],
+      images: post.featuredImage ? [{ url: post.featuredImage }] : [{ url: `${siteUrl}/logo.png` }],
     },
     alternates: {
       canonical: postUrl,
@@ -82,14 +82,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 // 生成 Article Schema
-function generateArticleSchema(post: BlogPostWithAuthor) {
-  const siteUrl = "https://jobquip.com";
+function generateArticleSchema(post: BlogPostWithAuthor, locale: string) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
   return {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: post.title,
     description: post.excerpt,
-    image: post.featuredImage,
+    image: post.featuredImage || `${siteUrl}/logo.png`,
     datePublished: post.createdAt.toISOString(),
     dateModified: post.updatedAt.toISOString(),
     author: {
@@ -104,20 +104,20 @@ function generateArticleSchema(post: BlogPostWithAuthor) {
         url: `${siteUrl}/logo.png`,
       },
     },
-    url: `${siteUrl}/blog/${post.slug}`,
+    url: `${siteUrl}/${locale}/blog/${post.slug}`,
   };
 }
 
 // 生成 Breadcrumb Schema
-function generateBreadcrumbSchema(slug: string, title: string) {
-  const siteUrl = "https://jobquip.com";
+function generateBreadcrumbSchema(slug: string, title: string, locale: string) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "首页", item: siteUrl },
-      { "@type": "ListItem", position: 2, name: "博客", item: `${siteUrl}/blog` },
-      { "@type": "ListItem", position: 3, name: title, item: `${siteUrl}/blog/${slug}` },
+      { "@type": "ListItem", position: 2, name: "博客", item: `${siteUrl}/${locale}/blog` },
+      { "@type": "ListItem", position: 3, name: title, item: `${siteUrl}/${locale}/blog/${slug}` },
     ],
   };
 }
@@ -140,7 +140,9 @@ function generateFAQSchema(faqs: { question: string; answer: string }[]) {
 
 export default async function BlogDetailPage({ params }: PageProps) {
   try {
-    const rawSlug = (await params).slug;
+    const resolvedParams = await params;
+    const rawSlug = resolvedParams.slug;
+    const locale = resolvedParams.locale || "zh";
     const slug = decodeURIComponent(rawSlug);
     const post = await prisma.pages.findUnique({
       where: { slug, type: "BLOG", status: "PUBLISHED" },
@@ -215,8 +217,8 @@ export default async function BlogDetailPage({ params }: PageProps) {
     }
   }
 
-  const articleSchema = generateArticleSchema(post);
-  const breadcrumbSchema = generateBreadcrumbSchema(slug, post.title);
+  const articleSchema = generateArticleSchema(post, locale);
+  const breadcrumbSchema = generateBreadcrumbSchema(slug, post.title, locale);
   const faqSchema = faqs.length > 0 ? generateFAQSchema(faqs) : null;
 
   return (

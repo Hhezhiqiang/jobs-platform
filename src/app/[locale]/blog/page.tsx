@@ -78,19 +78,21 @@ const categories = [
 ];
 
 interface PageProps {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{ q?: string; category?: string; page?: string }>;
 }
 
 type PostWithAuthor = pages & { users: users | null };
 
 // 生成博客列表页的 Schema 数据
-function generateBlogListSchema(posts: PostWithAuthor[], _total: number) {
+function generateBlogListSchema(posts: PostWithAuthor[], _total: number, locale: string) {
+  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
   return {
     "@context": "https://schema.org",
     "@type": "Blog",
     name: "JobQuip求职博客",
     description: "专业的互联网求职博客，提供薪资报告、面试攻略、行业趋势与职业发展建议。",
-    url: `${SITE_URL}/blog`,
+    url: `${SITE_URL}/${locale}/blog`,
     publisher: {
       "@type": "Organization",
       name: "JobQuip招聘平台",
@@ -103,7 +105,7 @@ function generateBlogListSchema(posts: PostWithAuthor[], _total: number) {
       "@type": "BlogPosting",
       headline: post.title,
       description: post.excerpt,
-      url: `${SITE_URL}/blog/${post.slug}`,
+      url: `${SITE_URL}/${locale}/blog/${post.slug}`,
       datePublished: post.createdAt.toISOString(),
       dateModified: post.updatedAt.toISOString(),
       author: {
@@ -114,22 +116,24 @@ function generateBlogListSchema(posts: PostWithAuthor[], _total: number) {
   };
 }
 
-function generateBreadcrumbSchema() {
+function generateBreadcrumbSchema(locale: string) {
+  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "首页", item: SITE_URL },
-      { "@type": "ListItem", position: 2, name: "博客", item: `${SITE_URL}/blog` },
+      { "@type": "ListItem", position: 2, name: "博客", item: `${SITE_URL}/${locale}/blog` },
     ],
   };
 }
 
-export default async function BlogPage({ searchParams }: PageProps) {
-  const params = await searchParams;
-  const searchQuery = params.q || "";
-  const selectedCategory = params.category || "全部";
-  const page = parseInt(params.page || "1", 10);
+export default async function BlogPage({ params, searchParams }: PageProps) {
+  const { locale } = await params;
+  const sp = await searchParams;
+  const searchQuery = sp.q || "";
+  const selectedCategory = sp.category || "全部";
+  const page = parseInt(sp.page || "1", 10);
   const limit = 12;
   const skip = (page - 1) * limit;
 
@@ -162,8 +166,8 @@ export default async function BlogPage({ searchParams }: PageProps) {
   const paginatedPosts = filteredPosts.slice(skip, skip + limit);
   const totalPages = Math.ceil(total / limit);
 
-  const blogListSchema = generateBlogListSchema(paginatedPosts, total);
-  const breadcrumbSchema = generateBreadcrumbSchema();
+  const blogListSchema = generateBlogListSchema(paginatedPosts, total, locale);
+  const breadcrumbSchema = generateBreadcrumbSchema(locale);
 
   const buildPageUrl = (pageNum: number) => {
     const sp = new URLSearchParams();
