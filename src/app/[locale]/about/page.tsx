@@ -86,17 +86,17 @@ export default function AboutPage() {
 
   const team = [
     {
-      name: "张经理",
+      name: "陈明远",
       role: "创始人 & CEO",
       description: "10年人力资源行业经验，曾任多家知名企业HR总监",
     },
     {
-      name: "李技术",
+      name: "赵文博",
       role: "技术总监",
       description: "全栈开发专家，专注于打造极致用户体验",
     },
     {
-      name: "王运营",
+      name: "林思琪",
       role: "运营总监",
       description: "深耕互联网行业运营，擅长用户增长与留存",
     },

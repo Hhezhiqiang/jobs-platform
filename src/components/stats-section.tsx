@@ -11,20 +11,22 @@ interface StatCardProps {
 }
 
 function AnimatedNumber({ value, suffix = "" }: { value: number; suffix?: string }) {
-  const [displayValue, setDisplayValue] = useState(0);
+  const [displayValue, setDisplayValue] = useState(value);
   const [hasAnimated, setHasAnimated] = useState(false);
   const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    if (hasAnimated) return;
+    if (hasAnimated || value === 0) return;
     
+    // SSR: real value already shown. Client: animate on scroll.
     let timer: ReturnType<typeof setInterval> | null = null;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !hasAnimated) {
           setHasAnimated(true);
-          const duration = 2000;
-          const steps = 60;
+          setDisplayValue(0);
+          const duration = 1500;
+          const steps = 40;
           const stepValue = value / steps;
           let current = 0;
 
