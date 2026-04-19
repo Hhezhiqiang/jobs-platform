@@ -142,21 +142,9 @@ export default async function RootLayout({
     },
   };
 
-  // hreflang 链接
-  const hreflangLinks = [
-    { rel: "alternate", hrefLang: "zh", href: `${SITE_URL}/zh` },
-    { rel: "alternate", hrefLang: "en", href: `${SITE_URL}/en` },
-    { rel: "alternate", hrefLang: "x-default", href: `${SITE_URL}/zh` },
-  ];
-
   return (
     <html lang={locale}>
       <head>
-        {/* hreflang 多语言标签 — 关键 SEO 配置 */}
-        {hreflangLinks.map((link) => (
-          <link key={link.hrefLang} rel={link.rel} hrefLang={link.hrefLang} href={link.href} />
-        ))}
-
         {/* WebSite Schema — Google for Jobs 核心 */}
         <script
           type="application/ld+json"
