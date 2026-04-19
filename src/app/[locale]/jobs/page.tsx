@@ -9,6 +9,7 @@ import { Prisma } from "@prisma/client";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PageProps {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{
     q?: string;
     city?: string;
@@ -22,18 +23,19 @@ interface PageProps {
   }>;
 }
 
-export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
-  const params = await searchParams;
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
+  const { locale } = await params;
+  const sp = await searchParams;
   return generateJobsListMetadata({
-    city: params.city,
-    type: params.type,
-    query: params.q,
-  });
+    city: sp.city,
+    type: sp.type,
+    query: sp.q,
+  }, locale);
 }
 
-export default async function JobsPage({ searchParams }: PageProps) {
-  const params = await searchParams;
-  const page = parseInt(params.page || "1");
+export default async function JobsPage({ params, searchParams }: PageProps) {
+  const sp = await searchParams;
+  const page = parseInt(sp.page || "1");
   const limit = 20;
   const skip = (page - 1) * limit;
 
@@ -46,41 +48,41 @@ export default async function JobsPage({ searchParams }: PageProps) {
     // 构建查询条件
     const where: Prisma.jobsWhereInput = { status: "ACTIVE" };
 
-    if (params.q) {
+    if (sp.q) {
       where.OR = [
-        { title: { contains: params.q, mode: "insensitive" } },
-        { description: { contains: params.q, mode: "insensitive" } },
-        { companies: { name: { contains: params.q, mode: "insensitive" } } },
+        { title: { contains: sp.q, mode: "insensitive" } },
+        { description: { contains: sp.q, mode: "insensitive" } },
+        { companies: { name: { contains: sp.q, mode: "insensitive" } } },
       ];
     }
 
-    if (params.city) {
-      where.city = params.city;
+    if (sp.city) {
+      where.city = sp.city;
     }
 
-    if (params.type) {
-      where.employmentType = params.type as Prisma.EnumEmploymentTypeFilter<"jobs">;
+    if (sp.type) {
+      where.employmentType = sp.type as Prisma.EnumEmploymentTypeFilter<"jobs">;
     }
 
-    if (params.minSalary || params.maxSalary) {
+    if (sp.minSalary || sp.maxSalary) {
       where.AND = [];
-      if (params.minSalary) {
+      if (sp.minSalary) {
         (where.AND as Prisma.jobsWhereInput[]).push({
-          salaryMin: { gte: parseInt(params.minSalary) },
+          salaryMin: { gte: parseInt(sp.minSalary) },
         });
       }
-      if (params.maxSalary) {
+      if (sp.maxSalary) {
         (where.AND as Prisma.jobsWhereInput[]).push({
-          salaryMax: { lte: parseInt(params.maxSalary) },
+          salaryMax: { lte: parseInt(sp.maxSalary) },
         });
       }
     }
 
     // 按公司文化标签筛选
-    if (params.cultureTag) {
+    if (sp.cultureTag) {
       where.companies = {
         cultureTags: {
-          has: params.cultureTag,
+          has: sp.cultureTag,
         },
       };
     }
@@ -125,15 +127,15 @@ export default async function JobsPage({ searchParams }: PageProps) {
   const totalPages = Math.ceil(total / limit);
 
   const currentParams = {
-    q: params.q,
-    city: params.city,
-    type: params.type,
-    minSalary: params.minSalary,
-    maxSalary: params.maxSalary,
-    cultureTag: params.cultureTag,
-    onlyMatched: params.onlyMatched,
-    sort: params.sort,
-    page: params.page,
+    q: sp.q,
+    city: sp.city,
+    type: sp.type,
+    minSalary: sp.minSalary,
+    maxSalary: sp.maxSalary,
+    cultureTag: sp.cultureTag,
+    onlyMatched: sp.onlyMatched,
+    sort: sp.sort,
+    page: sp.page,
   };
 
   return (

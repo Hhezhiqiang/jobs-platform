@@ -14,7 +14,11 @@ import { RecommendationSection } from "@/components/recommendation-section";
 import { HomeCheckinWrapper } from "@/components/game/home-checkin-wrapper";
 
 export const revalidate = 60;
-export const metadata: Metadata = generateHomeMetadata();
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  return generateHomeMetadata(locale);
+}
 
 // 首页 FAQ Schema (Google 富摘要)
 const homeFAQ = [

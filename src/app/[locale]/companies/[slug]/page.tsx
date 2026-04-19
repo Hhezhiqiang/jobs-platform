@@ -10,7 +10,7 @@ import { MapPin, Globe, Users, Building2, Briefcase, ChevronRight } from "lucide
 import { safeJsonLdStringify, ensureHttpProtocol } from "@/lib/utils";
 
 interface PageProps {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string; locale: string }>;
 }
 
 export const revalidate = 3600;
@@ -30,7 +30,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
-    const { slug } = await params;
+    const { slug, locale } = await params;
     const company = await prisma.companies.findUnique({
       where: { slug },
     });
@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       return { title: "公司未找到" };
     }
 
-    return generateCompanyMetadata(company);
+    return generateCompanyMetadata(company, locale);
   } catch {
     return { title: "公司未找到" };
   }

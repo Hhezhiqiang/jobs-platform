@@ -41,7 +41,7 @@ export function generateHomeMetadata(locale = "zh"): Metadata {
     openGraph: {
       title,
       description: desc,
-      url: SITE_URL,
+      url: `${SITE_URL}/${locale}`,
       siteName: SITE_NAME,
       type: "website",
       locale: isEn ? "en_US" : "zh_CN",
@@ -54,7 +54,7 @@ export function generateHomeMetadata(locale = "zh"): Metadata {
       images: [DEFAULT_OG_IMAGE],
     },
     alternates: {
-      canonical: SITE_URL,
+      canonical: `${SITE_URL}/${locale}`,
       languages: {
         "zh-CN": `${SITE_URL}/zh`,
         "en": `${SITE_URL}/en`,
@@ -65,13 +65,13 @@ export function generateHomeMetadata(locale = "zh"): Metadata {
 }
 
 // 职位详情页 Metadata（SEO 极致优化版）
-export function generateJobMetadata(job: jobs & { companies: companies }): Metadata {
+export function generateJobMetadata(job: jobs & { companies: companies }, locale: string = 'zh'): Metadata {
   const salaryStr = formatSalary(job.salaryMin, job.salaryMax);
-  const title = job.metaTitle || `${job.title}招聘 - ${job.companies.name} | ${salaryStr ? salaryStr + ' | ' : ''}${job.location} | ${SITE_NAME}`;
+  const title = job.metaTitle || `${job.title}招聘 - ${job.companies.name}${salaryStr ? ' | ' + salaryStr : ''}${job.location ? ' | ' + job.location : ''}`;
   const description = job.metaDescription ||
     `${job.companies.name}招聘${job.title}，工作地点：${job.location}${job.isRemote ? '（支持远程）' : ''}，薪资：${salaryStr || '面议'}。${job.description ? job.description.slice(0, 100) + '。' : ''}点击查看详情并立即申请。`;
 
-  const url = `${SITE_URL}/jobs/${job.slug}`;
+  const url = `${SITE_URL}/${locale}/jobs/${job.slug}`;
 
   // 极致关键词覆盖
   const jobKeywords = [
@@ -124,12 +124,12 @@ export function generateJobMetadata(job: jobs & { companies: companies }): Metad
 }
 
 // 公司页 Metadata
-export function generateCompanyMetadata(company: companies): Metadata {
-  const title = company.metaTitle || `${company.name}招聘 - 最新职位 | ${company.industry || '互联网'}行业 | ${SITE_NAME}`;
+export function generateCompanyMetadata(company: companies, locale: string = 'zh'): Metadata {
+  const title = company.metaTitle || `${company.name}招聘 - 最新职位 | ${company.industry || '互联网'}行业`;
   const description = company.metaDescription ||
     `${company.name}${company.industry ? `，${company.industry}行业` : ""}招聘主页。${company.description ? company.description.slice(0, 80) : '查看最新职位信息，了解公司详情。'}了解更多并申请。`;
 
-  const url = `${SITE_URL}/companies/${company.slug}`;
+  const url = `${SITE_URL}/${locale}/companies/${company.slug}`;
 
   return {
     title,
@@ -168,14 +168,14 @@ export function generateCompanyMetadata(company: companies): Metadata {
 }
 
 // 职位列表页 Metadata（SEO 强化版）
-export function generateJobsListMetadata(params?: { city?: string; type?: string; query?: string }): Metadata {
+export function generateJobsListMetadata(params?: { city?: string; type?: string; query?: string }, locale: string = "zh"): Metadata {
   const cityText = params?.city ? `${params.city} ` : "";
   const typeText = params?.type ? `${params.type} ` : "";
   const queryText = params?.query ? `${params.query} ` : "";
 
   const title = queryText
-    ? `${queryText}招聘信息 - 职位搜索结果 | ${SITE_NAME}`
-    : `${cityText}${typeText}招聘信息 - 最新职位列表 | ${SITE_NAME}`;
+    ? `${queryText}招聘信息 - 职位搜索结果`
+    : `${cityText}${typeText}招聘信息 - 最新职位列表`;
 
   const description = queryText
     ? `搜索"${queryText}"相关职位，查看最新的${queryText}招聘信息。高薪岗位实时更新，快速找到理想工作。`
@@ -192,10 +192,10 @@ export function generateJobsListMetadata(params?: { city?: string; type?: string
     openGraph: {
       title,
       description,
-      url: `${SITE_URL}/jobs`,
+      url: `${SITE_URL}/${locale}/jobs`,
       siteName: SITE_NAME,
       type: "website",
-      locale: "zh_CN",
+      locale: locale === "en" ? "en_US" : "zh_CN",
       images: [DEFAULT_OG_IMAGE],
     },
     twitter: {
@@ -207,6 +207,14 @@ export function generateJobsListMetadata(params?: { city?: string; type?: string
     robots: {
       index: true,
       follow: true,
+    },
+    alternates: {
+      canonical: `${SITE_URL}/${locale}/jobs`,
+      languages: {
+        "zh-CN": `${SITE_URL}/zh/jobs`,
+        "en": `${SITE_URL}/en/jobs`,
+        "x-default": `${SITE_URL}/zh/jobs`,
+      },
     },
   };
 }

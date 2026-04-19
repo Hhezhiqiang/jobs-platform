@@ -46,7 +46,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   try {
-    const { slug } = await params;
+    const { slug, locale } = await params;
     const job = await prisma.jobs.findUnique({
       where: { slug },
       include: { companies: true },
@@ -56,7 +56,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       return { title: "职位未找到" };
     }
 
-    return generateJobMetadata(job);
+    return generateJobMetadata(job, locale);
   } catch {
     return { title: "职位未找到" };
   }
