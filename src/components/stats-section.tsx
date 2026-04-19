@@ -1,5 +1,3 @@
-"use client";
-
 interface StatCardProps {
   value: number;
   suffix?: string;
@@ -21,11 +19,9 @@ function StatCard({ value, suffix, label, icon, color = "blue" }: StatCardProps)
       <div className={`absolute -top-3 -right-3 w-14 h-14 rounded-xl bg-gradient-to-br ${colorClasses[color]} flex items-center justify-center text-2xl shadow-lg group-hover:scale-110 transition-transform`}>
         {icon}
       </div>
-      
       <div className="text-4xl font-bold text-gray-900 mb-2">
         <span>{value.toLocaleString()}{suffix}</span>
       </div>
-      
       <div className="text-gray-500 font-medium">{label}</div>
     </div>
   );
@@ -47,36 +43,11 @@ export function StatsSection({ jobCount, companyCount, dailyNewJobs = 0 }: Stats
             每天都有数千名求职者和企业在这里找到彼此，加入我们，开启职业新篇章
           </p>
         </div>
-
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          <StatCard
-            value={jobCount || 0}
-            suffix="+"
-            label="在招职位"
-            icon="💼"
-            color="blue"
-          />
-          <StatCard
-            value={companyCount || 0}
-            suffix="+"
-            label="合作企业"
-            icon="🏢"
-            color="purple"
-          />
-          <StatCard
-            value={98}
-            suffix="%"
-            label="简历通过率"
-            icon="📈"
-            color="green"
-          />
-          <StatCard
-            value={dailyNewJobs || 0}
-            suffix="+"
-            label="日新增职位"
-            icon="🚀"
-            color="orange"
-          />
+          <StatCard value={jobCount || 0} suffix="+" label="在招职位" icon="💼" color="blue" />
+          <StatCard value={companyCount || 0} suffix="+" label="合作企业" icon="🏢" color="purple" />
+          <StatCard value={98} suffix="%" label="简历通过率" icon="📈" color="green" />
+          <StatCard value={dailyNewJobs || 0} suffix="+" label="日新增职位" icon="🚀" color="orange" />
         </div>
       </div>
     </section>
