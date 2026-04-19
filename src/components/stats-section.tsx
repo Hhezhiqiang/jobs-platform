@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-
 interface StatCardProps {
   value: number;
   suffix?: string;
@@ -10,58 +8,7 @@ interface StatCardProps {
   color?: "blue" | "green" | "purple" | "orange";
 }
 
-function AnimatedNumber({ value, suffix = "" }: { value: number; suffix?: string }) {
-  const [displayValue, setDisplayValue] = useState(value);
-  const [hasAnimated, setHasAnimated] = useState(false);
-  const ref = useRef<HTMLSpanElement>(null);
-
-  useEffect(() => {
-    if (hasAnimated || value === 0) return;
-    
-    // SSR: real value already shown. Client: animate on scroll.
-    let timer: ReturnType<typeof setInterval> | null = null;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !hasAnimated) {
-          setHasAnimated(true);
-          setDisplayValue(0);
-          const duration = 1500;
-          const steps = 40;
-          const stepValue = value / steps;
-          let current = 0;
-
-          timer = setInterval(() => {
-            current += stepValue;
-            if (current >= value) {
-              setDisplayValue(value);
-              if (timer) clearInterval(timer);
-            } else {
-              setDisplayValue(Math.floor(current));
-            }
-          }, duration / steps);
-        }
-      },
-      { threshold: 0.3 }
-    );
-
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
-    return () => {
-      if (timer) clearInterval(timer);
-      observer.disconnect();
-    };
-  }, [value, hasAnimated]);
-
-  return (
-    <span ref={ref}>
-      {displayValue.toLocaleString()}{suffix}
-    </span>
-  );
-}
-
-export function StatCard({ value, suffix, label, icon, color = "blue" }: StatCardProps) {
+function StatCard({ value, suffix, label, icon, color = "blue" }: StatCardProps) {
   const colorClasses = {
     blue: "from-blue-500 to-blue-600 shadow-blue-500/25",
     green: "from-green-500 to-green-600 shadow-green-500/25",
@@ -76,7 +23,7 @@ export function StatCard({ value, suffix, label, icon, color = "blue" }: StatCar
       </div>
       
       <div className="text-4xl font-bold text-gray-900 mb-2">
-        <AnimatedNumber value={value} suffix={suffix} />
+        <span>{value.toLocaleString()}{suffix}</span>
       </div>
       
       <div className="text-gray-500 font-medium">{label}</div>
