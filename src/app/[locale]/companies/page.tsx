@@ -10,12 +10,13 @@ export const revalidate = 3600;
 const SITE_NAME = "JobQuip招聘平台";
 const SITE_URL = "https://jobquip.com";
 
-export async function generateMetadata({ searchParams }: { searchParams: Promise<{ q?: string }> }): Promise<Metadata> {
-  const params = await searchParams;
-  const query = params.q || "";
+export async function generateMetadata({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<{ q?: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const sp = await searchParams;
+  const query = sp.q || "";
   const title = query
-    ? `${query} 相关公司 - 企业搜索 | ${SITE_NAME}`
-    : `知名企业列表 - 发现优秀企业 | ${SITE_NAME}`;
+    ? `${query} 相关公司 - 企业搜索`
+    : `知名企业列表 - 发现优秀企业`;
   const description = query
     ? `搜索"${query}"找到的相关企业，查看最新招聘信息和公司详情。`
     : "发现优秀企业，探索知名互联网公司，找到理想的职业平台。查看最新公司列表和招聘信息。";
@@ -27,10 +28,10 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
     openGraph: {
       title,
       description,
-      url: `${SITE_URL}/companies`,
+      url: `${SITE_URL}/${locale}/companies`,
       siteName: SITE_NAME,
       type: "website",
-      locale: "zh_CN",
+      locale: locale === "en" ? "en_US" : "zh_CN",
     },
     twitter: {
       card: "summary_large_image",
@@ -38,18 +39,24 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
       description,
     },
     alternates: {
-      canonical: `${SITE_URL}/companies`,
+      canonical: `${SITE_URL}/${locale}/companies`,
+      languages: {
+        "zh-CN": `${SITE_URL}/zh/companies`,
+        "en": `${SITE_URL}/en/companies`,
+        "x-default": `${SITE_URL}/zh/companies`,
+      },
     },
   };
 }
 
 interface PageProps {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{ q?: string }>;
 }
 
 export default async function CompaniesPage({ searchParams }: PageProps) {
-  const params = await searchParams;
-  const searchQuery = params.q || "";
+  const sp = await searchParams;
+  const searchQuery = sp.q || "";
 
   // 从数据库获取真实公司数据
   const companies = await prisma.companies.findMany({
