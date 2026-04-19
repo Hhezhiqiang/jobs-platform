@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
-import { Bell, Check, Trash2, Clock, FileText, Briefcase, Gift, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { useLocale } from "next-intl";
+import { Bell, Check, Trash2, Clock, FileText, Briefcase, Gift, AlertCircle, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 interface Notification {
@@ -32,6 +33,7 @@ const typeLabels: Record<string, string> = {
 };
 
 export default function NotificationsPage() {
+  const locale = useLocale();
   const { data: session, status } = useSession();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
@@ -154,6 +156,10 @@ export default function NotificationsPage() {
 
   return (
     <div className="max-w-4xl mx-auto">
+      {/* 返回按钮 */}
+      <Link href={`/${locale}/dashboard`} className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-700 mb-4">
+        <ArrowLeft className="w-4 h-4" /> 返回个人中心
+      </Link>
       {/* 头部 */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
@@ -277,7 +283,7 @@ export default function NotificationsPage() {
                       {/* 相关链接 */}
                       {notification.metadata?.applicationId && (
                         <Link
-                          href="/dashboard/applications"
+                          href={`/${locale}/dashboard/applications`}
                           className="inline-flex items-center gap-1 mt-3 text-sm text-blue-600 hover:text-blue-700"
                         >
                           查看申请详情 →

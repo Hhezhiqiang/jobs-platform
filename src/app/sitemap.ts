@@ -3,21 +3,29 @@ import { MetadataRoute } from "next";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
+  // 所有路由都有 /zh 前缀（localePrefix: "always"）
+  const zh = `${baseUrl}/zh`;
 
   // ── 1. 静态页面（核心入口）──
   const staticPages: MetadataRoute.Sitemap = [
-    { url: baseUrl, priority: 1.0, changeFrequency: "daily", lastModified: new Date() },
-    { url: `${baseUrl}/jobs`, priority: 0.9, changeFrequency: "hourly", lastModified: new Date() },
-    { url: `${baseUrl}/blog`, priority: 0.9, changeFrequency: "daily", lastModified: new Date() },
-    { url: `${baseUrl}/companies`, priority: 0.85, changeFrequency: "daily", lastModified: new Date() },
-    { url: `${baseUrl}/salary-insights`, priority: 0.8, changeFrequency: "weekly", lastModified: new Date() },
-    { url: `${baseUrl}/career-trail`, priority: 0.75, changeFrequency: "weekly", lastModified: new Date() },
-    { url: `${baseUrl}/about`, priority: 0.7, changeFrequency: "monthly", lastModified: new Date() },
-    { url: `${baseUrl}/contact`, priority: 0.6, changeFrequency: "monthly", lastModified: new Date() },
-    { url: `${baseUrl}/faq`, priority: 0.6, changeFrequency: "monthly", lastModified: new Date() },
+    { url: `${zh}`, priority: 1.0, changeFrequency: "daily", lastModified: new Date() },
+    { url: `${zh}/jobs`, priority: 0.9, changeFrequency: "hourly", lastModified: new Date() },
+    { url: `${zh}/blog`, priority: 0.9, changeFrequency: "daily", lastModified: new Date() },
+    { url: `${zh}/companies`, priority: 0.85, changeFrequency: "daily", lastModified: new Date() },
+    { url: `${zh}/salary-insights`, priority: 0.8, changeFrequency: "weekly", lastModified: new Date() },
+    { url: `${zh}/career-trail`, priority: 0.75, changeFrequency: "weekly", lastModified: new Date() },
+    { url: `${zh}/about`, priority: 0.7, changeFrequency: "monthly", lastModified: new Date() },
+    { url: `${zh}/contact`, priority: 0.6, changeFrequency: "monthly", lastModified: new Date() },
+    { url: `${zh}/faq`, priority: 0.6, changeFrequency: "monthly", lastModified: new Date() },
+    { url: `${zh}/search`, priority: 0.6, changeFrequency: "daily", lastModified: new Date() },
+    // 英文版
+    { url: `${baseUrl}/en`, priority: 0.9, changeFrequency: "daily", lastModified: new Date() },
+    { url: `${baseUrl}/en/jobs`, priority: 0.8, changeFrequency: "hourly", lastModified: new Date() },
+    { url: `${baseUrl}/en/blog`, priority: 0.8, changeFrequency: "daily", lastModified: new Date() },
+    { url: `${baseUrl}/en/companies`, priority: 0.75, changeFrequency: "daily", lastModified: new Date() },
   ];
 
-  // ── 2. 博客文章（内容核心，最高优先）──
+  // ── 2. 博客文章（内容核心）──
   const blogs = await prisma.pages.findMany({
     where: { type: "BLOG", status: "PUBLISHED" },
     select: { slug: true, updatedAt: true },
@@ -25,57 +33,56 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     take: 500,
   });
 
-  // 过滤测试 slug（包含时间戳或明显测试特征）
+  // 过滤测试 slug
   const isTestSlug = (slug: string) => {
     if (!slug || slug.length < 3) return true;
-    // 包含长数字时间戳（如 -1776074227824）
     if (/\d{10,}/.test(slug)) return true;
-    // 纯测试模式
     if (/^test[-_]/i.test(slug)) return true;
-    // 单个字符
     if (/^[a-z0-9]$/i.test(slug)) return true;
+    // 纯随机 ID（如 -mnwhjzph）
+    if (/^-m[a-z]{5,}$/i.test(slug)) return true;
     return false;
   };
 
   const blogEntries: MetadataRoute.Sitemap = blogs
     .filter((blog) => !isTestSlug(blog.slug))
     .map((blog) => ({
-      url: `${baseUrl}/blog/${blog.slug}`,
+      url: `${zh}/blog/${blog.slug}`,
       lastModified: blog.updatedAt,
       priority: 0.8,
       changeFrequency: "weekly" as const,
     }));
 
-  // ── 3. 职位页面（高频更新，Google for Jobs 核心）──
+  // ── 3. 职位页面（Google for Jobs 核心）──
   const jobs = await prisma.jobs.findMany({
     where: { status: "ACTIVE" },
     select: { slug: true, updatedAt: true },
     orderBy: { updatedAt: "desc" },
-    take: 500, // 增加到 500 个
+    take: 500,
   });
 
   const jobEntries: MetadataRoute.Sitemap = jobs.map((job) => ({
-    url: `${baseUrl}/jobs/${job.slug}`,
+    url: `${zh}/jobs/${job.slug}`,
     lastModified: job.updatedAt,
     priority: 0.7,
     changeFrequency: "daily" as const,
   }));
 
-  // ── 4. 公司页面（含职位数量的权威页面）──
+  // ── 4. 公司页面 ──
   const companies = await prisma.companies.findMany({
     select: { slug: true, updatedAt: true },
     orderBy: { updatedAt: "desc" },
-    take: 200, // 增加到 200 个
+    take: 200,
   });
 
   const companyEntries: MetadataRoute.Sitemap = companies.map((company) => ({
-    url: `${baseUrl}/companies/${company.slug}`,
+    url: `${zh}/companies/${company.slug}`,
     lastModified: company.updatedAt,
     priority: 0.65,
     changeFrequency: "weekly" as const,
   }));
 
-  // ── 5. 城市职位页（本地 SEO 核心）──
+  // ── 5. 城市职位页（本地 SEO）──
   const cities = await prisma.jobs.groupBy({
     by: ["city"],
     where: { status: "ACTIVE", city: { not: null } },
@@ -87,13 +94,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const cityEntries: MetadataRoute.Sitemap = cities
     .filter((c) => c.city)
     .map((c) => ({
-      url: `${baseUrl}/jobs/city/${encodeURIComponent(c.city!)}`,
+      url: `${zh}/jobs/city/${encodeURIComponent(c.city!)}`,
       lastModified: new Date(),
       priority: 0.6,
       changeFrequency: "daily" as const,
     }));
 
-  // ── 6. 职业叙事/面经页（长尾流量）──
+  // ── 6. 职业叙事/面经页 ──
   const stories = await prisma.careerStory.findMany({
     where: {},
     select: { id: true, updatedAt: true },
@@ -102,7 +109,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   });
 
   const storyEntries: MetadataRoute.Sitemap = stories.map((s) => ({
-    url: `${baseUrl}/career-trail/${s.id}`,
+    url: `${zh}/career-trail/${s.id}`,
     lastModified: s.updatedAt,
     priority: 0.5,
     changeFrequency: "weekly" as const,
