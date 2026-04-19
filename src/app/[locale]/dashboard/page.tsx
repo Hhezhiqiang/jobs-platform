@@ -61,11 +61,12 @@ async function withdrawApplication(formData: FormData) {
   });
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
-    redirect("/auth/login");
+    redirect(`/${locale}/auth/login`);
   }
 
   const [user, applicationCount, resumeCount] = await Promise.all([
@@ -78,7 +79,7 @@ export default async function DashboardPage() {
   ]);
 
   if (!user) {
-    redirect("/auth/login");
+    redirect(`/${locale}/auth/login`);
   }
 
   const recentApplications = await prisma.job_applications.findMany({

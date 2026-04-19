@@ -1,4 +1,5 @@
-"use client";
+"use client"
+import { useLocale } from "next-intl";;
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -6,6 +7,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function SettingsPage() {
+  const locale = useLocale();
   const { data: session, status } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -25,7 +27,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/auth/login");
+      router.push(`/${locale}/auth/login`);
     }
   }, [status, router]);
 

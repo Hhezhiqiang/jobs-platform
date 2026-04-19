@@ -1,10 +1,12 @@
-"use client";
+"use client"
+import { useLocale } from "next-intl";;
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function NewJobPage() {
+  const locale = useLocale();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -36,7 +38,7 @@ export default function NewJobPage() {
       });
 
       if (res.ok) {
-        router.push("/admin");
+        router.push(`/${locale}/admin`);
         router.refresh();
       } else {
         const data = await res.json();

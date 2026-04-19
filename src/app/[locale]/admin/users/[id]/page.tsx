@@ -7,15 +7,16 @@ import { prisma } from "@/lib/prisma";
 interface UserDetailPageProps {
   params: Promise<{
     id: string;
+    locale: string;
   }>;
 }
 
 export default async function UserDetailPage({ params }: UserDetailPageProps) {
+  const { locale, id } = await params;
   const session = await getServerSession(authOptions);
-  const { id } = await params;
 
   if (!session || session.user?.role !== "ADMIN") {
-    redirect("/auth/login/admin");
+    redirect(`/${locale}/auth/login/admin`);
   }
 
   const user = await prisma.users.findUnique({

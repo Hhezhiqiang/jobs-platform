@@ -10,10 +10,11 @@ export const metadata: Metadata = {
   description: "完成每日任务和新手引导",
 };
 
-export default async function QuestsPage() {
+export default async function QuestsPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
-    redirect("/auth/login");
+    redirect(`/${locale}/auth/login`);
   }
 
   const profile = await prisma.userGameProfile.findUnique({
@@ -33,7 +34,7 @@ export default async function QuestsPage() {
   });
 
   if (!profile) {
-    redirect("/dashboard");
+    redirect(`/${locale}/dashboard`);
   }
 
   const guideTasks = profile.taskProgress.filter(

@@ -1,4 +1,5 @@
-"use client";
+"use client"
+import { useLocale } from "next-intl";;
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
@@ -19,6 +20,7 @@ interface CompanyData {
 }
 
 export default function EditCompanyPage() {
+  const locale = useLocale();
   const router = useRouter();
   const params = useParams();
   const companyId = params.id as string;
@@ -86,7 +88,7 @@ export default function EditCompanyPage() {
       const data = await res.json();
 
       if (res.ok) {
-        router.push("/admin/companies");
+        router.push(`/${locale}/admin/companies`);
       } else {
         setError(data.error || "更新失败");
         setLoading(false);
@@ -108,7 +110,7 @@ export default function EditCompanyPage() {
       });
 
       if (res.ok) {
-        router.push("/admin/companies");
+        router.push(`/${locale}/admin/companies`);
       } else {
         const data = await res.json();
         setError(data.error || "删除失败");

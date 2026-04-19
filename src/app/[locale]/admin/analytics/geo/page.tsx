@@ -25,11 +25,12 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default async function GeoAnalyticsPage() {
+export default async function GeoAnalyticsPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const session = await getServerSession(authOptions);
 
   if (!session || session.user?.role !== "ADMIN") {
-    redirect("/auth/login/admin");
+    redirect(`/${locale}/auth/login/admin`);
   }
 
   const navItems = [

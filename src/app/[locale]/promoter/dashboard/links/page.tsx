@@ -1,4 +1,5 @@
-"use client";
+"use client"
+import { useLocale } from "next-intl";;
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -19,6 +20,7 @@ interface LinkItem {
 }
 
 export default function PromoterLinksPage() {
+  const locale = useLocale();
   const router = useRouter();
   const [links, setLinks] = useState<LinkItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,12 +39,12 @@ export default function PromoterLinksPage() {
       if (res.ok) {
         setLinks(json.links);
       } else if (res.status === 401) {
-        router.push("/auth/login");
+        router.push(`/${locale}/auth/login`);
       } else {
-        router.push("/promoter/login");
+        router.push(`/${locale}/promoter/login`);
       }
     } catch {
-      router.push("/promoter/login");
+      router.push(`/${locale}/promoter/login`);
     } finally {
       setLoading(false);
     }

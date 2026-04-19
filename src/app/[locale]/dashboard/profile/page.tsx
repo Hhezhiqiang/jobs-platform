@@ -1,4 +1,5 @@
-"use client";
+"use client"
+import { useLocale } from "next-intl";;
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -45,6 +46,7 @@ interface Resume {
 }
 
 export default function ProfilePage() {
+  const locale = useLocale();
   const { data: session, status } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -92,7 +94,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/auth/login");
+      router.push(`/${locale}/auth/login`);
       return;
     }
     

@@ -1,4 +1,5 @@
-"use client";
+"use client"
+import { useLocale } from "next-intl";;
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -36,6 +37,7 @@ interface DashboardData {
 }
 
 export default function PromoterDashboardPage() {
+  const locale = useLocale();
   const router = useRouter();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -53,13 +55,13 @@ export default function PromoterDashboardPage() {
       if (res.ok) {
         setData(json);
       } else if (res.status === 401) {
-        router.push("/auth/login");
+        router.push(`/${locale}/auth/login`);
       } else {
-        router.push("/promoter/login");
+        router.push(`/${locale}/promoter/login`);
       }
     } catch (e) {
       console.error(e);
-      router.push("/promoter/login");
+      router.push(`/${locale}/promoter/login`);
     } finally {
       setLoading(false);
     }

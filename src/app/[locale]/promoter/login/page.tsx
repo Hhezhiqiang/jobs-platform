@@ -1,4 +1,5 @@
-"use client";
+"use client"
+import { useLocale } from "next-intl";;
 
 import { useState, useEffect, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
@@ -14,6 +15,7 @@ function getCallbackUrl(): string {
 }
 
 export default function PromoterLoginPage() {
+  const locale = useLocale();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(true);
@@ -74,7 +76,7 @@ export default function PromoterLoginPage() {
       } else if (data.promoters.status !== "ACTIVE") {
         setError("账号审核中或已被封禁，请联系客服");
       } else {
-        router.push("/promoter/dashboard");
+        router.push(`/${locale}/promoter/dashboard`);
       }
     } catch {
       setLoading(false);

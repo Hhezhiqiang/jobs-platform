@@ -1,4 +1,5 @@
-"use client";
+"use client"
+import { useLocale } from "next-intl";;
 
 import type { jobs, job_applications, users } from "@prisma/client";
 import { useEffect, useState } from "react";
@@ -34,6 +35,7 @@ interface DashboardData {
 }
 
 export default function CompanyDashboardPage() {
+  const locale = useLocale();
   const router = useRouter();
   const [data, setData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -51,11 +53,11 @@ export default function CompanyDashboardPage() {
 
       if (!res.ok) {
         if (res.status === 401) {
-          router.push("/auth/login/company?callbackUrl=/company/dashboard");
+          router.push(`/${locale}/auth/login/company?callbackUrl=/company/dashboard`);
           return;
         }
         if (result.needRegister) {
-          router.push("/company/register");
+          router.push(`/${locale}/company/register`);
           return;
         }
         throw new Error(result.error);

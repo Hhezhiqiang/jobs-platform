@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 interface PageProps {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{
     startDate?: string;
     endDate?: string;
@@ -21,16 +22,17 @@ function getDefaultRange() {
   };
 }
 
-export default async function AdminCpsReportPage({ searchParams }: PageProps) {
+export default async function AdminCpsReportPage({ params, searchParams }: PageProps) {
+  const { locale } = await params;
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== "ADMIN") {
-    redirect("/auth/login/admin");
+    redirect(`/${locale}/auth/login/admin`);
   }
 
-  const params = await searchParams;
+  const sp = await searchParams;
   const defaults = getDefaultRange();
-  const startDate = params.startDate || defaults.start;
-  const endDate = params.endDate || defaults.end;
+  const startDate = sp.startDate || defaults.start;
+  const endDate = sp.endDate || defaults.end;
 
   const start = new Date(startDate);
   const end = new Date(endDate);

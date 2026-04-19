@@ -1,4 +1,5 @@
-"use client";
+"use client"
+import { useLocale } from "next-intl";;
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
@@ -24,6 +25,7 @@ interface CommentsSectionProps {
 }
 
 export function CommentsSection({ storyId }: CommentsSectionProps) {
+  const locale = useLocale();
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -56,7 +58,7 @@ export function CommentsSection({ storyId }: CommentsSectionProps) {
     e.preventDefault();
 
     if (!isAuthenticated) {
-      router.push("/auth/login?callbackUrl=" + encodeURIComponent(window.location.href));
+      router.push(`/${locale}/auth/login?callbackUrl=${encodeURIComponent(window.location.href)}`);
       return;
     }
 
@@ -158,7 +160,7 @@ export function CommentsSection({ storyId }: CommentsSectionProps) {
         <div className="p-6 border-b border-gray-100 bg-gray-50/50 text-center">
           <p className="text-gray-500 mb-3">登录后参与讨论</p>
           <button
-            onClick={() => router.push("/auth/login?callbackUrl=" + encodeURIComponent(window.location.href))}
+            onClick={() => router.push(`/${locale}/auth/login?callbackUrl=${encodeURIComponent(window.location.href)}`)}
             className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
           >
             登录 / 注册

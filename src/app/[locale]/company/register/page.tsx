@@ -1,4 +1,5 @@
-"use client";
+"use client"
+import { useLocale } from "next-intl";;
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -8,6 +9,7 @@ import Link from "next/link";
 import { Building2, Loader2, AlertCircle, Mail, Lock, Eye, EyeOff } from "lucide-react";
 
 export default function CompanyRegisterPage() {
+  const locale = useLocale();
   const router = useRouter();
   const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState(false);
@@ -83,7 +85,7 @@ export default function CompanyRegisterPage() {
         }
       }
 
-      router.push("/company/dashboard");
+      router.push(`/${locale}/company/dashboard`);
       router.refresh();
     } catch (err: any) {
       setError(err.message);

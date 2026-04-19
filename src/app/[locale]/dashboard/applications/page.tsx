@@ -1,4 +1,5 @@
-"use client";
+"use client"
+import { useLocale } from "next-intl";;
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -42,6 +43,7 @@ const statusMap: Record<string, { label: string; color: string }> = {
 };
 
 export default function ApplicationsPage() {
+  const locale = useLocale();
   const { data: session, status } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -52,7 +54,7 @@ export default function ApplicationsPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/auth/login");
+      router.push(`/${locale}/auth/login`);
       return;
     }
 

@@ -1,4 +1,5 @@
-"use client";
+"use client"
+import { useLocale } from "next-intl";;
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
@@ -12,6 +13,7 @@ interface StoryInteractionProps {
 }
 
 export function StoryInteraction({ storyId, initialResonanceCount, title }: StoryInteractionProps) {
+  const locale = useLocale();
   const [resonanceCount, setResonanceCount] = useState(initialResonanceCount);
   const [hasResonated, setHasResonated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -43,7 +45,7 @@ export function StoryInteraction({ storyId, initialResonanceCount, title }: Stor
 
   const handleResonance = async () => {
     if (!isAuthenticated) {
-      router.push("/auth/login?callbackUrl=" + encodeURIComponent(window.location.href));
+      router.push(`/${locale}/auth/login?callbackUrl=${encodeURIComponent(window.location.href)}`);
       return;
     }
 
@@ -100,7 +102,7 @@ export function StoryInteraction({ storyId, initialResonanceCount, title }: Stor
 
   const handleBookmark = () => {
     if (!isAuthenticated) {
-      router.push("/auth/login?callbackUrl=" + encodeURIComponent(window.location.href));
+      router.push(`/${locale}/auth/login?callbackUrl=${encodeURIComponent(window.location.href)}`);
       return;
     }
 

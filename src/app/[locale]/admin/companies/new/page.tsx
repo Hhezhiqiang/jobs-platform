@@ -1,10 +1,12 @@
-"use client";
+"use client"
+import { useLocale } from "next-intl";;
 
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function NewCompanyPage() {
+  const locale = useLocale();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -36,7 +38,7 @@ export default function NewCompanyPage() {
       const data = await res.json();
 
       if (res.ok) {
-        router.push("/admin/companies");
+        router.push(`/${locale}/admin/companies`);
       } else {
         setError(data.error || "创建失败");
         setLoading(false);

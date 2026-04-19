@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 
 interface PageProps {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{
     page?: string;
     search?: string;
@@ -32,18 +33,19 @@ interface PageProps {
 
 const ITEMS_PER_PAGE = 10;
 
-export default async function AdminJobsPage({ searchParams }: PageProps) {
+export default async function AdminJobsPage({ params, searchParams }: PageProps) {
+  const { locale } = await params;
   const session = await getServerSession(authOptions);
 
   if (!session || session.user?.role !== "ADMIN") {
-    redirect("/auth/login/admin");
+    redirect(`/${locale}/auth/login/admin`);
   }
 
-  const params = await searchParams;
-  const currentPage = Math.max(1, parseInt(params.page || "1"));
-  const search = params.search || "";
-  const statusFilter = params.status || "";
-  const companyFilter = params.companyId || "";
+  const sp = await searchParams;
+  const currentPage = Math.max(1, parseInt(sp.page || "1"));
+  const search = sp.search || "";
+  const statusFilter = sp.status || "";
+  const companyFilter = sp.companyId || "";
 
   // 构建查询条件
   const where: Prisma.jobsWhereInput = {};

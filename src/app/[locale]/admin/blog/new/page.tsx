@@ -5,11 +5,12 @@ import { authOptions } from "@/lib/auth";
 import { PageType, PageStatus } from "@prisma/client";
 import Link from "next/link";
 
-export default async function NewBlogPage() {
+export default async function NewBlogPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
-    redirect("/auth/login/admin");
+    redirect(`/${locale}/auth/login/admin`);
   }
 
   const user = await prisma.users.findUnique({
@@ -17,7 +18,7 @@ export default async function NewBlogPage() {
   });
 
   if (user?.role !== "ADMIN") {
-    redirect("/");
+    redirect(`/${locale}`);
   }
 
   async function createBlog(formData: FormData) {
@@ -48,7 +49,7 @@ export default async function NewBlogPage() {
       },
     });
 
-    redirect("/admin/blog");
+    redirect(`/${locale}/admin/blog`);
   }
 
   return (

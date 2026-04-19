@@ -1,4 +1,5 @@
-"use client";
+"use client"
+import { useLocale } from "next-intl";;
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -7,6 +8,7 @@ import Link from "next/link";
 interface AdPosition { id: string; name: string; displayName: string; isActive: boolean }
 
 export default function NewAdPage() {
+  const locale = useLocale();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -42,7 +44,7 @@ export default function NewAdPage() {
       });
 
       if (res.ok) {
-        router.push("/admin/ads");
+        router.push(`/${locale}/admin/ads`);
         router.refresh();
       } else {
         const data = await res.json();

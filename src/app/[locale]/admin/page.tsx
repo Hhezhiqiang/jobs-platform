@@ -26,11 +26,12 @@ export const metadata: Metadata = {
   description: "管理平台职位、公司、用户和数据分析",
 };
 
-export default async function AdminPage() {
+export default async function AdminPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const session = await getServerSession(authOptions);
 
   if (!session || session.user?.role !== "ADMIN") {
-    redirect("/auth/login/admin");
+    redirect(`/${locale}/auth/login/admin`);
   }
 
   const [jobCount, companyCount, blogCount, totalViews, userCount] = await Promise.all([

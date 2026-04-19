@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { PromoterStatus } from "@prisma/client";
 
 interface PageProps {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{
     page?: string;
     status?: PromoterStatus;
@@ -32,16 +33,17 @@ async function updatePromoterStatus(formData: FormData) {
   await prisma.promoters.update({ where: { id }, data });
 }
 
-export default async function AdminPromotersPage({ searchParams }: PageProps) {
+export default async function AdminPromotersPage({ params, searchParams }: PageProps) {
+  const { locale } = await params;
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== "ADMIN") {
-    redirect("/auth/login/admin");
+    redirect(`/${locale}/auth/login/admin`);
   }
 
-  const params = await searchParams;
-  const currentPage = Math.max(1, parseInt(params.page || "1"));
-  const statusFilter = params.status;
-  const query = params.query || "";
+  const sp = await searchParams;
+  const currentPage = Math.max(1, parseInt(sp.page || "1"));
+  const statusFilter = sp.status;
+  const query = sp.query || "";
 
   const where: Prisma.promotersWhereInput = {};
   if (statusFilter) where.status = statusFilter;

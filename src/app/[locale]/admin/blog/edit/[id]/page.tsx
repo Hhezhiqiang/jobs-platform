@@ -6,15 +6,15 @@ import { PageStatus } from "@prisma/client";
 import Link from "next/link";
 
 interface Props {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string; locale: string }>;
 }
 
 export default async function EditBlogPage({ params }: Props) {
-  const { id } = await params;
+  const { id, locale } = await params;
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
-    redirect("/auth/login/admin");
+    redirect(`/${locale}/auth/login/admin`);
   }
 
   const user = await prisma.users.findUnique({
@@ -22,7 +22,7 @@ export default async function EditBlogPage({ params }: Props) {
   });
 
   if (user?.role !== "ADMIN") {
-    redirect("/");
+    redirect(`/${locale}`);
   }
 
   const post = await prisma.pages.findUnique({
@@ -75,7 +75,7 @@ export default async function EditBlogPage({ params }: Props) {
       },
     });
 
-    redirect("/admin/blog");
+    redirect(`/${locale}/admin/blog`);
   }
 
   return (

@@ -9,10 +9,11 @@ export const metadata: Metadata = {
   description: "查看你在JobQuip获得的成就徽章",
 };
 
-export default async function AchievementsPage() {
+export default async function AchievementsPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
-    redirect("/auth/login");
+    redirect(`/${locale}/auth/login`);
   }
 
   const profile = await prisma.userGameProfile.findUnique({
@@ -27,7 +28,7 @@ export default async function AchievementsPage() {
   });
 
   if (!profile) {
-    redirect("/dashboard");
+    redirect(`/${locale}/dashboard`);
   }
 
   const allAchievements = await prisma.achievement.findMany({

@@ -6,14 +6,15 @@ import { prisma } from "@/lib/prisma";
 import { ChevronLeft, Save } from "lucide-react";
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string; locale: string }>;
 }
 
 export default async function EditJobPage({ params }: PageProps) {
+  const { locale } = await params;
   const session = await getServerSession(authOptions);
 
   if (!session) {
-    redirect("/auth/login/admin");
+    redirect(`/${locale}/auth/login/admin`);
   }
 
   const { id } = await params;

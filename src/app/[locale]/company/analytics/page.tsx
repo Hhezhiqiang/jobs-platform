@@ -7,10 +7,11 @@ import { prisma } from "@/lib/prisma";
 import { subDays, startOfDay, endOfDay, format } from "date-fns";
 import CompanyAnalyticsClient from "./client";
 
-export default async function CompanyAnalyticsPage() {
+export default async function CompanyAnalyticsPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
-    redirect("/auth/login/company");
+    redirect(`/${locale}/auth/login/company`);
   }
 
   const membership = await prisma.company_members.findFirst({
@@ -19,7 +20,7 @@ export default async function CompanyAnalyticsPage() {
   });
 
   if (!membership && session.user.role !== "ADMIN") {
-    redirect("/company/register");
+    redirect(`/${locale}/company/register`);
   }
 
   const companyId = membership?.companyId;

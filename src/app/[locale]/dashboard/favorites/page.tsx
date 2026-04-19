@@ -1,4 +1,5 @@
-"use client";
+"use client"
+import { useLocale } from "next-intl";;
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
@@ -30,6 +31,7 @@ interface FavoriteWithJob {
 }
 
 export default function FavoritesPage() {
+  const locale = useLocale();
   const { status } = useSession();
   const router = useRouter();
   const [favorites, setFavorites] = useState<FavoriteWithJob[]>([]);
@@ -43,7 +45,7 @@ export default function FavoritesPage() {
   // 未登录重定向
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/auth/login?callbackUrl=/dashboard/favorites");
+      router.push(`/${locale}/auth/login?callbackUrl=/dashboard/favorites`);
     }
   }, [status, router]);
 

@@ -29,26 +29,42 @@ async function toggleUserStatus(formData: FormData) {
   });
 }
 
-export default async function UsersPage() {
+interface PageProps {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ page?: string }>;
+}
+
+export default async function UsersPage({ params, searchParams }: PageProps) {
+  const { locale } = await params;
+  const sp = await searchParams;
+  const currentPage = Math.max(1, parseInt(sp.page || "1"));
+  const ITEMS_PER_PAGE = 20;
+
   const session = await getServerSession(authOptions);
 
   if (!session || session.user?.role !== "ADMIN") {
-    redirect("/auth/login/admin");
+    redirect(`/${locale}/auth/login/admin`);
   }
 
-  // 获取所有用户
-  const users = await prisma.users.findMany({
-    include: {
-      user_profiles: true,
-      _count: {
-        select: {
-          job_applications: true,
-          jobs: true,
+  const [users, totalCount] = await Promise.all([
+    prisma.users.findMany({
+      include: {
+        user_profiles: true,
+        _count: {
+          select: {
+            job_applications: true,
+            jobs: true,
+          },
         },
       },
-    },
-    orderBy: { createdAt: "desc" },
-  });
+      orderBy: { createdAt: "desc" },
+      skip: (currentPage - 1) * ITEMS_PER_PAGE,
+      take: ITEMS_PER_PAGE,
+    }),
+    prisma.users.count(),
+  ]);
+
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   const roleMap: Record<UserRole, { label: string; color: string }> = {
     ADMIN: { label: "管理员", color: "bg-red-100 text-red-800" },
@@ -72,7 +88,7 @@ export default async function UsersPage() {
               </Link>
               <h1 className="text-2xl font-bold">用户管理</h1>
             </div>
-            <p className="text-gray-600">共 {users.length} 位用户</p>
+            <p className="text-gray-600">共 {totalCount} 位用户</p>
           </div>
         </div>
       </header>
@@ -222,6 +238,31 @@ export default async function UsersPage() {
           {users.length === 0 && (
             <div className="p-8 text-center text-gray-500">
               <p>暂无用户数据</p>
+            </div>
+          )}
+          {totalPages > 1 && (
+            <div className="px-6 py-4 border-t flex items-center justify-between">
+              <p className="text-sm text-gray-500">
+                第 {currentPage} 页，共 {totalPages} 页
+              </p>
+              <div className="flex gap-2">
+                {currentPage > 1 && (
+                  <Link href={`/admin/users?page=${currentPage - 1}`} className="px-4 py-2 text-sm bg-gray-100 rounded-lg hover:bg-gray-200">上一页</Link>
+                )}
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let page: number;
+                  if (totalPages <= 5) page = i + 1;
+                  else if (currentPage <= 3) page = i + 1;
+                  else if (currentPage >= totalPages - 2) page = totalPages - 4 + i;
+                  else page = currentPage - 2 + i;
+                  return (
+                    <Link key={page} href={`/admin/users?page=${page}`} className={`px-3 py-2 text-sm rounded-lg ${page === currentPage ? 'bg-blue-600 text-white' : 'bg-gray-100 hover:bg-gray-200'}`}>{page}</Link>
+                  );
+                })}
+                {currentPage < totalPages && (
+                  <Link href={`/admin/users?page=${currentPage + 1}`} className="px-4 py-2 text-sm bg-gray-100 rounded-lg hover:bg-gray-200">下一页</Link>
+                )}
+              </div>
             </div>
           )}
         </div>

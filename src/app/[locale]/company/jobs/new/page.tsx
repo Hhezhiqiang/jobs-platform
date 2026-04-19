@@ -1,4 +1,5 @@
-"use client";
+"use client"
+import { useLocale } from "next-intl";;
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -20,6 +21,7 @@ const experienceLevels = [
 ];
 
 export default function NewJobPage() {
+  const locale = useLocale();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -67,7 +69,7 @@ export default function NewJobPage() {
         throw new Error(data.error || "发布失败");
       }
 
-      router.push("/company/jobs");
+      router.push(`/${locale}/company/jobs`);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "操作失败");
     } finally {

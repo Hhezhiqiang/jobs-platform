@@ -1,4 +1,5 @@
-"use client";
+"use client"
+import { useLocale } from "next-intl";;
 
 import { useState } from "react";
 import Link from "next/link";
@@ -7,6 +8,7 @@ import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight, CheckCircle, Building
 import { SkipLink } from "@/components/skip-link";
 
 export default function RegisterForm() {
+  const locale = useLocale();
   const router = useRouter();
   const [formData, setFormData] = useState({
     name: "",
@@ -73,10 +75,10 @@ export default function RegisterForm() {
       });
 
       if (loginResponse.ok) {
-        router.push("/dashboard");
+        router.push(`/${locale}/dashboard`);
         router.refresh();
       } else {
-        router.push("/auth/login?registered=true");
+        router.push(`/${locale}/auth/login?registered=true`);
       }
     } catch {
       setError("注册失败，请稍后重试");

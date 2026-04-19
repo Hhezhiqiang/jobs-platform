@@ -7,6 +7,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 interface PageProps {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{
     page?: string;
     status?: string;
@@ -51,15 +52,16 @@ async function updateWithdrawal(formData: FormData) {
   await prisma.withdrawal_records.update({ where: { id }, data: updateData });
 }
 
-export default async function AdminWithdrawalsPage({ searchParams }: PageProps) {
+export default async function AdminWithdrawalsPage({ params, searchParams }: PageProps) {
+  const { locale } = await params;
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== "ADMIN") {
-    redirect("/auth/login/admin");
+    redirect(`/${locale}/auth/login/admin`);
   }
 
-  const params = await searchParams;
-  const currentPage = Math.max(1, parseInt(params.page || "1"));
-  const statusFilter = params.status || "";
+  const sp = await searchParams;
+  const currentPage = Math.max(1, parseInt(sp.page || "1"));
+  const statusFilter = sp.status || "";
 
   const where: Prisma.withdrawal_recordsWhereInput = {};;
   if (statusFilter) where.status = statusFilter as WithdrawalStatus;

@@ -30,10 +30,11 @@ async function deleteAd(formData: FormData) {
   }
 }
 
-export default async function AdminAdsPage() {
+export default async function AdminAdsPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== "ADMIN") {
-    redirect("/auth/login/admin");
+    redirect(`/${locale}/auth/login/admin`);
   }
 
   let adPositions: any[] = [];
