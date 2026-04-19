@@ -1,103 +1,89 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-// 一次性数据清理 API（仅 ADMIN 可调用）
-// 用法: POST /api/admin/cleanup-data?secret=YOUR_SECRET
+const CLEANUP_SECRET = "cleanup-2026-04-20";
+
+// 一次性数据清理 API
+// 用法: POST /api/admin/cleanup-data?secret=cleanup-2026-04-20
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || session.user?.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { searchParams } = new URL(req.url);
     const secret = searchParams.get("secret");
-    if (secret !== "cleanup-2026-04-20") {
-      return NextResponse.json({ error: "Invalid secret" }, { status: 403 });
+    if (secret !== CLEANUP_SECRET) {
+      return NextResponse.json({ error: "Invalid or missing secret" }, { status: 403 });
     }
 
     const results: Record<string, number> = {};
 
     // 1. 删除测试公司
-    const testCompanies = ["测试公司1776522755", "测试企业1776522563", "测试科技有限公司"];
     const deletedCompanies = await prisma.companies.deleteMany({
-      where: { name: { in: testCompanies } },
+      where: {
+        name: {
+          in: ["测试公司1776522755", "测试企业1776522563", "测试科技有限公司"],
+        },
+      },
     });
     results.deletedCompanies = deletedCompanies.count;
 
-    // 2. 删除关联到已删除公司的职位
-    const deletedJobs = await prisma.jobs.deleteMany({
-      where: {
-        companies: { name: { in: testCompanies } },
-      },
+    // 2. 删除 "未知公司"
+    const deletedUnknown = await prisma.companies.deleteMany({
+      where: { name: "未知公司" },
     });
-    results.deletedJobs = deletedJobs.count;
+    results.deletedUnknownCompany = deletedUnknown.count;
 
-    // 3. 更新所有职位的 datePosted 为 createdAt（如果 datePosted 是未来日期）
-    const futureJobs = await prisma.jobs.findMany({
+    // 3. 将 datePosted 为 2026-04-10 的职位更新为 createdAt
+    const targetDate = new Date("2026-04-10T00:00:00.000Z");
+    const endDate = new Date("2026-04-10T23:59:59.999Z");
+    const jobsToUpdate = await prisma.jobs.findMany({
       where: {
-        datePosted: { gt: new Date() },
+        datePosted: { gte: targetDate, lte: endDate },
       },
+      select: { id: true, createdAt: true },
+    });
+    if (jobsToUpdate.length > 0) {
+      const updates = jobsToUpdate.map((j) =>
+        prisma.jobs.update({
+          where: { id: j.id },
+          data: { datePosted: j.createdAt },
+        })
+      );
+      await Promise.all(updates);
+    }
+    results.updatedDatePosted = jobsToUpdate.length;
+
+    // 4. 将任何 datePosted 为未来日期的职位也更新
+    const futureJobs = await prisma.jobs.findMany({
+      where: { datePosted: { gt: new Date() } },
       select: { id: true, createdAt: true },
     });
     if (futureJobs.length > 0) {
-      const updatePromises = futureJobs.map((j) =>
+      const updates = futureJobs.map((j) =>
         prisma.jobs.update({
           where: { id: j.id },
           data: { datePosted: j.createdAt },
         })
       );
-      await Promise.all(updatePromises);
+      await Promise.all(updates);
     }
-    results.updatedDatePosted = futureJobs.length;
+    results.updatedFutureDates = futureJobs.length;
 
-    // 4. 更新职位详情中显示 2026/4/10 的（如果 createdAt 更早）
-    const oldDateJobs = await prisma.jobs.findMany({
-      where: {
-        datePosted: { lte: new Date("2026-04-11") },
-      },
-      select: { id: true, createdAt: true },
-    });
-    if (oldDateJobs.length > 0) {
-      const updatePromises = oldDateJobs.map((j) =>
-        prisma.jobs.update({
-          where: { id: j.id },
-          data: { datePosted: j.createdAt },
-        })
-      );
-      await Promise.all(updatePromises);
-      results.normalizedDates = oldDateJobs.length;
-    }
-
-    // 5. 删除标题含"测试"或 slug 含明显测试特征的博客
-    const testBlogs = await prisma.pages.findMany({
+    // 5. 删除标题含"测试"的博客
+    const deletedTestBlogs = await prisma.pages.deleteMany({
       where: {
         type: "BLOG",
-        OR: [
-          { title: { contains: "测试" } },
-          { slug: { startsWith: "test-" } },
-        ],
+        title: { contains: "测试" },
       },
-      select: { id: true },
     });
-    if (testBlogs.length > 0) {
-      const deleted = await prisma.pages.deleteMany({
-        where: { id: { in: testBlogs.map((b) => b.id) } },
-      });
-      results.deletedTestBlogs = deleted.count;
-    }
+    results.deletedTestBlogs = deletedTestBlogs.count;
 
-    // 6. 清理 blog slug 中的纯随机 ID 后缀（如 -mnwhjzph）
-    const badSlugBlogs = await prisma.pages.findMany({
+    // 6. 删除 slug 以 "-mnwhjzph" 结尾的博客
+    const deletedBadSlugs = await prisma.pages.deleteMany({
       where: {
         type: "BLOG",
         slug: { endsWith: "-mnwhjzph" },
       },
-      select: { id: true, slug: true },
     });
-    results.cleanedBlogSlugs = badSlugBlogs.length;
+    results.deletedBadSlugs = deletedBadSlugs.count;
 
     return NextResponse.json({
       success: true,
@@ -107,7 +93,10 @@ export async function POST(req: NextRequest) {
   } catch (error: unknown) {
     console.error("Cleanup error:", error);
     return NextResponse.json(
-      { error: "Cleanup failed", details: error instanceof Error ? error.message : String(error) },
+      {
+        error: "Cleanup failed",
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     );
   }
