@@ -31,13 +31,13 @@ export async function generateMetadata({
   const { locale } = await params;
   const isEn = locale === "en";
 
-  const siteName = isEn ? "JobQuip" : "JobQuip招聘平台";
+  const siteName = isEn ? "JobQuip" : "JobQuip";
   const title = isEn
-    ? "JobQuip - Professional Job Recruitment Platform"
-    : "JobQuip招聘平台 - 专业求职招聘平台，汇聚Web3、互联网高薪职位";
+    ? "JobQuip | Web3 & Tech Jobs Recruitment Platform"
+    : "JobQuip | Web3与互联网高薪职位招聘平台";
   const description = isEn
-    ? "A professional job recruitment platform connecting top talent with Web3, internet, and tech companies. Empower your career growth."
-    : "专业的求职招聘平台，汇聚海量优质Web3、互联网、科技行业职位，为求职者和企业提供高效对接服务，助力职场发展";
+    ? "Discover Web3, blockchain, and tech jobs from top companies. Real-time job listings, salary insights, and career resources."
+    : "专业的Web3与互联网招聘平台，汇聚区块链、科技行业高薪职位，为求职者和企业提供高效对接服务";
   const keywords = isEn
     ? ["jobs", "recruitment", "career", "Web3 jobs", "tech jobs", "job search", "hiring"]
     : ["招聘", "求职", "找工作", "人才网", "招聘信息", "职位搜索", "Web3招聘", "互联网招聘", "高薪职位", "职业发展"];

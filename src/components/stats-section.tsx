@@ -34,20 +34,20 @@ interface StatsSectionProps {
 }
 
 export function StatsSection({ jobCount, companyCount, dailyNewJobs = 0 }: StatsSectionProps) {
+  // Only show stats with real data; skip fabricated metrics like "98% resume pass rate"
   return (
     <section className="py-16 bg-gray-50">
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">用数据说话</h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            每天都有数千名求职者和企业在这里找到彼此，加入我们，开启职业新篇章
+            每天都有求职者和企业在这里找到彼此，加入我们，开启职业新篇章
           </p>
         </div>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           <StatCard value={jobCount || 0} suffix="+" label="在招职位" icon="💼" color="blue" />
           <StatCard value={companyCount || 0} suffix="+" label="合作企业" icon="🏢" color="purple" />
-          <StatCard value={98} suffix="%" label="简历通过率" icon="📈" color="green" />
-          <StatCard value={dailyNewJobs || 0} suffix="+" label="日新增职位" icon="🚀" color="orange" />
+          <StatCard value={dailyNewJobs || 0} suffix="+" label="今日新增" icon="🚀" color="orange" />
         </div>
       </div>
     </section>

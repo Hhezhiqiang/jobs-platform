@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { Metadata } from "next";
+import { prisma } from "@/lib/prisma";
 import { 
   Target, 
   Users, 
@@ -49,7 +50,22 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   };
 }
 
-export default function AboutPage() {
+async function getSiteStats() {
+  try {
+    const [jobCount, companyCount, userCount] = await Promise.all([
+      prisma.jobs.count({ where: { status: "ACTIVE" } }),
+      prisma.companies.count(),
+      prisma.users.count(),
+    ]);
+    return { jobCount, companyCount, userCount };
+  } catch {
+    return null;
+  }
+}
+
+export default async function AboutPage() {
+  const stats = await getSiteStats();
+
   const features = [
     {
       icon: Target,
@@ -77,30 +93,13 @@ export default function AboutPage() {
     },
   ];
 
-  const stats = [
-    { number: "10,000+", label: "优质职位" },
-    { number: "500+", label: "合作企业" },
-    { number: "50,000+", label: "注册用户" },
-    { number: "98%", label: "满意度" },
-  ];
-
-  const team = [
-    {
-      name: "陈明远",
-      role: "创始人 & CEO",
-      description: "10年人力资源行业经验，曾任多家知名企业HR总监",
-    },
-    {
-      name: "赵文博",
-      role: "技术总监",
-      description: "全栈开发专家，专注于打造极致用户体验",
-    },
-    {
-      name: "林思琪",
-      role: "运营总监",
-      description: "深耕互联网行业运营，擅长用户增长与留存",
-    },
-  ];
+  // Only show stats if we have real data and meaningful numbers
+  const displayStats = stats && stats.jobCount > 0 ? [
+    { number: `${stats.jobCount}+`, label: "在招职位" },
+    { number: `${stats.companyCount}+`, label: "合作企业" },
+    { number: `${stats.userCount}+`, label: "注册用户" },
+    { number: "100%", label: "真实职位" },
+  ] : null;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -138,19 +137,21 @@ export default function AboutPage() {
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="max-w-7xl mx-auto px-4 -mt-10">
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat) => (
-              <div key={stat.label} className="text-center">
-                <p className="text-3xl md:text-4xl font-bold text-blue-600">{stat.number}</p>
-                <p className="text-gray-500 mt-1">{stat.label}</p>
-              </div>
-            ))}
+      {/* Stats — 真实数据，仅在有意义时显示 */}
+      {displayStats && (
+        <div className="max-w-7xl mx-auto px-4 -mt-10">
+          <div className="bg-white rounded-2xl shadow-lg p-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              {displayStats.map((stat) => (
+                <div key={stat.label} className="text-center">
+                  <p className="text-3xl md:text-4xl font-bold text-blue-600">{stat.number}</p>
+                  <p className="text-gray-500 mt-1">{stat.label}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Mission */}
       <section className="py-20">
@@ -240,30 +241,32 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Team */}
+      {/* Team — placeholder, no fabricated profiles */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">核心团队</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              一支充满激情的团队，致力于为求职者和企业创造价值
+              我们正在寻找更多优秀伙伴加入我们。如果你有热情、有才华，欢迎联系。
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {team.map((member) => (
-              <div
-                key={member.name}
-                className="bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100 hover:shadow-lg transition-all"
-              >
-                <div className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                  {member.name.charAt(0)}
-                </div>
-                <h3 className="font-bold text-gray-900 mb-1">{member.name}</h3>
-                <p className="text-blue-600 text-sm mb-3">{member.role}</p>
-                <p className="text-gray-600 text-sm">{member.description}</p>
-              </div>
-            ))}
+          <div className="max-w-md mx-auto bg-white rounded-2xl p-8 text-center shadow-sm border border-gray-100">
+            <div className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+              JQ
+            </div>
+            <h3 className="font-bold text-gray-900 mb-1">JobQuip 团队</h3>
+            <p className="text-gray-600 text-sm">
+              一支专注于连接人才与机会的团队。<br />
+              期待你的加入，一起打造更好的求职体验。
+            </p>
+            <Link
+              href="/contact"
+              className="mt-4 inline-flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all text-sm font-medium"
+            >
+              <Mail className="w-4 h-4" />
+              联系我们
+            </Link>
           </div>
         </div>
       </section>

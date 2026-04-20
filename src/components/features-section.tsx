@@ -1,6 +1,8 @@
 "use client";
 
-const features = [
+import { usePathname } from "next/navigation";
+
+const featuresZh = [
   {
     icon: "🎯",
     title: "精准匹配",
@@ -39,16 +41,64 @@ const features = [
   },
 ];
 
+const featuresEn = [
+  {
+    icon: "🎯",
+    title: "Smart Matching",
+    description: "AI-powered recommendations that match your skills and preferences to the best positions",
+    color: "from-blue-500 to-blue-600",
+  },
+  {
+    icon: "⚡",
+    title: "Fast Response",
+    description: "Companies respond within 24 hours on average — no more endless waiting",
+    color: "from-green-500 to-green-600",
+  },
+  {
+    icon: "🛡️",
+    title: "Verified & Safe",
+    description: "Strict company verification to protect your privacy and interests",
+    color: "from-purple-500 to-purple-600",
+  },
+  {
+    icon: "💡",
+    title: "Career Insights",
+    description: "Job-seeking guides and industry news to advance your career",
+    color: "from-orange-500 to-orange-600",
+  },
+  {
+    icon: "📊",
+    title: "Salary Transparency",
+    description: "Real salary data to negotiate with confidence",
+    color: "from-pink-500 to-pink-600",
+  },
+  {
+    icon: "🌟",
+    title: "Direct Hiring",
+    description: "Connect directly with top companies, skip the middleman",
+    color: "from-indigo-500 to-indigo-600",
+  },
+];
+
 export function FeaturesSection() {
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] || "zh";
+  const isEn = locale === "en";
+  const features = isEn ? featuresEn : featuresZh;
+  const heading = isEn ? "Why Choose Us" : "为什么选择我们";
+  const subtitle = isEn
+    ? "More than job search — it's about finding your career opportunity"
+    : "不只是找工作，更是找到属于你的职业机会";
+
   return (
     <section className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            为什么选择我们
+            {heading}
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            不只是找工作，更是找到属于你的职业机会
+            {subtitle}
           </p>
         </div>
 

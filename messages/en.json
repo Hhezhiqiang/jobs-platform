@@ -1,7 +1,7 @@
 {
   "site": {
-    "name": "JobsBro",
-    "description": "A professional job recruitment platform connecting top talent with Web3, internet, and tech companies. Empower your career growth."
+    "name": "JobQuip",
+    "description": "A professional Web3 & tech job recruitment platform connecting top talent with blockchain, internet, and tech companies. Empower your career growth."
   },
   "nav": {
     "home": "Home",
@@ -13,7 +13,7 @@
     "about": "About",
     "contact": "Contact",
     "faq": "FAQ",
-    "salary": "Salary Insights",
+    "salary": "Salary Insight",
     "search": "Search",
     "login": "Log in",
     "register": "Sign up",
@@ -29,19 +29,122 @@
     "legal": "Legal",
     "contactUs": "Contact Us",
     "allRightsReserved": "All rights reserved",
-    "sitemap": "Sitemap"
+    "sitemap": "Sitemap",
+    "about": "About",
+    "aboutUs": "About Us",
+    "joinUs": "Join Us",
+    "jobSeekers": "Job Seekers",
+    "searchJobs": "Search Jobs",
+    "salaryInsights": "Salary Insights",
+    "employers": "Employers",
+    "postJob": "Post a Job",
+    "companySignup": "Company Sign-up",
+    "terms": "Terms",
+    "privacy": "Privacy",
+    "copyright": "© {year} JobQuip. All rights reserved."
   },
   "hero": {
     "title": "Discover Your Next Dream Job",
     "subtitle": "Bringing together high-paying positions in Web3, internet, and tech industries to make your career growth more valuable",
     "searchPlaceholder": "Search jobs, companies, or keywords...",
     "searchButton": "Search Jobs",
+    "register": "Sign Up — It's Free",
+    "registerSub": "Discover more opportunities",
+    "login": "Already have an account? Log in",
+    "popularSearches": "Popular Searches",
     "stats": {
       "jobs": "Job Postings",
       "companies": "Companies",
       "users": "Active Job Seekers",
       "matches": "Successful Matches"
     }
+  },
+  "home": {
+    "hotJobs": "🔥 Hot Jobs",
+    "hotJobsSub": "Curated quality positions to help you land fast",
+    "viewAll": "View All",
+    "viewAllJobs": "View All Jobs",
+    "hotCompanies": "🏢 Hot Companies",
+    "hotCompaniesSub": "Connect directly with top tech companies and innovators",
+    "viewMoreCompanies": "View More Companies",
+    "latestJobs": "🆕 Latest Jobs",
+    "latestJobsSub": "Real-time updates, catch opportunities first",
+    "blogSection": "📝 Career Insights",
+    "blogSectionSub": "{count}+ professional articles to advance your career",
+    "blogTips": {
+      "title": "Job Search Tips",
+      "desc": "Resume optimization, interview guides, salary negotiation"
+    },
+    "blogCareer": {
+      "title": "Career Development",
+      "desc": "Industry insights, skill upgrades, transition guides"
+    },
+    "blogSalary": {
+      "title": "Salary Reports",
+      "desc": "Salary benchmarks and industry trend analysis"
+    },
+    "readMore": "Read More Articles",
+    "cta": {
+      "title": "Ready to Start Your Next Career Journey?",
+      "subtitle": "Sign up now to discover more quality job opportunities",
+      "register": "Sign Up for Free",
+      "browseJobs": "Browse Jobs"
+    },
+    "faq": {
+      "title": "FAQ",
+      "q1": "What is JobQuip?",
+      "a1": "JobQuip is a professional job recruitment platform connecting talent with Web3, internet, and tech companies. We offer job search, company recommendations, salary insights, and interview guides.",
+      "q2": "How do I find the right job?",
+      "a2": "On JobQuip, you can search jobs by keyword, filter by city, view company details, and get personalized recommendations through our smart recommendation system. Register to bookmark jobs and track applications.",
+      "q3": "Are the job listings real?",
+      "a3": "Yes. All job listings on JobQuip are posted by verified companies. We verify company credentials to ensure authenticity. You can also view company details and employee reviews to understand the real work environment.",
+      "q4": "Is JobQuip free for job seekers?",
+      "a4": "Yes, JobQuip is completely free for job seekers. You can search jobs, view company details, bookmark jobs, and submit applications — all for free. We only charge employers for job postings."
+    }
+  },
+  "features": {
+    "title": "Why Choose Us",
+    "subtitle": "More than job searching — it's about finding your career opportunity",
+    "items": [
+      {
+        "icon": "🎯",
+        "title": "Smart Matching",
+        "description": "AI-powered recommendations that match your skills and preferences to the best positions"
+      },
+      {
+        "icon": "⚡",
+        "title": "Fast Response",
+        "description": "Companies respond within 24 hours on average — no more endless waiting"
+      },
+      {
+        "icon": "🛡️",
+        "title": "Verified & Safe",
+        "description": "Strict company verification to protect your privacy and interests"
+      },
+      {
+        "icon": "💡",
+        "title": "Career Insights",
+        "description": "Job-seeking guides and industry news to advance your career"
+      },
+      {
+        "icon": "📊",
+        "title": "Salary Transparency",
+        "description": "Real salary data to negotiate with confidence"
+      },
+      {
+        "icon": "🌟",
+        "title": "Direct Hiring",
+        "description": "Connect directly with top companies, skip the middleman"
+      }
+    ]
+  },
+  "stats": {
+    "title": "Data Speaks",
+    "subtitle": "Every day, job seekers and companies find each other here. Join us and start a new chapter in your career.",
+    "jobs": "Active Jobs",
+    "companies": "Partner Companies",
+    "resumeRate": "Resume Pass Rate",
+    "dailyNew": "Daily New Jobs"
   },
   "common": {
     "loading": "Loading...",
