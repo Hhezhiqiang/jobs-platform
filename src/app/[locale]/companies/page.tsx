@@ -54,7 +54,8 @@ interface PageProps {
   searchParams: Promise<{ q?: string }>;
 }
 
-export default async function CompaniesPage({ searchParams }: PageProps) {
+export default async function CompaniesPage({ params, searchParams }: PageProps) {
+  const { locale } = await params;
   const sp = await searchParams;
   const searchQuery = sp.q || "";
 
@@ -146,7 +147,7 @@ export default async function CompaniesPage({ searchParams }: PageProps) {
               找到 <span className="font-semibold">{companies.length}</span> 家公司
               匹配 &quot;<span className="font-semibold">{searchQuery}</span>&quot;
             </p>
-            <Link href="/companies" className="text-blue-600 hover:text-blue-700 text-sm">
+            <Link href={`/${locale}/companies`} className="text-blue-600 hover:text-blue-700 text-sm">
               清除搜索
             </Link>
           </div>
@@ -224,7 +225,7 @@ export default async function CompaniesPage({ searchParams }: PageProps) {
             <h3 className="text-xl font-bold text-gray-900 mb-2">未找到公司</h3>
             <p className="text-gray-500 mb-6">尝试使用其他关键词搜索</p>
             <Link
-              href="/companies"
+              href={`/${locale}/companies`}
               className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all inline-block"
             >
               查看全部公司

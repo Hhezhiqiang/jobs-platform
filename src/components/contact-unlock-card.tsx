@@ -22,6 +22,8 @@ export function ContactUnlockCard({
   price,
   isLoggedIn,
 }: ContactUnlockCardProps) {
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] || "zh";
   const [loading, setLoading] = useState(false);
   const [unlocked, setUnlocked] = useState(isUnlocked);
   const [balance, setBalance] = useState<number | null>(null);
@@ -165,7 +167,7 @@ export function ContactUnlockCard({
               {insufficient && (
                 <div className="pt-1">
                   <Link
-                    href="/user/recharge"
+                    href={`/${locale}/user/recharge`}
                     className="inline-flex items-center gap-1 px-4 py-2 bg-amber-500 text-white text-sm rounded-lg hover:bg-amber-600 transition-all"
                   >
                     余额不足，立即充值
@@ -175,7 +177,7 @@ export function ContactUnlockCard({
             </>
           ) : (
             <Link
-              href="/auth/login"
+              href={`/${locale}/auth/login`}
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all"
             >
               <Lock className="w-4 h-4" />

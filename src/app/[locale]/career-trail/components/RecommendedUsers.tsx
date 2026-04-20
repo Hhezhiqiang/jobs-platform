@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { Users, Plus } from "lucide-react";
 
 // 模拟推荐用户数据

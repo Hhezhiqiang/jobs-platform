@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 
 interface GameProfile {
@@ -20,6 +21,8 @@ interface GameProfile {
 }
 
 export function LevelCard() {
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] || "zh";
   const [profile, setProfile] = useState<GameProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -139,14 +142,14 @@ export function LevelCard() {
           {/* 快捷入口 */}
           <div className="px-4 pb-4 space-y-2">
             <Link
-              href="/dashboard/achievements"
+              href={`/${locale}/dashboard/achievements`}
               className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 transition-colors text-sm text-gray-700"
             >
               <span>🏆</span>
               我的成就
             </Link>
             <Link
-              href="/dashboard/quests"
+              href={`/${locale}/dashboard/quests`}
               className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-50 transition-colors text-sm text-gray-700"
             >
               <span>📋</span>

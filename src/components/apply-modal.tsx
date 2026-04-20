@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 interface ApplyModalProps {
   jobId: string;
@@ -22,6 +22,8 @@ export default function ApplyModal({
 }: ApplyModalProps) {
   const { data: session } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] || "zh";
   const [coverLetter, setCoverLetter] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -77,7 +79,7 @@ export default function ApplyModal({
                 取消
               </button>
               <Link
-                href="/auth/login"
+                href={`/${locale}/auth/login`}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
                 去登录
