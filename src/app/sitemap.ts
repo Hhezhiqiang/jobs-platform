@@ -49,12 +49,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const blogEntries: MetadataRoute.Sitemap = blogs
     .filter((blog) => !isTestSlug(blog.slug))
-    .map((blog) => ({
-      url: `${zh}/blog/${blog.slug}`,
-      lastModified: blog.updatedAt,
-      priority: 0.8,
-      changeFrequency: "weekly" as const,
-    }));
+    .flatMap((blog) => [
+      {
+        url: `${zh}/blog/${blog.slug}`,
+        lastModified: blog.updatedAt,
+        priority: 0.8,
+        changeFrequency: "weekly" as const,
+      },
+      {
+        url: `${baseUrl}/en/blog/${blog.slug}`,
+        lastModified: blog.updatedAt,
+        priority: 0.7,
+        changeFrequency: "weekly" as const,
+      },
+    ]);
 
   // ── 3. 职位页面（Google for Jobs 核心）──
   const jobs = await prisma.jobs.findMany({
@@ -64,12 +72,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     take: 500,
   });
 
-  const jobEntries: MetadataRoute.Sitemap = jobs.map((job) => ({
-    url: `${zh}/jobs/${job.slug}`,
-    lastModified: job.updatedAt,
-    priority: 0.7,
-    changeFrequency: "daily" as const,
-  }));
+  const jobEntries: MetadataRoute.Sitemap = jobs.flatMap((job) => [
+    {
+      url: `${zh}/jobs/${job.slug}`,
+      lastModified: job.updatedAt,
+      priority: 0.7,
+      changeFrequency: "daily" as const,
+    },
+    {
+      url: `${baseUrl}/en/jobs/${job.slug}`,
+      lastModified: job.updatedAt,
+      priority: 0.6,
+      changeFrequency: "daily" as const,
+    },
+  ]);
 
   // ── 4. 公司页面 ──
   const companies = await prisma.companies.findMany({
@@ -78,12 +94,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     take: 200,
   });
 
-  const companyEntries: MetadataRoute.Sitemap = companies.map((company) => ({
-    url: `${zh}/companies/${company.slug}`,
-    lastModified: company.updatedAt,
-    priority: 0.65,
-    changeFrequency: "weekly" as const,
-  }));
+  const companyEntries: MetadataRoute.Sitemap = companies.flatMap((company) => [
+    {
+      url: `${zh}/companies/${company.slug}`,
+      lastModified: company.updatedAt,
+      priority: 0.65,
+      changeFrequency: "weekly" as const,
+    },
+    {
+      url: `${baseUrl}/en/companies/${company.slug}`,
+      lastModified: company.updatedAt,
+      priority: 0.55,
+      changeFrequency: "weekly" as const,
+    },
+  ]);
 
   // ── 5. 城市职位页（本地 SEO）──
   const cities = await prisma.jobs.groupBy({
@@ -96,12 +120,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const cityEntries: MetadataRoute.Sitemap = cities
     .filter((c) => c.city)
-    .map((c) => ({
-      url: `${zh}/jobs/city/${encodeURIComponent(c.city!)}`,
-      lastModified: BUILD_TIME,
-      priority: 0.6,
-      changeFrequency: "daily" as const,
-    }));
+    .flatMap((c) => [
+      {
+        url: `${zh}/jobs/city/${encodeURIComponent(c.city!)}`,
+        lastModified: BUILD_TIME,
+        priority: 0.6,
+        changeFrequency: "daily" as const,
+      },
+      {
+        url: `${baseUrl}/en/jobs/city/${encodeURIComponent(c.city!)}`,
+        lastModified: BUILD_TIME,
+        priority: 0.5,
+        changeFrequency: "daily" as const,
+      },
+    ]);
 
   // ── 6. 职业叙事/面经页 ──
   const stories = await prisma.careerStory.findMany({

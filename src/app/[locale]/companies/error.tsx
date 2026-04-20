@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function Error({
   error,
@@ -13,6 +14,9 @@ export default function Error({
   useEffect(() => {
     console.error("Companies page error:", error);
   }, [error]);
+
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] || "zh";
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -34,7 +38,7 @@ export default function Error({
             重试
           </button>
           <Link
-            href="/"
+            href={`/${locale}/`}
             className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all"
           >
             返回首页

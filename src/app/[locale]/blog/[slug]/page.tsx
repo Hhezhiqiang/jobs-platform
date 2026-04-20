@@ -246,7 +246,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
         <header className="bg-white shadow-sm">
           <div className="max-w-4xl mx-auto px-4 py-4">
             <div className="flex items-center gap-4">
-              <Link href="/blog" className="text-blue-600 hover:text-blue-800">
+              <Link href={`/${locale}/blog`} className="text-blue-600 hover:text-blue-800">
                 ← 返回博客列表
               </Link>
             </div>
@@ -352,7 +352,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
                 {displayJobs.filter(job => job.slug).map((job) => (
                   <Link
                     key={job.id}
-                    href={`/jobs/${job.slug}`}
+                    href={`/${locale}/jobs/${job.slug}`}
                     className="block p-4 border rounded-lg hover:bg-blue-50 transition-colors"
                   >
                     <div className="flex justify-between items-start">
@@ -374,7 +374,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
               </div>
               <div className="mt-4 text-center">
                 <Link
-                  href="/jobs"
+                  href={`/${locale}/jobs`}
                   className="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   查看更多职位

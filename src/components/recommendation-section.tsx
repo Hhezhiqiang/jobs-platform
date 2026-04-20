@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import { jobs, companies } from "@prisma/client";
 import { getUserBehaviorData } from "@/lib/recommendations";
 import { Sparkles, Loader2, RefreshCw, User } from "lucide-react";
@@ -35,6 +36,8 @@ export function RecommendationSection({
   initialJobs = []
 }: RecommendationSectionProps) {
   const { data: session, status } = useSession();
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] || "zh";
   const [recommendations, setRecommendations] = useState<RecommendationData | null>(
     initialJobs.length > 0
       ? {
@@ -174,7 +177,7 @@ export function RecommendationSection({
             </p>
             {!isLoggedIn && (
               <Link
-                href="/auth/login"
+                href={`/${locale}/auth/login`}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors"
               >
                 <User className="w-4 h-4" />
@@ -216,7 +219,7 @@ export function RecommendationSection({
               <RefreshCw className={`w-5 h-5 ${isLoading ? "animate-spin" : ""}`} />
             </button>
             <Link
-              href="/jobs"
+              href={`/${locale}/jobs`}
               className="hidden md:inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 font-medium rounded-xl border border-blue-200 hover:border-blue-400 hover:shadow-lg transition-all"
             >
               查看全部
@@ -354,7 +357,7 @@ export function RecommendationSection({
         {/* Mobile View All Button */}
         <div className="mt-8 text-center md:hidden">
           <Link
-            href="/jobs"
+            href={`/${locale}/jobs`}
             className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-all"
           >
             查看全部职位
@@ -373,7 +376,7 @@ export function RecommendationSection({
                 登录后可获得基于技能标签的精准推荐
               </span>
               <Link
-                href="/auth/login"
+                href={`/${locale}/auth/login`}
                 className="text-blue-600 font-medium hover:underline"
               >
                 立即登录 →

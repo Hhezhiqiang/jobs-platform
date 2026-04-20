@@ -99,15 +99,15 @@ export default async function ConsensusPage({ params }: PageProps) {
         <div className="relative max-w-5xl mx-auto px-4 py-8">
           {/* Breadcrumb */}
           <div className="flex items-center gap-2 text-sm text-indigo-100 mb-6">
-            <Link href="/" className="hover:text-white">首页</Link>
+            <Link href={`/${locale}/`} className="hover:text-white">首页</Link>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
-            <Link href="/companies" className="hover:text-white">公司</Link>
+            <Link href={`/${locale}/companies`} className="hover:text-white">公司</Link>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
-            <Link href={`/companies/${company.slug}`} className="hover:text-white">
+            <Link href={`/${locale}/companies/${company.slug}`} className="hover:text-white">
               {company.name}
             </Link>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

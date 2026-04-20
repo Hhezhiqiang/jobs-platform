@@ -64,7 +64,7 @@ async function getCompanyData(slug: string) {
 }
 
 export default async function CompanyDetailPage({ params }: PageProps) {
-  const { slug } = await params;
+  const { slug, locale } = await params;
   const company = await getCompanyData(slug);
 
   if (!company) {
@@ -89,11 +89,11 @@ export default async function CompanyDetailPage({ params }: PageProps) {
           <div className="relative max-w-5xl mx-auto px-4 py-12">
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 text-sm text-blue-100 mb-6">
-              <Link href="/" className="hover:text-white">首页</Link>
+              <Link href={`/${locale}/`} className="hover:text-white">首页</Link>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-              <Link href="/companies" className="hover:text-white">公司</Link>
+              <Link href={`/${locale}/companies`} className="hover:text-white">公司</Link>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
@@ -145,7 +145,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
 
               {company.website && (
                 <Link
-                  href={company.website}
+                  href={ensureHttpProtocol(company.website)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 font-semibold rounded-xl hover:bg-blue-50 transition-all"

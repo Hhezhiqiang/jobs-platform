@@ -264,11 +264,11 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
           <div className="relative max-w-5xl mx-auto px-4 py-12">
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 text-sm text-blue-100 mb-6">
-              <Link href="/" className="hover:text-white">首页</Link>
+              <Link href={`/${locale}/`} className="hover:text-white">首页</Link>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-              <Link href="/jobs" className="hover:text-white">职位</Link>
+              <Link href={`/${locale}/jobs`} className="hover:text-white">职位</Link>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>

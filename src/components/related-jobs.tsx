@@ -6,6 +6,7 @@ interface RelatedJobsProps {
   keywords?: string[];
   currentSlug: string;
   limit?: number;
+  locale?: string;
 }
 
 // 职位卡片数据类型
@@ -26,7 +27,7 @@ interface JobCardData {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function RelatedJobs({ keywords = [], currentSlug, limit = 3 }: RelatedJobsProps) {
+export async function RelatedJobs({ keywords = [], currentSlug, limit = 3, locale = "zh" }: RelatedJobsProps) {
   if (!keywords || keywords.length === 0) {
     return null;
   }
@@ -97,7 +98,7 @@ export async function RelatedJobs({ keywords = [], currentSlug, limit = 3 }: Rel
             最新热招职位
           </h3>
           <Link
-            href="/jobs"
+            href={`/${locale}/jobs`}
             className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
           >
             查看更多

@@ -4,35 +4,53 @@ import { Metadata } from "next";
 const SITE_NAME = "JobQuip招聘平台";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 
-export const metadata: Metadata = {
-  title: `联系我们 - ${SITE_NAME}`,
-  description: "联系JobQuip招聘平台，获取更多帮助与支持。我们致力于为您提供最优质的求职招聘服务。",
-  keywords: ["联系我们", "招聘平台", "客户服务", "求职帮助", "招聘咨询"],
-  openGraph: {
-    title: `联系我们 - ${SITE_NAME}`,
-    description: "联系JobQuip招聘平台，获取更多帮助与支持。",
-    url: `${SITE_URL}/contact`,
-    siteName: SITE_NAME,
-    type: "website",
-    locale: "zh_CN",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: `联系我们 - ${SITE_NAME}`,
-    description: "联系JobQuip招聘平台，获取更多帮助与支持。",
-  },
-  alternates: {
-    canonical: `${SITE_URL}/contact`,
-  },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const isEn = locale === "en";
+  return {
+    title: isEn ? `Contact Us - ${SITE_NAME}` : `联系我们 - ${SITE_NAME}`,
+    description: isEn
+      ? "Contact JobQuip recruitment platform for help and support."
+      : "联系JobQuip招聘平台，获取更多帮助与支持。我们致力于为您提供最优质的求职招聘服务。",
+    keywords: isEn
+      ? ["contact us", "customer service", "recruitment platform", "help"]
+      : ["联系我们", "招聘平台", "客户服务", "求职帮助", "招聘咨询"],
+    openGraph: {
+      title: isEn ? `Contact Us - ${SITE_NAME}` : `联系我们 - ${SITE_NAME}`,
+      description: isEn
+        ? "Contact JobQuip recruitment platform for help and support."
+        : "联系JobQuip招聘平台，获取更多帮助与支持。",
+      url: `${SITE_URL}/${locale}/contact`,
+      siteName: SITE_NAME,
+      type: "website",
+      locale: isEn ? "en_US" : "zh_CN",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: isEn ? `Contact Us - ${SITE_NAME}` : `联系我们 - ${SITE_NAME}`,
+      description: isEn
+        ? "Contact JobQuip recruitment platform for help and support."
+        : "联系JobQuip招聘平台，获取更多帮助与支持。",
+    },
+    alternates: {
+      canonical: `${SITE_URL}/${locale}/contact`,
+      languages: {
+        "zh-CN": `${SITE_URL}/zh/contact`,
+        "en": `${SITE_URL}/en/contact`,
+        "x-default": `${SITE_URL}/zh/contact`,
+      },
+    },
+  };
+}
 
-export default function ContactPage() {
+export default async function ContactPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center gap-4">
-            <Link href="/" className="text-blue-600 hover:text-blue-800">
+            <Link href={`/${locale}/`} className="text-blue-600 hover:text-blue-800">
               ← 返回首页
             </Link>
             <h1 className="text-2xl font-bold">联系我们</h1>

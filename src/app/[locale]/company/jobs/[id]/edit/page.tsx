@@ -51,7 +51,7 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
       const res = await fetch(`/api/company/jobs/${params.id}`);
       const data = await res.json();
 
-      if (!res.ok || !data.jobs) {
+      if (!res.ok || !data.job) {
         throw new Error(data.error || "职位不存在");
       }
 
