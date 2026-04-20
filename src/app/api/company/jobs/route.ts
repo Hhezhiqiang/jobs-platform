@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
     if (!membership && session.user.role !== "ADMIN") return NextResponse.json({ error: "请先注册企业" }, { status: 403 });
 
     const body = await request.json();
-    const companyId = membership?.companyId || body.companyId || null;
+    const companyId = membership?.companyId || body.companyId || "";
 
     // 自动生成 slug（从标题生成）
     const slug = `${body.title.toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, '-')}-${Date.now()}`;
@@ -55,14 +55,14 @@ export async function POST(request: NextRequest) {
         requirements: body.requirements || "",
         benefits: body.benefits || "",
         employmentType: body.employmentType || "FULL_TIME",
-        experience: body.experience || null,
+        experience: body.experience || "MID",
         salaryMin: body.salaryMin ? parseInt(body.salaryMin, 10) : null,
         salaryMax: body.salaryMax ? parseInt(body.salaryMax, 10) : null,
-        location: body.location || null,
-        city: body.city || null,
+        location: body.location || "",
+        city: body.city || "",
         isRemote: body.isRemote || false,
         isHybrid: body.isHybrid || false,
-        applyUrl: body.applyUrl || null,
+        applyUrl: body.applyUrl || "",
         companyId,
         authorId: session.user.id,
         status: body.status || "ACTIVE",
