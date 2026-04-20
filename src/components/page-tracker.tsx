@@ -7,6 +7,7 @@ export function PageTracker() {
   const pathname = usePathname();
 
   useEffect(() => {
+    if (!pathname) return;
     // 延迟发送，避免影响页面性能
     const timer = setTimeout(() => {
       trackPageView(pathname);
