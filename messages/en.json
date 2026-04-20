@@ -61,5 +61,48 @@
     "switch": "Switch language",
     "zh": "中文",
     "en": "English"
+  },
+  "company": {
+    "jobs": {
+      "new": {
+        "title": "Post a Job",
+        "basicInfo": "Basic Information",
+        "jobTitle": "Job Title",
+        "jobTitlePlaceholder": "e.g. Senior Frontend Engineer",
+        "slug": "Job Slug",
+        "slugPlaceholder": "senior-frontend-engineer",
+        "slugHint": "Used in URL, only lowercase letters, numbers, and hyphens",
+        "slugAvailable": "✓ Available",
+        "slugTaken": "✗ Already taken",
+        "employmentType": "Employment Type",
+        "experienceLevel": "Experience Level",
+        "location": "Location",
+        "locationPlaceholder": "e.g. Chaoyang District, Beijing",
+        "city": "City",
+        "cityPlaceholder": "e.g. Beijing",
+        "remote": "Remote Friendly",
+        "hybrid": "Hybrid",
+        "salary": "Salary",
+        "salaryMin": "Minimum Salary (k)",
+        "salaryMinPlaceholder": "15",
+        "salaryMax": "Maximum Salary (k)",
+        "salaryMaxPlaceholder": "30",
+        "details": "Job Details",
+        "description": "Job Description",
+        "descriptionPlaceholder": "Describe responsibilities, team, etc...",
+        "requirements": "Requirements",
+        "requirementsPlaceholder": "List required skills, experience, education...",
+        "benefits": "Benefits",
+        "benefitsPlaceholder": "Describe company benefits such as insurance, paid leave, etc...",
+        "applyUrl": "Application Link",
+        "applyUrlPlaceholder": "https://...",
+        "applyUrlHint": "If left blank, candidates will apply directly through the platform",
+        "publish": "Post Job",
+        "publishing": "Publishing...",
+        "publishFailed": "Publish failed",
+        "networkError": "Network error",
+        "operationFailed": "Operation failed"
+      }
+    }
   }
 }

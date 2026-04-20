@@ -1,27 +1,27 @@
 "use client"
-import { useLocale } from "next-intl";;
+import { useTranslations } from "next-intl";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 
 const employmentTypes = [
-  { value: "FULL_TIME", label: "全职" },
-  { value: "PART_TIME", label: "兼职" },
-  { value: "CONTRACT", label: "合同" },
-  { value: "INTERNSHIP", label: "实习" },
-  { value: "FREELANCE", label: "自由职业" },
+  { value: "FULL_TIME", labelZh: "全职", labelEn: "Full Time" },
+  { value: "PART_TIME", labelZh: "兼职", labelEn: "Part Time" },
+  { value: "CONTRACT", labelZh: "合同", labelEn: "Contract" },
+  { value: "INTERNSHIP", labelZh: "实习", labelEn: "Internship" },
+  { value: "FREELANCE", labelZh: "自由职业", labelEn: "Freelance" },
 ];
 
 const experienceLevels = [
-  { value: "ENTRY", label: "应届生/入门级" },
-  { value: "MID", label: "1-3年经验" },
-  { value: "SENIOR", label: "3-5年经验" },
-  { value: "EXECUTIVE", label: "5年以上/高管" },
+  { value: "ENTRY", labelZh: "应届生/入门级", labelEn: "Entry Level" },
+  { value: "MID", labelZh: "1-3年经验", labelEn: "1-3 Years" },
+  { value: "SENIOR", labelZh: "3-5年经验", labelEn: "3-5 Years" },
+  { value: "EXECUTIVE", labelZh: "5年以上/高管", labelEn: "5+ Years / Executive" },
 ];
 
 export default function NewJobPage() {
-  const locale = useLocale();
+  const t = useTranslations("company.jobs.new");
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -66,12 +66,12 @@ export default function NewJobPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "发布失败");
+        throw new Error(data.error || t("publishFailed"));
       }
 
-      router.push(`/${locale}/company/jobs`);
+      router.push("/company/jobs");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "操作失败");
+      setError(err instanceof Error ? err.message : t("operationFailed"));
     } finally {
       setIsLoading(false);
     }
@@ -89,7 +89,7 @@ export default function NewJobPage() {
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
-            <h1 className="text-xl font-bold">发布职位</h1>
+            <h1 className="text-xl font-bold">{t("title")}</h1>
           </div>
         </div>
       </header>
@@ -105,11 +105,11 @@ export default function NewJobPage() {
           <form onSubmit={handleSubmit} className="space-y-8">
             {/* 基本信息 */}
             <div>
-              <h2 className="text-lg font-semibold mb-4">基本信息</h2>
+              <h2 className="text-lg font-semibold mb-4">{t("basicInfo")}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    职位名称 *
+                    {t("jobTitle")} *
                   </label>
                   <input
                     type="text"
@@ -119,13 +119,13 @@ export default function NewJobPage() {
                       setFormData({ ...formData, title: e.target.value })
                     }
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="例如：高级前端工程师"
+                    placeholder={t("jobTitlePlaceholder")}
                   />
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    职位标识 *
+                    {t("slug")} *
                   </label>
                   <input
                     type="text"
@@ -142,19 +142,19 @@ export default function NewJobPage() {
                     placeholder="senior-frontend-engineer"
                   />
                   <p className="mt-1 text-xs text-gray-500">
-                    用于URL显示，只能包含小写字母、数字和连字符
+                    {t("slugHint")}
                   </p>
                   {slugAvailable === true && (
-                    <p className="mt-1 text-xs text-green-600">✓ 可用</p>
+                    <p className="mt-1 text-xs text-green-600">{t("slugAvailable")}</p>
                   )}
                   {slugAvailable === false && (
-                    <p className="mt-1 text-xs text-red-600">✗ 已被使用</p>
+                    <p className="mt-1 text-xs text-red-600">{t("slugTaken")}</p>
                   )}
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    工作类型 *
+                    {t("employmentType")} *
                   </label>
                   <select
                     value={formData.employmentType}
@@ -168,7 +168,7 @@ export default function NewJobPage() {
                   >
                     {employmentTypes.map((type) => (
                       <option key={type.value} value={type.value}>
-                        {type.label}
+                        {type.labelZh}
                       </option>
                     ))}
                   </select>
@@ -176,7 +176,7 @@ export default function NewJobPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    经验要求 *
+                    {t("experience")} *
                   </label>
                   <select
                     value={formData.experience}
@@ -187,7 +187,7 @@ export default function NewJobPage() {
                   >
                     {experienceLevels.map((level) => (
                       <option key={level.value} value={level.value}>
-                        {level.label}
+                        {level.labelZh}
                       </option>
                     ))}
                   </select>
@@ -195,7 +195,7 @@ export default function NewJobPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    工作地点 *
+                    {t("location")} *
                   </label>
                   <input
                     type="text"
@@ -205,13 +205,13 @@ export default function NewJobPage() {
                       setFormData({ ...formData, location: e.target.value })
                     }
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="例如：北京市朝阳区"
+                    placeholder={t("locationPlaceholder")}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    城市
+                    {t("city")}
                   </label>
                   <input
                     type="text"
@@ -220,7 +220,7 @@ export default function NewJobPage() {
                       setFormData({ ...formData, city: e.target.value })
                     }
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="例如：北京"
+                    placeholder={t("cityPlaceholder")}
                   />
                 </div>
 
@@ -238,7 +238,7 @@ export default function NewJobPage() {
                         }
                         className="w-4 h-4 text-blue-600 rounded"
                       />
-                      <span className="text-sm">支持远程办公</span>
+                      <span className="text-sm">{t("remote")}</span>
                     </label>
 
                     <label className="flex items-center space-x-2">
@@ -253,7 +253,7 @@ export default function NewJobPage() {
                         }
                         className="w-4 h-4 text-blue-600 rounded"
                       />
-                      <span className="text-sm">混合办公</span>
+                      <span className="text-sm">{t("hybrid")}</span>
                     </label>
                   </div>
                 </div>
@@ -262,11 +262,11 @@ export default function NewJobPage() {
 
             {/* 薪资待遇 */}
             <div className="border-t pt-8">
-              <h2 className="text-lg font-semibold mb-4">薪资待遇</h2>
+              <h2 className="text-lg font-semibold mb-4">{t("salarySection")}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    最低薪资 (k)
+                    {t("salaryMin")}
                   </label>
                   <input
                     type="number"
@@ -275,13 +275,13 @@ export default function NewJobPage() {
                       setFormData({ ...formData, salaryMin: e.target.value })
                     }
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="15"
+                    placeholder={t("salaryMinPlaceholder")}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    最高薪资 (k)
+                    {t("salaryMax")}
                   </label>
                   <input
                     type="number"
@@ -290,7 +290,7 @@ export default function NewJobPage() {
                       setFormData({ ...formData, salaryMax: e.target.value })
                     }
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="30"
+                    placeholder={t("salaryMaxPlaceholder")}
                   />
                 </div>
               </div>
@@ -298,11 +298,11 @@ export default function NewJobPage() {
 
             {/* 职位详情 */}
             <div className="border-t pt-8">
-              <h2 className="text-lg font-semibold mb-4">职位详情</h2>
+              <h2 className="text-lg font-semibold mb-4">{t("details")}</h2>
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    职位描述 *
+                    {t("description")} *
                   </label>
                   <textarea
                     required
@@ -312,13 +312,13 @@ export default function NewJobPage() {
                     }
                     rows={6}
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="详细描述职位的工作内容、职责、团队情况等..."
+                    placeholder={t("descriptionPlaceholder")}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    任职要求
+                    {t("requirements")}
                   </label>
                   <textarea
                     value={formData.requirements}
@@ -330,13 +330,13 @@ export default function NewJobPage() {
                     }
                     rows={4}
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="列出对候选人的技能、经验、学历等要求..."
+                    placeholder={t("requirementsPlaceholder")}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    福利待遇
+                    {t("benefits")}
                   </label>
                   <textarea
                     value={formData.benefits}
@@ -345,13 +345,13 @@ export default function NewJobPage() {
                     }
                     rows={4}
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="描述公司提供的福利待遇，如五险一金、带薪年假等..."
+                    placeholder={t("benefitsPlaceholder")}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    投递链接
+                    {t("applyUrl")}
                   </label>
                   <input
                     type="url"
@@ -360,10 +360,10 @@ export default function NewJobPage() {
                       setFormData({ ...formData, applyUrl: e.target.value })
                     }
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="https://..."
+                    placeholder={t("applyUrlPlaceholder")}
                   />
                   <p className="mt-1 text-xs text-gray-500">
-                    如不填写，候选人将通过平台直接投递
+                    {t("applyUrlHint")}
                   </p>
                 </div>
               </div>
@@ -375,14 +375,14 @@ export default function NewJobPage() {
                 onClick={() => router.back()}
                 className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
-                取消
+                {t("cancel")}
               </button>
               <button
                 type="submit"
                 disabled={isLoading}
                 className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
               >
-                {isLoading ? "发布中..." : "发布职位"}
+                {isLoading ? t("publishing") : t("publish")}
               </button>
             </div>
           </form>
