@@ -208,7 +208,7 @@ function CompanyApplicationsContent() {
                   value={statusFilter}
                   onChange={(e) => {
                     setStatusFilter(e.target.value);
-                    const params = new URLSearchParams(searchParams);
+                    const params = new URLSearchParams(searchParams?.toString());
                     if (e.target.value) {
                       params.set("status", e.target.value);
                     } else {
