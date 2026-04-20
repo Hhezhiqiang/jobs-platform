@@ -157,7 +157,7 @@ export default async function BlogPage({ params, searchParams }: PageProps) {
     const [postsData, totalData] = await Promise.all([
       prisma.pages.findMany({
         where,
-        include: { users: { select: { id: true, name: true, avatar: true } } },
+        include: { users: true },
         orderBy: { createdAt: "desc" },
         skip,
         take: limit,

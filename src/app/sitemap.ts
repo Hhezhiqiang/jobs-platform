@@ -1,28 +1,33 @@
 import { prisma } from "@/lib/prisma";
 import { MetadataRoute } from "next";
 
+// Build-time timestamp — set once per deployment
+const BUILD_TIME = new Date();
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
-  // 所有路由都有 /zh 前缀（localePrefix: "always"）
   const zh = `${baseUrl}/zh`;
 
   // ── 1. 静态页面（核心入口）──
+  // 使用 BUILD_TIME 而非 new Date()，避免每次请求时间都变
   const staticPages: MetadataRoute.Sitemap = [
-    { url: `${zh}`, priority: 1.0, changeFrequency: "daily", lastModified: new Date() },
-    { url: `${zh}/jobs`, priority: 0.9, changeFrequency: "hourly", lastModified: new Date() },
-    { url: `${zh}/blog`, priority: 0.9, changeFrequency: "daily", lastModified: new Date() },
-    { url: `${zh}/companies`, priority: 0.85, changeFrequency: "daily", lastModified: new Date() },
-    { url: `${zh}/salary-insights`, priority: 0.8, changeFrequency: "weekly", lastModified: new Date() },
-    { url: `${zh}/career-trail`, priority: 0.75, changeFrequency: "weekly", lastModified: new Date() },
-    { url: `${zh}/about`, priority: 0.7, changeFrequency: "monthly", lastModified: new Date() },
-    { url: `${zh}/contact`, priority: 0.6, changeFrequency: "monthly", lastModified: new Date() },
-    { url: `${zh}/faq`, priority: 0.6, changeFrequency: "monthly", lastModified: new Date() },
-    { url: `${zh}/search`, priority: 0.6, changeFrequency: "daily", lastModified: new Date() },
+    { url: `${zh}`, priority: 1.0, changeFrequency: "daily", lastModified: BUILD_TIME },
+    { url: `${zh}/jobs`, priority: 0.9, changeFrequency: "hourly", lastModified: BUILD_TIME },
+    { url: `${zh}/blog`, priority: 0.9, changeFrequency: "daily", lastModified: BUILD_TIME },
+    { url: `${zh}/companies`, priority: 0.85, changeFrequency: "daily", lastModified: BUILD_TIME },
+    { url: `${zh}/salary-insights`, priority: 0.8, changeFrequency: "weekly", lastModified: BUILD_TIME },
+    { url: `${zh}/career-trail`, priority: 0.75, changeFrequency: "weekly", lastModified: BUILD_TIME },
+    { url: `${zh}/about`, priority: 0.7, changeFrequency: "monthly", lastModified: BUILD_TIME },
+    { url: `${zh}/contact`, priority: 0.6, changeFrequency: "monthly", lastModified: BUILD_TIME },
+    { url: `${zh}/faq`, priority: 0.6, changeFrequency: "monthly", lastModified: BUILD_TIME },
+    { url: `${zh}/search`, priority: 0.6, changeFrequency: "daily", lastModified: BUILD_TIME },
     // 英文版
-    { url: `${baseUrl}/en`, priority: 0.9, changeFrequency: "daily", lastModified: new Date() },
-    { url: `${baseUrl}/en/jobs`, priority: 0.8, changeFrequency: "hourly", lastModified: new Date() },
-    { url: `${baseUrl}/en/blog`, priority: 0.8, changeFrequency: "daily", lastModified: new Date() },
-    { url: `${baseUrl}/en/companies`, priority: 0.75, changeFrequency: "daily", lastModified: new Date() },
+    { url: `${baseUrl}/en`, priority: 0.9, changeFrequency: "daily", lastModified: BUILD_TIME },
+    { url: `${baseUrl}/en/jobs`, priority: 0.8, changeFrequency: "hourly", lastModified: BUILD_TIME },
+    { url: `${baseUrl}/en/blog`, priority: 0.8, changeFrequency: "daily", lastModified: BUILD_TIME },
+    { url: `${baseUrl}/en/companies`, priority: 0.75, changeFrequency: "daily", lastModified: BUILD_TIME },
+    { url: `${baseUrl}/en/faq`, priority: 0.6, changeFrequency: "monthly", lastModified: BUILD_TIME },
+    { url: `${baseUrl}/en/salary-insights`, priority: 0.75, changeFrequency: "weekly", lastModified: BUILD_TIME },
   ];
 
   // ── 2. 博客文章（内容核心）──
@@ -33,13 +38,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     take: 500,
   });
 
-  // 过滤测试 slug
   const isTestSlug = (slug: string) => {
     if (!slug || slug.length < 3) return true;
     if (/\d{10,}/.test(slug)) return true;
     if (/^test[-_]/i.test(slug)) return true;
     if (/^[a-z0-9]$/i.test(slug)) return true;
-    // 纯随机 ID（如 -mnwhjzph）
     if (/^-m[a-z]{5,}$/i.test(slug)) return true;
     return false;
   };
@@ -95,7 +98,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .filter((c) => c.city)
     .map((c) => ({
       url: `${zh}/jobs/city/${encodeURIComponent(c.city!)}`,
-      lastModified: new Date(),
+      lastModified: BUILD_TIME,
       priority: 0.6,
       changeFrequency: "daily" as const,
     }));
