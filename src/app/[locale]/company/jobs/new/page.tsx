@@ -25,11 +25,9 @@ export default function NewJobPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [slugAvailable, setSlugAvailable] = useState<boolean | null>(null);
 
   const [formData, setFormData] = useState({
     title: "",
-    slug: "",
     description: "",
     requirements: "",
     benefits: "",
@@ -43,13 +41,6 @@ export default function NewJobPage() {
     isHybrid: false,
     applyUrl: "",
   });
-
-  const checkSlug = async (slug: string) => {
-    if (!slug || slug.length < 3) return;
-    const res = await fetch(`/api/jobs/check-slug?slug=${slug}`);
-    const data = await res.json();
-    setSlugAvailable(!data.exists);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,35 +112,6 @@ export default function NewJobPage() {
                     className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder={t("jobTitlePlaceholder")}
                   />
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t("slug")} *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.slug}
-                    onChange={(e) => {
-                      const value = e.target.value
-                        .toLowerCase()
-                        .replace(/[^a-z0-9-]/g, "");
-                      setFormData({ ...formData, slug: value });
-                      checkSlug(value);
-                    }}
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="senior-frontend-engineer"
-                  />
-                  <p className="mt-1 text-xs text-gray-500">
-                    {t("slugHint")}
-                  </p>
-                  {slugAvailable === true && (
-                    <p className="mt-1 text-xs text-green-600">{t("slugAvailable")}</p>
-                  )}
-                  {slugAvailable === false && (
-                    <p className="mt-1 text-xs text-red-600">{t("slugTaken")}</p>
-                  )}
                 </div>
 
                 <div>
