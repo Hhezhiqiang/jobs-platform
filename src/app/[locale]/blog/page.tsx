@@ -150,22 +150,32 @@ export default async function BlogPage({ params, searchParams }: PageProps) {
         { content: { contains: sp.q, mode: "insensitive" } },
       ];
     }
-    if (sp.category && sp.category !== (isEn ? "All" : "全部")) {
-      where.category = sp.category;
-    }
+    // pages 表没有 category 字段，先获取数据后再过滤
 
     const [postsData, totalData] = await Promise.all([
       prisma.pages.findMany({
         where,
         include: { users: true },
         orderBy: { createdAt: "desc" },
-        skip,
-        take: limit,
       }),
       prisma.pages.count({ where }),
     ]);
-    posts = postsData;
-    total = totalData;
+
+    // 内存中按 category 过滤
+    let filtered = postsData;
+    const categoryFilter = sp.category && sp.category !== (isEn ? "All" : "全部")
+      ? sp.category
+      : null;
+    if (categoryFilter) {
+      filtered = postsData.filter(post =>
+        post.keywords?.some(kw => kw.includes(categoryFilter)) ||
+        post.title.includes(categoryFilter) ||
+        post.excerpt?.includes(categoryFilter)
+      );
+    }
+    total = filtered.length;
+    // 内存分页
+    posts = filtered.slice(skip, skip + limit);
   } catch {
     // db error
   }
@@ -267,7 +277,7 @@ export default async function BlogPage({ params, searchParams }: PageProps) {
                   <div className="p-6">
                     <div className="flex items-center gap-2 mb-3">
                       <span className="px-2 py-1 bg-blue-50 text-blue-600 text-xs rounded-lg font-medium">
-                        {post.category || (isEn ? "Career" : "职场")}
+                        {post.keywords?.[0] || (isEn ? "Career" : "职场")}
                       </span>
                       <span className="flex items-center gap-1 text-xs text-gray-400">
                         <Clock className="w-3 h-3" />
