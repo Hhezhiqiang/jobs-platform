@@ -94,6 +94,7 @@ function CompanyApplicationsContent() {
 
   const filteredApplications = applications.filter(
     (app) => {
+      if (!app) return false;
       const userName = app.user?.name || "";
       const userEmail = app.user?.email || "";
       const jobTitle = app.job?.title || "";
