@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Search, MapPin } from "lucide-react";
+import { Search, MapPin, User, Briefcase } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 interface HeroSectionProps {
   jobCount: number;
@@ -13,6 +14,8 @@ interface HeroSectionProps {
 export function HeroSection({ jobCount }: HeroSectionProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState("");
+  const { data: session, status } = useSession();
+  const isLoggedIn = status === "authenticated";
   const t = useTranslations();
   const pathname = usePathname();
   const locale = pathname?.split("/")[1] || "zh";
@@ -118,21 +121,40 @@ export function HeroSection({ jobCount }: HeroSectionProps) {
           </form>
         </div>
 
-        {/* 注册 CTA — 提升转化率 */}
-        <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style={{ animationDelay: "0.35s" }}>
-          <Link
-            href={`/${locale}/auth/register`}
-            className="px-8 py-3 bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 font-bold rounded-xl text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
-          >
-            {isEn ? "Sign Up — It's Free" : "免费注册 — 发现更多机会"}
-          </Link>
-          <Link
-            href={`/${locale}/auth/login`}
-            className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-medium rounded-xl backdrop-blur-sm transition-all"
-          >
-            {isEn ? "Sign In" : "已有账号？登录"}
-          </Link>
-        </div>
+        {/* 登录状态 CTA */}
+        {isLoggedIn ? (
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style={{ animationDelay: "0.35s" }}>
+            <Link
+              href={`/${locale}/jobs`}
+              className="px-8 py-3 bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 font-bold rounded-xl text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center gap-2"
+            >
+              <Briefcase className="w-5 h-5" />
+              {isEn ? "Browse Jobs" : "浏览职位"}
+            </Link>
+            <Link
+              href={`/${locale}/dashboard`}
+              className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-medium rounded-xl backdrop-blur-sm transition-all flex items-center gap-2"
+            >
+              <User className="w-5 h-5" />
+              {isEn ? "My Dashboard" : "我的主页"}
+            </Link>
+          </div>
+        ) : (
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style={{ animationDelay: "0.35s" }}>
+            <Link
+              href={`/${locale}/auth/register`}
+              className="px-8 py-3 bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 font-bold rounded-xl text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
+            >
+              {isEn ? "Sign Up — It's Free" : "免费注册 — 发现更多机会"}
+            </Link>
+            <Link
+              href={`/${locale}/auth/login`}
+              className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-medium rounded-xl backdrop-blur-sm transition-all"
+            >
+              {isEn ? "Sign In" : "已有账号？登录"}
+            </Link>
+          </div>
+        )}
 
         <div className="mt-8 animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
           <p className="text-blue-200 text-sm mb-3">{isEn ? "Popular Searches" : "热门搜索"}</p>
