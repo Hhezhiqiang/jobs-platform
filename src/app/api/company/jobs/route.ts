@@ -41,10 +41,9 @@ export async function POST(request: NextRequest) {
     const membership = await prisma.company_members.findFirst({ where: { userId: session.user.id } });
     if (!membership && session.user.role !== "ADMIN") return NextResponse.json({ error: "请先注册企业" }, { status: 403 });
 
+    const body = await request.json();
     const companyId = membership?.companyId || body.companyId;
     if (!companyId) return NextResponse.json({ error: "无法确定所属企业" }, { status: 400 });
-
-    const body = await request.json();
 
     // 自动生成 slug
     const slug = body.slug || `${body.title.toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, '-')}-${Date.now()}`;
