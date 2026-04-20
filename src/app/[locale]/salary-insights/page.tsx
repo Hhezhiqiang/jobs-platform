@@ -50,5 +50,5 @@ export default async function SalaryInsightsPage({ params }: { params: Promise<{
   const { locale } = await params;
   const data = await getSalaryInsightsData();
 
-  return <SalaryInsightsClient initialData={data} locale={locale} />;
+  return <SalaryInsightsClient initialData={data} />;
 }
