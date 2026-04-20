@@ -1,12 +1,17 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+
 interface StatCardProps {
   value: number;
   suffix?: string;
-  label: string;
+  labelKey: string;
   icon: string;
   color?: "blue" | "green" | "purple" | "orange";
 }
 
-function StatCard({ value, suffix, label, icon, color = "blue" }: StatCardProps) {
+function StatCard({ value, suffix, labelKey, icon, color = "blue" }: StatCardProps) {
+  const t = useTranslations("stats");
   const colorClasses = {
     blue: "from-blue-500 to-blue-600 shadow-blue-500/25",
     green: "from-green-500 to-green-600 shadow-green-500/25",
@@ -22,7 +27,7 @@ function StatCard({ value, suffix, label, icon, color = "blue" }: StatCardProps)
       <div className="text-4xl font-bold text-gray-900 mb-2">
         <span>{value.toLocaleString()}{suffix}</span>
       </div>
-      <div className="text-gray-500 font-medium">{label}</div>
+      <div className="text-gray-500 font-medium">{t(labelKey)}</div>
     </div>
   );
 }
@@ -34,20 +39,19 @@ interface StatsSectionProps {
 }
 
 export function StatsSection({ jobCount, companyCount, dailyNewJobs = 0 }: StatsSectionProps) {
-  // Only show stats with real data; skip fabricated metrics like "98% resume pass rate"
+  const t = useTranslations("stats");
+
   return (
     <section className="py-16 bg-gray-50">
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">用数据说话</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            每天都有求职者和企业在这里找到彼此，加入我们，开启职业新篇章
-          </p>
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">{t("title")}</h2>
+          <p className="text-gray-600 max-w-2xl mx-auto">{t("subtitle")}</p>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-          <StatCard value={jobCount || 0} suffix="+" label="在招职位" icon="💼" color="blue" />
-          <StatCard value={companyCount || 0} suffix="+" label="合作企业" icon="🏢" color="purple" />
-          <StatCard value={dailyNewJobs || 0} suffix="+" label="今日新增" icon="🚀" color="orange" />
+          <StatCard value={jobCount || 0} suffix="+" labelKey="jobs" icon="💼" color="blue" />
+          <StatCard value={companyCount || 0} suffix="+" labelKey="companies" icon="🏢" color="purple" />
+          <StatCard value={dailyNewJobs || 0} suffix="+" labelKey="dailyNew" icon="🚀" color="orange" />
         </div>
       </div>
     </section>

@@ -25,23 +25,24 @@
     "closeMenu": "Close menu"
   },
   "footer": {
-    "quickLinks": "Quick Links",
-    "legal": "Legal",
-    "contactUs": "Contact Us",
-    "allRightsReserved": "All rights reserved",
-    "sitemap": "Sitemap",
     "about": "About",
     "aboutUs": "About Us",
+    "contactUs": "Contact",
     "joinUs": "Join Us",
     "jobSeekers": "Job Seekers",
     "searchJobs": "Search Jobs",
     "salaryInsights": "Salary Insights",
+    "faq": "FAQ",
     "employers": "Employers",
     "postJob": "Post a Job",
     "companySignup": "Company Sign-up",
+    "legal": "Legal",
     "terms": "Terms",
     "privacy": "Privacy",
-    "copyright": "© {year} JobQuip. All rights reserved."
+    "copyright": "© {year} JobQuip. All rights reserved.",
+    "quickLinks": "Quick Links",
+    "allRightsReserved": "All rights reserved",
+    "sitemap": "Sitemap"
   },
   "hero": {
     "title": "Discover Your Next Dream Job",
@@ -104,7 +105,7 @@
   },
   "features": {
     "title": "Why Choose Us",
-    "subtitle": "More than job searching — it's about finding your career opportunity",
+    "subtitle": "More than job search — it's about finding your career opportunity",
     "items": [
       {
         "icon": "🎯",
@@ -145,6 +146,26 @@
     "companies": "Partner Companies",
     "resumeRate": "Resume Pass Rate",
     "dailyNew": "Daily New Jobs"
+  },
+  "blog": {
+    "title": "📝 Career Blog",
+    "subtitle": "Salary reports, interview guides, and industry trends to advance your career",
+    "searchPlaceholder": "Search articles...",
+    "categories": {
+      "all": "All",
+      "interview": "Interview Tips",
+      "resume": "Resume Tips",
+      "salary": "Salary Negotiation",
+      "career": "Career Growth",
+      "trends": "Industry Trends",
+      "skills": "Workplace Skills"
+    },
+    "noArticles": "No articles found",
+    "noArticlesSub": "Try adjusting your search or category filter",
+    "defaultCategory": "Career",
+    "read": "Read",
+    "prev": "Previous",
+    "next": "Next"
   },
   "common": {
     "loading": "Loading...",

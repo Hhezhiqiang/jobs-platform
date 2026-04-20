@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { Metadata } from "next";
 import { BookOpen, Users, Clock, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { safeJsonLdStringify } from "@/lib/utils";
+import { getTranslations } from "next-intl/server";
 
 function getGradient(id: string) {
   const gradients = [
@@ -80,24 +81,15 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
 export const revalidate = 3600;
 
-const categoriesZh = [
-  { name: "全部", icon: "📚" },
-  { name: "面试攻略", icon: "🎯" },
-  { name: "简历优化", icon: "📝" },
-  { name: "薪资谈判", icon: "💰" },
-  { name: "职业发展", icon: "🚀" },
-  { name: "行业趋势", icon: "📊" },
-  { name: "职场技能", icon: "💡" },
-];
-
-const categoriesEn = [
-  { name: "All", icon: "📚" },
-  { name: "Interview Tips", icon: "🎯" },
-  { name: "Resume Tips", icon: "📝" },
-  { name: "Salary Negotiation", icon: "💰" },
-  { name: "Career Growth", icon: "🚀" },
-  { name: "Industry Trends", icon: "📊" },
-  { name: "Workplace Skills", icon: "💡" },
+// 博客分类（使用翻译 key）
+const CATEGORY_KEYS = [
+  { icon: "📚", nameKey: "all" },
+  { icon: "🎯", nameKey: "interview" },
+  { icon: "📝", nameKey: "resume" },
+  { icon: "💰", nameKey: "salary" },
+  { icon: "🚀", nameKey: "career" },
+  { icon: "📊", nameKey: "trends" },
+  { icon: "💡", nameKey: "skills" },
 ];
 
 interface PageProps {
@@ -132,7 +124,7 @@ export default async function BlogPage({ params, searchParams }: PageProps) {
   const { locale } = await params;
   const sp = await searchParams;
   const isEn = locale === "en";
-  const categories = isEn ? categoriesEn : categoriesZh;
+  const t = await getTranslations({ locale, namespace: "blog" });
 
   const page = parseInt(sp.page || "1");
   const limit = 12;
@@ -150,7 +142,6 @@ export default async function BlogPage({ params, searchParams }: PageProps) {
         { content: { contains: sp.q, mode: "insensitive" } },
       ];
     }
-    // pages 表没有 category 字段，先获取数据后再过滤
 
     const [postsData, totalData] = await Promise.all([
       prisma.pages.findMany({
@@ -163,7 +154,7 @@ export default async function BlogPage({ params, searchParams }: PageProps) {
 
     // 内存中按 category 过滤
     let filtered = postsData;
-    const categoryFilter = sp.category && sp.category !== (isEn ? "All" : "全部")
+    const categoryFilter = sp.category && sp.category !== t("categories.all")
       ? sp.category
       : null;
     if (categoryFilter) {
@@ -194,14 +185,8 @@ export default async function BlogPage({ params, searchParams }: PageProps) {
       {/* Hero */}
       <section className="bg-gradient-to-br from-blue-600 to-indigo-700 text-white">
         <div className="max-w-7xl mx-auto px-4 py-16 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            {isEn ? "📝 Career Blog" : "📝 职场博客"}
-          </h1>
-          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            {isEn
-              ? "Salary reports, interview guides, and industry trends to advance your career"
-              : "薪资报告、面试攻略、行业趋势，助你职场进阶"}
-          </p>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">{t("title")}</h1>
+          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">{t("subtitle")}</p>
           <div className="max-w-xl mx-auto relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <form action={`/${locale}/blog`}>
@@ -209,7 +194,7 @@ export default async function BlogPage({ params, searchParams }: PageProps) {
                 type="search"
                 name="q"
                 defaultValue={sp.q}
-                placeholder={isEn ? "Search articles..." : "搜索文章..."}
+                placeholder={t("searchPlaceholder")}
                 className="w-full pl-12 pr-4 py-4 bg-white rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-white/20"
               />
             </form>
@@ -220,17 +205,17 @@ export default async function BlogPage({ params, searchParams }: PageProps) {
       {/* Categories */}
       <div className="max-w-7xl mx-auto px-4 -mt-6">
         <div className="bg-white rounded-2xl shadow-lg p-4 flex flex-wrap gap-2">
-          {categories.map((cat) => (
+          {CATEGORY_KEYS.map((cat) => (
             <Link
-              key={cat.name}
-              href={`/${locale}/blog?category=${encodeURIComponent(cat.name)}`}
+              key={cat.nameKey}
+              href={`/${locale}/blog?category=${encodeURIComponent(t(`categories.${cat.nameKey}`))}`}
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                sp.category === cat.name
+                sp.category === t(`categories.${cat.nameKey}`)
                   ? "bg-blue-600 text-white"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
               }`}
             >
-              {cat.icon} {cat.name}
+              {cat.icon} {t(`categories.${cat.nameKey}`)}
             </Link>
           ))}
         </div>
@@ -241,12 +226,8 @@ export default async function BlogPage({ params, searchParams }: PageProps) {
         {posts.length === 0 ? (
           <div className="text-center py-20">
             <div className="text-6xl mb-4">📭</div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              {isEn ? "No articles found" : "暂无文章"}
-            </h2>
-            <p className="text-gray-500">
-              {isEn ? "Try adjusting your search or category filter" : "尝试调整搜索条件或分类筛选"}
-            </p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">{t("noArticles")}</h2>
+            <p className="text-gray-500">{t("noArticlesSub")}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -277,7 +258,7 @@ export default async function BlogPage({ params, searchParams }: PageProps) {
                   <div className="p-6">
                     <div className="flex items-center gap-2 mb-3">
                       <span className="px-2 py-1 bg-blue-50 text-blue-600 text-xs rounded-lg font-medium">
-                        {post.keywords?.[0] || (isEn ? "Career" : "职场")}
+                        {post.keywords?.[0] || t("defaultCategory")}
                       </span>
                       <span className="flex items-center gap-1 text-xs text-gray-400">
                         <Clock className="w-3 h-3" />
@@ -308,7 +289,7 @@ export default async function BlogPage({ params, searchParams }: PageProps) {
                         <span className="text-xs text-gray-500">{post.users?.name || "JobQuip"}</span>
                       </div>
                       <span className="text-xs text-gray-400">
-                        {isEn ? "Read" : "阅读"} →
+                        {t("read")} →
                       </span>
                     </div>
                   </div>
@@ -327,7 +308,7 @@ export default async function BlogPage({ params, searchParams }: PageProps) {
                 className="flex items-center gap-1 px-4 py-2 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all"
               >
                 <ChevronLeft className="w-4 h-4" />
-                {isEn ? "Previous" : "上一页"}
+                {t("prev")}
               </Link>
             )}
             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -355,7 +336,7 @@ export default async function BlogPage({ params, searchParams }: PageProps) {
                 href={`/${locale}/blog?page=${page + 1}${sp.q ? `&q=${sp.q}` : ""}${sp.category ? `&category=${sp.category}` : ""}`}
                 className="flex items-center gap-1 px-4 py-2 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all"
               >
-                {isEn ? "Next" : "下一页"}
+                {t("next")}
                 <ChevronRight className="w-4 h-4" />
               </Link>
             )}
