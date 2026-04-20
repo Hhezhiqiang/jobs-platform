@@ -42,7 +42,7 @@ interface Company {
 
 export default function CompanyStoriesPage() {
   const params = useParams();
-  const { id: companyId, locale } = params;
+  const { slug: companyId, locale } = (params || {}) as Record<string, string>;
   
   const [stories, setStories] = useState<Story[]>([]);
   const [company, setCompany] = useState<Company | null>(null);

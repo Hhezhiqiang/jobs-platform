@@ -28,8 +28,8 @@ function LoginFormContent({
 }: LoginPageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl");
-  const registered = searchParams.get("registered");
+  const callbackUrl = searchParams?.get("callbackUrl");
+  const registered = searchParams?.get("registered");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);

@@ -41,7 +41,7 @@ function CompanyApplicationsContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [statusFilter, setStatusFilter] = useState(
-    searchParams.get("status") || ""
+    searchParams?.get("status") || ""
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
