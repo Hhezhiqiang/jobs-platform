@@ -49,8 +49,20 @@ export async function POST(request: NextRequest) {
 
     const job = await prisma.jobs.create({
       data: {
-        ...body,
+        title: body.title,
         slug,
+        description: body.description || "",
+        requirements: body.requirements || "",
+        benefits: body.benefits || "",
+        employmentType: body.employmentType || "FULL_TIME",
+        experience: body.experience || null,
+        salaryMin: body.salaryMin ? parseInt(body.salaryMin, 10) : null,
+        salaryMax: body.salaryMax ? parseInt(body.salaryMax, 10) : null,
+        location: body.location || null,
+        city: body.city || null,
+        isRemote: body.isRemote || false,
+        isHybrid: body.isHybrid || false,
+        applyUrl: body.applyUrl || null,
         companyId,
         authorId: session.user.id,
         status: body.status || "ACTIVE",
