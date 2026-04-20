@@ -23,7 +23,7 @@ export default function EditCompanyPage() {
   const locale = useLocale();
   const router = useRouter();
   const params = useParams();
-  const companyId = params.id as string;
+  const companyId = params?.id as string;
   
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
