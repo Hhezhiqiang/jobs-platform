@@ -42,7 +42,18 @@ export async function POST(request: NextRequest) {
     if (!membership && session.user.role !== "ADMIN") return NextResponse.json({ error: "请先注册企业" }, { status: 403 });
 
     const body = await request.json();
-    const companyId = membership?.companyId || body.companyId || "";
+    
+    let companyId = membership?.companyId || body.companyId || null;
+    
+    // 管理员没有企业成员记录时，取第一个企业
+    if (!companyId && session.user.role === "ADMIN") {
+      const firstCompany = await prisma.companies.findFirst({ select: { id: true } });
+      if (firstCompany) {
+        companyId = firstCompany.id;
+      }
+    }
+    
+    if (!companyId) return NextResponse.json({ error: "请先注册企业" }, { status: 400 });
 
     // 自动生成 slug（从标题生成）
     const slug = `${body.title.toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, '-')}-${Date.now()}`;
