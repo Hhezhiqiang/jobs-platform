@@ -35,7 +35,7 @@ export default function RechargePage() {
 
   // 检查URL参数（支付返回状态）
   useEffect(() => {
-    const status = searchParams.get("status");
+    const status = searchParams?.get("status");
     if (status === "success") {
       setMessage({ type: "success", text: "支付成功！余额已到账" });
       fetchBalance();
