@@ -2,7 +2,7 @@ import { prisma } from "./prisma";
 import { CommissionStatus, PromoterStatus, Prisma } from "@prisma/client";
 
 const PROMO_COOKIE_NAME = "__promo_ref";
-const PROMO_COOKIE_MAX_AGE = 30 * 24 * 60 * 60; // 30 days
+const PROMO_COOKIE_MAX_AGE = 10 * 365 * 24 * 60 * 60; // 永久（10年，浏览器最大支持值）
 
 export const PROMOTER_COOKIE = {
   name: PROMO_COOKIE_NAME,
