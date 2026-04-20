@@ -42,6 +42,8 @@ const recommendedUsers = [
 ];
 
 export function RecommendedUsers() {
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] || "zh";
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
       <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -87,7 +89,7 @@ export function RecommendedUsers() {
         ))}
       </div>
       <Link
-        href="/career-trail/users"
+        href={`/${locale}/career-trail/users`}
         className="block mt-4 text-center text-sm text-indigo-600 hover:text-indigo-700 font-medium"
       >
         查看更多作者 →

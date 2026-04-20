@@ -17,33 +17,28 @@ export async function GET() {
     },
   });
 
-  // 生成RSS XML
+  // 生成RSS XML（多语言版本，链接带 locale 前缀）
   const rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>JobQuip招聘平台 - 求职博客</title>
-    <link>${baseUrl}/blog</link>
+    <link>${baseUrl}/zh/blog</link>
     <description>专业的互联网求职博客，提供最新薪资报告、大厂面试攻略、简历优化技巧、职业规划指南。</description>
     <language>zh-CN</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     <atom:link href="${baseUrl}/rss.xml" rel="self" type="application/rss+xml"/>
     ${blogs.map(blog => {
-      const content = blog.content
-        .replace(/&/g, "&amp;")
-        .replace(/&lt;/g, "&lt;")
-        .replace(/&gt;/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&apos;");
+      const content = escapeXml(blog.content);
       
       return `
     <item>
       <title>${escapeXml(blog.title)}</title>
-      <link>${baseUrl}/blog/${blog.slug}</link>
-      <guid isPermaLink="true">${baseUrl}/blog/${blog.slug}</guid>
+      <link>${baseUrl}/zh/blog/${blog.slug}</link>
+      <guid isPermaLink="true">${baseUrl}/zh/blog/${blog.slug}</guid>
       <pubDate>${new Date(blog.createdAt).toUTCString()}</pubDate>
       <author>JobQuip编辑</author>
       <description>${escapeXml(blog.excerpt || blog.title)}</description>
-      <content:encoded><![CDATA[${content}]]&gt;</content:encoded>
+      <content:encoded><![CDATA[${content}]]></content:encoded>
     </item>`;
     }).join("")}
   </channel>
@@ -60,8 +55,8 @@ export async function GET() {
 function escapeXml(str: string): string {
   return str
     .replace(/&/g, "&amp;")
-    .replace(/&lt;/g, "&lt;")
-    .replace(/&gt;/g, "&gt;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&apos;");
 }
