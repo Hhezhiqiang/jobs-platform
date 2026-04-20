@@ -118,6 +118,22 @@ export function HeroSection({ jobCount }: HeroSectionProps) {
           </form>
         </div>
 
+        {/* 注册 CTA — 提升转化率 */}
+        <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up" style={{ animationDelay: "0.35s" }}>
+          <Link
+            href={`/${locale}/auth/register`}
+            className="px-8 py-3 bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 font-bold rounded-xl text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
+          >
+            {isEn ? "Sign Up — It's Free" : "免费注册 — 发现更多机会"}
+          </Link>
+          <Link
+            href={`/${locale}/auth/login`}
+            className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-medium rounded-xl backdrop-blur-sm transition-all"
+          >
+            {isEn ? "Sign In" : "已有账号？登录"}
+          </Link>
+        </div>
+
         <div className="mt-8 animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
           <p className="text-blue-200 text-sm mb-3">{isEn ? "Popular Searches" : "热门搜索"}</p>
           <div className="flex flex-wrap justify-center gap-2">
