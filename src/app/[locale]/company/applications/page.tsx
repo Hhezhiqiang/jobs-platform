@@ -93,10 +93,16 @@ function CompanyApplicationsContent() {
   };
 
   const filteredApplications = applications.filter(
-    (app) =>
-      app.user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      app.user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      app.job.title?.toLowerCase().includes(searchQuery.toLowerCase())
+    (app) => {
+      const userName = app.user?.name || "";
+      const userEmail = app.user?.email || "";
+      const jobTitle = app.job?.title || "";
+      return (
+        userName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        userEmail.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        jobTitle.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
   );
 
   const toggleSelect = (id: string) => {
@@ -141,10 +147,10 @@ function CompanyApplicationsContent() {
 
   const handleExport = () => {
     const rows = filteredApplications.map((app) => ({
-      姓名: app.user.name || "",
-      邮箱: app.user.email || "",
-      电话: app.user.phone || "",
-      职位: app.job.title || "",
+      姓名: app.user?.name || "",
+      邮箱: app.user?.email || "",
+      电话: app.user?.phone || "",
+      职位: app.job?.title || "",
       状态: app.status,
       投递时间: new Date(app.appliedAt).toLocaleString("zh-CN"),
     }));
@@ -310,23 +316,23 @@ function CompanyApplicationsContent() {
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-2">
                           <h3 className="font-semibold text-gray-900">
-                            {app.user.name || "匿名用户"}
+                            {app.user?.name || "匿名用户"}
                           </h3>
                           {getStatusBadge(app.status)}
                         </div>
 
                         <p className="text-blue-600 font-medium mb-2">
-                          {app.job.title}
+                          {app.job?.title || "未知职位"}
                         </p>
 
                         <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                          {app.user.email && (
+                          {app.user?.email && (
                             <span className="flex items-center space-x-1">
                               <Mail className="w-4 h-4" />
                               <span>{app.user.email}</span>
                             </span>
                           )}
-                          {app.user.phone && (
+                          {app.user?.phone && (
                             <span className="flex items-center space-x-1">
                               <Phone className="w-4 h-4" />
                               <span>{app.user.phone}</span>

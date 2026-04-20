@@ -255,8 +255,8 @@ export function Header({ transparent = false }: HeaderProps) {
                     </Link>
                     <hr className="my-2 border-gray-100" />
                     <button
-                      onClick={() => {
-                        signOut({ callbackUrl: `/${locale}` });
+                      onClick={async () => {
+                        await signOut({ callbackUrl: `/${locale}` });
                         setUserMenuOpen(false);
                       }}
                       className="w-full flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 text-left"
@@ -403,8 +403,8 @@ export function Header({ transparent = false }: HeaderProps) {
                     </Link>
                   )}
                   <button
-                    onClick={() => {
-                      signOut({ callbackUrl: `/${locale}` });
+                    onClick={async () => {
+                      await signOut({ callbackUrl: `/${locale}` });
                       setMobileMenuOpen(false);
                     }}
                     className="w-full text-left flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg"
