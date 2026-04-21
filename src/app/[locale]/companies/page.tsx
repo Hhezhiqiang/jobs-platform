@@ -12,19 +12,20 @@ const SITE_URL = "https://jobquip.com";
 
 export async function generateMetadata({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<{ q?: string }> }): Promise<Metadata> {
   const { locale } = await params;
+  const isEn = locale === "en";
   const sp = await searchParams;
   const query = sp.q || "";
   const title = query
-    ? `${query} 相关公司 - 企业搜索`
-    : `知名企业列表 - 发现优秀企业`;
+    ? (isEn ? `${query} Companies - Search Results` : `${query} 相关公司 - 企业搜索`)
+    : (isEn ? "Company Directory - Discover Great Companies" : "知名企业列表 - 发现优秀企业");
   const description = query
-    ? `搜索"${query}"找到的相关企业，查看最新招聘信息和公司详情。`
-    : "发现优秀企业，探索知名互联网公司，找到理想的职业平台。查看最新公司列表和招聘信息。";
+    ? (isEn ? `Search results for "${query}", view latest company info and details.` : `搜索"${query}"找到的相关企业，查看最新招聘信息和公司详情。`)
+    : (isEn ? "Discover excellent companies, explore top internet companies, and find your ideal platform." : "发现优秀企业，探索知名互联网公司，找到理想的职业平台。查看最新公司列表和招聘信息。");
 
   return {
     title,
     description,
-    keywords: ["公司列表", "企业招聘", "互联网公司", query, "公司详情"].filter(Boolean),
+    keywords: isEn ? ["company directory", "companies", "tech companies", query].filter(Boolean) : ["公司列表", "企业招聘", "互联网公司", query, "公司详情"].filter(Boolean),
     openGraph: {
       title,
       description,
