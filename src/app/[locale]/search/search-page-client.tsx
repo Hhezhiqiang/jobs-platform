@@ -49,6 +49,7 @@ interface SearchPageClientProps {
   initialMinSalary: string;
   initialMaxSalary: string;
   initialPage: number;
+  locale?: string;
 }
 
 export function SearchPageClient({
@@ -58,7 +59,9 @@ export function SearchPageClient({
   initialMinSalary,
   initialMaxSalary,
   initialPage,
+  locale = "zh",
 }: SearchPageClientProps) {
+  const isEn = locale === "en";
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -171,7 +174,7 @@ export function SearchPageClient({
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="mb-4">
-            <Breadcrumb items={[{ label: "职位搜索", href: "/search" }]} />
+            <Breadcrumb items={[{ label: locale === "en" ? "Job Search" : "职位搜索", href: `/${locale}/search` }]} />
           </div>
           
           <h1 className="text-2xl font-bold text-gray-900 mb-6">
@@ -180,7 +183,7 @@ export function SearchPageClient({
                 <HighlightedText text={`"${query}" 的搜索结果`} highlight={query} />
               </>
             ) : (
-              "搜索职位"
+              {isEn ? "Search Jobs" : "搜索职位"}
             )}
           </h1>
 
@@ -188,7 +191,7 @@ export function SearchPageClient({
           <SearchBox 
             initialValue={query}
             onSearch={handleSearch}
-            placeholder="搜索职位名称、公司、关键词..."
+            placeholder={isEn ? "Search job titles, companies, keywords..." : "搜索职位名称、公司、关键词..."}
             showSuggestions={true}
           />
 
@@ -258,7 +261,7 @@ export function SearchPageClient({
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">未找到相关职位</h3>
-                <p className="text-gray-500 mb-6">尝试调整搜索关键词或筛选条件</p>
+                <p className="text-gray-500 mb-6">{isEn ? "Try adjusting your search keywords or filters" : "尝试调整搜索关键词或筛选条件"}</p>
                 <button
                   onClick={() => {
                     setQuery("");

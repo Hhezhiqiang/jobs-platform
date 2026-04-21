@@ -36,12 +36,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     });
 
     if (!company) {
-      return { title: "公司未找到" };
+      return { title: locale === "en" ? "Company Not Found" : "公司未找到" };
     }
 
     return generateCompanyMetadata(company, locale);
   } catch {
-    return { title: "公司未找到" };
+    return { title: locale === "en" ? "Company Not Found" : "公司未找到" };
   }
 }
 
@@ -65,6 +65,7 @@ async function getCompanyData(slug: string) {
 
 export default async function CompanyDetailPage({ params }: PageProps) {
   const { slug, locale } = await params;
+  const isEn = locale === "en";
   const company = await getCompanyData(slug);
 
   if (!company) {
@@ -89,11 +90,11 @@ export default async function CompanyDetailPage({ params }: PageProps) {
           <div className="relative max-w-5xl mx-auto px-4 py-12">
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 text-sm text-blue-100 mb-6">
-              <Link href={`/${locale}/`} className="hover:text-white">首页</Link>
+              <Link href={`/${locale}/`} className="hover:text-white">{isEn ? "Home" : "首页"}</Link>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-              <Link href={`/${locale}/companies`} className="hover:text-white">公司</Link>
+              <Link href={`/${locale}/companies`} className="hover:text-white">{isEn ? "Companies" : "公司"}</Link>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
@@ -138,7 +139,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
                   <span>·</span>
                   <span className="flex items-center gap-1">
                     <Briefcase className="w-4 h-4" />
-                    {company.jobs.length} 个在招职位
+                    {company.jobs.length} {isEn ? "open positions" : "个在招职位"}
                   </span>
                 </div>
               </div>
@@ -165,7 +166,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
               {/* Company Description */}
               {company.description && (
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-                  <h2 className="text-xl font-bold text-gray-900 mb-4">公司简介</h2>
+                  <h2 className="text-xl font-bold text-gray-900 mb-4">{isEn ? "Company Profile" : "公司简介"}</h2>
                   <div className="prose prose-gray max-w-none text-gray-700 whitespace-pre-wrap leading-relaxed">
                     {company.description}
                   </div>
@@ -175,7 +176,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
               {/* Job Listings */}
               <div>
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-bold text-gray-900">在招职位</h2>
+                  <h2 className="text-xl font-bold text-gray-900">{isEn ? "Open Positions" : "在招职位"}</h2>
                   <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
                     {validJobs.length} 个职位
                   </span>
@@ -192,7 +193,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
                     <div className="w-20 h-20 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
                       <Briefcase className="w-10 h-10 text-gray-400" />
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">暂无在招职位</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{isEn ? "No open positions" : "暂无在招职位"}</h3>
                     <p className="text-gray-500">该企业暂时没有发布职位</p>
                   </div>
                 )}
@@ -203,7 +204,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
             <div className="space-y-6">
               {/* Company Info Card */}
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sticky top-24">
-                <h3 className="font-bold text-gray-900 mb-6">公司信息</h3>
+                <h3 className="font-bold text-gray-900 mb-6">{isEn ? "Company Info" : "公司信息"}</h3>
                 
                 <div className="space-y-4">
                   {company.location && (
@@ -212,7 +213,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
                         <MapPin className="w-5 h-5 text-blue-600" />
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500">公司地址</p>
+                        <p className="text-sm text-gray-500">{isEn ? "Address" : "公司地址"}</p>
                         <p className="font-medium text-gray-900">{company.location}</p>
                       </div>
                     </div>
@@ -224,7 +225,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
                         <Users className="w-5 h-5 text-green-600" />
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500">公司规模</p>
+                        <p className="text-sm text-gray-500">{isEn ? "Company Size" : "公司规模"}</p>
                         <p className="font-medium text-gray-900">{company.size}</p>
                       </div>
                     </div>

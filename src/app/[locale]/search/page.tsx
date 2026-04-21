@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { SearchPageClient } from "./search-page-client";
 
 interface PageProps {
+  params: Promise<{ locale: string }>;
   searchParams: Promise<{
     q?: string;
     city?: string;
@@ -16,9 +17,11 @@ const SITE_NAME = "JobQuip招聘平台";
 const SITE_URL = "https://jobquip.com";
 const DEFAULT_OG_IMAGE = `${SITE_URL}/logo.png`;
 
-export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
-  const params = await searchParams;
-  const query = params.q || "";
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
+  const { locale } = await params;
+  const isEn = locale === "en";
+  const params_ = await searchParams;
+  const query = params_.q || "";
 
   const title = query
     ? `"${query}" 的搜索结果 - 职位搜索 | ${SITE_NAME}`
@@ -28,17 +31,17 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
     : "搜索全站职位，支持按关键词、城市、职位类型、薪资范围筛选。快速找到你的理想工作。";
 
   const canonicalParams = new URLSearchParams();
-  if (params.q) canonicalParams.set("q", params.q);
-  if (params.city) canonicalParams.set("city", params.city);
-  if (params.type) canonicalParams.set("type", params.type);
-  if (params.minSalary) canonicalParams.set("minSalary", params.minSalary);
-  if (params.maxSalary) canonicalParams.set("maxSalary", params.maxSalary);
+  if (params_.q) canonicalParams.set("q", params_.q);
+  if (params_.city) canonicalParams.set("city", params_.city);
+  if (params_.type) canonicalParams.set("type", params_.type);
+  if (params_.minSalary) canonicalParams.set("minSalary", params_.minSalary);
+  if (params_.maxSalary) canonicalParams.set("maxSalary", params_.maxSalary);
   const canonical = `${SITE_URL}/search${canonicalParams.toString() ? "?" + canonicalParams.toString() : ""}`;
 
   return {
     title,
     description,
-    keywords: ["职位搜索", "找工作", query, params.city, params.type, "招聘信息"].filter((k): k is string => !!k),
+    keywords: ["职位搜索", "找工作", query, params_.city, params_.type, "招聘信息"].filter((k): k is string => !!k),
     openGraph: {
       title,
       description,
@@ -60,19 +63,21 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
   };
 }
 
-export default async function SearchPage({ searchParams }: PageProps) {
-  const params = await searchParams;
-  const rawPage = parseInt(params.page || "1", 10);
+export default async function SearchPage({ params, searchParams }: PageProps) {
+  const { locale } = await params;
+  const params_ = await searchParams;
+  const rawPage = parseInt(params_.page || "1", 10);
   const safePage = isNaN(rawPage) ? 1 : Math.max(1, rawPage);
 
   return (
     <SearchPageClient
-      initialQuery={params.q || ""}
-      initialCity={params.city || "all"}
-      initialType={params.type || "all"}
-      initialMinSalary={params.minSalary || ""}
-      initialMaxSalary={params.maxSalary || ""}
+      initialQuery={params_.q || ""}
+      initialCity={params_.city || "all"}
+      initialType={params_.type || "all"}
+      initialMinSalary={params_.minSalary || ""}
+      initialMaxSalary={params_.maxSalary || ""}
       initialPage={safePage}
+      locale={locale}
     />
   );
 }
