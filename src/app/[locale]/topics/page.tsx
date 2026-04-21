@@ -4,7 +4,19 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { ArrowRight } from "lucide-react";
 
-export const metadata: Metadata = {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const isEn = locale === "en";
+  return {
+    title: isEn ? "Topics - Web3 & Tech Career Resources | JobQuip" : "专题 - Web3与互联网职场资源 | JobQuip",
+    description: isEn ? "Curated career topic collections: Web3 jobs, tech industry insights, salary reports, and more." : "精选职场专题：Web3职位、互联网行业洞察、薪资报告等。",
+    keywords: isEn ? ["topics", "career resources", "Web3", "tech industry"] : ["专题", "职场资源", "Web3", "互联网"],
+    openGraph: { title: isEn ? "Topics - Career Resources" : "专题 - 职场资源", description: isEn ? "Curated career topic collections" : "精选职场专题", type: "website", locale: isEn ? "en_US" : "zh_CN" },
+    alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com"}/${locale}/topics` },
+    robots: { index: true, follow: true },
+  };
+}
+
   title: "专题列表 - 发现行业机会",
   description: "浏览我们精心策划的职场专题，发现热门行业和职业机会。",
 };

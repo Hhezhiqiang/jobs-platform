@@ -21,12 +21,19 @@ const typeMapping: Record<StoryTypeUI, StoryTypeDB[]> = {
 };
 
 // 类型标签配置
-const typeLabels: Record<StoryTypeUI, { label: string; icon: string; color: string; bgColor: string }> = {
+const typeLabelsZh: Record<StoryTypeUI, { label: string; icon: string; color: string; bgColor: string }> = {
   all: { label: "全部", icon: "📚", color: "text-gray-600", bgColor: "bg-gray-50" },
   transformation: { label: "转型日记", icon: "🔄", color: "text-purple-600", bgColor: "bg-purple-50" },
   interview: { label: "面试复盘", icon: "🎯", color: "text-blue-600", bgColor: "bg-blue-50" },
   insight: { label: "职场顿悟", icon: "💡", color: "text-amber-600", bgColor: "bg-amber-50" },
   skill: { label: "技能进化", icon: "🚀", color: "text-emerald-600", bgColor: "bg-emerald-50" },
+};
+const typeLabelsEn: Record<StoryTypeUI, { label: string; icon: string; color: string; bgColor: string }> = {
+  all: { label: "All", icon: "📚", color: "text-gray-600", bgColor: "bg-gray-50" },
+  transformation: { label: "Transformation", icon: "🔄", color: "text-purple-600", bgColor: "bg-purple-50" },
+  interview: { label: "Interview Review", icon: "🎯", color: "text-blue-600", bgColor: "bg-blue-50" },
+  insight: { label: "Insights", icon: "💡", color: "text-amber-600", bgColor: "bg-amber-50" },
+  skill: { label: "Skill Growth", icon: "🚀", color: "text-emerald-600", bgColor: "bg-emerald-50" },
 };
 
 // 根据DB类型获取UI类型
@@ -41,27 +48,18 @@ function getUIType(dbType: StoryTypeDB): StoryTypeUI {
   return mapping[dbType];
 }
 
-export const metadata: Metadata = {
-  title: "职迹 - 记录职业成长，分享真实经历 | JobQuip招聘平台",
-  description: "在JobQuip职迹社区分享你的职业转型故事、面试复盘、职场感悟和技能进化历程。与万千职场人共鸣，共同成长。",
-  keywords: ["职迹", "职业成长", "转型故事", "面试复盘", "职场感悟", "技能进化", "职业发展", "职场社区"],
-  openGraph: {
-    title: "职迹 - 记录职业成长，分享真实经历",
-    description: "分享你的职业转型故事、面试复盘、职场感悟和技能进化历程",
-    url: `${SITE_URL}/career-trail`,
-    siteName: "JobQuip招聘平台",
-    type: "website",
-    locale: "zh_CN",
-    images: [`${SITE_URL}/logo.png`],
-  },
-  alternates: {
-    canonical: `${SITE_URL}/career-trail`,
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const isEn = locale === "en";
+  return {
+    title: isEn ? "Career Stories - Share Real Experiences | JobQuip" : "职迹 - 记录职业成长，分享真实经历",
+    description: isEn ? "Share your career transformation stories, interview reviews, workplace insights and skill growth journeys." : "在JobQuip职迹社区分享你的职业转型故事、面试复盘、职场感悟和技能进化历程。",
+    keywords: isEn ? ["career stories", "career growth", "interview review", "workplace insights"] : ["职迹", "职业成长", "转型故事", "面试复盘", "职场感悟"],
+    openGraph: { title: isEn ? "Career Stories" : "职迹", description: isEn ? "Share real career experiences" : "分享真实职业经历", url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com"}/${locale}/career-trail`, siteName: "JobQuip", type: "website", locale: isEn ? "en_US" : "zh_CN", images: [`${process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com"}/logo.png`] },
+    alternates: { canonical: `${process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com"}/${locale}/career-trail` },
+    robots: { index: true, follow: true },
+  };
+}
 
 export const revalidate = 60;
 
@@ -78,11 +76,11 @@ function formatTime(date: Date) {
   const hours = Math.floor(diff / 3600000);
   const days = Math.floor(diff / 86400000);
 
-  if (minutes < 1) return "刚刚";
-  if (minutes < 60) return `${minutes}分钟前`;
-  if (hours < 24) return `${hours}小时前`;
-  if (days < 7) return `${days}天前`;
-  return new Date(date).toLocaleDateString("zh-CN", { month: "short", day: "numeric" });
+  if (minutes < 1) return isEn ? "Just now" : "刚刚";
+  if (minutes < 60) return isEn ? `${minutes}m ago` : `${minutes}分钟前`;
+  if (hours < 24) return isEn ? `${hours}h ago` : `${hours}小时前`;
+  if (days < 7) return isEn ? `${days}d ago` : `${days}天前`;
+  return new Date(date).toLocaleDateString(isEn ? "en-US" : "zh-CN", { month: "short", day: "numeric" });
 }
 
 // 获取正在求职的用户
@@ -110,6 +108,7 @@ async function getJobSeekers(limit = 6) {
 
 export default async function CareerTrailPage({ params, searchParams }: PageProps) {
   const { locale } = await params;
+  const isEn = locale === "en";
   const search = await searchParams;
   const type = (search.type as StoryTypeUI) || "all";
   const currentPage = parseInt(search.page || "1", 10);
@@ -166,14 +165,14 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
           <div className="text-center max-w-3xl mx-auto">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm mb-6">
               <span>✨</span>
-              已有 {total.toLocaleString()} 个职场故事
+              {isEn ? `${total.toLocaleString()} stories` : `已有 ${total.toLocaleString()} 个职场故事`}
             </div>
 
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              职迹
+              isEn ? "Career Stories" : "职迹"}
             </h1>
             <p className="text-xl text-white/90 mb-8">
-              记录职业成长，分享真实经历
+              isEn ? "Record career growth, share real experiences" : "记录职业成长，分享真实经历"}
             </p>
 
             <Link
@@ -181,7 +180,7 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
               className="inline-flex items-center gap-2 px-8 py-4 bg-white text-indigo-600 rounded-xl font-semibold hover:bg-white/90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
             >
               <PenLine className="w-5 h-5" />
-              写故事
+              isEn ? "Write Story" : "写故事"}
             </Link>
           </div>
         </div>
@@ -195,7 +194,7 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
             <div className="flex flex-wrap gap-3 mb-8">
               {(Object.keys(typeLabels) as StoryTypeUI[]).map((typeKey) => {
                 const isActive = type === typeKey;
-                const config = typeLabels[typeKey];
+                const config = (isEn ? typeLabelsEn[typeKey] : typeLabelsZh[typeKey]);
                 return (
                   <Link
                     key={typeKey}
@@ -223,13 +222,13 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-bold text-gray-900 flex items-center gap-2">
                     <Briefcase className="w-5 h-5 text-blue-600" />
-                    正在求职
+                    isEn ? "Open to Work" : "正在求职"}
                   </h3>
                   <Link 
                     href={`/${locale}/dashboard/job-status`}
                     className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
                   >
-                    我也要展示 <ArrowRight className="w-4 h-4" />
+                    isEn ? "Show mine too" : "我也要展示" <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -255,7 +254,7 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {stories.map((story) => {
                   const uiType = getUIType(story.type as StoryTypeDB);
-                  const typeConfig = typeLabels[uiType];
+                  const typeConfig = (isEn ? typeLabelsEn[uiType] : typeLabelsZh[uiType]);
                   const summary = story.content.slice(0, 120) + "...";
                   
                   return (
@@ -323,14 +322,14 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
                 <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
                   <PenLine className="w-12 h-12 text-gray-300" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">暂无相关故事</h3>
-                <p className="text-gray-500 mb-6">成为第一个分享的人吧</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{isEn ? "No stories yet" : "暂无相关故事"}</h3>
+                <p className="text-gray-500 mb-6">{isEn ? "Be the first to share" : "成为第一个分享的人吧"}</p>
                 <Link
                   href={`/${locale}/career-trail/write`}
                   className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all"
                 >
                   <PenLine className="w-4 h-4" />
-                  分享我的故事
+                  isEn ? "Share My Story" : "分享我的故事"}
                 </Link>
               </div>
             )}
@@ -343,12 +342,12 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
                     href={`/${locale}/career-trail?${type !== "all" ? `type=${type}&` : ""}page=${currentPage - 1}`}
                     className="px-4 py-2 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all text-gray-600"
                   >
-                    上一页
+                    isEn ? "Previous" : "上一页"}
                   </Link>
                 )}
 
                 <span className="px-4 py-2 text-gray-600">
-                  第 {currentPage} / {totalPages} 页
+                  isEn ? `Page ${currentPage} / ${totalPages}` : `第 ${currentPage} / ${totalPages} 页`
                 </span>
 
                 {currentPage < totalPages && (
@@ -356,7 +355,7 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
                     href={`/${locale}/career-trail?${type !== "all" ? `type=${type}&` : ""}page=${currentPage + 1}`}
                     className="px-4 py-2 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all text-gray-600"
                   >
-                    下一页
+                    isEn ? "Next" : "下一页"}
                   </Link>
                 )}
               </div>
@@ -367,15 +366,15 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
           <div className="space-y-8">
             {/* 求职状态快捷入口 */}
             <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-6 text-white">
-              <h3 className="font-bold text-lg mb-2">正在寻找新机会？</h3>
+              <h3 className="font-bold text-lg mb-2">{isEn ? "Looking for new opportunities?" : "正在寻找新机会？"}</h3>
               <p className="text-blue-100 text-sm mb-4">
-                开启求职状态，让圈内人帮你推荐合适的职位
+                isEn ? "Enable job-seeking status for community recommendations" : "开启求职状态，让圈内人帮你推荐合适的职位"
               </p>
               <Link
                 href={`/${locale}/dashboard/job-status`}
                 className="block w-full py-3 bg-white text-blue-600 rounded-xl font-semibold text-center hover:bg-blue-50 transition-all"
               >
-                设置求职状态
+                isEn ? "Set Job-Seeking Status" : "设置求职状态"}
               </Link>
             </div>
 
@@ -383,7 +382,7 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
               <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-rose-500" />
-                热门故事
+                isEn ? "Trending Stories" : "热门故事"}
               </h3>
               <div className="space-y-4">
                 {hotStories.map((story, index) => (
@@ -425,18 +424,18 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
               <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-indigo-600" />
-                社区数据
+                isEn ? "Community Stats" : "社区数据"}
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center p-4 bg-indigo-50 rounded-xl">
                   <div className="text-2xl font-bold text-indigo-600">{total.toLocaleString()}</div>
-                  <div className="text-sm text-gray-600">故事分享</div>
+                  <div className="text-sm text-gray-600">{isEn ? "Stories" : "故事分享"}</div>
                 </div>
                 <div className="text-center p-4 bg-pink-50 rounded-xl">
                   <div className="text-2xl font-bold text-pink-600">
                     {hotStories.reduce((sum, s) => sum + s.resonanceCount, 0).toLocaleString()}
                   </div>
-                  <div className="text-sm text-gray-600">获得共鸣</div>
+                  <div className="text-sm text-gray-600">{isEn ? "Resonances" : "获得共鸣"}</div>
                 </div>
               </div>
               {/* 求职人数统计 */}

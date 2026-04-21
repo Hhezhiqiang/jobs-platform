@@ -17,26 +17,32 @@ import {
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
+  const isEn = locale === "en";
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
-  const zh = `${siteUrl}/${locale}`;
 
   return {
-    title: "关于我们 - JobQuip招聘平台",
-    description: "了解JobQuip招聘平台的使命、团队和价值观。我们致力于为求职者和招聘企业提供最优质的连接服务，打造专业的求职招聘体验。",
-    keywords: ["关于JobQuip", "招聘平台介绍", "求职网站", "JobQuip团队", "招聘服务"],
+    title: isEn ? "About Us - JobQuip Recruitment Platform" : "关于我们 - JobQuip招聘平台",
+    description: isEn
+      ? "Learn about JobQuip's mission, team, and values. We are committed to connecting job seekers and employers with quality recruitment services."
+      : "了解JobQuip招聘平台的使命、团队和价值观。我们致力于为求职者和招聘企业提供最优质的连接服务。",
+    keywords: isEn
+      ? ["About JobQuip", "recruitment platform", "job search website", "JobQuip team", "recruitment services"]
+      : ["关于JobQuip", "招聘平台介绍", "求职网站", "JobQuip团队", "招聘服务"],
     openGraph: {
-      title: "关于我们 - JobQuip招聘平台",
-      description: "了解JobQuip招聘平台的使命、团队和价值观。我们致力于为求职者和招聘企业提供最优质的连接服务。",
-      url: `${zh}/about`,
-      siteName: "JobQuip招聘平台",
+      title: isEn ? "About Us - JobQuip" : "关于我们 - JobQuip",
+      description: isEn
+        ? "Learn about JobQuip's mission, team, and values. Connecting job seekers and employers."
+        : "了解JobQuip招聘平台的使命、团队和价值观。为求职者和招聘企业提供最优质的连接服务。",
+      url: `${siteUrl}/${locale}/about`,
+      siteName: "JobQuip",
       type: "website",
-      locale: locale === "en" ? "en_US" : "zh_CN",
+      locale: isEn ? "en_US" : "zh_CN",
       images: [`${siteUrl}/logo.png`],
     },
     twitter: {
       card: "summary_large_image",
-      title: "关于我们 - JobQuip招聘平台",
-      description: "了解JobQuip招聘平台的使命、团队和价值观。",
+      title: isEn ? "About Us - JobQuip" : "关于我们 - JobQuip",
+      description: isEn ? "Learn about JobQuip recruitment platform." : "了解JobQuip招聘平台。",
       images: [`${siteUrl}/logo.png`],
     },
     alternates: {
@@ -130,7 +136,7 @@ export default async function AboutPage() {
                 href="/contact"
                 className="px-8 py-3 bg-white/10 text-white font-semibold rounded-xl hover:bg-white/20 transition-all border border-white/20"
               >
-                联系我们
+                isEn ? "Contact Us" : "联系我们"
               </Link>
             </div>
           </div>
@@ -158,7 +164,7 @@ export default async function AboutPage() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">我们的使命</h2>
+              <h2 className="text-3xl font-bold text-gray-900 mb-6">{isEn ? "Our Mission" : "我们的使命"}</h2>
               <p className="text-gray-600 text-lg leading-relaxed mb-6">
                 在这个快速变化的时代，人才是企业最宝贵的资产。
                 我们希望通过技术创新，消除求职过程中的信息不对称，
@@ -208,7 +214,7 @@ export default async function AboutPage() {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">为什么选择我们</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">{isEn ? "Why Choose Us" : "为什么选择我们"}</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
               我们提供全方位的求职招聘服务，让您的职业发展之路更加顺畅
             </p>
@@ -265,7 +271,7 @@ export default async function AboutPage() {
               className="mt-4 inline-flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all text-sm font-medium"
             >
               <Mail className="w-4 h-4" />
-              联系我们
+              isEn ? "Contact Us" : "联系我们"
             </Link>
           </div>
         </div>
@@ -274,7 +280,7 @@ export default async function AboutPage() {
       {/* Contact */}
       <section className="py-20 bg-blue-600 text-white">
         <div className="max-w-7xl mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">联系我们</h2>
+          <h2 className="text-3xl font-bold mb-4">{isEn ? "Contact Us" : "联系我们"}</h2>
           <p className="text-blue-100 max-w-2xl mx-auto mb-8">
             有任何问题或建议？我们随时为您服务
           </p>

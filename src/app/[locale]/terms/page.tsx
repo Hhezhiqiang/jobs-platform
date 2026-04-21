@@ -1,16 +1,18 @@
 import { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "用户服务协议 - JobQuip招聘平台 | 使用条款与法律声明",
-  description: "阅读JobQuip招聘平台的用户服务协议，了解平台使用规则、用户权利与义务、知识产权及免责声明等重要法律条款。",
-  keywords: ["用户协议", "服务条款", "法律声明", "招聘平台协议", "使用规则"],
-  robots: {
-    index: true,
-    follow: true,
-  },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const isEn = locale === "en";
+  return {
+    title: isEn ? "Terms of Service | JobQuip" : "用户协议 | JobQuip",
+    description: isEn ? "Terms of service for JobQuip recruitment platform." : "JobQuip招聘平台用户协议。",
+    robots: { index: false, follow: true },
+  };
+}
 
-export default function TermsPage() {
+export default async function TermsPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const isEn = locale === "en";
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-4xl mx-auto px-4">
@@ -19,7 +21,7 @@ export default function TermsPage() {
           
           <div className="prose max-w-none text-gray-700">
             <p className="text-sm text-gray-500 mb-6">
-              最后更新日期：2026年4月10日
+              isEn ? "Last updated" : "最后更新日期"：2026年4月10日
             </p>
 
             <h2 className="text-xl font-semibold mt-8 mb-4">1. 协议范围</h2>

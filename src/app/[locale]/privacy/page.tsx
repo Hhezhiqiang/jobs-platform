@@ -1,25 +1,27 @@
 import { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "隐私政策 - JobQuip招聘平台 | 用户信息保护说明",
-  description: "了解JobQuip招聘平台如何收集、使用和保护您的个人信息。我们采用银行级加密技术，严格保护用户隐私，确保您的求职数据安全。",
-  keywords: ["隐私政策", "用户隐私保护", "招聘平台隐私", "个人信息安全", "数据保护"],
-  robots: {
-    index: true,
-    follow: true,
-  },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const isEn = locale === "en";
+  return {
+    title: isEn ? "Privacy Policy | JobQuip" : "隐私政策 | JobQuip",
+    description: isEn ? "Privacy policy for JobQuip recruitment platform." : "JobQuip招聘平台隐私政策。",
+    robots: { index: false, follow: true },
+  };
+}
 
-export default function PrivacyPage() {
+export default async function PrivacyPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const isEn = locale === "en";
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-4xl mx-auto px-4">
         <div className="bg-white rounded-lg shadow p-8">
-          <h1 className="text-3xl font-bold mb-8">隐私政策</h1>
+          <h1 className="text-3xl font-bold mb-8">{isEn ? "Privacy Policy" : "隐私政策"}</h1>
           
           <div className="prose max-w-none text-gray-700">
             <p className="text-sm text-gray-500 mb-6">
-              最后更新日期：2026年4月10日
+              isEn ? "Last updated" : "最后更新日期"：2026年4月10日
             </p>
 
             <h2 className="text-xl font-semibold mt-8 mb-4">1. 引言</h2>
