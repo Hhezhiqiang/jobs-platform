@@ -266,10 +266,10 @@ export default async function BlogPage({ params, searchParams }: PageProps) {
                       </span>
                     </div>
                     <h2 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
-                      {post.title}
+                      {isEn && post.titleEn ? post.titleEn : post.title}
                     </h2>
                     <p className="text-gray-600 text-sm line-clamp-3 mb-4">
-                      {post.excerpt || post.content.slice(0, 120) + "..."}
+                      {(isEn && post.excerptEn) || post.excerpt || (isEn && post.contentEn ? post.contentEn : post.content).slice(0, 120) + "..."}
                     </p>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">

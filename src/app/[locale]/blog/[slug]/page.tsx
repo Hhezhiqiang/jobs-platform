@@ -46,14 +46,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
   const postUrl = `${siteUrl}/${locale}/blog/${post.slug}`;
+  const isEn = locale === "en";
+  const displayTitle = isEn && post.metaTitleEn ? post.metaTitleEn : post.metaTitle || `${post.title} | ${isEn ? "Blog" : "招聘平台博客"}`;
+  const displayDesc = isEn && post.metaDescriptionEn ? post.metaDescriptionEn : post.metaDescription || post.excerpt?.slice(0, 160);
+  const displayHeadline = isEn && post.titleEn ? post.titleEn : post.title;
 
   return {
-    title: post.metaTitle || `${post.title} | 招聘平台博客`,
-    description: post.metaDescription || post.excerpt?.slice(0, 160),
+    title: displayTitle,
+    description: displayDesc,
     keywords: post.keywords,
     openGraph: {
-      title: post.title,
-      description: post.excerpt || "",
+      title: displayHeadline,
+      description: (isEn && post.excerptEn) || post.excerpt || "",
       url: postUrl,
       type: "article",
       publishedTime: post.createdAt.toISOString(),
@@ -63,8 +67,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     twitter: {
       card: "summary_large_image",
-      title: post.title,
-      description: post.excerpt || "",
+      title: displayHeadline,
+      description: (isEn && post.excerptEn) || post.excerpt || "",
       images: post.featuredImage ? [{ url: post.featuredImage }] : [{ url: `${siteUrl}/logo.png` }],
     },
     alternates: {
@@ -98,7 +102,7 @@ function generateArticleSchema(post: BlogPostWithAuthor, locale: string) {
     },
     publisher: {
       "@type": "Organization",
-      name: "招聘平台",
+      name: locale === "en" ? "JobQuip Blog" : "招聘平台",
       logo: {
         "@type": "ImageObject",
         url: `${siteUrl}/logo.png`,
@@ -248,7 +252,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
           <div className="max-w-4xl mx-auto px-4 py-4">
             <div className="flex items-center gap-4">
               <Link href={`/${locale}/blog`} className="text-blue-600 hover:text-blue-800">
-                ← 返回博客列表
+                {isEn ? "← Back to Blog List" : "← 返回博客列表"}
               </Link>
             </div>
           </div>
@@ -273,7 +277,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
             <div className="p-8">
               {/* 标题 */}
               <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                {post.title}
+                {isEn && post.titleEn ? post.titleEn : post.title}
               </h1>
 
               {/* 作者信息 + 浏览量 */}
@@ -282,11 +286,11 @@ export default async function BlogDetailPage({ params }: PageProps) {
                   <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
                     {post.users?.name?.[0] || "A"}
                   </div>
-                  <span>{post.users?.name || "匿名作者"}</span>
+                  <span>{post.users?.name || (isEn ? "Anonymous" : "匿名作者")}</span>
                 </div>
                 <span>·</span>
                 <time dateTime={post.createdAt.toISOString()}>
-                  {post.createdAt.toLocaleDateString("zh-CN", {
+                  {post.createdAt.toLocaleDateString(isEn ? "en-US" : "zh-CN", {
                     year: "numeric",
                     month: "long",
                     day: "numeric",
@@ -297,9 +301,9 @@ export default async function BlogDetailPage({ params }: PageProps) {
               </div>
 
               {/* 摘要 */}
-              {post.excerpt && (
+              {(isEn ? post.excerptEn : post.excerpt) && (
                 <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-8 rounded-r-lg">
-                  <p className="text-gray-700 italic">{post.excerpt}</p>
+                  <p className="text-gray-700 italic">{isEn && post.excerptEn ? post.excerptEn : post.excerpt}</p>
                 </div>
               )}
 
@@ -322,14 +326,14 @@ export default async function BlogDetailPage({ params }: PageProps) {
                     },
                   }}
                 >
-                  {post.content}
+                  {isEn && post.contentEn ? post.contentEn : post.content}
                 </ReactMarkdown>
               </div>
 
               {/* 关键词标签 */}
               {post.keywords && post.keywords.length > 0 && (
                 <div className="mt-8 pt-8 border-t">
-                  <p className="text-sm text-gray-500 mb-2">关键词：</p>
+                  <p className="text-sm text-gray-500 mb-2">{isEn ? "Keywords:" : "关键词："}</p>
                   <div className="flex flex-wrap gap-2">
                     {post.keywords.map((keyword: string) => (
                       <span
@@ -348,7 +352,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
           {/* 相关职位推荐 */}
           {displayJobs.length > 0 && (
             <div className="mt-8 bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">isEn ? "🔥 Related Jobs" : "🔥 相关职位推荐"</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">{isEn ? "🔥 Related Jobs" : "🔥 相关职位推荐"}</h2>
               <div className="space-y-4">
                 {displayJobs.filter(job => job.slug).map((job) => (
                   <Link
