@@ -56,6 +56,7 @@ interface PageProps {
 
 export default async function CompaniesPage({ params, searchParams }: PageProps) {
   const { locale } = await params;
+  const isEn = locale === "en";
   const sp = await searchParams;
   const searchQuery = sp.q || "";
 
@@ -115,7 +116,7 @@ export default async function CompaniesPage({ params, searchParams }: PageProps)
               {companies.length} 家优质企业
             </div>
             <h1 className="text-3xl md:text-4xl font-bold mb-4">发现优秀企业</h1>
-            <p className="text-blue-100 mb-6">探索知名互联网公司，找到理想的职业平台</p>
+            <p className="text-blue-100 mb-6">isEn ? "Explore top internet companies, find your ideal platform" : "探索知名互联网公司，找到理想的职业平台"}</p>
 
             {/* Search */}
             <form action="/companies" className="max-w-xl mx-auto">
@@ -125,8 +126,8 @@ export default async function CompaniesPage({ params, searchParams }: PageProps)
                   type="search"
                   name="q"
                   defaultValue={searchQuery}
-                  placeholder="搜索公司名称、行业或城市..."
-                  aria-label="搜索公司"
+                  placeholder={isEn ? "Search company name, industry or city..." : "搜索公司名称、行业或城市..."}
+                  aria-label={isEn ? "Search companies" : "搜索公司"}
                   className="w-full pl-12 pr-4 py-4 bg-white rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-white/20"
                 />
               </div>

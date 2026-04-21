@@ -143,6 +143,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
     const resolvedParams = await params;
     const rawSlug = resolvedParams.slug;
     const locale = resolvedParams.locale || "zh";
+    const isEn = locale === "en";
     const slug = decodeURIComponent(rawSlug);
     const post = await prisma.pages.findUnique({
       where: { slug, type: "BLOG", status: "PUBLISHED" },
@@ -347,7 +348,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
           {/* 相关职位推荐 */}
           {displayJobs.length > 0 && (
             <div className="mt-8 bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">🔥 相关职位推荐</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">isEn ? "🔥 Related Jobs" : "🔥 相关职位推荐"</h2>
               <div className="space-y-4">
                 {displayJobs.filter(job => job.slug).map((job) => (
                   <Link
@@ -377,7 +378,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
                   href={`/${locale}/jobs`}
                   className="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
-                  查看更多职位
+                  isEn ? "View More Jobs" : "查看更多职位"
                 </Link>
               </div>
             </div>

@@ -56,9 +56,11 @@ const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"
 
 interface SalaryInsightsClientProps {
   initialData?: SalaryData;
+  locale?: string;
 }
 
-export default function SalaryInsightsClient({ initialData }: SalaryInsightsClientProps) {
+export default function SalaryInsightsClient({ initialData, locale = "zh" }: SalaryInsightsClientProps) {
+  const isEn = locale === "en";
   const [data, setData] = useState<SalaryData | null>(initialData || null);
   const [loading, setLoading] = useState(!initialData);
   const [error, setError] = useState<string | null>(null);
@@ -82,7 +84,7 @@ export default function SalaryInsightsClient({ initialData }: SalaryInsightsClie
       if (result.success) {
         setData(result.data);
       } else {
-        setError(result.error || "获取数据失败");
+        setError(result.error || (isEn ? "Failed to fetch data" : "获取数据失败"));
       }
     } catch {
       setError("网络错误，请稍后重试");
@@ -99,7 +101,7 @@ export default function SalaryInsightsClient({ initialData }: SalaryInsightsClie
     return value.toLocaleString();
   };
 
-  // 根据筛选过滤数据
+  // isEn ? "Filter data based on selection" : "根据筛选过滤数据"
   const getFilteredData = () => {
     if (!data) return null;
 
@@ -126,7 +128,7 @@ export default function SalaryInsightsClient({ initialData }: SalaryInsightsClie
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-600">加载薪资数据中...</p>
+            <p className="text-gray-600">{isEn ? "Loading salary data..." : "加载薪资数据中..."}</p>
           </div>
         </div>
       </div>
@@ -170,7 +172,7 @@ export default function SalaryInsightsClient({ initialData }: SalaryInsightsClie
           </div>
           <h1 className="text-3xl font-bold mb-4">薪资洞察分析</h1>
           <p className="text-blue-100 max-w-2xl">
-            基于平台真实职位数据，为您提供全面的薪资分析报告。了解行业薪资水平、城市薪资分布及趋势变化。
+            {isEn ? "Comprehensive salary analysis reports based on real job data." : "基于平台真实职位数据，为您提供全面的薪资分析报告。了解行业薪资水平、城市薪资分布及趋势变化。"}
           </p>
         </div>
       </div>
@@ -194,9 +196,9 @@ export default function SalaryInsightsClient({ initialData }: SalaryInsightsClie
 
         {/* 图表区域 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* 各行业薪资对比 */}
+          {/* isEn ? "Salary by Industry" : "各行业薪资对比" */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">各行业平均薪资对比</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-6">{isEn ? "Average Salary by Industry" : "各行业平均薪资对比"}</h2>
             <div className="h-[350px]">
               {mounted ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -284,7 +286,7 @@ export default function SalaryInsightsClient({ initialData }: SalaryInsightsClie
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* 薪资趋势图 */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">薪资趋势（近6个月）</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-6">{isEn ? "Salary Trends (Last 6 Months)" : "薪资趋势（近6个月）"}</h2>
             <div className="h-[300px]">
               {mounted ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -371,9 +373,9 @@ export default function SalaryInsightsClient({ initialData }: SalaryInsightsClie
           </div>
         </div>
 
-        {/* 数据说明 */}
+        {/* isEn ? "Data Notes" : "数据说明" */}
         <div className="mt-8 bg-blue-50 rounded-2xl p-6">
-          <h3 className="text-lg font-semibold text-blue-900 mb-3">数据说明</h3>
+          <h3 className="text-lg font-semibold text-blue-900 mb-3">{isEn ? "Data Notes" : "数据说明"}</h3>
           <ul className="text-blue-800 text-sm space-y-2">
             <li>• 数据来源：基于平台实时职位数据聚合分析</li>
             <li>• 统计范围：仅包含有明确薪资范围的职位</li>
