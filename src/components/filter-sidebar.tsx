@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Search, MapPin, Briefcase, DollarSign, X, SlidersHorizontal } from "lucide-react";
+import { Search, MapPin, Briefcase, DollarSign, X, SlidersHorizontal, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CULTURE_TAGS, type CultureTag } from "./job-preference-modal";
+import { useTranslations } from "next-intl";
 
 interface FilterSidebarProps {
   currentParams: {
@@ -17,19 +19,19 @@ interface FilterSidebarProps {
 }
 
 const jobTypes = [
-  { value: "FULL_TIME", label: "全职", labelEn: "Full-time", icon: "💼" },
-  { value: "PART_TIME", label: "兼职", labelEn: "Part-time", icon: "⏰" },
-  { value: "INTERNSHIP", label: "实习", labelEn: "Internship", icon: "🎓" },
-  { value: "CONTRACT", label: "合同", labelEn: "Contract", icon: "📝" },
-  { value: "FREELANCE", label: "自由职业", labelEn: "Freelance", icon: "🏠" },
+  { value: "FULL_TIME", labelKey: "filter.jobTypes.fullTime", icon: "💼" },
+  { value: "PART_TIME", labelKey: "filter.jobTypes.partTime", icon: "⏰" },
+  { value: "INTERNSHIP", labelKey: "filter.jobTypes.internship", icon: "🎓" },
+  { value: "CONTRACT", labelKey: "filter.jobTypes.contract", icon: "📝" },
+  { value: "FREELANCE", labelKey: "filter.jobTypes.freelance", icon: "🏠" },
 ];
 
 const salaryRanges = [
-  { min: "0", max: "10000", label: "10K以下", labelEn: "<10K" },
-  { min: "10000", max: "20000", label: "10K-20K", labelEn: "10K-20K" },
-  { min: "20000", max: "30000", label: "20K-30K", labelEn: "20K-30K" },
-  { min: "30000", max: "50000", label: "30K-50K", labelEn: "30K-50K" },
-  { min: "50000", max: "", label: "50K以上", labelEn: "50K+" },
+  { min: "0", max: "10000", labelKey: "filter.salary.below10" },
+  { min: "10000", max: "20000", labelKey: "filter.salary.10to20" },
+  { min: "20000", max: "30000", labelKey: "filter.salary.20to30" },
+  { min: "30000", max: "50000", labelKey: "filter.salary.30to50" },
+  { min: "50000", max: "", labelKey: "filter.salary.above50" },
 ];
 
 function buildFilterUrl(
@@ -53,8 +55,8 @@ export function FilterSidebar({ currentParams, cities, totalJobs }: FilterSideba
   const [mobileOpen, setMobileOpen] = useState(false);
   const hasFilters = Object.values(currentParams).some(Boolean);
   const locale = typeof window !== "undefined" ? window.location.pathname.split("/")[1] || "zh" : "zh";
-  const isEn = locale === "en";
   const baseUrl = `/${locale}/jobs`;
+  const t = useTranslations("filter");
 
   return (
     <>
@@ -65,10 +67,10 @@ export function FilterSidebar({ currentParams, cities, totalJobs }: FilterSideba
         >
           <span className="flex items-center gap-2 font-medium text-gray-700">
             <SlidersHorizontal className="w-4 h-4" />
-            {isEn ? "Filters" : "筛选条件"}
+            {t("filters")}
             {hasFilters && <span className="w-2 h-2 bg-blue-600 rounded-full"></span>}
           </span>
-          <span className="text-sm text-gray-500">{totalJobs.toLocaleString()} {isEn ? "jobs" : "个职位"}</span>
+          <span className="text-sm text-gray-500">{totalJobs.toLocaleString()} {t("jobsCount")}</span>
         </button>
 
         {mobileOpen && (
@@ -76,16 +78,15 @@ export function FilterSidebar({ currentParams, cities, totalJobs }: FilterSideba
             <div className="fixed inset-0 bg-black/40 z-40" onClick={() => setMobileOpen(false)} />
             <div className="fixed inset-y-0 left-0 w-[85vw] max-w-sm bg-gray-50 z-50 shadow-xl overflow-y-auto p-4">
               <div className="flex items-center justify-between mb-4">
-                <span className="font-bold text-lg">{isEn ? "Filters" : "筛选"}</span>
+                <span className="font-bold text-lg">{t("filter")}</span>
                 <button onClick={() => setMobileOpen(false)} className="p-2 rounded-lg hover:bg-gray-200">
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <FilterContentPanel
+              <FilterContent
                 currentParams={currentParams}
                 cities={cities}
                 totalJobs={totalJobs}
-                isEn={isEn}
                 baseUrl={baseUrl}
                 isExpanded={isExpanded}
                 setIsExpanded={setIsExpanded}
@@ -97,11 +98,10 @@ export function FilterSidebar({ currentParams, cities, totalJobs }: FilterSideba
       </div>
 
       <div className="hidden lg:block">
-        <FilterContentPanel
+        <FilterContent
           currentParams={currentParams}
           cities={cities}
           totalJobs={totalJobs}
-          isEn={isEn}
           baseUrl={baseUrl}
           isExpanded={isExpanded}
           setIsExpanded={setIsExpanded}
@@ -112,11 +112,10 @@ export function FilterSidebar({ currentParams, cities, totalJobs }: FilterSideba
   );
 }
 
-function FilterContentPanel({
+function FilterContent({
   currentParams,
   cities,
   totalJobs,
-  isEn,
   baseUrl,
   isExpanded,
   setIsExpanded,
@@ -125,18 +124,20 @@ function FilterContentPanel({
   currentParams: FilterSidebarProps["currentParams"];
   cities: string[];
   totalJobs: number;
-  isEn: boolean;
   baseUrl: string;
   isExpanded: boolean;
   setIsExpanded: (v: boolean) => void;
   hasFilters: boolean;
 }) {
+  const t = useTranslations("filter");
+
   return (
     <div className="space-y-4">
+      {/* 搜索框 */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
         <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
           <Search className="w-5 h-5 text-blue-600" />
-          {isEn ? "Search Jobs" : "搜索职位"}
+          {t("searchJobs")}
         </h3>
         <form action={baseUrl} className="space-y-3">
           {currentParams.city && <input type="hidden" name="city" value={currentParams.city} />}
@@ -149,8 +150,8 @@ function FilterContentPanel({
               type="search"
               name="q"
               defaultValue={currentParams.q}
-              placeholder={isEn ? "Keywords..." : "关键词..."}
-              aria-label={isEn ? "Search jobs" : "搜索职位关键词"}
+              placeholder={t("keywords")}
+              aria-label={t("searchJobs")}
               className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
             />
           </div>
@@ -158,11 +159,12 @@ function FilterContentPanel({
             type="submit"
             className="w-full py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-all hover:shadow-lg"
           >
-            {isEn ? "Search" : "搜索"}
+            {t("search")}
           </button>
         </form>
       </div>
 
+      {/* 筛选条件 */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div
           className="p-6 flex items-center justify-between cursor-pointer hover:bg-gray-50 transition-colors"
@@ -170,10 +172,10 @@ function FilterContentPanel({
         >
           <h3 className="font-bold text-gray-900 flex items-center gap-2">
             <Briefcase className="w-5 h-5 text-blue-600" />
-            {isEn ? "Filters" : "筛选条件"}
+            {t("filters")}
             {hasFilters && (
               <span className="px-2 py-0.5 bg-blue-100 text-blue-600 text-xs rounded-full">
-                {isEn ? "Active" : "已筛选"}
+                {t("active")}
               </span>
             )}
           </h3>
@@ -189,11 +191,12 @@ function FilterContentPanel({
 
         {isExpanded && (
           <div className="px-6 pb-6 space-y-6">
+            {/* 城市筛选 */}
             {cities.length > 0 && (
               <div>
                 <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                   <MapPin className="w-4 h-4" />
-                  {isEn ? "Location" : "工作地点"}
+                  {t("location")}
                 </h4>
                 <div className="flex flex-wrap gap-2">
                   <a
@@ -203,7 +206,7 @@ function FilterContentPanel({
                       !currentParams.city ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     )}
                   >
-                    {isEn ? "All" : "全部"}
+                    {t("all")}
                   </a>
                   {cities.filter(Boolean).map((city) => (
                     <a
@@ -221,8 +224,9 @@ function FilterContentPanel({
               </div>
             )}
 
+            {/* 职位类型 */}
             <div>
-              <h4 className="text-sm font-semibold text-gray-700 mb-3">{isEn ? "Job Type" : "职位类型"}</h4>
+              <h4 className="text-sm font-semibold text-gray-700 mb-3">{t("jobType")}</h4>
               <div className="flex flex-wrap gap-2">
                 <a
                   href={buildFilterUrl(baseUrl, currentParams, { type: undefined })}
@@ -231,7 +235,7 @@ function FilterContentPanel({
                     !currentParams.type ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   )}
                 >
-                  {isEn ? "All" : "全部"}
+                  {t("all")}
                 </a>
                 {jobTypes.map((type) => (
                   <a
@@ -242,16 +246,17 @@ function FilterContentPanel({
                       currentParams.type === type.value ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     )}
                   >
-                    {type.icon} {isEn ? type.labelEn : type.label}
+                    {type.icon} {t(type.labelKey)}
                   </a>
                 ))}
               </div>
             </div>
 
+            {/* 薪资范围 */}
             <div>
               <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
                 <DollarSign className="w-4 h-4" />
-                {isEn ? "Salary Range" : "薪资范围"}
+                {t("salaryRange")}
               </h4>
               <div className="flex flex-wrap gap-2">
                 <a
@@ -261,40 +266,42 @@ function FilterContentPanel({
                     !currentParams.minSalary && !currentParams.maxSalary ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   )}
                 >
-                  {isEn ? "All" : "全部"}
+                  {t("all")}
                 </a>
                 {salaryRanges.map((range) => (
                   <a
-                    key={range.label}
+                    key={range.labelKey}
                     href={buildFilterUrl(baseUrl, currentParams, { minSalary: range.min, maxSalary: range.max || undefined })}
                     className={cn(
                       "px-3 py-1.5 rounded-lg text-sm transition-all",
                       currentParams.minSalary === range.min ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     )}
                   >
-                    {isEn ? range.labelEn : range.label}
+                    {t(range.labelKey)}
                   </a>
                 ))}
               </div>
             </div>
 
+            {/* 清除筛选 */}
             {hasFilters && (
               <a
                 href={baseUrl}
                 className="w-full py-2.5 border border-gray-200 text-gray-600 rounded-xl hover:bg-gray-50 transition-all flex items-center justify-center gap-2"
               >
                 <X className="w-4 h-4" />
-                {isEn ? "Clear filters" : "清除筛选"}
+                {t("clearFilters")}
               </a>
             )}
           </div>
         )}
       </div>
 
+      {/* 结果统计 */}
       <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-6 text-white">
-        <p className="text-blue-100 mb-1">{isEn ? "Current results" : "当前筛选结果"}</p>
+        <p className="text-blue-100 mb-1">{t("currentResults")}</p>
         <p className="text-3xl font-bold">{totalJobs.toLocaleString()}</p>
-        <p className="text-blue-100">{isEn ? "jobs" : "个职位"}</p>
+        <p className="text-blue-100">{t("jobsCount")}</p>
       </div>
     </div>
   );

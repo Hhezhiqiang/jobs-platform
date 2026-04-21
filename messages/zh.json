@@ -1,6 +1,6 @@
 {
   "site": {
-    "name": "JobQuip招聘平台",
+    "name": "招聘平台",
     "description": "专业的求职招聘平台，汇聚海量优质Web3、互联网、科技行业职位，为求职者和企业提供高效对接服务，助力职场发展"
   },
   "nav": {
@@ -22,7 +22,15 @@
   },
   "header": {
     "menu": "菜单",
-    "closeMenu": "关闭菜单"
+    "closeMenu": "关闭菜单",
+    "company": "企业管理",
+    "jobMgmt": "职位管理",
+    "resumes": "收到的简历",
+    "admin": "管理后台",
+    "reviews": "企业审核",
+    "favorites": "我的收藏",
+    "applications": "我的申请",
+    "settings": "账号设置"
   },
   "footer": {
     "about": "关于我们",
@@ -52,13 +60,31 @@
     "register": "免费注册",
     "registerSub": "发现更多机会",
     "login": "已有账号？登录",
-    "popularSearches": "热门搜索",
+    "popularSearchesLabel": "热门搜索",
+    "selectCity": "选择城市",
+    "allCities": "全国",
     "stats": {
       "jobs": "职位发布",
       "companies": "入驻企业",
       "users": "活跃求职者",
       "matches": "成功匹配"
-    }
+    },
+    "popularSearches": [
+      "前端工程师",
+      "产品经理",
+      "Java开发",
+      "数据分析师",
+      "UI设计师",
+      "运营"
+    ],
+    "locations": [
+      "北京",
+      "上海",
+      "深圳",
+      "杭州",
+      "广州",
+      "成都"
+    ]
   },
   "home": {
     "hotJobs": "🔥 热招职位",
@@ -161,6 +187,44 @@
     "prev": "上一页",
     "next": "下一页"
   },
+  "notFound": {
+    "title": "页面未找到",
+    "backToHome": "返回首页"
+  },
+  "filter": {
+    "filters": "筛选条件",
+    "filter": "筛选",
+    "jobsCount": "个职位",
+    "searchJobs": "搜索职位",
+    "keywords": "关键词...",
+    "search": "搜索",
+    "active": "已筛选",
+    "companyCulture": "公司文化",
+    "all": "全部",
+    "location": "工作地点",
+    "jobType": "职位类型",
+    "salaryRange": "薪资范围",
+    "clearFilters": "清除筛选",
+    "currentResults": "当前筛选结果",
+    "cultureMatch": "只显示文化契合",
+    "cultureMatchSub": "匹配度 ≥ 80%",
+    "preferencesSet": "已设置",
+    "preferencesSetSuffix": "个偏好标签",
+    "jobTypes": {
+      "fullTime": "全职",
+      "partTime": "兼职",
+      "internship": "实习",
+      "contract": "合同",
+      "freelance": "自由职业"
+    },
+    "salary": {
+      "below10": "10K以下",
+      "10to20": "10K-20K",
+      "20to30": "20K-30K",
+      "30to50": "30K-50K",
+      "above50": "50K以上"
+    }
+  },
   "common": {
     "loading": "加载中...",
     "readMore": "阅读更多",
@@ -178,7 +242,8 @@
   "locale": {
     "switch": "切换语言",
     "zh": "中文",
-    "en": "English"
+    "en": "English",
+    "switchTo": "English"
   },
   "company": {
     "jobs": {
@@ -223,5 +288,142 @@
         "operationFailed": "操作失败"
       }
     }
+  },
+  "faq": {
+    "meta": {
+      "title": "常见问题 - 招聘平台求职招聘指南",
+      "description": "招聘平台常见问题解答，包括账号注册、职位申请、简历投递、面试技巧等求职招聘相关问题。",
+      "keywords": [
+        "招聘平台",
+        "求职问题",
+        "简历投递",
+        "面试技巧",
+        "职位申请",
+        "找工作常见问题"
+      ]
+    },
+    "hero": {
+      "badge": "帮助中心",
+      "title": "常见问题解答",
+      "subtitle": "关于求职招聘的一切问题，在这里找到答案",
+      "searchPlaceholder": "搜索问题..."
+    },
+    "categories": [
+      {
+        "category": "账号相关",
+        "items": [
+          {
+            "question": "如何在招聘平台注册账号？",
+            "answer": "点击页面右上角'注册'按钮，填写邮箱、密码、姓名等基本信息即可完成注册。注册后您可以创建简历、投递职位、跟踪申请进度。支持邮箱验证确保账号安全。"
+          },
+          {
+            "question": "如何修改或撤回已投递的简历？",
+            "answer": "登录账号后，进入'我的申请'页面，找到对应的职位申请。在HR未查看前，您可以撤回申请；撤回后可以修改简历重新投递。一旦HR已查看，则无法撤回，但可以联系HR说明情况。"
+          },
+          {
+            "question": "平台如何保护用户隐私？",
+            "answer": "我们采用银行级加密技术保护用户数据，未经您的同意不会向第三方透露个人信息。简历仅对投递的企业可见，您也可以设置简历的公开/私密状态。详细请参阅我们的《隐私政策》。"
+          }
+        ]
+      },
+      {
+        "category": "求职相关",
+        "items": [
+          {
+            "question": "投递简历后多久能收到回复？",
+            "answer": "一般情况下，企业在收到简历后3-7个工作日内会进行筛选。您可以在'我的申请'中查看简历状态：待处理、已查看、面试邀请、已录用、已拒绝。建议同时投递多个职位以增加机会。"
+          },
+          {
+            "question": "如何写好一份求职简历？",
+            "answer": "1) 使用STAR法则描述项目经历；2) 量化工作成果，如'提升性能40%'；3) 关键词匹配目标职位JD；4) 保持简洁，1-2页为宜；5) 检查错别字和格式。平台提供简历模板和优化建议。"
+          },
+          {
+            "question": "面试时应该如何谈薪资？",
+            "answer": "1) 提前调研市场薪资水平；2) 了解目标公司薪资结构（Base+奖金+股票）；3) 给出一个合理的薪资范围而非固定数字；4) 强调自己的价值和贡献；5) 考虑总包而非只看月薪。可以参考我们博客的谈薪技巧文章。"
+          }
+        ]
+      },
+      {
+        "category": "职位相关",
+        "items": [
+          {
+            "question": "招聘平台的职位信息真实吗？",
+            "answer": "我们对所有发布职位的企业进行严格审核，确保职位信息真实有效。每个职位都经过人工审核，企业需通过营业执照认证。如发现虚假信息，请立即举报，我们会第一时间处理。"
+          },
+          {
+            "question": "2026年哪些岗位需求量最大？",
+            "answer": "根据平台数据统计，2026年需求最旺盛的岗位包括：AI工程师、前端开发工程师、产品经理、数据分析师、算法工程师、运维工程师。这些岗位薪资水平较高，发展前景良好。"
+          },
+          {
+            "question": "招聘平台支持哪些城市的工作？",
+            "answer": "我们覆盖全国主要城市，包括北京、上海、深圳、广州、杭州、成都、武汉、西安、南京、苏州等一线和新一线城市。您可以在职位搜索中按城市筛选，找到本地或异地工作机会。"
+          }
+        ]
+      },
+      {
+        "category": "企业相关",
+        "items": [
+          {
+            "question": "企业如何在平台发布职位？",
+            "answer": "企业用户需先完成企业认证（提交营业执照），审核通过后即可发布职位。支持批量发布、职位刷新、简历筛选等功能。联系我们的商务团队获取更多企业合作信息。"
+          },
+          {
+            "question": "遇到招聘诈骗怎么办？",
+            "answer": "1) 立即停止联系并保留证据；2) 向平台举报该职位或企业；3) 如涉及财产损失，及时报警；4) 提醒其他求职者注意。平台严禁任何形式的招聘诈骗，发现一起处理一起。"
+          }
+        ]
+      }
+    ],
+    "contact": {
+      "title": "还有其他问题？",
+      "subtitle": "如果没有找到您想要的答案，欢迎联系我们的客服团队",
+      "contactUs": "联系我们",
+      "moreArticles": "查看更多文章"
+    }
+  },
+  "jobDetail": {
+    "notFound": "职位未找到",
+    "serviceError": "服务暂时不可用",
+    "serviceErrorDesc": "数据库连接失败，请稍后重试",
+    "backToJobs": "返回职位列表",
+    "breadcrumbHome": "首页",
+    "breadcrumbJobs": "职位",
+    "shareJob": "分享职位",
+    "saveJob": "收藏职位",
+    "salaryRange": "薪资范围",
+    "jobType": "职位类型",
+    "location": "工作地点",
+    "postDate": "发布日期",
+    "tabDescription": "职位详情",
+    "tabInterviews": "面试经验",
+    "viewAll": "查看全部",
+    "interviewSubtext": "来自真实求职者的面试分享，帮你更好地准备面试",
+    "interviewTipTitle": "面试准备建议",
+    "interviewTipText": "根据面试经验分析，该公司的面试通常涉及技术能力、项目经验和行业理解。建议提前了解{company}的产品和业务，准备好相关案例。",
+    "jobDescription": "职位描述",
+    "jobRequirements": "任职要求",
+    "jobBenefits": "福利待遇",
+    "aboutCompany": "关于公司",
+    "visitWebsite": "访问官网",
+    "viewCompanyPage": "查看公司主页",
+    "applyAfterLogin": "登录后查看申请方式",
+    "applyAfterApply": "申请后，HR将在3-5个工作日内回复",
+    "contactUnlock": "解锁联系方式",
+    "contactUnlockDesc": "解锁后即可查看企业联系方式",
+    "contactUnlockPrice": "￥{price}",
+    "contactUnlocked": "已解锁",
+    "contactEmail": "邮箱",
+    "contactPhone": "电话",
+    "unlockNow": "立即解锁",
+    "loginToUnlock": "登录后解锁",
+    "interviewStats": {
+      "passed": "已通过",
+      "failed": "未通过",
+      "avgDifficulty": "平均难度"
+    },
+    "remote": "远程",
+    "hybrid": "混合办公",
+    "onsite": "到办公室",
+    "noInterviews": "暂无面试经验"
   }
 }

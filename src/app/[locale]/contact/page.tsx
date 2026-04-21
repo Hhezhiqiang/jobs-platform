@@ -4,33 +4,38 @@ import { Metadata } from "next";
 const SITE_NAME = "JobQuip招聘平台";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 
+const translations = {
+  zh: {
+    title: `联系我们 - ${SITE_NAME}`,
+    description: "联系JobQuip招聘平台，获取更多帮助与支持。我们致力于为您提供最优质的求职招聘服务。",
+    keywords: ["联系我们", "招聘平台", "客户服务", "求职帮助", "招聘咨询"],
+  },
+  en: {
+    title: `Contact Us - ${SITE_NAME}`,
+    description: "Contact JobQuip recruitment platform for help and support. We are committed to providing you with the best job recruitment service.",
+    keywords: ["contact us", "customer service", "recruitment platform", "help", "support"],
+  },
+};
+
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  const isEn = locale === "en";
+  const t = translations[locale === "en" ? "en" : "zh"];
   return {
-    title: isEn ? `Contact Us - ${SITE_NAME}` : `联系我们 - ${SITE_NAME}`,
-    description: isEn
-      ? "Contact JobQuip recruitment platform for help and support."
-      : "联系JobQuip招聘平台，获取更多帮助与支持。我们致力于为您提供最优质的求职招聘服务。",
-    keywords: isEn
-      ? ["contact us", "customer service", "recruitment platform", "help"]
-      : ["联系我们", "招聘平台", "客户服务", "求职帮助", "招聘咨询"],
+    title: t.title,
+    description: t.description,
+    keywords: t.keywords,
     openGraph: {
-      title: isEn ? `Contact Us - ${SITE_NAME}` : `联系我们 - ${SITE_NAME}`,
-      description: isEn
-        ? "Contact JobQuip recruitment platform for help and support."
-        : "联系JobQuip招聘平台，获取更多帮助与支持。",
+      title: t.title,
+      description: t.description,
       url: `${SITE_URL}/${locale}/contact`,
       siteName: SITE_NAME,
       type: "website",
-      locale: isEn ? "en_US" : "zh_CN",
+      locale: locale === "en" ? "en_US" : "zh_CN",
     },
     twitter: {
       card: "summary_large_image",
-      title: isEn ? `Contact Us - ${SITE_NAME}` : `联系我们 - ${SITE_NAME}`,
-      description: isEn
-        ? "Contact JobQuip recruitment platform for help and support."
-        : "联系JobQuip招聘平台，获取更多帮助与支持。",
+      title: t.title,
+      description: t.description,
     },
     alternates: {
       canonical: `${SITE_URL}/${locale}/contact`,

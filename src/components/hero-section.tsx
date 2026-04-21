@@ -19,15 +19,9 @@ export function HeroSection({ jobCount }: HeroSectionProps) {
   const t = useTranslations();
   const pathname = usePathname();
   const locale = pathname?.split("/")[1] || "zh";
-  const isEn = locale === "en";
 
-  const hotTags = isEn
-    ? ["Frontend Engineer", "Product Manager", "Java Dev", "Data Analyst", "UI Designer", "Operations"]
-    : ["前端工程师", "产品经理", "Java开发", "数据分析师", "UI设计师", "运营"];
-
-  const locations = isEn
-    ? ["Beijing", "Shanghai", "Shenzhen", "Hangzhou", "Guangzhou", "Chengdu"]
-    : ["北京", "上海", "深圳", "杭州", "广州", "成都"];
+  const hotTags = t.raw("hero.popularSearches") || [];
+  const locations = t.raw("hero.locations") || [];
 
   return (
     <section className="relative min-h-[500px] flex items-center justify-center overflow-hidden">
@@ -48,22 +42,14 @@ export function HeroSection({ jobCount }: HeroSectionProps) {
       <div className="relative z-10 max-w-5xl mx-auto px-4 py-20 text-center">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white/90 text-sm mb-8 animate-fade-in-up">
           <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-          {jobCount.toLocaleString()}+ {isEn ? "jobs posted" : "职位发布"}
+          {jobCount.toLocaleString()}+ {t("hero.stats.jobs")}
         </div>
 
         <h1
           className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight animate-fade-in-up"
           style={{ animationDelay: "0.1s" }}
         >
-          {isEn ? (
-            <>Discover Your<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-400">Dream Job</span>
-            </>
-          ) : (
-            <>发现你的
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-orange-400">理想工作</span>
-            </>
-          )}
+          {t("hero.title")}
         </h1>
 
         <p
@@ -101,11 +87,11 @@ export function HeroSection({ jobCount }: HeroSectionProps) {
                 name="city"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                aria-label={isEn ? "Select city" : "选择城市"}
+                aria-label={t("hero.selectCity")}
                 className="w-full md:w-40 pl-12 pr-8 py-4 text-gray-800 bg-transparent focus:outline-none appearance-none cursor-pointer"
               >
-                <option value="">{isEn ? "All cities" : "全国"}</option>
-                {locations.map((loc) => (
+                <option value="">{t("hero.allCities")}</option>
+                {locations.map((loc: string) => (
                   <option key={loc} value={loc}>{loc}</option>
                 ))}
               </select>
@@ -129,14 +115,14 @@ export function HeroSection({ jobCount }: HeroSectionProps) {
               className="px-8 py-3 bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 font-bold rounded-xl text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center gap-2"
             >
               <Briefcase className="w-5 h-5" />
-              {isEn ? "Browse Jobs" : "浏览职位"}
+              {t("home.viewAllJobs")}
             </Link>
             <Link
               href={`/${locale}/dashboard`}
               className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-medium rounded-xl backdrop-blur-sm transition-all flex items-center gap-2"
             >
               <User className="w-5 h-5" />
-              {isEn ? "My Dashboard" : "我的主页"}
+              {t("nav.dashboard")}
             </Link>
           </div>
         ) : (
@@ -145,21 +131,21 @@ export function HeroSection({ jobCount }: HeroSectionProps) {
               href={`/${locale}/auth/register`}
               className="px-8 py-3 bg-gradient-to-r from-yellow-400 to-orange-400 text-gray-900 font-bold rounded-xl text-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
             >
-              {isEn ? "Sign Up — It's Free" : "免费注册 — 发现更多机会"}
+              {t("home.cta.register")}
             </Link>
             <Link
               href={`/${locale}/auth/login`}
               className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-medium rounded-xl backdrop-blur-sm transition-all"
             >
-              {isEn ? "Sign In" : "已有账号？登录"}
+              {t("hero.login")}
             </Link>
           </div>
         )}
 
         <div className="mt-8 animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
-          <p className="text-blue-200 text-sm mb-3">{isEn ? "Popular Searches" : "热门搜索"}</p>
+          <p className="text-blue-200 text-sm mb-3">{t("hero.popularSearchesLabel")}</p>
           <div className="flex flex-wrap justify-center gap-2">
-            {hotTags.map((tag) => (
+            {hotTags.map((tag: string) => (
               <Link
                 key={tag}
                 href={`/${locale}/jobs?q=${encodeURIComponent(tag)}`}

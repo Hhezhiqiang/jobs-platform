@@ -2,56 +2,46 @@ import { Metadata } from "next";
 import { jobs, companies } from "@prisma/client";
 import { formatSalary } from "./utils";
 
-const SITE_NAME = "JobQuip招聘平台";
+const SITE_NAME = "JobQuip";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
-const SITE_DESCRIPTION = "专业的求职招聘平台，汇聚海量优质Web3、互联网、科技行业职位，为求职者和企业提供高效对接服务，助力职场发展";
-const DEFAULT_OG_IMAGE = `${SITE_URL}/logo.png`;
 
-// 首页 Metadata（极致关键词覆盖）
+const i18n = {
+  zh: {
+    siteDesc: "专业的求职招聘平台，汇聚海量优质Web3、互联网、科技行业职位，为求职者和企业提供高效对接服务，助力职场发展",
+    siteKeywords: ["招聘", "求职", "找工作", "人才网", "招聘信息", "职位搜索", "Web3招聘", "互联网招聘", "高薪职位", "职业发展"],
+  },
+  en: {
+    siteDesc: "A professional job recruitment platform connecting top talent with Web3, internet, and tech companies worldwide. Empower your career growth.",
+    siteKeywords: ["jobs", "recruitment", "career", "job search", "hiring", "Web3 jobs", "tech jobs", "internet jobs", "remote jobs", "high salary jobs"],
+  },
+};
+
+// 首页 Metadata
 export function generateHomeMetadata(locale = "zh"): Metadata {
-  const isEn = locale === "en";
-  const title = isEn
+  const t = i18n[locale === "en" ? "en" : "zh"];
+  const title = locale === "en"
     ? `${SITE_NAME} - Professional Job Recruitment Platform, Web3 & Tech Jobs`
     : `${SITE_NAME} - 专业求职招聘平台，汇聚Web3、互联网高薪职位`;
-  const desc = isEn
-    ? "A professional job recruitment platform connecting top talent with Web3, internet, and tech companies worldwide. Empower your career growth."
-    : SITE_DESCRIPTION;
-
   return {
     title,
-    description: desc,
-    keywords: isEn
-      ? [
-          "jobs", "recruitment", "career", "job search", "hiring",
-          "Web3 jobs", "tech jobs", "internet jobs", "remote jobs",
-          "software engineer jobs", "product manager jobs", "designer jobs",
-          "data analyst jobs", "AI jobs", "high salary jobs",
-          "career development", "interview tips", "resume optimization",
-        ]
-      : [
-          // 核心词
-          "招聘", "求职", "找工作", "人才网", "招聘信息", "职位搜索",
-          // 行业词
-          "Web3招聘", "互联网招聘", "科技行业招聘", "程序员招聘", "产品经理招聘",
-          "运营招聘", "设计师招聘", "数据分析师招聘", "AI招聘",
-          // 长尾词
-          "高薪职位", "职业发展", "面试技巧", "薪资查询", "简历优化",
-          "内推", "远程工作", "远程职位", "居家办公职位",
-        ],
+    description: t.siteDesc,
+    keywords: locale === "en"
+      ? [...t.siteKeywords, "software engineer jobs", "product manager jobs", "designer jobs", "data analyst jobs", "AI jobs", "career development", "interview tips", "resume optimization"]
+      : [...t.siteKeywords, "程序员招聘", "产品经理招聘", "运营招聘", "设计师招聘", "数据分析师招聘", "AI招聘", "职业发展", "面试技巧", "薪资查询", "简历优化", "内推", "远程工作", "远程职位", "居家办公职位"],
     openGraph: {
       title,
-      description: desc,
+      description: t.siteDesc,
       url: `${SITE_URL}/${locale}`,
       siteName: SITE_NAME,
       type: "website",
-      locale: isEn ? "en_US" : "zh_CN",
-      images: [DEFAULT_OG_IMAGE],
+      locale: locale === "en" ? "en_US" : "zh_CN",
+      images: [`${SITE_URL}/logo.png`],
     },
     twitter: {
       card: "summary_large_image",
       title,
-      description: desc,
-      images: [DEFAULT_OG_IMAGE],
+      description: t.siteDesc,
+      images: [`${SITE_URL}/logo.png`],
     },
     alternates: {
       canonical: `${SITE_URL}/${locale}`,
@@ -64,33 +54,32 @@ export function generateHomeMetadata(locale = "zh"): Metadata {
   };
 }
 
-// 职位详情页 Metadata（SEO 极致优化版）
-export function generateJobMetadata(job: jobs & { companies: companies }, locale: string = 'zh'): Metadata {
+// 职位详情页 Metadata
+export function generateJobMetadata(job: jobs & { companies: companies }, locale = "zh"): Metadata {
   const salaryStr = formatSalary(job.salaryMin, job.salaryMax);
-  const title = job.metaTitle || `${job.title}招聘 - ${job.companies.name}${salaryStr ? ' | ' + salaryStr : ''}${job.location ? ' | ' + job.location : ''}`;
-  const description = job.metaDescription ||
-    `${job.companies.name}招聘${job.title}，工作地点：${job.location}${job.isRemote ? '（支持远程）' : ''}，薪资：${salaryStr || '面议'}。${job.description ? job.description.slice(0, 100) + '。' : ''}点击查看详情并立即申请。`;
+  const isEn = locale === "en";
+  const title = job.metaTitle || (isEn
+    ? `${job.title} at ${job.companies.name}${salaryStr ? ' | ' + salaryStr : ''}${job.location ? ' | ' + job.location : ''}`
+    : `${job.title}招聘 - ${job.companies.name}${salaryStr ? ' | ' + salaryStr : ''}${job.location ? ' | ' + job.location : ''}`);
+  const description = job.metaDescription || (isEn
+    ? `${job.companies.name} is hiring for ${job.title} in ${job.location}${job.isRemote ? ' (Remote)' : ''}. Salary: ${salaryStr || 'Negotiable'}. View details and apply now.`
+    : `${job.companies.name}招聘${job.title}，工作地点：${job.location}${job.isRemote ? '（支持远程）' : ''}，薪资：${salaryStr || '面议'}。点击查看详情并立即申请。`);
 
   const url = `${SITE_URL}/${locale}/jobs/${job.slug}`;
 
-  // 极致关键词覆盖
   const jobKeywords = [
     job.title,
-    job.title + "招聘",
-    job.title + "职位",
+    isEn ? `${job.title} job` : `${job.title}招聘`,
     job.companies.name,
-    job.companies.name + "招聘",
-    "招聘",
-    "求职",
-    "找工作",
+    isEn ? `${job.companies.name} hiring` : `${job.companies.name}招聘`,
+    isEn ? "jobs" : "招聘",
+    isEn ? "career" : "求职",
+    isEn ? "job search" : "找工作",
     job.city || job.location,
-    job.city ? job.city + "招聘" : null,
-    job.isRemote ? "远程工作" : null,
-    job.isRemote ? "远程职位" : null,
-    job.employmentType === "FULL_TIME" ? "全职" : job.employmentType === "PART_TIME" ? "兼职" : null,
+    job.isRemote ? (isEn ? "remote work" : "远程工作") : null,
+    job.employmentType === "FULL_TIME" ? (isEn ? "full-time" : "全职") : null,
     salaryStr,
   ].filter((k): k is string => !!k && k.length > 0);
-  // 去重
   const uniqueKeywords = [...new Set(jobKeywords)];
 
   return {
@@ -105,13 +94,13 @@ export function generateJobMetadata(job: jobs & { companies: companies }, locale
       type: "article",
       publishedTime: job.datePosted.toISOString(),
       modifiedTime: job.updatedAt.toISOString(),
-      images: job.imageUrl ? [job.imageUrl] : [DEFAULT_OG_IMAGE],
+      images: job.imageUrl ? [job.imageUrl] : [`${SITE_URL}/logo.png`],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description: description.slice(0, 160),
-      images: job.imageUrl ? [job.imageUrl] : [DEFAULT_OG_IMAGE],
+      images: job.imageUrl ? [job.imageUrl] : [`${SITE_URL}/logo.png`],
     },
     alternates: {
       canonical: url,
@@ -129,10 +118,14 @@ export function generateJobMetadata(job: jobs & { companies: companies }, locale
 }
 
 // 公司页 Metadata
-export function generateCompanyMetadata(company: companies, locale: string = 'zh'): Metadata {
-  const title = company.metaTitle || `${company.name}招聘 - 最新职位 | ${company.industry || '互联网'}行业`;
-  const description = company.metaDescription ||
-    `${company.name}${company.industry ? `，${company.industry}行业` : ""}招聘主页。${company.description ? company.description.slice(0, 80) : '查看最新职位信息，了解公司详情。'}了解更多并申请。`;
+export function generateCompanyMetadata(company: companies, locale = "zh"): Metadata {
+  const isEn = locale === "en";
+  const title = company.metaTitle || (isEn
+    ? `${company.name} Careers - Latest Jobs | ${company.industry || 'Tech'}`
+    : `${company.name}招聘 - 最新职位 | ${company.industry || '互联网'}行业`);
+  const description = company.metaDescription || (isEn
+    ? `${company.name}${company.industry ? `, ${company.industry} industry` : ""}. ${company.description ? company.description.slice(0, 80) : 'View latest job openings.'}`
+    : `${company.name}${company.industry ? `，${company.industry}行业` : ""}招聘主页。${company.description ? company.description.slice(0, 80) : '查看最新职位信息，了解公司详情。'}`);
 
   const url = `${SITE_URL}/${locale}/companies/${company.slug}`;
 
@@ -141,10 +134,8 @@ export function generateCompanyMetadata(company: companies, locale: string = 'zh
     description: description.slice(0, 160),
     keywords: [
       company.name,
-      company.name + "招聘",
-      company.name + "职位",
-      "招聘",
-      "公司",
+      isEn ? `${company.name} careers` : `${company.name}招聘`,
+      isEn ? "jobs" : "招聘",
       company.industry,
       company.location,
     ].filter((k): k is string => !!k && k.length > 0),
@@ -154,13 +145,13 @@ export function generateCompanyMetadata(company: companies, locale: string = 'zh
       url,
       siteName: SITE_NAME,
       type: "profile",
-      images: company.logo ? [company.logo] : [DEFAULT_OG_IMAGE],
+      images: company.logo ? [company.logo] : [`${SITE_URL}/logo.png`],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description: description.slice(0, 160),
-      images: company.logo ? [company.logo] : [DEFAULT_OG_IMAGE],
+      images: company.logo ? [company.logo] : [`${SITE_URL}/logo.png`],
     },
     alternates: {
       canonical: url,
@@ -177,28 +168,27 @@ export function generateCompanyMetadata(company: companies, locale: string = 'zh
   };
 }
 
-// 职位列表页 Metadata（SEO 强化版）
-export function generateJobsListMetadata(params?: { city?: string; type?: string; query?: string }, locale: string = "zh"): Metadata {
+// 职位列表页 Metadata
+export function generateJobsListMetadata(params?: { city?: string; type?: string; query?: string }, locale = "zh"): Metadata {
+  const isEn = locale === "en";
   const cityText = params?.city ? `${params.city} ` : "";
   const typeText = params?.type ? `${params.type} ` : "";
   const queryText = params?.query ? `${params.query} ` : "";
 
   const title = queryText
-    ? `${queryText}招聘信息 - 职位搜索结果`
-    : `${cityText}${typeText}招聘信息 - 最新职位列表`;
+    ? (isEn ? `"${queryText}" Jobs - Search Results` : `${queryText}招聘信息 - 职位搜索结果`)
+    : (isEn ? `${cityText}${typeText}Jobs - Latest Listings` : `${cityText}${typeText}招聘信息 - 最新职位列表`);
 
   const description = queryText
-    ? `搜索"${queryText}"相关职位，查看最新的${queryText}招聘信息。高薪岗位实时更新，快速找到理想工作。`
-    : `查看${cityText}${typeText}最新招聘信息，包含各行业热门职位。高薪岗位实时更新，快速找到理想工作。`;
-
-  const allKeywords = ["招聘", "求职", "找工作", "工作机会", cityText, typeText, queryText, "最新职位", "高薪职位", "互联网招聘"].filter((k): k is string => !!k);
-  // 去重
-  const uniqueKeywords = [...new Set(allKeywords)];
+    ? (isEn ? `Search for "${queryText}" jobs and view the latest openings.` : `搜索"${queryText}"相关职位，查看最新的${queryText}招聘信息。`)
+    : (isEn ? `Browse the latest ${cityText}${typeText}job listings.` : `查看${cityText}${typeText}最新招聘信息。`);
 
   return {
     title,
     description,
-    keywords: uniqueKeywords,
+    keywords: isEn
+      ? ["jobs", "recruitment", "career", cityText, typeText, queryText, "latest jobs"].filter(Boolean)
+      : ["招聘", "求职", "找工作", "工作机会", cityText, typeText, queryText, "最新职位", "高薪职位"].filter(Boolean),
     openGraph: {
       title,
       description,
@@ -206,13 +196,13 @@ export function generateJobsListMetadata(params?: { city?: string; type?: string
       siteName: SITE_NAME,
       type: "website",
       locale: locale === "en" ? "en_US" : "zh_CN",
-      images: [DEFAULT_OG_IMAGE],
+      images: [`${SITE_URL}/logo.png`],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [DEFAULT_OG_IMAGE],
+      images: [`${SITE_URL}/logo.png`],
     },
     robots: {
       index: true,
@@ -228,4 +218,3 @@ export function generateJobsListMetadata(params?: { city?: string; type?: string
     },
   };
 }
-

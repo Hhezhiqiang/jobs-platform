@@ -262,7 +262,7 @@ export default async function BlogPage({ params, searchParams }: PageProps) {
                       </span>
                       <span className="flex items-center gap-1 text-xs text-gray-400">
                         <Clock className="w-3 h-3" />
-                        {new Date(post.createdAt).toLocaleDateString(isEn ? "en-US" : "zh-CN")}
+                        {new Date(post.createdAt).toLocaleDateString(locale === "en" ? "en-US" : "zh-CN")}
                       </span>
                     </div>
                     <h2 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">

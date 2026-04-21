@@ -22,7 +22,15 @@
   },
   "header": {
     "menu": "Menu",
-    "closeMenu": "Close menu"
+    "closeMenu": "Close menu",
+    "company": "Company",
+    "jobMgmt": "Job Mgmt",
+    "resumes": "Resumes",
+    "admin": "Admin",
+    "reviews": "Reviews",
+    "favorites": "Favorites",
+    "applications": "Applications",
+    "settings": "Settings"
   },
   "footer": {
     "about": "About",
@@ -52,13 +60,31 @@
     "register": "Sign Up — It's Free",
     "registerSub": "Discover more opportunities",
     "login": "Already have an account? Log in",
-    "popularSearches": "Popular Searches",
+    "popularSearchesLabel": "Popular Searches",
+    "selectCity": "Select city",
+    "allCities": "All cities",
     "stats": {
-      "jobs": "Job Postings",
+      "jobs": "jobs posted",
       "companies": "Companies",
       "users": "Active Job Seekers",
       "matches": "Successful Matches"
-    }
+    },
+    "popularSearches": [
+      "Frontend Engineer",
+      "Product Manager",
+      "Java Dev",
+      "Data Analyst",
+      "UI Designer",
+      "Operations"
+    ],
+    "locations": [
+      "Beijing",
+      "Shanghai",
+      "Shenzhen",
+      "Hangzhou",
+      "Guangzhou",
+      "Chengdu"
+    ]
   },
   "home": {
     "hotJobs": "🔥 Hot Jobs",
@@ -108,32 +134,26 @@
     "subtitle": "More than job search — it's about finding your career opportunity",
     "items": [
       {
-        "icon": "🎯",
         "title": "Smart Matching",
         "description": "AI-powered recommendations that match your skills and preferences to the best positions"
       },
       {
-        "icon": "⚡",
         "title": "Fast Response",
         "description": "Companies respond within 24 hours on average — no more endless waiting"
       },
       {
-        "icon": "🛡️",
         "title": "Verified & Safe",
         "description": "Strict company verification to protect your privacy and interests"
       },
       {
-        "icon": "💡",
         "title": "Career Insights",
         "description": "Job-seeking guides and industry news to advance your career"
       },
       {
-        "icon": "📊",
         "title": "Salary Transparency",
         "description": "Real salary data to negotiate with confidence"
       },
       {
-        "icon": "🌟",
         "title": "Direct Hiring",
         "description": "Connect directly with top companies, skip the middleman"
       }
@@ -167,6 +187,44 @@
     "prev": "Previous",
     "next": "Next"
   },
+  "notFound": {
+    "title": "Page not found",
+    "backToHome": "Back to home"
+  },
+  "filter": {
+    "filters": "Filters",
+    "filter": "Filter",
+    "jobsCount": "jobs",
+    "searchJobs": "Search Jobs",
+    "keywords": "Keywords...",
+    "search": "Search",
+    "active": "Active",
+    "companyCulture": "Company Culture",
+    "all": "All",
+    "location": "Location",
+    "jobType": "Job Type",
+    "salaryRange": "Salary Range",
+    "clearFilters": "Clear filters",
+    "currentResults": "Current results",
+    "cultureMatch": "Show culture match only",
+    "cultureMatchSub": "Match ≥ 80%",
+    "preferencesSet": "Preferences set",
+    "preferencesSetSuffix": "preference tags",
+    "jobTypes": {
+      "fullTime": "Full-time",
+      "partTime": "Part-time",
+      "internship": "Internship",
+      "contract": "Contract",
+      "freelance": "Freelance"
+    },
+    "salary": {
+      "below10": "<10K",
+      "10to20": "10K-20K",
+      "20to30": "20K-30K",
+      "30to50": "30K-50K",
+      "above50": "50K+"
+    }
+  },
   "common": {
     "loading": "Loading...",
     "readMore": "Read more",
@@ -184,7 +242,8 @@
   "locale": {
     "switch": "Switch language",
     "zh": "中文",
-    "en": "English"
+    "en": "English",
+    "switchTo": "中文"
   },
   "company": {
     "jobs": {
@@ -228,5 +287,142 @@
         "operationFailed": "Operation failed"
       }
     }
+  },
+  "faq": {
+    "meta": {
+      "title": "FAQ - Job Recruitment Platform Guide",
+      "description": "Frequently asked questions about job seeking, resume tips, interview skills, job applications, and more on our recruitment platform.",
+      "keywords": [
+        "recruitment platform",
+        "job seeking",
+        "resume tips",
+        "interview skills",
+        "job application",
+        "FAQ"
+      ]
+    },
+    "hero": {
+      "badge": "Help Center",
+      "title": "Frequently Asked Questions",
+      "subtitle": "Find answers to all your job seeking and recruitment questions here",
+      "searchPlaceholder": "Search questions..."
+    },
+    "categories": [
+      {
+        "category": "Account",
+        "items": [
+          {
+            "question": "How do I register on the platform?",
+            "answer": "Click the 'Register' button in the top right corner and fill in your email, password, and name. After registration, you can create a resume, apply for jobs, and track your application progress."
+          },
+          {
+            "question": "How can I modify or withdraw a submitted resume?",
+            "answer": "After logging in, go to 'My Applications' and find the relevant job application. You can withdraw it before HR reviews it. Once HR has viewed it, you cannot withdraw but can contact HR to explain."
+          },
+          {
+            "question": "How does the platform protect user privacy?",
+            "answer": "We use bank-level encryption to protect your data. Your resume is only visible to employers you apply to. You can also set your resume to public or private. See our Privacy Policy for details."
+          }
+        ]
+      },
+      {
+        "category": "Job Seeking",
+        "items": [
+          {
+            "question": "How long after applying will I hear back?",
+            "answer": "Typically, employers review resumes within 3-7 business days. You can check your resume status in 'My Applications'. We recommend applying to multiple positions to increase your chances."
+          },
+          {
+            "question": "How do I write a great resume?",
+            "answer": "1) Use the STAR method to describe projects; 2) Quantify achievements, e.g., 'improved performance by 40%'; 3) Match keywords to the job description; 4) Keep it concise, 1-2 pages; 5) Check for typos. The platform provides resume templates and optimization tips."
+          },
+          {
+            "question": "How should I negotiate salary during interviews?",
+            "answer": "1) Research market salary levels beforehand; 2) Understand the target company's compensation structure (Base + Bonus + Stock); 3) Give a reasonable range rather than a fixed number; 4) Emphasize your value and contributions; 5) Consider the total compensation package."
+          }
+        ]
+      },
+      {
+        "category": "Jobs",
+        "items": [
+          {
+            "question": "Are the job listings on the platform real?",
+            "answer": "We strictly verify all companies that post jobs to ensure the information is authentic. Each listing goes through manual review, and companies must pass business license verification. If you find false information, please report it immediately."
+          },
+          {
+            "question": "Which roles have the highest demand in 2026?",
+            "answer": "Based on platform data, the most in-demand roles in 2026 include: AI Engineers, Frontend Developers, Product Managers, Data Analysts, Algorithm Engineers, and DevOps Engineers. These positions offer competitive salaries and strong career prospects."
+          },
+          {
+            "question": "Which cities does the platform cover?",
+            "answer": "We cover major cities across China, including Beijing, Shanghai, Shenzhen, Guangzhou, Hangzhou, Chengdu, Wuhan, Xi'an, Nanjing, and Suzhou. You can filter by city in job search to find local or remote opportunities."
+          }
+        ]
+      },
+      {
+        "category": "Employers",
+        "items": [
+          {
+            "question": "How can employers post jobs on the platform?",
+            "answer": "Employers need to complete company verification (submit business license) first. After approval, you can post jobs, refresh listings, and screen resumes. Contact our business team for more enterprise cooperation information."
+          },
+          {
+            "question": "What should I do if I encounter recruitment fraud?",
+            "answer": "1) Stop contact immediately and preserve evidence; 2) Report the job or company to the platform; 3) If financial loss is involved, contact the police; 4) Alert other job seekers. The platform strictly prohibits recruitment fraud."
+          }
+        ]
+      }
+    ],
+    "contact": {
+      "title": "Still have questions?",
+      "subtitle": "If you didn't find the answer you're looking for, feel free to contact our support team",
+      "contactUs": "Contact Us",
+      "moreArticles": "More Articles"
+    }
+  },
+  "jobDetail": {
+    "notFound": "Job Not Found",
+    "serviceError": "Service Temporarily Unavailable",
+    "serviceErrorDesc": "Database connection failed. Please try again later.",
+    "backToJobs": "Back to Jobs",
+    "breadcrumbHome": "Home",
+    "breadcrumbJobs": "Jobs",
+    "shareJob": "Share Job",
+    "saveJob": "Save Job",
+    "salaryRange": "Salary",
+    "jobType": "Type",
+    "location": "Location",
+    "postDate": "Posted",
+    "tabDescription": "Description",
+    "tabInterviews": "Interviews",
+    "viewAll": "View All",
+    "interviewSubtext": "Real interview experiences from job seekers to help you prepare",
+    "interviewTipTitle": "Interview Prep Tips",
+    "interviewTipText": "Based on interview experiences, this company typically assesses technical skills, project experience, and industry knowledge. Research {company}'s products and business beforehand.",
+    "jobDescription": "Job Description",
+    "jobRequirements": "Requirements",
+    "jobBenefits": "Benefits",
+    "aboutCompany": "About Company",
+    "visitWebsite": "Visit Website",
+    "viewCompanyPage": "View Company Page",
+    "applyAfterLogin": "Log in to see application methods",
+    "applyAfterApply": "HR will respond within 3-5 business days",
+    "contactUnlock": "Unlock Contact Info",
+    "contactUnlockDesc": "Unlock to view company contact details",
+    "contactUnlockPrice": "￥{price}",
+    "contactUnlocked": "Unlocked",
+    "contactEmail": "Email",
+    "contactPhone": "Phone",
+    "unlockNow": "Unlock Now",
+    "loginToUnlock": "Log in to Unlock",
+    "interviewStats": {
+      "passed": "Passed",
+      "failed": "Failed",
+      "avgDifficulty": "Avg Difficulty"
+    },
+    "remote": "Remote",
+    "hybrid": "Hybrid",
+    "onsite": "On-site",
+    "noInterviews": "No interviews yet"
   }
 }
