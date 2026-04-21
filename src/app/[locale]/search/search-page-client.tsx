@@ -183,7 +183,7 @@ export function SearchPageClient({
                 <HighlightedText text={`"${query}" 的搜索结果`} highlight={query} />
               </>
             ) : (
-              {isEn ? "Search Jobs" : "搜索职位"}
+              isEn ? "Search Jobs" : "搜索职位"
             )}
           </h1>
 

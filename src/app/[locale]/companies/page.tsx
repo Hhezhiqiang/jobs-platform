@@ -117,7 +117,7 @@ export default async function CompaniesPage({ params, searchParams }: PageProps)
               {companies.length} 家优质企业
             </div>
             <h1 className="text-3xl md:text-4xl font-bold mb-4">发现优秀企业</h1>
-            <p className="text-blue-100 mb-6">isEn ? "Explore top internet companies, find your ideal platform" : "探索知名互联网公司，找到理想的职业平台"}</p>
+            <p className="text-blue-100 mb-6">{isEn ? "Explore top internet companies, find your ideal platform" : "探索知名互联网公司，找到理想的职业平台"}</p>
 
             {/* Search */}
             <form action="/companies" className="max-w-xl mx-auto">

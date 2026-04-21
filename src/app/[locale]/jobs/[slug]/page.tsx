@@ -43,8 +43,8 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug, locale } = await params;
   try {
-    const { slug, locale } = await params;
     const job = await prisma.jobs.findUnique({
       where: { slug },
       include: { companies: true },
@@ -536,8 +536,8 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
 
                 <p className="text-sm text-gray-500 text-center mt-4">
                   {isLoggedIn 
-                    ? {isEn ? "HR will respond within 3-5 business days" : "申请后，HR将在3-5个工作日内回复"} 
-                    : {isEn ? "Log in to see application methods" : "登录后查看申请方式"}}
+                    ? (isEn ? "HR will respond within 3-5 business days" : "申请后，HR将在3-5个工作日内回复") 
+                    : (isEn ? "Log in to see application methods" : "登录后查看申请方式")}
                 </p>
               </div>
 

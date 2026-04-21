@@ -293,7 +293,7 @@ export function RecommendationSection({
                     {job.companies.logo ? (
                       <Image
                         src={job.companies.logo}
-                        `alt={`${job.companies.name} ${isEn ? 'Logo' : '公司Logo'}`}
+                        alt={`${job.companies.name} ${isEn ? "Logo" : "公司Logo"}`}
                         width={40}
                         height={40}
                         className="rounded-lg"

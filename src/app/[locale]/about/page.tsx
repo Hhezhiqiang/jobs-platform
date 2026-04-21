@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       images: [`${siteUrl}/logo.png`],
     },
     alternates: {
-      canonical: `${zh}/about`,
+      canonical: `${siteUrl}/${locale}/about`,
       languages: {
         "zh-CN": `${siteUrl}/zh/about`,
         "en": `${siteUrl}/en/about`,
@@ -69,7 +69,9 @@ async function getSiteStats() {
   }
 }
 
-export default async function AboutPage() {
+export default async function AboutPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const isEn = locale === "en";
   const stats = await getSiteStats();
 
   const features = [

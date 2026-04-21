@@ -29,8 +29,8 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug, locale } = await params;
   try {
-    const { slug, locale } = await params;
     const company = await prisma.companies.findUnique({
       where: { slug },
     });

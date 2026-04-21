@@ -17,11 +17,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   };
 }
 
-  title: "专题列表 - 发现行业机会",
-  description: "浏览我们精心策划的职场专题，发现热门行业和职业机会。",
-};
-
-export default async function TopicsPage() {
+export default async function TopicsPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const isEn = locale === "en";
   const topics = await prisma.pages.findMany({
     where: {
       type: "PAGE",

@@ -69,7 +69,7 @@ interface PageProps {
 }
 
 // 格式化时间
-function formatTime(date: Date) {
+function formatTime(date: Date, isEn: boolean) {
   const now = new Date();
   const diff = now.getTime() - new Date(date).getTime();
   const minutes = Math.floor(diff / 60000);
@@ -169,10 +169,10 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
             </div>
 
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              isEn ? "Career Stories" : "职迹"}
+              {isEn ? "Career Stories" : "职迹"}
             </h1>
             <p className="text-xl text-white/90 mb-8">
-              isEn ? "Record career growth, share real experiences" : "记录职业成长，分享真实经历"}
+              {isEn ? "Record career growth, share real experiences" : "记录职业成长，分享真实经历"}
             </p>
 
             <Link
@@ -180,7 +180,7 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
               className="inline-flex items-center gap-2 px-8 py-4 bg-white text-indigo-600 rounded-xl font-semibold hover:bg-white/90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
             >
               <PenLine className="w-5 h-5" />
-              isEn ? "Write Story" : "写故事"}
+              {isEn ? "Write Story" : "写故事"}
             </Link>
           </div>
         </div>
@@ -192,7 +192,7 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
           <div className="lg:col-span-2">
             {/* Filter Tabs */}
             <div className="flex flex-wrap gap-3 mb-8">
-              {(Object.keys(typeLabels) as StoryTypeUI[]).map((typeKey) => {
+              {(Object.keys(typeLabelsZh) as StoryTypeUI[]).map((typeKey) => {
                 const isActive = type === typeKey;
                 const config = (isEn ? typeLabelsEn[typeKey] : typeLabelsZh[typeKey]);
                 return (
@@ -222,13 +222,13 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-bold text-gray-900 flex items-center gap-2">
                     <Briefcase className="w-5 h-5 text-blue-600" />
-                    isEn ? "Open to Work" : "正在求职"}
+                    {isEn ? "Open to Work" : "正在求职"}
                   </h3>
                   <Link 
                     href={`/${locale}/dashboard/job-status`}
                     className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
                   >
-                    isEn ? "Show mine too" : "我也要展示" <ArrowRight className="w-4 h-4" />
+                    {isEn ? "Show mine too" : "我也要展示"} <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -310,7 +310,7 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
                               <span>{story._count.storyComments}</span>
                             </div>
                           </div>
-                          <span className="text-gray-400">{formatTime(story.createdAt)}</span>
+                          <span className="text-gray-400">{formatTime(story.createdAt, isEn)}</span>
                         </div>
                       </div>
                     </Link>
@@ -329,7 +329,7 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
                   className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all"
                 >
                   <PenLine className="w-4 h-4" />
-                  isEn ? "Share My Story" : "分享我的故事"}
+                  {isEn ? "Share My Story" : "分享我的故事"}
                 </Link>
               </div>
             )}
@@ -342,7 +342,7 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
                     href={`/${locale}/career-trail?${type !== "all" ? `type=${type}&` : ""}page=${currentPage - 1}`}
                     className="px-4 py-2 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all text-gray-600"
                   >
-                    isEn ? "Previous" : "上一页"}
+                    {isEn ? "Previous" : "上一页"}
                   </Link>
                 )}
 
@@ -355,7 +355,7 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
                     href={`/${locale}/career-trail?${type !== "all" ? `type=${type}&` : ""}page=${currentPage + 1}`}
                     className="px-4 py-2 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all text-gray-600"
                   >
-                    isEn ? "Next" : "下一页"}
+                    {isEn ? "Next" : "下一页"}
                   </Link>
                 )}
               </div>
@@ -374,7 +374,7 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
                 href={`/${locale}/dashboard/job-status`}
                 className="block w-full py-3 bg-white text-blue-600 rounded-xl font-semibold text-center hover:bg-blue-50 transition-all"
               >
-                isEn ? "Set Job-Seeking Status" : "设置求职状态"}
+                {isEn ? "Set Job-Seeking Status" : "设置求职状态"}
               </Link>
             </div>
 
@@ -382,7 +382,7 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
               <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-rose-500" />
-                isEn ? "Trending Stories" : "热门故事"}
+                {isEn ? "Trending Stories" : "热门故事"}
               </h3>
               <div className="space-y-4">
                 {hotStories.map((story, index) => (
@@ -424,7 +424,7 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
               <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
                 <TrendingUp className="w-5 h-5 text-indigo-600" />
-                isEn ? "Community Stats" : "社区数据"}
+                {isEn ? "Community Stats" : "社区数据"}
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center p-4 bg-indigo-50 rounded-xl">
