@@ -15,13 +15,11 @@ import { formatDistanceToNow, formatSalary } from "@/lib/utils";
 import { ensureHttpProtocol, safeJsonLdStringify } from "@/lib/utils";
 import { ContactUnlockCard } from "@/components/contact-unlock-card";
 import { InterviewExperienceCard } from "@/components/interview/interview-experience-card";
+import { getTranslations } from "next-intl/server";
 
-const employmentTypeMap: Record<string, string> = {
-  FULL_TIME: "全职",
-  PART_TIME: "兼职",
-  CONTRACT: "合同工",
-  INTERNSHIP: "实习",
-  FREELANCE: "自由职业",
+const employmentTypeMap: Record<string, Record<string, string>> = {
+  zh: { FULL_TIME: "全职", PART_TIME: "兼职", CONTRACT: "合同工", INTERNSHIP: "实习", FREELANCE: "自由职业" },
+  en: { FULL_TIME: "Full-time", PART_TIME: "Part-time", CONTRACT: "Contract", INTERNSHIP: "Internship", FREELANCE: "Freelance" },
 };
 
 interface PageProps {
@@ -53,12 +51,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     });
 
     if (!job) {
-      return { title: "职位未找到" };
+      return { title: locale === "en" ? "Job Not Found" : "职位未找到" };
     }
 
     return generateJobMetadata(job, locale);
   } catch {
-    return { title: "职位未找到" };
+    return { title: locale === "en" ? "Job Not Found" : "职位未找到" };
   }
 }
 
@@ -147,8 +145,11 @@ function parseInterviewContent(content: string) {
 
 export default async function JobDetailPage({ params, searchParams }: PageProps) {
   const { slug, locale } = await params;
+  const isEn = locale === "en";
   const resolvedSearchParams = await searchParams;
   const activeTab = (resolvedSearchParams?.tab as string) || "description";
+  const t = await getTranslations({ locale, namespace: "jobDetail" });
+  const et = employmentTypeMap[locale] || employmentTypeMap.zh;
   
   let job = null;
   let dbError = false;
@@ -172,13 +173,13 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">服务暂时不可用</h3>
-          <p className="text-gray-500 mb-6">数据库连接失败，请稍后重试</p>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">{t("serviceError")}</h3>
+          <p className="text-gray-500 mb-6">{t("serviceErrorDesc")}</p>
           <Link
-            href="/jobs"
+            href={`/${locale}/jobs`}
             className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all"
           >
-            返回职位列表
+            {t("backToJobs")}
           </Link>
         </div>
       </div>
@@ -212,16 +213,33 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
 
   const jobSchema = generateJobPostingSchema(job);
   const breadcrumbSchema = generateBreadcrumbSchema([
-    { name: "首页", url: "/" },
-    { name: "职位", url: "/jobs" },
-    { name: job.title, url: `/jobs/${job.slug}` },
+    { name: isEn ? "Home" : "首页", url: `/${locale}/` },
+    { name: isEn ? "Jobs" : "职位", url: `/${locale}/jobs` },
+    { name: job.title, url: `/${locale}/jobs/${job.slug}` },
   ]);
 
   const salaryText = formatSalary(job.salaryMin, job.salaryMax);
-  const dateText = new Date(job.datePosted).toLocaleDateString("zh-CN");
+  const dateText = new Date(job.datePosted).toLocaleDateString(isEn ? "en-US" : "zh-CN");
 
   // FAQ Schema - 基于职位信息生成常见问题
-  const faqData = generateFAQSchema([
+  const faqData = generateFAQSchema(isEn ? [
+    {
+      question: `What is the salary for ${job.title}?`,
+      answer: salaryText ? `${job.companies.name} is hiring ${job.title} with salary ${salaryText}. ${job.benefits ? job.benefits.slice(0, 100) : 'Additional benefits apply'}.` : `${job.companies.name} is hiring ${job.title}. Salary negotiable.`,
+    },
+    {
+      question: `Where is the ${job.title} position located?`,
+      answer: `This position is located in ${job.location}${job.city ? ` (${job.city})` : ''}.${job.isRemote ? ' Remote work available.' : job.isHybrid ? ' Hybrid work mode.' : ' On-site required.'}`,
+    },
+    {
+      question: `What kind of company is ${job.companies.name}?`,
+      answer: job.companies.description ? `${job.companies.name}: ${job.companies.description.slice(0, 200)}` : `${job.companies.name} is a company located in ${job.companies.location || job.location}, hiring for ${job.title} and other positions.`,
+    },
+    {
+      question: `How to apply for ${job.title}?`,
+      answer: `You can apply for ${job.companies.name}'s ${job.title} position through JobQuip. Click "Apply Now", fill in your information and submit your resume.`,
+    },
+  ] : [
     {
       question: `${job.title} 的薪资待遇如何？`,
       answer: salaryText ? `${job.companies.name}招聘${job.title}，薪资范围为 ${salaryText}。具体待遇还包括${job.benefits ? job.benefits.slice(0, 100) : '公司提供的福利待遇'}。` : `${job.companies.name}正在招聘${job.title}，具体薪资面议。`,
@@ -264,11 +282,11 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
           <div className="relative max-w-5xl mx-auto px-4 py-12">
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 text-sm text-blue-100 mb-6">
-              <Link href={`/${locale}/`} className="hover:text-white">首页</Link>
+              <Link href={`/${locale}/`} className="hover:text-white">{isEn ? "Home" : "首页"}</Link>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
-              <Link href={`/${locale}/jobs`} className="hover:text-white">职位</Link>
+              <Link href={`/${locale}/jobs`} className="hover:text-white">{isEn ? "Jobs" : "职位"}</Link>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
@@ -301,10 +319,10 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
               </div>
 
               <div className="flex items-center gap-3">
-                <button aria-label="分享职位" className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all">
+                <button aria-label={isEn ? "Share job" : "分享职位"} className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all">
                   <Share2 className="w-5 h-5" />
                 </button>
-                <button aria-label="收藏职位" className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all">
+                <button aria-label={isEn ? "Save job" : "收藏职位"} className="p-3 bg-white/10 hover:bg-white/20 rounded-xl transition-all">
                   <Heart className="w-5 h-5" />
                 </button>
               </div>
@@ -320,23 +338,23 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="bg-white rounded-xl p-4 border border-gray-100">
                   <DollarSign className="w-5 h-5 text-blue-600 mb-2" />
-                  <p className="text-sm text-gray-500">薪资范围</p>
+                  <p className="text-sm text-gray-500">{isEn ? "Salary" : "薪资范围"}</p>
                   <p className="font-bold text-gray-900">{salaryText}</p>
                 </div>
                 <div className="bg-white rounded-xl p-4 border border-gray-100">
                   <Briefcase className="w-5 h-5 text-green-600 mb-2" />
-                  <p className="text-sm text-gray-500">职位类型</p>
-                  <p className="font-bold text-gray-900">{employmentTypeMap[job.employmentType] || job.employmentType}</p>
+                  <p className="text-sm text-gray-500">{isEn ? "Type" : "职位类型"}</p>
+                  <p className="font-bold text-gray-900">{et[job.employmentType] || job.employmentType}</p>
                 </div>
                 <div className="bg-white rounded-xl p-4 border border-gray-100">
                   <MapPin className="w-5 h-5 text-purple-600 mb-2" />
-                  <p className="text-sm text-gray-500">工作地点</p>
+                  <p className="text-sm text-gray-500">{isEn ? "Location" : "工作地点"}</p>
                   <p className="font-bold text-gray-900">{job.location}</p>
                 </div>
                 <div className="bg-white rounded-xl p-4 border border-gray-100">
                   <Calendar className="w-5 h-5 text-orange-600 mb-2" />
-                  <p className="text-sm text-gray-500">发布日期</p>
-                  <p className="font-bold text-gray-900">{new Date(job.datePosted).toLocaleDateString("zh-CN")}</p>
+                  <p className="text-sm text-gray-500">{isEn ? "Posted" : "发布日期"}</p>
+                  <p className="font-bold text-gray-900">{new Date(job.datePosted).toLocaleDateString(isEn ? "en-US" : "zh-CN")}</p>
                 </div>
               </div>
 
@@ -351,7 +369,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                         : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                     }`}
                   >
-                    职位详情
+                    {isEn ? "Description" : "职位详情"}
                   </Link>
                   {hasInterviews && (
                     <Link
@@ -364,7 +382,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                     >
                       <span className="flex items-center justify-center gap-2">
                         <MessageSquare className="w-4 h-4" />
-                        面试经验
+                        {isEn ? "Interviews" : "面试经验"}
                         <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">
                           {companyInterviews.length}
                         </span>
@@ -381,17 +399,17 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                         <div>
                           <h2 className="text-xl font-bold text-gray-900 mb-1 flex items-center gap-2">
                             <Target className="w-5 h-5 text-blue-600" />
-                            {job.companies.name} 面试经验
+                            {job.companies.name} {isEn ? "Interviews" : "面试经验"}
                           </h2>
                           <p className="text-sm text-gray-500">
-                            来自真实求职者的面试分享，帮你更好地准备面试
+                            {isEn ? "Real interview experiences from job seekers to help you prepare" : "来自真实求职者的面试分享，帮你更好地准备面试"}
                           </p>
                         </div>
                         <Link
                           href={`/${locale}/companies/${job.companies.slug}/interviews`}
                           className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-all"
                         >
-                          查看全部
+                          {isEn ? "View All" : "查看全部"}
                         </Link>
                       </div>
 
@@ -412,13 +430,13 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                           <p className="text-2xl font-bold text-gray-900">
                             {companyInterviews.filter(i => i.result === 'passed').length}
                           </p>
-                          <p className="text-sm text-gray-500">已通过</p>
+                          <p className="text-sm text-gray-500">{isEn ? "Passed" : "已通过"}</p>
                         </div>
                         <div className="text-center border-x border-gray-100">
                           <p className="text-2xl font-bold text-gray-900">
                             {companyInterviews.filter(i => i.result === 'failed').length}
                           </p>
-                          <p className="text-sm text-gray-500">未通过</p>
+                          <p className="text-sm text-gray-500">{isEn ? "Failed" : "未通过"}</p>
                         </div>
                         <div className="text-center">
                           <p className="text-2xl font-bold text-gray-900">
@@ -427,7 +445,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                               : '-'
                             }/5
                           </p>
-                          <p className="text-sm text-gray-500">平均难度</p>
+                          <p className="text-sm text-gray-500">{isEn ? "Avg Difficulty" : "平均难度"}</p>
                         </div>
                       </div>
 
@@ -435,10 +453,11 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                         <div className="flex items-start gap-3">
                           <TrendingUp className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                           <div>
-                            <p className="text-sm font-medium text-gray-900">面试准备建议</p>
+                            <p className="text-sm font-medium text-gray-900">{isEn ? "Interview Prep Tips" : "面试准备建议"}</p>
                             <p className="text-sm text-gray-600 mt-1">
-                              根据面试经验分析，该公司的面试通常涉及技术能力、项目经验和行业理解。
-                              建议提前了解{job.companies.name}的产品和业务，准备好相关案例。
+                              {isEn
+                                ? `Based on interview experiences, this company typically assesses technical skills and industry knowledge. Research ${job.companies.name}'s products beforehand.`
+                                : "根据面试经验分析，该公司的面试通常涉及技术能力、项目经验和行业理解。建议提前了解" + job.companies.name + "的产品和业务，准备好相关案例。"}
                             </p>
                           </div>
                         </div>
@@ -447,7 +466,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                   ) : (
                     <div className="space-y-6">
                       <div>
-                        <h2 className="text-xl font-bold text-gray-900 mb-4">职位描述</h2>
+                        <h2 className="text-xl font-bold text-gray-900 mb-4">{isEn ? "Job Description" : "职位描述"}</h2>
                         <div className="prose prose-gray max-w-none text-gray-700 whitespace-pre-wrap leading-relaxed">
                           {job.description}
                         </div>
@@ -455,7 +474,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
 
                       {job.requirements && (
                         <div className="pt-6 border-t border-gray-100">
-                          <h2 className="text-xl font-bold text-gray-900 mb-4">任职要求</h2>
+                          <h2 className="text-xl font-bold text-gray-900 mb-4">{isEn ? "Requirements" : "任职要求"}</h2>
                           <div className="prose prose-gray max-w-none text-gray-700 whitespace-pre-wrap leading-relaxed">
                             {job.requirements}
                           </div>
@@ -464,7 +483,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
 
                       {job.benefits && (
                         <div className="pt-6 border-t border-gray-100">
-                          <h2 className="text-xl font-bold text-gray-900 mb-4">福利待遇</h2>
+                          <h2 className="text-xl font-bold text-gray-900 mb-4">{isEn ? "Benefits" : "福利待遇"}</h2>
                           <div className="prose prose-gray max-w-none text-gray-700 whitespace-pre-wrap leading-relaxed">
                             {job.benefits}
                           </div>
@@ -481,13 +500,13 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="font-bold text-gray-900 flex items-center gap-2">
                       <MessageSquare className="w-5 h-5 text-blue-600" />
-                      面试经验
+                      {isEn ? "Interviews" : "面试经验"}
                     </h3>
                     <Link
                       href={`/${locale}/jobs/${job.slug}?tab=interviews`}
                       className="text-sm text-blue-600 hover:text-blue-700"
                     >
-                      查看更多
+                      {isEn ? "View More" : "查看更多"}
                     </Link>
                   </div>
                   <div className="space-y-3">
@@ -517,8 +536,8 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
 
                 <p className="text-sm text-gray-500 text-center mt-4">
                   {isLoggedIn 
-                    ? "申请后，HR将在3-5个工作日内回复" 
-                    : "登录后查看申请方式"}
+                    ? {isEn ? "HR will respond within 3-5 business days" : "申请后，HR将在3-5个工作日内回复"} 
+                    : {isEn ? "Log in to see application methods" : "登录后查看申请方式"}}
                 </p>
               </div>
 
@@ -537,7 +556,7 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                 <div className="hidden lg:block bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                   <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
                     <MessageSquare className="w-5 h-5 text-blue-600" />
-                    相关面试经验
+                    {isEn ? "Related Interviews" : "相关面试经验"}
                   </h3>
                   <div className="space-y-3">
                     {companyInterviews.slice(0, 2).map((interview) => (
@@ -553,14 +572,14 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
                     href={`/${locale}/companies/${job.companies.slug}/interviews`}
                     className="mt-4 block w-full py-2.5 text-center border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-all font-medium text-sm"
                   >
-                    查看全部面试经验
+                    {isEn ? "View All Interviews" : "查看全部面试经验"}
                   </Link>
                 </div>
               )}
 
               {/* Company Card */}
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                <h3 className="font-bold text-gray-900 mb-4">关于公司</h3>
+                <h3 className="font-bold text-gray-900 mb-4">{isEn ? "About Company" : "关于公司"}</h3>
                 <div className="flex items-center gap-4 mb-4">
                   {job.companies.logo ? (
                     <Image
