@@ -116,7 +116,7 @@ export default async function CompaniesPage({ params, searchParams }: PageProps)
               <Building2 className="w-4 h-4" />
               {companies.length} 家优质企业
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">发现优秀企业</h1>
+            <h1 className="text-3xl md:text-4xl font-bold mb-4">{isEn ? "Discover Great Companies" : "发现优秀企业"}</h1>
             <p className="text-blue-100 mb-6">{isEn ? "Explore top internet companies, find your ideal platform" : "探索知名互联网公司，找到理想的职业平台"}</p>
 
             {/* Search */}
@@ -224,8 +224,8 @@ export default async function CompaniesPage({ params, searchParams }: PageProps)
             <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
               <Building2 className="w-12 h-12 text-gray-400" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">未找到公司</h3>
-            <p className="text-gray-500 mb-6">尝试使用其他关键词搜索</p>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">{isEn ? "No Companies Found" : "未找到公司"}</h3>
+            <p className="text-gray-500 mb-6">{isEn ? "Try different keywords" : "尝试使用其他关键词搜索"}</p>
             <Link
               href={`/${locale}/companies`}
               className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all inline-block"

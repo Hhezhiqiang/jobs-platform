@@ -194,7 +194,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
                       <Briefcase className="w-10 h-10 text-gray-400" />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">{isEn ? "No open positions" : "暂无在招职位"}</h3>
-                    <p className="text-gray-500">该企业暂时没有发布职位</p>
+                    <p className="text-gray-500">{isEn ? "No open positions yet" : "该企业暂时没有发布职位"}</p>
                   </div>
                 )}
               </div>
@@ -237,7 +237,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
                         <Building2 className="w-5 h-5 text-purple-600" />
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500">所属行业</p>
+                        <p className="text-sm text-gray-500">{isEn ? "Industry" : "所属行业"}</p>
                         <p className="font-medium text-gray-900">{company.industry}</p>
                       </div>
                     </div>
@@ -249,7 +249,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
                         <Globe className="w-5 h-5 text-orange-600" />
                       </div>
                       <div>
-                        <p className="text-sm text-gray-500">官方网站</p>
+                        <p className="text-sm text-gray-500">{isEn ? "Website" : "官方网站"}</p>
                         <Link
                           href={ensureHttpProtocol(company.website)}
                           target="_blank"

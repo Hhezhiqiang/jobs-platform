@@ -170,7 +170,7 @@ export default function SalaryInsightsClient({ initialData, locale = "zh" }: Sal
           <div className="mb-4">
             <Breadcrumb items={[{ label: "薪资洞察", href: "/salary-insights" }]} />
           </div>
-          <h1 className="text-3xl font-bold mb-4">薪资洞察分析</h1>
+          <h1 className="text-3xl font-bold mb-4">{isEn ? "Salary Insights" : "薪资洞察分析"}</h1>
           <p className="text-blue-100 max-w-2xl">
             {isEn ? "Comprehensive salary analysis reports based on real job data." : "基于平台真实职位数据，为您提供全面的薪资分析报告。了解行业薪资水平、城市薪资分布及趋势变化。"}
           </p>
@@ -240,7 +240,7 @@ export default function SalaryInsightsClient({ initialData, locale = "zh" }: Sal
 
           {/* 各城市薪资分布 */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">各城市薪资分布</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-6">{isEn ? "Salary by City" : "各城市薪资分布"}</h2>
             <div className="h-[350px]">
               {mounted ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -334,7 +334,7 @@ export default function SalaryInsightsClient({ initialData, locale = "zh" }: Sal
 
           {/* 职位类型薪资对比 */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-6">职位类型薪资对比</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-6">{isEn ? "Salary by Job Type" : "职位类型薪资对比"}</h2>
             <div className="h-[300px]">
               {mounted ? (
               <ResponsiveContainer width="100%" height="100%">

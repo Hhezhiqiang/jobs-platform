@@ -17,6 +17,7 @@ export default function Error({
 
   const pathname = usePathname();
   const locale = pathname?.split("/")[1] || "zh";
+  const isEn = locale === "en";
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -27,21 +28,21 @@ export default function Error({
           </svg>
         </div>
 
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">页面加载失败</h2>
-        <p className="text-gray-600 mb-6">{error.message || "公司列表加载时发生错误，请稍后重试"}</p>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">{isEn ? "Page Failed to Load" : "页面加载失败"}</h2>
+        <p className="text-gray-600 mb-6">{error.message || (isEn ? "Error loading companies. Please try again." : "公司列表加载时发生错误，请稍后重试")}</p>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <button
             onClick={reset}
             className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all"
           >
-            重试
+            {isEn ? "Retry" : "重试"}
           </button>
           <Link
             href={`/${locale}/`}
             className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all"
           >
-            返回首页
+            {isEn ? "Back to Home" : "返回首页"}
           </Link>
         </div>
       </div>
