@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-const CLEANUP_SECRET = "cleanup-2026-04-20";
+const CLEANUP_SECRET = process.env.CLEANUP_SECRET;
 
 // 一次性数据清理 API
-// 用法: POST /api/admin/cleanup-data?secret=cleanup-2026-04-20
+// 用法: POST /api/admin/cleanup-data?secret=YOUR_CLEANUP_SECRET (从环境变量获取)
 export async function POST(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);

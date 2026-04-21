@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-const CLEANUP_SECRET = "cleanup-2026-04-20-v2";
+const CLEANUP_SECRET = process.env.CLEANUP_SECRET;
 
 // 第二次数据清理：将 4/10 的职位日期推到最近 7 天
 export async function POST(req: NextRequest) {
