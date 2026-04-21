@@ -425,5 +425,21 @@
     "hybrid": "混合办公",
     "onsite": "到办公室",
     "noInterviews": "暂无面试经验"
+  },
+  "recommendations": {
+    "title": "🔥 为你推荐",
+    "titleDefault": "🔥 热门职位",
+    "subtitle": "精选优质岗位，助你快速入职",
+    "subtitlePersonalized": "根据您的浏览和申请历史智能推荐",
+    "subtitleSkills": "基于您的技能标签",
+    "noRecommendations": "暂无推荐职位",
+    "loginPrompt": "登录后可获得更精准的职位推荐",
+    "browseMore": "浏览更多职位以获取个性化推荐",
+    "loginSkillsPrompt": "登录后可获得基于技能标签的精准推荐",
+    "refresh": "刷新推荐",
+    "match": "匹配度",
+    "hot": "热招",
+    "companyLogo": "公司Logo",
+    "tech": "互联网"
   }
 }

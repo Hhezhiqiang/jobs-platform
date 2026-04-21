@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { jobs, companies } from "@prisma/client";
 import { getUserBehaviorData } from "@/lib/recommendations";
 import { Sparkles, Loader2, RefreshCw, User } from "lucide-react";
@@ -38,6 +39,7 @@ export function RecommendationSection({
   const { data: session, status } = useSession();
   const pathname = usePathname();
   const locale = pathname?.split("/")[1] || "zh";
+  const isEn = locale === "en";
   const [recommendations, setRecommendations] = useState<RecommendationData | null>(
     initialJobs.length > 0
       ? {
@@ -101,22 +103,22 @@ export function RecommendationSection({
     if (recommendations?.isPersonalized) {
       return (<>
           <Sparkles className="w-6 h-6 text-yellow-500" />
-          为您推荐
+          {isEn ? "Recommended for You" : "为您推荐"}
         </>
       );
     }
-    return "🔥 热门职位";
+    return isEn ? "🔥 Hot Jobs" : "🔥 热门职位";
   };
 
   // 获取副标题文本
   const getSubtitle = () => {
     if (recommendations?.isPersonalized) {
       if (recommendations.userSkills && recommendations.userSkills.length > 0) {
-        return `基于您的技能标签: ${recommendations.userSkills.slice(0, 3).join(", ")}${recommendations.userSkills.length > 3 ? "..." : ""}`;
+        return isEn ? `Based on your skills: ${recommendations.userSkills.slice(0, 3).join(", ")}${recommendations.userSkills.length > 3 ? "..." : ""}` : `基于您的技能标签: ${recommendations.userSkills.slice(0, 3).join(", ")}${recommendations.userSkills.length > 3 ? "..." : ""}`;
       }
-      return "根据您的浏览和申请历史智能推荐";
+      return isEn ? "Smart recommendations based on your browsing and application history" : "根据您的浏览和申请历史智能推荐";
     }
-    return "精选优质岗位，助你快速入职";
+    return isEn ? "Curated quality positions to help you land fast" : "精选优质岗位，助你快速入职";
   };
 
   // 加载状态
@@ -168,12 +170,12 @@ export function RecommendationSection({
           <div className="text-center py-12">
             <div className="text-6xl mb-4">🔍</div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              暂无推荐职位
+              {isEn ? "No Recommended Jobs Yet" : "暂无推荐职位"}
             </h3>
             <p className="text-gray-500 mb-6">
               {isLoggedIn 
-                ? "浏览更多职位以获取个性化推荐" 
-                : "登录后可获得更精准的职位推荐"}
+                ? (isEn ? "Browse more jobs for personalized recommendations" : "浏览更多职位以获取个性化推荐") 
+                : (isEn ? "Log in for more accurate job recommendations" : "登录后可获得更精准的职位推荐")}
             </p>
             {!isLoggedIn && (
               <Link
@@ -214,7 +216,7 @@ export function RecommendationSection({
               onClick={handleRefresh}
               disabled={isLoading}
               className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors disabled:opacity-50"
-              title="刷新推荐"
+              title={isEn ? "Refresh Recommendations" : "刷新推荐"}
             >
               <RefreshCw className={`w-5 h-5 ${isLoading ? "animate-spin" : ""}`} />
             </button>
@@ -273,14 +275,14 @@ export function RecommendationSection({
                               : "bg-gray-500 text-white"
                         }`}
                       >
-                        匹配度 {Math.round(job.matchScore)}%
+                        {isEn ? "Match" : "匹配度"} {Math.round(job.matchScore)}%
                       </div>
                     </div>
                   )}
 
                   <div className="absolute top-3 left-3">
                     <span className="px-3 py-1 bg-red-500 text-white text-xs font-medium rounded-full shadow-lg">
-                      🔥 热招
+                      {isEn ? "🔥 Hot" : "🔥 热招"}
                     </span>
                   </div>
                 </div>
@@ -291,7 +293,7 @@ export function RecommendationSection({
                     {job.companies.logo ? (
                       <Image
                         src={job.companies.logo}
-                        alt={`${job.companies.name} 公司Logo`}
+                        `alt={`${job.companies.name} ${isEn ? 'Logo' : '公司Logo'}`}
                         width={40}
                         height={40}
                         className="rounded-lg"
@@ -304,7 +306,7 @@ export function RecommendationSection({
                     )}
                     <div>
                       <p className="font-medium text-gray-900">{job.companies.name}</p>
-                      <p className="text-xs text-gray-500">{job.companies.industry || "互联网"}</p>
+                      <p className="text-xs text-gray-500">{job.companies.industry || (isEn ? "Tech" : "互联网")}</p>
                     </div>
                   </div>
 
@@ -373,7 +375,7 @@ export function RecommendationSection({
             <div className="inline-flex items-center gap-3 px-6 py-4 bg-white rounded-xl border border-gray-200 shadow-sm">
               <User className="w-5 h-5 text-blue-600" />
               <span className="text-gray-600">
-                登录后可获得基于技能标签的精准推荐
+                {isEn ? "Log in for precise recommendations based on your skills" : "登录后可获得基于技能标签的精准推荐"}
               </span>
               <Link
                 href={`/${locale}/auth/login`}

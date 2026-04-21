@@ -424,5 +424,21 @@
     "hybrid": "Hybrid",
     "onsite": "On-site",
     "noInterviews": "No interviews yet"
+  },
+  "recommendations": {
+    "title": "🔥 Recommended for You",
+    "titleDefault": "🔥 Hot Jobs",
+    "subtitle": "Curated quality positions to help you land fast",
+    "subtitlePersonalized": "Smart recommendations based on your browsing and application history",
+    "subtitleSkills": "Based on your skills",
+    "noRecommendations": "No Recommended Jobs Yet",
+    "loginPrompt": "Log in for more accurate job recommendations",
+    "browseMore": "Browse more jobs for personalized recommendations",
+    "loginSkillsPrompt": "Log in for precise recommendations based on your skills",
+    "refresh": "Refresh Recommendations",
+    "match": "Match",
+    "hot": "Hot",
+    "companyLogo": "Company Logo",
+    "tech": "Tech"
   }
 }
