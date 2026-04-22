@@ -460,5 +460,9 @@
     "orApplyPlatform": "或者通过本平台申请",
     "applyViaPlatform": "通过平台申请",
     "applyNow": "立即申请"
+  },
+  "breadcrumb": {
+    "label": "面包屑导航",
+    "home": "首页"
   }
 }
