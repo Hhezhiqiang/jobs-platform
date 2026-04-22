@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { Search, MapPin, Briefcase, DollarSign, X, SlidersHorizontal, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CULTURE_TAGS, type CultureTag, getCultureTag } from "./job-preference-modal";
-import { useTranslations, useLocale } from "next-intl";
+import { useTranslations } from "next-intl";
 
 interface FilterSidebarV2Props {
   currentParams: {
@@ -67,7 +68,8 @@ export function FilterSidebarV2({
 }: FilterSidebarV2Props) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const locale = useLocale();
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] || "zh";
   const hasFilters = Object.values(currentParams).some(Boolean);
   const baseUrl = `/${locale}/jobs`;
   const onlyMatchedActive = currentParams.onlyMatched === "true";
