@@ -4,6 +4,7 @@ import { jobs, companies } from "@prisma/client";
 import { formatDistanceToNow, formatSalary } from "@/lib/utils";
 import { HeartButton } from "./heart-button";
 import { HighlightedText } from "./highlighted-text";
+import { MapPin, Briefcase, Clock, ArrowRight, Sparkles } from "lucide-react";
 
 interface JobCardV2Props {
   job: jobs & { companies: companies };
@@ -20,7 +21,7 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
     return (
       <Link
         href={`/jobs/${job.slug}`}
-        className="group flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all duration-300"
+        className="group flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-md transition-all duration-300"
       >
         {/* Company Logo */}
         <div className="flex-shrink-0">
@@ -28,7 +29,7 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
             <div className="w-12 h-12 rounded-xl overflow-hidden ring-2 ring-gray-100 group-hover:ring-blue-200 transition-all">
               <Image
                 src={job.companies.logo}
-                alt={`${job.companies.name} 公司Logo`}
+                alt={`${job.companies.name} Logo`}
                 width={48}
                 height={48}
                 className="w-full h-full object-cover"
@@ -36,7 +37,7 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
               />
             </div>
           ) : (
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-lg">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-md">
               {job.companies.name.charAt(0)}
             </div>
           )}
@@ -51,30 +52,30 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
               job.title
             )}
           </h3>
-          <p className="text-sm text-gray-500 truncate">
-            {highlightQuery ? (
-              <HighlightedText text={job.companies.name} highlight={highlightQuery} />
-            ) : (
-              job.companies.name
-            )}
-          </p>
+          <p className="text-sm text-gray-500 truncate">{job.companies.name}</p>
           <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
             <span className="flex items-center gap-1">
-              📍 {highlightQuery ? (
+              <MapPin className="w-3 h-3" />
+              {highlightQuery ? (
                 <HighlightedText text={job.location} highlight={highlightQuery} />
               ) : (
                 job.location
               )}
             </span>
-            <span>·</span>
-            <span>{job.employmentType}</span>
+            <span className="flex items-center gap-1">
+              <Briefcase className="w-3 h-3" />
+              {job.employmentType}
+            </span>
           </div>
         </div>
 
         {/* Salary & Time */}
         <div className="text-right flex-shrink-0">
-          <p className="font-semibold text-blue-600">{salaryText}</p>
-          <p className="text-xs text-gray-400">{timeAgo}</p>
+          <p className="font-bold text-blue-600 text-sm">{salaryText}</p>
+          <p className="text-xs text-gray-400 flex items-center gap-1 justify-end">
+            <Clock className="w-3 h-3" />
+            {timeAgo}
+          </p>
         </div>
       </Link>
     );
@@ -84,85 +85,89 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
     return (
       <Link
         href={`/jobs/${job.slug}`}
-        className="group flex flex-col h-full bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+        className="group flex flex-col h-full bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
       >
-        {/* Featured Badge */}
-        <div className="relative flex-shrink-0">
+        {/* Featured Banner */}
+        <div className="relative flex-shrink-0 h-32 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
           {job.imageUrl ? (
-            <div className="h-40 relative overflow-hidden">
-              <Image
-                src={job.imageUrl}
-                alt={`${job.title} 职位图片`}
-                fill
-                className="object-cover group-hover:scale-105 transition-transform duration-500"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-            </div>
+            <Image
+              src={job.imageUrl}
+              alt={job.title}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
+              loading="lazy"
+            />
           ) : (
-            <div className="h-40 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 relative">
-              <div className="absolute inset-0 opacity-20">
-                <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                  <path d="M0 100 C 20 0 50 0 100 100 Z" fill="white" />
-                </svg>
-              </div>
+            <div className="absolute inset-0 opacity-20">
+              <div className="absolute top-4 left-4 w-24 h-24 bg-blue-500/30 rounded-full blur-2xl" />
+              <div className="absolute bottom-4 right-4 w-32 h-32 bg-indigo-500/20 rounded-full blur-2xl" />
             </div>
           )}
           
+          {/* Hot Badge */}
           <div className="absolute top-4 left-4">
-            <span className="px-3 py-1 bg-red-500 text-white text-xs font-medium rounded-full shadow-lg">
-              🔥 热招
+            <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-amber-400 to-orange-400 text-slate-900 text-xs font-bold rounded-full shadow-lg">
+              <Sparkles className="w-3 h-3" />
+              热招
             </span>
           </div>
-        </div>
 
-        <div className="p-5">
-          {/* Company */}
-          <div className="flex items-center gap-3 mb-3">
+          {/* Company Logo */}
+          <div className="absolute -bottom-6 left-4">
             {job.companies.logo ? (
-              <Image
-                src={job.companies.logo}
-                alt={`${job.companies.name} 公司Logo`}
-                width={40}
-                height={40}
-                className="rounded-lg"
-                loading="lazy"
-              />
+              <div className="w-14 h-14 rounded-xl overflow-hidden ring-4 ring-white shadow-lg">
+                <Image
+                  src={job.companies.logo}
+                  alt={job.companies.name}
+                  width={56}
+                  height={56}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
             ) : (
-              <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-lg ring-4 ring-white">
                 {job.companies.name.charAt(0)}
               </div>
             )}
-            <div>
-              <p className="font-medium text-gray-900">{job.companies.name}</p>
-              <p className="text-xs text-gray-500">{job.companies.industry || "互联网"}</p>
-            </div>
           </div>
+        </div>
 
+        <div className="p-5 pt-8 flex flex-col flex-1">
+          {/* Company */}
+          <p className="text-sm text-gray-500 mb-1">{job.companies.name}</p>
+          
           {/* Title */}
-          <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+          <h3 className="text-lg font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
             {job.title}
           </h3>
 
           {/* Tags */}
           <div className="flex flex-wrap gap-2 mb-4">
-            <span className="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs rounded-lg font-medium">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-700 text-xs rounded-lg font-medium">
+              <MapPin className="w-3 h-3" />
               {job.location}
             </span>
-            <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs rounded-lg">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 text-gray-600 text-xs rounded-lg">
+              <Briefcase className="w-3 h-3" />
               {job.employmentType}
             </span>
             {job.isRemote && (
-              <span className="px-2.5 py-1 bg-green-50 text-green-700 text-xs rounded-lg">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs rounded-lg">
                 远程
               </span>
             )}
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-            <span className="text-xl font-bold text-blue-600">{salaryText}</span>
-            <span className="text-sm text-gray-400">{timeAgo}</span>
+          <div className="mt-auto flex items-center justify-between pt-4 border-t border-gray-100">
+            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              {salaryText}
+            </span>
+            <span className="text-sm text-gray-400 flex items-center gap-1">
+              <Clock className="w-3 h-3" />
+              {timeAgo}
+            </span>
           </div>
         </div>
       </Link>
@@ -171,7 +176,7 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
 
   // Default variant
   return (
-    <div className="group block bg-white rounded-xl border border-gray-100 p-5 hover:border-blue-200 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 relative">
+    <div className="group block bg-white rounded-xl border border-gray-100 p-5 hover:border-blue-200 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 relative">
       {/* Favorite Button */}
       {showFavorite && (
         <div className="absolute top-4 right-4 z-10">
@@ -186,7 +191,7 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
               <div className="w-14 h-14 rounded-xl overflow-hidden ring-2 ring-gray-100 group-hover:ring-blue-200 transition-all">
                 <Image
                   src={job.companies.logo}
-                  alt={`${job.companies.name} 公司Logo`}
+                  alt={job.companies.name}
                   width={56}
                   height={56}
                   className="w-full h-full object-cover"
@@ -194,7 +199,7 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
                 />
               </div>
             ) : (
-              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-md">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-md">
                 {job.companies.name.charAt(0)}
               </div>
             )}
@@ -207,36 +212,45 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
                 <h3 className="font-bold text-lg text-gray-900 group-hover:text-blue-600 transition-colors">
                   {job.title}
                 </h3>
-                <p className="text-gray-600">{job.companies.name}</p>
+                <p className="text-gray-600 text-sm">{job.companies.name}</p>
               </div>
-              <span className="text-lg font-bold text-blue-600 flex-shrink-0">{salaryText}</span>
+              <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent flex-shrink-0">
+                {salaryText}
+              </span>
             </div>
 
             <div className="flex flex-wrap items-center gap-2 mt-3">
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-50 text-gray-600 text-sm rounded-lg">
-                📍 {job.location}
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 text-gray-600 text-sm rounded-lg">
+                <MapPin className="w-3.5 h-3.5" />
+                {job.location}
               </span>
-              <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-50 text-gray-600 text-sm rounded-lg">
-                💼 {job.employmentType}
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 text-gray-600 text-sm rounded-lg">
+                <Briefcase className="w-3.5 h-3.5" />
+                {job.employmentType}
               </span>
               {job.isRemote && (
-                <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-50 text-green-600 text-sm rounded-lg">
-                  🏠 远程办公
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-600 text-sm rounded-lg">
+                  远程办公
                 </span>
               )}
             </div>
 
             <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-50">
               <div className="flex items-center gap-4 text-sm text-gray-400">
-                <span>⏱️ {timeAgo}</span>
+                <span className="flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5" />
+                  {timeAgo}
+                </span>
                 {job.isFeatured && (
-                  <span className="px-2 py-0.5 bg-red-50 text-red-600 rounded text-xs font-medium">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-600 rounded text-xs font-medium">
+                    <Sparkles className="w-3 h-3" />
                     热招
                   </span>
                 )}
               </div>
-              <span className="text-blue-600 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                查看详情 →
+              <span className="text-blue-600 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                查看详情
+                <ArrowRight className="w-4 h-4" />
               </span>
             </div>
           </div>

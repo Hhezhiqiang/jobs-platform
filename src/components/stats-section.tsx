@@ -1,31 +1,49 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { TrendingUp, Briefcase, Building2, Rocket } from "lucide-react";
 
 interface StatCardProps {
   value: number;
   suffix?: string;
   labelKey: string;
-  icon: string;
-  color?: "blue" | "green" | "purple" | "orange";
+  icon: React.ReactNode;
+  gradient: string;
+  delay?: number;
 }
 
-function StatCard({ value, suffix, labelKey, icon, color = "blue" }: StatCardProps) {
+function StatCard({ value, suffix, labelKey, icon, gradient, delay = 0 }: StatCardProps) {
   const t = useTranslations("stats");
-  const colorClasses = {
-    blue: "from-blue-500 to-blue-600 shadow-blue-500/25",
-    green: "from-green-500 to-green-600 shadow-green-500/25",
-    purple: "from-purple-500 to-purple-600 shadow-purple-500/25",
-    orange: "from-orange-500 to-orange-600 shadow-orange-500/25",
-  };
+  const [displayValue, setDisplayValue] = useState(0);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const duration = 1500;
+      const steps = 30;
+      const increment = value / steps;
+      let current = 0;
+      const interval = setInterval(() => {
+        current += increment;
+        if (current >= value) {
+          setDisplayValue(value);
+          clearInterval(interval);
+        } else {
+          setDisplayValue(Math.floor(current));
+        }
+      }, duration / steps);
+      return () => clearInterval(interval);
+    }, delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
 
   return (
     <div className="group relative bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border border-gray-100">
-      <div className={`absolute -top-3 -right-3 w-14 h-14 rounded-xl bg-gradient-to-br ${colorClasses[color]} flex items-center justify-center text-2xl shadow-lg group-hover:scale-110 transition-transform`}>
+      <div className={`absolute -top-4 -right-4 w-16 h-16 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
         {icon}
       </div>
       <div className="text-4xl font-bold text-gray-900 mb-2">
-        <span>{value.toLocaleString()}{suffix}</span>
+        <span>{displayValue.toLocaleString()}{suffix}</span>
       </div>
       <div className="text-gray-500 font-medium">{t(labelKey)}</div>
     </div>
@@ -42,16 +60,16 @@ export function StatsSection({ jobCount, companyCount, dailyNewJobs = 0 }: Stats
   const t = useTranslations("stats");
 
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">{t("title")}</h2>
           <p className="text-gray-600 max-w-2xl mx-auto">{t("subtitle")}</p>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-          <StatCard value={jobCount || 0} suffix="+" labelKey="jobs" icon="💼" color="blue" />
-          <StatCard value={companyCount || 0} suffix="+" labelKey="companies" icon="🏢" color="purple" />
-          <StatCard value={dailyNewJobs || 0} suffix="+" labelKey="dailyNew" icon="🚀" color="orange" />
+          <StatCard value={jobCount || 0} suffix="+" labelKey="jobs" icon={<Briefcase className="w-7 h-7 text-white" />} gradient="from-blue-500 to-blue-600" delay={0} />
+          <StatCard value={companyCount || 0} suffix="+" labelKey="companies" icon={<Building2 className="w-7 h-7 text-white" />} gradient="from-purple-500 to-purple-600" delay={150} />
+          <StatCard value={dailyNewJobs || 0} suffix="+" labelKey="dailyNew" icon={<Rocket className="w-7 h-7 text-white" />} gradient="from-orange-500 to-orange-600" delay={300} />
         </div>
       </div>
     </section>
