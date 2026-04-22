@@ -2,22 +2,23 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { X, SlidersHorizontal, Sparkles } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-// 文化标签选项
+// 文化标签选项（双语）
 export const CULTURE_TAGS = [
-  { id: "flat-management", label: "扁平管理", icon: "🏢", description: "层级简单，沟通直接" },
-  { id: "tech-driven", label: "技术驱动", icon: "💻", description: "重视技术创新，工程师文化" },
-  { id: "growth-space", label: "成长空间", icon: "📈", description: "完善的晋升通道和培训体系" },
-  { id: "work-life-balance", label: "工作生活平衡", icon: "⚖️", description: "不加班，弹性工作制" },
-  { id: "stable", label: "工作稳定", icon: "🛡️", description: "业务稳健，抗风险能力强" },
-  { id: "innovation", label: "创新氛围", icon: "💡", description: "鼓励创新，容错率高" },
-  { id: "teamwork", label: "团队协作", icon: "🤝", description: "重视团队精神，互助文化" },
-  { id: "remote-friendly", label: "远程友好", icon: "🏠", description: "支持远程办公或混合办公" },
-  { id: "startup-vibe", label: "创业氛围", icon: "🚀", description: "快节奏，有期权激励" },
-  { id: "diversity", label: "多元包容", icon: "🌍", description: "尊重差异，包容多元" },
-  { id: "result-oriented", label: "结果导向", icon: "🎯", description: "以结果论英雄，不打卡" },
-  { id: "learning-culture", label: "学习文化", icon: "📚", description: "鼓励学习，提供学习资源" },
+  { id: "flat-management", icon: "🏢", label: { zh: "扁平管理", en: "Flat Structure" }, description: { zh: "层级简单，沟通直接", en: "Simple hierarchy, direct communication" } },
+  { id: "tech-driven", icon: "💻", label: { zh: "技术驱动", en: "Tech-Driven" }, description: { zh: "重视技术创新，工程师文化", en: "Values technical innovation, engineer culture" } },
+  { id: "growth-space", icon: "📈", label: { zh: "成长空间", en: "Growth" }, description: { zh: "完善的晋升通道和培训体系", en: "Clear promotion paths and training programs" } },
+  { id: "work-life-balance", icon: "⚖️", label: { zh: "工作生活平衡", en: "Work-Life Balance" }, description: { zh: "不加班，弹性工作制", en: "No overtime, flexible hours" } },
+  { id: "stable", icon: "🛡️", label: { zh: "工作稳定", en: "Stability" }, description: { zh: "业务稳健，抗风险能力强", en: "Stable business, strong risk resistance" } },
+  { id: "innovation", icon: "💡", label: { zh: "创新氛围", en: "Innovation" }, description: { zh: "鼓励创新，容错率高", en: "Encourages innovation, high tolerance for failure" } },
+  { id: "teamwork", icon: "🤝", label: { zh: "团队协作", en: "Teamwork" }, description: { zh: "重视团队精神，互助文化", en: "Team spirit, collaborative culture" } },
+  { id: "remote-friendly", icon: "🏠", label: { zh: "远程友好", en: "Remote-Friendly" }, description: { zh: "支持远程办公或混合办公", en: "Supports remote or hybrid work" } },
+  { id: "startup-vibe", icon: "🚀", label: { zh: "创业氛围", en: "Startup Vibe" }, description: { zh: "快节奏，有期权激励", en: "Fast-paced, equity incentives" } },
+  { id: "diversity", icon: "🌍", label: { zh: "多元包容", en: "Diversity" }, description: { zh: "尊重差异，包容多元", en: "Respects differences, embraces diversity" } },
+  { id: "result-oriented", icon: "🎯", label: { zh: "结果导向", en: "Results-Driven" }, description: { zh: "以结果论英雄，不打卡", en: "Results matter, no clock-punching" } },
+  { id: "learning-culture", icon: "📚", label: { zh: "学习文化", en: "Learning Culture" }, description: { zh: "鼓励学习，提供学习资源", en: "Encourages learning, provides resources" } },
 ] as const;
 
 export type CultureTag = typeof CULTURE_TAGS[number]["id"];
@@ -77,7 +78,6 @@ export function calculateMatchScore(
     preferenceTags.includes(tag as CultureTag)
   );
   
-  // 计算匹配度：匹配标签数 / 用户偏好标签数 * 100
   return Math.round((matchingTags.length / preferenceTags.length) * 100);
 }
 
@@ -91,6 +91,17 @@ export function getMatchingTags(
   );
 }
 
+// Get localized culture tag data
+export function getCultureTag(tagId: CultureTag, isEn: boolean) {
+  const tag = CULTURE_TAGS.find(t => t.id === tagId);
+  if (!tag) return null;
+  return {
+    ...tag,
+    label: isEn ? tag.label.en : tag.label.zh,
+    description: isEn ? tag.description.en : tag.description.zh,
+  };
+}
+
 interface JobPreferenceModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -98,6 +109,10 @@ interface JobPreferenceModalProps {
 }
 
 export function JobPreferenceModal({ isOpen, onClose, onSave }: JobPreferenceModalProps) {
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] || "zh";
+  const isEn = locale === "en";
+
   const [preferences, setPreferences] = useState<JobPreferences>(DEFAULT_PREFERENCES);
   const mounted = typeof window !== "undefined";
 
@@ -148,8 +163,14 @@ export function JobPreferenceModal({ isOpen, onClose, onSave }: JobPreferenceMod
               <SlidersHorizontal className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-gray-900">设置求职偏好</h2>
-              <p className="text-sm text-gray-500">选择你期望的团队文化，获取更精准的职位推荐</p>
+              <h2 className="text-lg font-bold text-gray-900">
+                {isEn ? "Set Job Preferences" : "设置求职偏好"}
+              </h2>
+              <p className="text-sm text-gray-500">
+                {isEn
+                  ? "Select your desired team culture for more accurate recommendations"
+                  : "选择你期望的团队文化，获取更精准的职位推荐"}
+              </p>
             </div>
           </div>
           <button
@@ -168,12 +189,14 @@ export function JobPreferenceModal({ isOpen, onClose, onSave }: JobPreferenceMod
               <div className="flex items-center gap-2 mb-2">
                 <Sparkles className="w-4 h-4 text-blue-600" />
                 <span className="text-sm font-medium text-blue-900">
-                  已选择 {selectedCount} 个偏好标签
+                  {isEn
+                    ? `${selectedCount} preferences selected`
+                    : `已选择 ${selectedCount} 个偏好标签`}
                 </span>
               </div>
               <div className="flex flex-wrap gap-2">
                 {preferences.cultureTags.map(tagId => {
-                  const tag = CULTURE_TAGS.find(t => t.id === tagId);
+                  const tag = getCultureTag(tagId, isEn);
                   return tag ? (
                     <span
                       key={tagId}
@@ -190,10 +213,11 @@ export function JobPreferenceModal({ isOpen, onClose, onSave }: JobPreferenceMod
           {/* Tag Selection */}
           <div className="space-y-4">
             <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-              期望的团队文化（多选）
+              {isEn ? "Desired Team Culture (Multiple)" : "期望的团队文化（多选）"}
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {CULTURE_TAGS.map(tag => {
+                const localized = getCultureTag(tag.id, isEn);
                 const isSelected = preferences.cultureTags.includes(tag.id);
                 return (
                   <button
@@ -213,10 +237,10 @@ export function JobPreferenceModal({ isOpen, onClose, onSave }: JobPreferenceMod
                           "font-medium text-sm truncate",
                           isSelected ? "text-blue-900" : "text-gray-900"
                         )}>
-                          {tag.label}
+                          {localized?.label}
                         </p>
                         <p className="text-xs text-gray-500 line-clamp-2 mt-0.5">
-                          {tag.description}
+                          {localized?.description}
                         </p>
                       </div>
                     </div>
@@ -236,7 +260,7 @@ export function JobPreferenceModal({ isOpen, onClose, onSave }: JobPreferenceMod
           {/* Sort Option */}
           <div className="mt-6 pt-6 border-t border-gray-100">
             <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-              排序偏好
+              {isEn ? "Sort Preference" : "排序偏好"}
             </h3>
             <div className="flex gap-3">
               <button
@@ -248,7 +272,7 @@ export function JobPreferenceModal({ isOpen, onClose, onSave }: JobPreferenceMod
                     : "border-gray-200 text-gray-600 hover:border-gray-300"
                 )}
               >
-                📅 按发布时间
+                {isEn ? "📅 By Date" : "📅 按发布时间"}
               </button>
               <button
                 onClick={() => setPreferences(prev => ({ ...prev, sortBy: "match" }))}
@@ -259,7 +283,7 @@ export function JobPreferenceModal({ isOpen, onClose, onSave }: JobPreferenceMod
                     : "border-gray-200 text-gray-600 hover:border-gray-300"
                 )}
               >
-                ✨ 按匹配度
+                {isEn ? "✨ By Match" : "✨ 按匹配度"}
               </button>
             </div>
           </div>
@@ -277,8 +301,12 @@ export function JobPreferenceModal({ isOpen, onClose, onSave }: JobPreferenceMod
                 className="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
               />
               <div>
-                <p className="font-medium text-gray-900">只显示文化契合的职位</p>
-                <p className="text-sm text-gray-500">隐藏匹配度低于50%的职位</p>
+                <p className="font-medium text-gray-900">
+                  {isEn ? "Show culture-matched jobs only" : "只显示文化契合的职位"}
+                </p>
+                <p className="text-sm text-gray-500">
+                  {isEn ? "Hide jobs with less than 50% match" : "隐藏匹配度低于50%的职位"}
+                </p>
               </div>
             </label>
           </div>
@@ -290,20 +318,20 @@ export function JobPreferenceModal({ isOpen, onClose, onSave }: JobPreferenceMod
             onClick={handleClear}
             className="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
           >
-            清除设置
+            {isEn ? "Clear" : "清除设置"}
           </button>
           <div className="flex gap-3">
             <button
               onClick={onClose}
               className="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
             >
-              取消
+              {isEn ? "Cancel" : "取消"}
             </button>
             <button
               onClick={handleSave}
               className="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors shadow-sm"
             >
-              保存设置
+              {isEn ? "Save" : "保存设置"}
             </button>
           </div>
         </div>
@@ -320,6 +348,10 @@ interface JobPreferenceButtonProps {
 }
 
 export function JobPreferenceButton({ onClick, hasPreferences, matchCount }: JobPreferenceButtonProps) {
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] || "zh";
+  const isEn = locale === "en";
+
   return (
     <button
       onClick={onClick}
@@ -331,10 +363,10 @@ export function JobPreferenceButton({ onClick, hasPreferences, matchCount }: Job
       )}
     >
       <SlidersHorizontal className="w-4 h-4" />
-      <span>求职偏好</span>
+      <span>{isEn ? "Preferences" : "求职偏好"}</span>
       {hasPreferences && matchCount !== undefined && (
         <span className="ml-1 px-2 py-0.5 bg-white/20 rounded-full text-xs">
-          {matchCount}个契合
+          {matchCount}{isEn ? " matched" : "个契合"}
         </span>
       )}
       {hasPreferences && !matchCount && (
