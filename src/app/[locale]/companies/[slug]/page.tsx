@@ -6,7 +6,7 @@ import { generateCompanyMetadata } from "@/lib/metadata";
 import { generateOrganizationSchema } from "@/lib/schema";
 import { JobCardV2 } from "@/components/job-card-v2";
 import { Metadata } from "next";
-import { MapPin, Globe, Users, Building2, Briefcase, ChevronRight } from "lucide-react";
+import { MapPin, Globe, Building2, Briefcase } from "lucide-react";
 import { safeJsonLdStringify, ensureHttpProtocol } from "@/lib/utils";
 
 interface PageProps {

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Lock, Mail, Phone, Loader2, Wallet } from "lucide-react";
+import { Lock, Loader2, Wallet } from "lucide-react";
 
 interface ContactUnlockCardProps {
   jobId: string;

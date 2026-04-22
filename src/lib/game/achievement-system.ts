@@ -62,7 +62,7 @@ export async function checkAndUnlockAchievements(userId: string) {
 async function checkAchievementCondition(
   userId: string,
   code: string,
-  _condition: AchievementCondition
+  // // // // _condition: AchievementCondition
 ): Promise<boolean> {
   switch (code) {
     // === 基础成就 ===
