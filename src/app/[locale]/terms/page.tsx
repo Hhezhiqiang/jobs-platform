@@ -21,7 +21,7 @@ export default async function TermsPage({ params }: { params: Promise<{ locale: 
           
           <div className="prose max-w-none text-gray-700">
             <p className="text-sm text-gray-500 mb-6">
-              isEn ? "Last updated" : "最后更新日期"：2026年4月10日
+              {isEn ? "Last updated" : "最后更新日期"}：2026年4月10日
             </p>
 
             <h2 className="text-xl font-semibold mt-8 mb-4">1. 协议范围</h2>

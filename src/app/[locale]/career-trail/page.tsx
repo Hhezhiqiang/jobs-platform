@@ -368,7 +368,7 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
             <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-6 text-white">
               <h3 className="font-bold text-lg mb-2">{isEn ? "Looking for new opportunities?" : "正在寻找新机会？"}</h3>
               <p className="text-blue-100 text-sm mb-4">
-                isEn ? "Enable job-seeking status for community recommendations" : "开启求职状态，让圈内人帮你推荐合适的职位"
+                {isEn ? "Enable job-seeking status for community recommendations" : "开启求职状态，让圈内人帮你推荐合适的职位"}
               </p>
               <Link
                 href={`/${locale}/dashboard/job-status`}
