@@ -75,8 +75,8 @@ export function SearchPageClient({
   const [page, setPage] = useState(initialPage);
   
   const [jobs, setJobs] = useState<Job[]>([]);
-  const [total, setTotal] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
+  const [total, setTotal] = useState<number>(0);
+  const [totalPages, setTotalPages] = useState<number>(0);
   const [loading, setLoading] = useState(false);
   const [cities, setCities] = useState<string[]>([]);
 
@@ -97,9 +97,11 @@ export function SearchPageClient({
       const data = await response.json();
 
       if (response.ok) {
-        setJobs(data.jobs);
-        setTotal(data.total);
-        setTotalPages(data.totalPages);
+        setJobs(data.jobs?.items ?? data.jobs ?? []);
+        const jobTotal = data.jobs?.total ?? data.total ?? data.totalCount ?? 0;
+        setTotal(jobTotal);
+        const limit = data.limit ?? 20;
+        setTotalPages(Math.ceil(jobTotal / limit));
       }
     } catch (error) {
       console.error("Search error:", error);
