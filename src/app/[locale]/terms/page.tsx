@@ -4,7 +4,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params;
   const isEn = locale === "en";
   return {
-    title: isEn ? "Terms of Service | JobQuip" : "用户协议 | JobQuip",
+    title: isEn ? "Terms of Service" : "用户协议",
     description: isEn ? "Terms of service for JobQuip recruitment platform." : "JobQuip招聘平台用户协议。",
     robots: { index: false, follow: true },
   };
@@ -99,7 +99,7 @@ export default async function TermsPage({ params }: { params: Promise<{ locale: 
             <h2 className="text-xl font-semibold mt-8 mb-4">10. 联系我们</h2>
             <p className="mb-4">
               如您对本协议有任何疑问，请联系：<br />
-              
+              邮箱：support@jobquip.com
             </p>
           </div>
         </div>

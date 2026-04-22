@@ -177,7 +177,7 @@ export function JobsPageClient({ initialJobs, total, cities, dbError, currentPar
     if (currentParams.onlyMatched) params.set("onlyMatched", currentParams.onlyMatched);
     if (currentParams.sort) params.set("sort", currentParams.sort);
     params.set("page", pageNum.toString());
-    return `/jobs?${params.toString()}`;
+    return `/${locale}/jobs?${params.toString()}`;
   };
 
   if (!mounted) {
@@ -194,7 +194,7 @@ export function JobsPageClient({ initialJobs, total, cities, dbError, currentPar
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-6">
           <div className="mb-2">
-            <Breadcrumb items={[{ label: "职位列表", href: "/jobs" }]} />
+            <Breadcrumb items={[{ label: "职位列表", href: `/${locale}/jobs` }]} />
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <h1 className="text-2xl font-bold text-gray-900">

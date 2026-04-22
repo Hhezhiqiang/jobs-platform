@@ -53,20 +53,20 @@ export function Footer() {
               <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-md group-hover:shadow-lg transition-all">
                 J
               </div>
-              <span className="text-lg font-bold text-gray-900">{t("siteName") || "JobQuip"}</span>
+              <span className="text-lg font-bold text-gray-900">{t("siteName")}</span>
             </Link>
             <p className="mt-4 text-sm text-gray-500 leading-relaxed">
               {t("description") || "专业的求职招聘平台，汇聚 Web3、互联网、科技行业高薪职位。"}
             </p>
             {/* Social Links */}
             <div className="flex items-center gap-3 mt-6">
-              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-gray-100 hover:bg-blue-50 hover:text-blue-600 flex items-center justify-center text-gray-400 transition-all text-xs font-bold">
+              <a href="https://twitter.com/jobsbro" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-gray-100 hover:bg-blue-50 hover:text-blue-600 flex items-center justify-center text-gray-400 transition-all text-xs font-bold">
                 X
               </a>
-              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-gray-100 hover:bg-blue-50 hover:text-blue-600 flex items-center justify-center text-gray-400 transition-all text-xs font-bold">
+              <a href="https://linkedin.com/company/jobsbro" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-gray-100 hover:bg-blue-50 hover:text-blue-600 flex items-center justify-center text-gray-400 transition-all text-xs font-bold">
                 in
               </a>
-              <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 hover:text-gray-700 flex items-center justify-center text-gray-400 transition-all text-xs font-bold">
+              <a href="https://github.com/Hhezhiqiang/jobs-platform" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 hover:text-gray-700 flex items-center justify-center text-gray-400 transition-all text-xs font-bold">
                 GH
               </a>
               <a href={`/${locale}/contact`} className="w-9 h-9 rounded-lg bg-gray-100 hover:bg-blue-50 hover:text-blue-600 flex items-center justify-center text-gray-400 transition-all">

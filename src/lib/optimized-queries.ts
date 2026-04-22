@@ -148,6 +148,10 @@ export async function getCompanies(limit = 20): Promise<CompanyBasic[]> {
   if (cached) return cached;
 
   const companies = await prisma.companies.findMany({
+    where: {
+      // 排除被拒绝认证的企业
+      verificationStatus: { not: "REJECTED" },
+    },
     take: limit,
     orderBy: { createdAt: "desc" },
   });
@@ -215,7 +219,8 @@ export async function getPublishedBlogs(limit = 10) {
 export async function getSiteStats(): Promise<SiteStats> {
   const cacheKey = "site_stats";
   const cached = getCached<SiteStats>(cacheKey);
-  if (cached) return cached;
+  // 如果缓存中有有效数据（不是全0），则返回缓存
+  if (cached && (cached.jobCount > 0 || cached.companyCount > 0)) return cached;
 
   // 获取今天的开始时间（本地时间）
   const today = new Date();
@@ -236,7 +241,10 @@ export async function getSiteStats(): Promise<SiteStats> {
   ]);
 
   const stats = { jobCount, companyCount, blogCount, dailyNewJobs };
-  setCache(cacheKey, stats, CACHE_TTL.SHORT);
+  // 只有在有有效数据时才缓存
+  if (stats.jobCount > 0 || stats.companyCount > 0) {
+    setCache(cacheKey, stats, CACHE_TTL.SHORT);
+  }
   return stats;
 }
 

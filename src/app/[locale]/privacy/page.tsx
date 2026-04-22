@@ -4,7 +4,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params;
   const isEn = locale === "en";
   return {
-    title: isEn ? "Privacy Policy | JobQuip" : "隐私政策 | JobQuip",
+    title: isEn ? "Privacy Policy" : "隐私政策",
     description: isEn ? "Privacy policy for JobQuip recruitment platform." : "JobQuip招聘平台隐私政策。",
     robots: { index: false, follow: true },
   };
@@ -109,7 +109,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
             <h2 className="text-xl font-semibold mt-8 mb-4">11. 联系我们</h2>
             <p className="mb-4">
               如果您对本隐私政策有任何疑问或行使您的权利，请联系：<br />
-              邮箱：privacy@jobs-platform.com<br />
+              邮箱：privacy@jobquip.com<br />
               
             </p>
           </div>

@@ -244,7 +244,7 @@ export function RecommendationSection({
           {recommendations.jobs.map((job) => (
             <div key={job.id} className="relative group h-full">
               <Link
-                href={`/jobs/${job.slug}`}
+                href={`/${locale}/jobs/${job.slug}`}
                 className="group flex flex-col h-full bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
               >
                 {/* Featured Badge */}

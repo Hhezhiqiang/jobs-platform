@@ -135,7 +135,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
                 浏览职位
               </Link>
               <Link
-                href="/contact"
+                href={`/${locale}/contact`}
                 className="px-8 py-3 bg-white/10 text-white font-semibold rounded-xl hover:bg-white/20 transition-all border border-white/20"
               >
                 {isEn ? "Contact Us" : "联系我们"}
@@ -269,7 +269,7 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
               期待你的加入，一起打造更好的求职体验。
             </p>
             <Link
-              href="/contact"
+              href={`/${locale}/contact`}
               className="mt-4 inline-flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all text-sm font-medium"
             >
               <Mail className="w-4 h-4" />

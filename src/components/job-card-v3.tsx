@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { jobs, companies } from "@prisma/client";
 import { formatDistanceToNow, formatSalary, cn } from "@/lib/utils";
 import { HeartButton } from "./heart-button";
@@ -52,6 +53,7 @@ export function JobCardV3({
   userCultureTags = [],
   showMatchScore = false,
 }: JobCardV3Props) {
+  const locale = usePathname()?.split("/")[1] || "zh";
   const salaryText = formatSalary(job.salaryMin, job.salaryMax);
   const timeAgo = formatDistanceToNow(job.datePosted);
   
@@ -75,7 +77,7 @@ export function JobCardV3({
   if (variant === "compact") {
     return (
       <Link
-        href={`/jobs/${job.slug}`}
+        href={`/${locale}/jobs/${job.slug}`}
         className="group flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all duration-300"
       >
         {/* Company Logo */}
@@ -198,7 +200,7 @@ export function JobCardV3({
   if (variant === "featured") {
     return (
       <Link
-        href={`/jobs/${job.slug}`}
+        href={`/${locale}/jobs/${job.slug}`}
         className="group flex flex-col h-full bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
       >
         {/* Featured Badge */}
@@ -338,7 +340,7 @@ export function JobCardV3({
           <HeartButton jobId={job.id} size="sm" />
         </div>
       )}
-      <Link href={`/jobs/${job.slug}`}>
+      <Link href={`/${locale}/jobs/${job.slug}`}>
         <div className="flex items-start gap-4">
           {/* Logo */}
           <div className="flex-shrink-0">

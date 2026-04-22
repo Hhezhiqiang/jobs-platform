@@ -33,6 +33,8 @@
     "settings": "Settings"
   },
   "footer": {
+    "siteName": "JobQuip",
+    "description": "A professional Web3 & tech job recruitment platform connecting top talent with blockchain, internet, and tech companies.",
     "about": "About",
     "aboutUs": "About Us",
     "contactUs": "Contact",

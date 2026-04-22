@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { jobs, companies } from "@prisma/client";
 import { formatSalary, safeJsonLdStringify } from "@/lib/utils";
 
@@ -12,6 +15,7 @@ interface JobCardProps {
 const DEFAULT_VALID_THROUGH = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
 export function JobCard({ job, compact = false }: JobCardProps) {
+  const locale = usePathname()?.split("/")[1] || "zh";
   const salaryText = formatSalary(job.salaryMin, job.salaryMax);
 
   // JobPosting Schema 数据
@@ -56,7 +60,7 @@ export function JobCard({ job, compact = false }: JobCardProps) {
   if (compact) {
     return (
       <Link
-        href={`/jobs/${job.slug}`}
+        href={`/${locale}/jobs/${job.slug}`}
         className="block bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow"
         itemScope
         itemType="https://schema.org/JobPosting"
@@ -131,7 +135,7 @@ export function JobCard({ job, compact = false }: JobCardProps) {
         </div>
       )}
       
-      <Link href={`/jobs/${job.slug}`} className="block p-5">
+      <Link href={`/${locale}/jobs/${job.slug}`} className="block p-5">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-3">
             {job.companies.logo ? (

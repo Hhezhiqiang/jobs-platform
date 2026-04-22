@@ -139,7 +139,7 @@ export default async function CompaniesPage({ params, searchParams }: PageProps)
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-6">
-          <Breadcrumb items={[{ label: "公司列表", href: "/companies" }]} />
+          <Breadcrumb items={[{ label: "公司列表", href: `/${locale}/companies` }]} />
         </div>
 
         {/* Results Info */}
@@ -161,7 +161,7 @@ export default async function CompaniesPage({ params, searchParams }: PageProps)
             {companies.map((company) => (
               <Link
                 key={company.id}
-                href={`/companies/${company.slug}`}
+                href={`/${locale}/companies/${company.slug}`}
                 className="group bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               >
                 <div className="flex items-start gap-4">

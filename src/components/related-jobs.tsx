@@ -107,7 +107,7 @@ export async function RelatedJobs({ keywords = [], currentSlug, limit = 3, local
         </div>
         <div className="space-y-3">
           {fallbackJobs.map((job) => (
-            <JobCard key={job.id} job={job} />
+            <JobCard key={job.id} job={job} locale={locale} />
           ))}
         </div>
       </div>
@@ -122,7 +122,7 @@ export async function RelatedJobs({ keywords = [], currentSlug, limit = 3, local
           相关职位推荐
         </h3>
         <Link
-          href={`/jobs?keyword=${encodeURIComponent(keywords[0])}`}
+          href={`/${locale}/jobs`}
           className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
         >
           查看更多
@@ -134,23 +134,26 @@ export async function RelatedJobs({ keywords = [], currentSlug, limit = 3, local
       </p>
       <div className="space-y-3">
         {jobs.map((job) => (
-          <JobCard key={job.id} job={job} />
+          <JobCard key={job.id} job={job} locale={locale} />
         ))}
       </div>
     </div>
   );
 }
 
-function JobCard({ job }: { job: JobCardData }) {
+function JobCard({ job, locale = "zh" }: { job: JobCardData; locale?: string }) {
   const formatSalary = () => {
     if (!job.salaryMin || !job.salaryMax) return "薪资面议";
     const currency = job.salaryCurrency === "USD" ? "$" : "¥";
-    return `${currency}${job.salaryMin}k-${job.salaryMax}k`;
+    // 规范化到 K
+    const minK = job.salaryMin > 1000 ? Math.round(job.salaryMin / 1000) : job.salaryMin;
+    const maxK = job.salaryMax > 1000 ? Math.round(job.salaryMax / 1000) : job.salaryMax;
+    return `${currency}${minK}k-${maxK}k`;
   };
 
   return (
     <Link
-      href={`/jobs/${job.slug}`}
+      href={`/${locale}/jobs/${job.slug}`}
       className="block bg-white rounded-lg p-4 hover:shadow-md transition-shadow group"
     >
       <div className="flex items-start justify-between">
@@ -170,7 +173,7 @@ function JobCard({ job }: { job: JobCardData }) {
             </span>
             {(job.isRemote || job.isHybrid) && (
               <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
-                {job.isRemote ? "远程" : job.isHybrid ? "混合" : " onsite"}
+                {job.isRemote ? "远程" : job.isHybrid ? "混合" : "onsite"}
               </span>
             )}
           </div>

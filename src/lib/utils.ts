@@ -37,28 +37,25 @@ export function formatSalary(min: number | null | undefined, max: number | null 
   if (!min && !max) {
     return "薪资面议";
   }
-  
-  // 数据库存储单位可能是元或千分之一，需要判断
-  // 如果值 > 100000，说明是以分为单位，需要除以 100000 得到 K
-  // 如果值 > 10000，说明是以元为单位，需要除以 1000 得到 K
-  // 如果值 <= 10000，说明已经是 K 为单位
+
+  // 统一规范化到 K：所有 >1000 的值都除以 1000
+  // 修复之前 min >10000 才转 K 导致 8000 和 15000 显示不一致的问题
   const normalizeToK = (val: number): number => {
-    if (val > 100000) return Math.round(val / 100000); // 分 → K
-    if (val > 10000) return Math.round(val / 1000);    // 元 → K  
-    return val;                                         // 已是 K
+    if (val > 1000) return Math.round(val / 1000);
+    return val;
   };
-  
+
   const minK = min ? normalizeToK(min) : null;
   const maxK = max ? normalizeToK(max) : null;
-  
+
   if (minK && maxK) {
     return `${minK}-${maxK}K`;
   } else if (minK) {
     return `${minK}K+`;
   } else if (maxK) {
-    return `${maxK}K以下`;
+    return `≤${maxK}K`;
   }
-  
+
   return "薪资面议";
 }
 
