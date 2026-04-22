@@ -68,8 +68,9 @@ export function FilterSidebarV2({
 }: FilterSidebarV2Props) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] || "zh";
   const hasFilters = Object.values(currentParams).some(Boolean);
-  const locale = typeof window !== "undefined" ? window.location.pathname.split("/")[1] || "zh" : "zh";
   const baseUrl = `/${locale}/jobs`;
   const onlyMatchedActive = currentParams.onlyMatched === "true";
   const t = useTranslations("filter");
