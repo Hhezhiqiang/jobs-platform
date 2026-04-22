@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ChevronRight, Home } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 interface BreadcrumbItem {
   label: string;
@@ -16,15 +17,17 @@ interface BreadcrumbProps {
 export function Breadcrumb({ items }: BreadcrumbProps) {
   const pathname = usePathname();
   const locale = pathname?.split("/")[1] || "zh";
+  const isEn = locale === "en";
+  const t = useTranslations("breadcrumb");
 
   return (
-    <nav aria-label="面包屑导航">
+    <nav aria-label={isEn ? "Breadcrumb" : t("label")}>
       <ol className="flex items-center gap-2 text-sm text-gray-500">
         <li>
           <Link 
             href={`/${locale}/`} 
             className="flex items-center gap-1 hover:text-blue-600 transition-colors"
-            aria-label="首页"
+            aria-label={isEn ? "Home" : t("home")}
           >
             <Home className="w-4 h-4" />
           </Link>
@@ -52,7 +55,7 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
   );
 }
 
-// 预定义的面包屑配置（注意：这些会在组件中自动添加 locale 前缀）
+// Predefined breadcrumb configs
 export const jobBreadcrumb = (title?: string) => [
   { label: "职位列表", href: "/jobs" },
   ...(title ? [{ label: title }] : []),

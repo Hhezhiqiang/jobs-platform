@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 interface HeartButtonProps {
   jobId: string;
@@ -24,6 +24,9 @@ export function HeartButton({
   const [isFavorited, setIsFavorited] = useState(initialFavorited);
   const [isLoading, setIsLoading] = useState(false);
   const { status } = useSession();
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] || "zh";
+  const isEn = locale === "en";
   const router = useRouter();
   const isAuthenticated = status === "authenticated";
 
@@ -40,7 +43,7 @@ export function HeartButton({
         const data = await response.json();
         setIsFavorited(data.isFavorited);
       } catch (error) {
-        console.error("检查收藏状态失败:", error);
+        console.error("Failed to check favorite status:", error);
       }
     };
 
@@ -52,7 +55,7 @@ export function HeartButton({
     e.stopPropagation();
 
     if (!isAuthenticated) {
-      router.push("/auth/login?callbackUrl=" + encodeURIComponent(window.location.href));
+      router.push(`/${locale}/auth/login?callbackUrl=` + encodeURIComponent(window.location.href));
       return;
     }
 
@@ -62,7 +65,6 @@ export function HeartButton({
 
     try {
       if (isFavorited) {
-        // 取消收藏
         const response = await fetch(`/api/favorites?jobId=${jobId}`, {
           method: "DELETE",
         });
@@ -71,10 +73,9 @@ export function HeartButton({
           setIsFavorited(false);
           onToggle?.(false);
         } else {
-          console.error("取消收藏失败");
+          console.error("Failed to remove favorite");
         }
       } else {
-        // 添加收藏
         const response = await fetch("/api/favorites", {
           method: "POST",
           headers: {
@@ -87,11 +88,11 @@ export function HeartButton({
           setIsFavorited(true);
           onToggle?.(true);
         } else {
-          console.error("添加收藏失败");
+          console.error("Failed to add favorite");
         }
       }
     } catch (error) {
-      console.error("操作失败:", error);
+      console.error("Toggle favorite error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -109,6 +110,13 @@ export function HeartButton({
     lg: "w-6 h-6",
   };
 
+  const favLabel = isFavorited
+    ? (isEn ? "Saved" : "已收藏")
+    : (isEn ? "Save" : "收藏");
+  const favTitle = isFavorited
+    ? (isEn ? "Remove from favorites" : "取消收藏")
+    : (isEn ? "Add to favorites" : "添加收藏");
+
   return (
     <button
       onClick={handleToggle}
@@ -125,8 +133,8 @@ export function HeartButton({
         ${showText ? "gap-2 px-4 w-auto" : ""}
         ${className}
       `}
-      aria-label={isFavorited ? "取消收藏" : "添加收藏"}
-      title={isFavorited ? "取消收藏" : "添加收藏"}
+      aria-label={favTitle}
+      title={favTitle}
     >
       <svg
         className={`${iconSizes[size]} transition-transform ${isFavorited ? "scale-110" : "scale-100"}`}
@@ -143,7 +151,7 @@ export function HeartButton({
       </svg>
       {showText && (
         <span className="text-sm font-medium">
-          {isFavorited ? "已收藏" : "收藏"}
+          {favLabel}
         </span>
       )}
     </button>

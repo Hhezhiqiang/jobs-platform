@@ -240,7 +240,14 @@
     "cancel": "Cancel",
     "save": "Save",
     "delete": "Delete",
-    "edit": "Edit"
+    "edit": "Edit",
+    "jobTypes": {
+      "fullTime": "Full-time",
+      "partTime": "Part-time",
+      "contract": "Contract",
+      "internship": "Internship",
+      "freelance": "Freelance"
+    }
   },
   "locale": {
     "switch": "Switch language",
@@ -443,5 +450,14 @@
     "hot": "Hot",
     "companyLogo": "Company Logo",
     "tech": "Tech"
+  },
+  "applyButton": {
+    "loginToSee": "Log in to see application methods",
+    "applied": "Applied",
+    "appliedDesc": "You can check your application status in Dashboard - My Applications",
+    "applyExternal": "Apply on External Site ↗",
+    "orApplyPlatform": "Or apply through our platform",
+    "applyViaPlatform": "Apply via Platform",
+    "applyNow": "Apply Now"
   }
 }

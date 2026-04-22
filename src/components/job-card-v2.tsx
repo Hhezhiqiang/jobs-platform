@@ -5,6 +5,8 @@ import { formatDistanceToNow, formatSalary } from "@/lib/utils";
 import { HeartButton } from "./heart-button";
 import { HighlightedText } from "./highlighted-text";
 import { MapPin, Briefcase, Clock, ArrowRight, Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
 
 interface JobCardV2Props {
   job: jobs & { companies: companies };
@@ -14,17 +16,24 @@ interface JobCardV2Props {
 }
 
 export function JobCardV2({ job, variant = "default", showFavorite = true, highlightQuery }: JobCardV2Props) {
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] || "zh";
+  const isEn = locale === "en";
+  const t = useTranslations("common.jobTypes");
   const salaryText = formatSalary(job.salaryMin, job.salaryMax);
   const timeAgo = formatDistanceToNow(job.datePosted);
 
   const typeMap: Record<string, string> = {
-    FULL_TIME: "全职",
-    PART_TIME: "兼职",
-    CONTRACT: "合同",
-    INTERNSHIP: "实习",
-    FREELANCE: "自由职业",
+    FULL_TIME: t("fullTime"),
+    PART_TIME: t("partTime"),
+    CONTRACT: t("contract"),
+    INTERNSHIP: t("internship"),
+    FREELANCE: t("freelance"),
   };
   const displayType = typeMap[job.employmentType] || job.employmentType;
+  const remoteLabel = isEn ? "Remote" : "远程";
+  const hotLabel = isEn ? "Hot" : "热招";
+  const viewDetail = isEn ? "View Details" : "查看详情";
 
 
   if (variant === "compact") {
@@ -118,7 +127,7 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
           <div className="absolute top-4 left-4">
             <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-amber-400 to-orange-400 text-slate-900 text-xs font-bold rounded-full shadow-lg">
               <Sparkles className="w-3 h-3" />
-              热招
+              {hotLabel}
             </span>
           </div>
 
@@ -164,7 +173,7 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
             </span>
             {job.isRemote && (
               <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs rounded-lg">
-                远程
+                {remoteLabel}
               </span>
             )}
           </div>
@@ -240,7 +249,7 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
               </span>
               {job.isRemote && (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-600 text-sm rounded-lg">
-                  远程办公
+                  {isEn ? "Remote" : remoteLabel}
                 </span>
               )}
             </div>
@@ -254,12 +263,12 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
                 {job.isFeatured && (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-600 rounded text-xs font-medium">
                     <Sparkles className="w-3 h-3" />
-                    热招
+                    {hotLabel}
                   </span>
                 )}
               </div>
               <span className="text-blue-600 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-                查看详情
+                {viewDetail}
                 <ArrowRight className="w-4 h-4" />
               </span>
             </div>
