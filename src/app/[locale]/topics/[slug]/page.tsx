@@ -191,7 +191,7 @@ function generateArticleSchema(post: any) {
 }
 
 interface PageProps {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ slug: string; locale: string }>;
 }
 
 export const revalidate = 3600;
@@ -255,7 +255,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function TopicPage({ params }: PageProps) {
   try {
-    const { slug } = await params;
+    const { slug, locale } = await params;
 
     // 1. 优先查找 CMS 专题页（由自动发布系统生成）
     const cmsPage = await prisma.pages.findUnique({

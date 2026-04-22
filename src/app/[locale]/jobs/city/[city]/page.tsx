@@ -85,7 +85,7 @@ function generateCityMetadata(city: string): Metadata {
 }
 
 interface PageProps {
-  params: Promise<{ city: string }>;
+  params: Promise<{ city: string; locale: string }>;
 }
 
 export const revalidate = 3600;
@@ -107,7 +107,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function CityJobsPage({ params }: PageProps) {
-  const { city } = await params;
+  const { city, locale } = await params;
 
   if (!VALID_CITIES.includes(city)) {
     notFound();
