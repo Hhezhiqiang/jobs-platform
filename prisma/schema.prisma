@@ -466,6 +466,8 @@ model seo_settings {
   value       String
   description String?
   updatedAt   DateTime @updatedAt
+
+  @@index([key])
 }
 
 model sessions {
@@ -538,6 +540,8 @@ model users {
   UserJobPreferences      UserJobPreferences?
   user_profiles           user_profiles?
   user_referrals          user_referrals?
+
+  @@index([email])
 }
 
 model withdrawal_records {

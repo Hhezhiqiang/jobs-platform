@@ -14,7 +14,7 @@ interface HeroSectionProps {
 export function HeroSection({ jobCount }: HeroSectionProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState("");
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const isLoggedIn = status === "authenticated";
   const t = useTranslations();
   const pathname = usePathname();

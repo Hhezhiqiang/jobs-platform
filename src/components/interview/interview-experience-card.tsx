@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { ThumbsUp, MessageCircle, Eye, Clock, Building, Briefcase, CheckCircle2, XCircle, HelpCircle } from "lucide-react";
+import { ThumbsUp, Eye, Clock, Building, Briefcase, CheckCircle2, XCircle, HelpCircle } from "lucide-react";
 
 interface InterviewExperienceCardProps {
   interview: {
