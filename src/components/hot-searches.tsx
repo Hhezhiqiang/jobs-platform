@@ -28,7 +28,7 @@ export function HotSearches({ onSelect, limit = 8 }: HotSearchesProps) {
       if (response.ok) {
         setHotQueries(data.hotQueries);
       }
-    } catch {
+    } catch (error) {
       console.error("Failed to fetch hot searches:", error);
     } finally {
       setLoading(false);

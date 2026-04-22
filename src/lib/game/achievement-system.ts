@@ -35,7 +35,7 @@ export async function checkAndUnlockAchievements(userId: string) {
 
     // 检查条件
     const condition = achievement.condition as AchievementCondition;
-    const shouldUnlock = await checkAchievementCondition(userId, achievement.code, condition);
+    const shouldUnlock = await checkAchievementCondition(userId, achievement.code);
 
     if (shouldUnlock) {
       // 解锁成就
@@ -62,7 +62,7 @@ export async function checkAndUnlockAchievements(userId: string) {
 async function checkAchievementCondition(
   userId: string,
   code: string,
-  // // // // _condition: AchievementCondition
+  // // // _condition: AchievementCondition
 ): Promise<boolean> {
   switch (code) {
     // === 基础成就 ===
