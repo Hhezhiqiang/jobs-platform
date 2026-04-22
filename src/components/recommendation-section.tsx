@@ -185,7 +185,7 @@ export function RecommendationSection({
                 ? (isEn ? "Browse more jobs for personalized recommendations" : "浏览更多职位以获取个性化推荐") 
                 : (isEn ? "Log in for more accurate job recommendations" : "登录后可获得更精准的职位推荐")}
             </p>
-            {!isLoggedIn && (
+            {!isLoggedIn && status !== "loading" && (
               <Link
                 href={`/${locale}/auth/login`}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors"
@@ -376,7 +376,7 @@ export function RecommendationSection({
         </div>
 
         {/* 提示信息 */}
-        {!isLoggedIn && (
+        {!isLoggedIn && status !== "loading" && (
           <div className="mt-10 text-center">
             <div className="inline-flex items-center gap-3 px-6 py-4 bg-white rounded-xl border border-gray-200 shadow-sm">
               <User className="w-5 h-5 text-blue-600" />

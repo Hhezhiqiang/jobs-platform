@@ -148,10 +148,6 @@ export async function getCompanies(limit = 20): Promise<CompanyBasic[]> {
   if (cached) return cached;
 
   const companies = await prisma.companies.findMany({
-    where: {
-      // 排除被拒绝认证的企业
-      verificationStatus: { not: "REJECTED" },
-    },
     take: limit,
     orderBy: { createdAt: "desc" },
   });
