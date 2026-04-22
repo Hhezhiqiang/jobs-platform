@@ -9,6 +9,7 @@ import { useTranslations } from "next-intl";
 import { jobs, companies } from "@prisma/client";
 import { getUserBehaviorData } from "@/lib/recommendations";
 import { Sparkles, Loader2, RefreshCw, User } from "lucide-react";
+import { formatSalary } from "@/lib/utils";
 
 type JobWithCompany = jobs & { companies: companies };
 
@@ -349,9 +350,7 @@ export function RecommendationSection({
                   {/* Footer */}
                   <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                     <span className="text-xl font-bold text-blue-600">
-                      {job.salaryMin && job.salaryMax 
-                        ? `${job.salaryMin}-${job.salaryMax}K`
-                        : "薪资面议"}
+                      {formatSalary(job.salaryMin, job.salaryMax)}
                     </span>
                     <span className="text-sm text-gray-400">
                       {new Date(job.datePosted).toLocaleDateString("zh-CN")}
