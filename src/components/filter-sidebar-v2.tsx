@@ -163,7 +163,8 @@ function FilterContentPanel({
   onlyMatchedActive: boolean;
 }) {
   const t = useTranslations("filter");
-  const locale = useLocale();
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] || "zh";
 
   return (
     <div className="space-y-4">
