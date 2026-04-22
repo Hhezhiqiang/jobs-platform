@@ -350,7 +350,7 @@ export default async function TopicPage({ params }: PageProps) {
                 <h2 className="text-xl font-bold text-gray-900 mb-4">相关职位推荐</h2>
                 <div className="space-y-4">
                   {displayJobs.map((job) => (
-                    <JobCardV2 key={job.id} job={job} variant="compact" />
+                    <JobCardV2 key={job.id} job={job} variant="compact" locale={locale} />
                   ))}
                 </div>
               </div>
@@ -417,7 +417,7 @@ export default async function TopicPage({ params }: PageProps) {
               </div>
               <div className="space-y-4">
                 {jobs.map((job) => (
-                  <JobCardV2 key={job.id} job={job} variant="compact" />
+                  <JobCardV2 key={job.id} job={job} variant="compact" locale={locale} />
                 ))}
               </div>
               <div className="mt-10 text-center">

@@ -293,6 +293,7 @@ export function SearchPageClient({
                       } as any}
                       variant="compact"
                       highlightQuery={query}
+                      locale={locale}
                     />
                   ))}
                 </div>

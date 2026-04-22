@@ -75,7 +75,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
               {featuredJobs.slice(0, 6).map((job) => (
                 <div key={job.id} className="h-full">
-                  <JobCardV2 job={job} variant="featured" />
+                  <JobCardV2 job={job} variant="featured" locale={locale} />
                 </div>
               ))}
             </div>
@@ -176,7 +176,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
             <div className="space-y-4">
               {latestJobs.slice(0, 5).map((job) => (
-                <JobCardV2 key={job.id} job={job} variant="compact" />
+                <JobCardV2 key={job.id} job={job} variant="compact" locale={locale} />
               ))}
             </div>
           </div>

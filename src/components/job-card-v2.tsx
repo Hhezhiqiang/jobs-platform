@@ -5,44 +5,43 @@ import { formatDistanceToNow, formatSalary } from "@/lib/utils";
 import { HeartButton } from "./heart-button";
 import { HighlightedText } from "./highlighted-text";
 import { MapPin, Briefcase, Clock, ArrowRight, Sparkles } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { usePathname } from "next/navigation";
 
 interface JobCardV2Props {
   job: jobs & { companies: companies };
   variant?: "default" | "compact" | "featured";
   showFavorite?: boolean;
   highlightQuery?: string;
+  locale?: string;
 }
 
-export function JobCardV2({ job, variant = "default", showFavorite = true, highlightQuery }: JobCardV2Props) {
-  const pathname = usePathname();
-  const locale = pathname?.split("/")[1] || "zh";
+function getI18n(locale?: string) {
   const isEn = locale === "en";
-  const t = useTranslations("common.jobTypes");
+  const t: Record<string, string> = isEn
+    ? { fullTime: "Full-time", partTime: "Part-time", contract: "Contract", internship: "Internship", freelance: "Freelance", remote: "Remote", remoteOffice: "Remote", hot: "Hot", viewDetail: "View Details" }
+    : { fullTime: "全职", partTime: "兼职", contract: "合同", internship: "实习", freelance: "自由职业", remote: "远程", remoteOffice: "远程办公", hot: "热招", viewDetail: "查看详情" };
+  return { isEn, t };
+}
+
+export function JobCardV2({ job, variant = "default", showFavorite = true, highlightQuery, locale }: JobCardV2Props) {
+  const { isEn, t } = getI18n(locale);
   const salaryText = formatSalary(job.salaryMin, job.salaryMax);
   const timeAgo = formatDistanceToNow(job.datePosted);
 
   const typeMap: Record<string, string> = {
-    FULL_TIME: t("fullTime"),
-    PART_TIME: t("partTime"),
-    CONTRACT: t("contract"),
-    INTERNSHIP: t("internship"),
-    FREELANCE: t("freelance"),
+    FULL_TIME: t.fullTime,
+    PART_TIME: t.partTime,
+    CONTRACT: t.contract,
+    INTERNSHIP: t.internship,
+    FREELANCE: t.freelance,
   };
   const displayType = typeMap[job.employmentType] || job.employmentType;
-  const remoteLabel = isEn ? "Remote" : "远程";
-  const hotLabel = isEn ? "Hot" : "热招";
-  const viewDetail = isEn ? "View Details" : "查看详情";
-
 
   if (variant === "compact") {
     return (
       <Link
-        href={`/jobs/${job.slug}`}
+        href={`/${locale}/jobs/${job.slug}`}
         className="group flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-md transition-all duration-300"
       >
-        {/* Company Logo */}
         <div className="flex-shrink-0">
           {job.companies.logo ? (
             <div className="w-12 h-12 rounded-xl overflow-hidden ring-2 ring-gray-100 group-hover:ring-blue-200 transition-all">
@@ -62,7 +61,6 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
           )}
         </div>
 
-        {/* Job Info */}
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors truncate">
             {highlightQuery ? (
@@ -88,7 +86,6 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
           </div>
         </div>
 
-        {/* Salary & Time */}
         <div className="text-right flex-shrink-0">
           <p className="font-bold text-blue-600 text-sm">{salaryText}</p>
           <p className="text-xs text-gray-400 flex items-center gap-1 justify-end">
@@ -103,10 +100,9 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
   if (variant === "featured") {
     return (
       <Link
-        href={`/jobs/${job.slug}`}
+        href={`/${locale}/jobs/${job.slug}`}
         className="group flex flex-col h-full bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
       >
-        {/* Featured Banner */}
         <div className="relative flex-shrink-0 h-32 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
           {job.imageUrl ? (
             <Image
@@ -123,15 +119,13 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
             </div>
           )}
           
-          {/* Hot Badge */}
           <div className="absolute top-4 left-4">
             <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-amber-400 to-orange-400 text-slate-900 text-xs font-bold rounded-full shadow-lg">
               <Sparkles className="w-3 h-3" />
-              {hotLabel}
+              {t.hot}
             </span>
           </div>
 
-          {/* Company Logo */}
           <div className="absolute -bottom-6 left-4">
             {job.companies.logo ? (
               <div className="w-14 h-14 rounded-xl overflow-hidden ring-4 ring-white shadow-lg">
@@ -153,15 +147,12 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
         </div>
 
         <div className="p-5 pt-8 flex flex-col flex-1">
-          {/* Company */}
           <p className="text-sm text-gray-500 mb-1">{job.companies.name}</p>
           
-          {/* Title */}
           <h3 className="text-lg font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
             {job.title}
           </h3>
 
-          {/* Tags */}
           <div className="flex flex-wrap gap-2 mb-4">
             <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-700 text-xs rounded-lg font-medium">
               <MapPin className="w-3 h-3" />
@@ -173,12 +164,11 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
             </span>
             {job.isRemote && (
               <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs rounded-lg">
-                {remoteLabel}
+                {t.remote}
               </span>
             )}
           </div>
 
-          {/* Footer */}
           <div className="mt-auto flex items-center justify-between pt-4 border-t border-gray-100">
             <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
               {salaryText}
@@ -193,18 +183,15 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
     );
   }
 
-  // Default variant
   return (
     <div className="group block bg-white rounded-xl border border-gray-100 p-5 hover:border-blue-200 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 relative">
-      {/* Favorite Button */}
       {showFavorite && (
         <div className="absolute top-4 right-4 z-10">
           <HeartButton jobId={job.id} size="sm" />
         </div>
       )}
-      <Link href={`/jobs/${job.slug}`}>
+      <Link href={`/${locale}/jobs/${job.slug}`}>
         <div className="flex items-start gap-4">
-          {/* Logo */}
           <div className="flex-shrink-0">
             {job.companies.logo ? (
               <div className="w-14 h-14 rounded-xl overflow-hidden ring-2 ring-gray-100 group-hover:ring-blue-200 transition-all">
@@ -224,7 +211,6 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
             )}
           </div>
 
-          {/* Content */}
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-4">
               <div className={showFavorite ? "pr-12" : ""}>
@@ -249,7 +235,7 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
               </span>
               {job.isRemote && (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-600 text-sm rounded-lg">
-                  {isEn ? "Remote" : remoteLabel}
+                  {t.remoteOffice}
                 </span>
               )}
             </div>
@@ -263,12 +249,12 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
                 {job.isFeatured && (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 text-amber-600 rounded text-xs font-medium">
                     <Sparkles className="w-3 h-3" />
-                    {hotLabel}
+                    {t.hot}
                   </span>
                 )}
               </div>
               <span className="text-blue-600 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-                {viewDetail}
+                {t.viewDetail}
                 <ArrowRight className="w-4 h-4" />
               </span>
             </div>

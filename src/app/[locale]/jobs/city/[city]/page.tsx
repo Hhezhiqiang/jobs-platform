@@ -220,7 +220,7 @@ export default async function CityJobsPage({ params }: PageProps) {
 
               <div className="space-y-4">
                 {jobs.map((job) => (
-                  <JobCardV2 key={job.id} job={job} variant="compact" />
+                  <JobCardV2 key={job.id} job={job} variant="compact" locale={locale} />
                 ))}
               </div>
 

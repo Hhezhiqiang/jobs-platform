@@ -185,7 +185,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
                 {validJobs.length > 0 ? (
                   <div className="space-y-4">
                     {validJobs.map((job) => (
-                      <JobCardV2 key={job.id} job={job} variant="compact" />
+                      <JobCardV2 key={job.id} job={job} variant="compact" locale={locale} />
                     ))}
                   </div>
                 ) : (

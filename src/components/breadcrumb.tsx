@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { ChevronRight, Home } from "lucide-react";
 import { usePathname } from "next/navigation";
-import { useTranslations } from "next-intl";
 
 interface BreadcrumbItem {
   label: string;
@@ -18,16 +17,15 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
   const pathname = usePathname();
   const locale = pathname?.split("/")[1] || "zh";
   const isEn = locale === "en";
-  const t = useTranslations("breadcrumb");
 
   return (
-    <nav aria-label={isEn ? "Breadcrumb" : t("label")}>
+    <nav aria-label={isEn ? "Breadcrumb" : "面包屑导航"}>
       <ol className="flex items-center gap-2 text-sm text-gray-500">
         <li>
           <Link 
             href={`/${locale}/`} 
             className="flex items-center gap-1 hover:text-blue-600 transition-colors"
-            aria-label={isEn ? "Home" : t("home")}
+            aria-label={isEn ? "Home" : "首页"}
           >
             <Home className="w-4 h-4" />
           </Link>
@@ -55,7 +53,6 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
   );
 }
 
-// Predefined breadcrumb configs
 export const jobBreadcrumb = (title?: string) => [
   { label: "职位列表", href: "/jobs" },
   ...(title ? [{ label: title }] : []),
