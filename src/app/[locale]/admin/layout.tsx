@@ -10,3 +10,5 @@ export const metadata: Metadata = {
 export default function PrivateLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
+
+export { default as error } from "../error";

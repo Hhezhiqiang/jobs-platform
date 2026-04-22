@@ -4,6 +4,9 @@ const withNextIntl = createNextIntlPlugin('./src/i18n.ts');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // 生产环境也显示详细错误（用于调试 admin 页面问题）
+  productionBrowserSourceMaps: true,
+
   // 图片优化配置
   images: {
     formats: ["image/avif", "image/webp"],
