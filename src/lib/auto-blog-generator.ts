@@ -33,6 +33,22 @@ interface BlogGenerationResult {
   qualityIssues: string[];
 }
 
+
+/**
+ * 根据 monitor 数据生成正经分类标签
+ */
+function getCategoryLabel(monitor: { category?: string; intent?: string }): string {
+  // 如果 category 是默认值 HOLD，用正经的分类
+  if (!monitor.category || monitor.category === "HOLD") {
+    return "职场发展";
+  }
+  // 如果 category 看起来像标题（包含：或长度超过20），用默认分类
+  if (monitor.category.includes("：") || monitor.category.length > 20) {
+    return "职场发展";
+  }
+  return monitor.category;
+}
+
 /**
  * 构建专业级 AI 提示词
  */
@@ -321,7 +337,11 @@ export async function generateBlogDraft(
       .trim();
 
     // 关键词
-    const keywords = [monitor.keyword, monitor.category, monitor.intent].filter(Boolean);
+    // 关键词：使用正经的分类标签，不再用 category/intent（里面存的是标题）
+    const keywords = [
+      monitor.keyword,
+      getCategoryLabel(monitor),
+    ].filter(Boolean);
 
     // 存为草稿，不直接发布
     const blog = await prisma.pages.create({
