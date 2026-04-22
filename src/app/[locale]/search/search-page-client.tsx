@@ -80,7 +80,6 @@ export function SearchPageClient({
   const [loading, setLoading] = useState(false);
   const [cities, setCities] = useState<string[]>([]);
 
-  // 搜索职位
   const searchJobs = useCallback(async () => {
     setLoading(true);
     try {
@@ -110,7 +109,6 @@ export function SearchPageClient({
     }
   }, [query, filters, page]);
 
-  // 获取城市列表
   const fetchCities = useCallback(async () => {
     try {
       const response = await fetch("/api/jobs/cities");
@@ -123,17 +121,14 @@ export function SearchPageClient({
     }
   }, []);
 
-  // 初始化
   useEffect(() => {
     fetchCities();
   }, [fetchCities]);
 
-  // 搜索
   useEffect(() => {
     searchJobs();
   }, [searchJobs]);
 
-  // 更新 URL
   useEffect(() => {
     const params = new URLSearchParams();
     if (query) params.set("q", query);
@@ -157,39 +152,34 @@ export function SearchPageClient({
     setPage(1);
   };
 
-  const buildPageUrl = (pageNum: number) => {
-    const params = new URLSearchParams();
-    if (query) params.set("q", query);
-    if (filters.city && filters.city !== "all") params.set("city", filters.city);
-    if (filters.type && filters.type !== "all") params.set("type", filters.type);
-    if (filters.minSalary) params.set("minSalary", filters.minSalary);
-    if (filters.maxSalary) params.set("maxSalary", filters.maxSalary);
-    params.set("page", pageNum.toString());
-    return `/search?${params.toString()}`;
-  };
+  const resultsLabel = isEn
+    ? `${total.toLocaleString()} jobs found`
+    : `共 ${total.toLocaleString()} 个职位`;
+
+  const searchTitle = query
+    ? (isEn ? `Search results for "${query}"` : `"${query}" 的搜索结果`)
+    : (isEn ? "Search Jobs" : "搜索职位");
+
+  const noResultsTitle = isEn ? "No matching jobs found" : "未找到相关职位";
+  const noResultsDesc = isEn ? "Try adjusting your search keywords or filters" : "尝试调整搜索关键词或筛选条件";
+  const clearFilters = isEn ? "Clear filters" : "清除筛选条件";
+  const prevPage = isEn ? "Previous" : "上一页";
+  const nextPage = isEn ? "Next" : "下一页";
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
 
-      {/* Page Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="mb-4">
-            <Breadcrumb items={[{ label: locale === "en" ? "Job Search" : "职位搜索", href: `/${locale}/search` }]} />
+            <Breadcrumb items={[{ label: isEn ? "Job Search" : "职位搜索", href: `/${locale}/search` }]} />
           </div>
           
           <h1 className="text-2xl font-bold text-gray-900 mb-6">
-            {query ? (
-              <>
-                <HighlightedText text={`"${query}" 的搜索结果`} highlight={query} />
-              </>
-            ) : (
-              isEn ? "Search Jobs" : "搜索职位"
-            )}
+            {searchTitle}
           </h1>
 
-          {/* 搜索框 */}
           <SearchBox 
             initialValue={query}
             onSearch={handleSearch}
@@ -197,7 +187,6 @@ export function SearchPageClient({
             showSuggestions={true}
           />
 
-          {/* 搜索历史和热门搜索 */}
           {!query && (
             <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
               <SearchHistory onSelect={handleSearch} />
@@ -209,7 +198,6 @@ export function SearchPageClient({
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* 筛选侧边栏 */}
           <div className="lg:col-span-1">
             <SearchFilters
               filters={filters}
@@ -219,19 +207,16 @@ export function SearchPageClient({
             />
           </div>
 
-          {/* 搜索结果 */}
           <div className="lg:col-span-3">
-            {/* 结果统计 */}
             <div className="flex items-center justify-between mb-6">
               <p className="text-gray-600">
-                共 <span className="font-semibold text-gray-900">{total.toLocaleString()}</span> 个职位
+                {resultsLabel}
                 {loading && (
                   <Loader2 className="inline-block w-4 h-4 ml-2 animate-spin" />
                 )}
               </p>
             </div>
 
-            {/* 职位列表 */}
             {loading && jobs.length === 0 ? (
               <div className="space-y-4">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -262,8 +247,8 @@ export function SearchPageClient({
                     />
                   </svg>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">未找到相关职位</h3>
-                <p className="text-gray-500 mb-6">{isEn ? "Try adjusting your search keywords or filters" : "尝试调整搜索关键词或筛选条件"}</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{noResultsTitle}</h3>
+                <p className="text-gray-500 mb-6">{noResultsDesc}</p>
                 <button
                   onClick={() => {
                     setQuery("");
@@ -272,7 +257,7 @@ export function SearchPageClient({
                   }}
                   className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all"
                 >
-                  清除筛选条件
+                  {clearFilters}
                 </button>
               </div>
             ) : (
@@ -298,7 +283,6 @@ export function SearchPageClient({
                   ))}
                 </div>
 
-                {/* 分页 */}
                 {totalPages > 1 && (
                   <div className="flex items-center justify-center gap-2 mt-10">
                     {page > 1 && (
@@ -307,7 +291,7 @@ export function SearchPageClient({
                         className="flex items-center gap-1 px-4 py-2 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all"
                       >
                         <ChevronLeft className="w-4 h-4" />
-                        上一页
+                        {prevPage}
                       </button>
                     )}
 
@@ -373,7 +357,7 @@ export function SearchPageClient({
                         onClick={() => setPage(page + 1)}
                         className="flex items-center gap-1 px-4 py-2 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all"
                       >
-                        下一页
+                        {nextPage}
                         <ChevronRight className="w-4 h-4" />
                       </button>
                     )}
