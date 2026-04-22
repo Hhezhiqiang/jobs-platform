@@ -21,12 +21,12 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
           
           <div className="prose max-w-none text-gray-700">
             <p className="text-sm text-gray-500 mb-6">
-              isEn ? "Last updated" : "最后更新日期"：2026年4月10日
+              {isEn ? "Last updated" : "最后更新日期"}：2026年4月10日
             </p>
 
             <h2 className="text-xl font-semibold mt-8 mb-4">1. 引言</h2>
             <p className="mb-4">
-              招聘平台（以下简称{`"我们"`}）非常重视用户的隐私保护。本隐私政策说明我们如何收集、使用、
+              招聘平台（以下简称{`201c我们201d`}）非常重视用户的隐私保护。本隐私政策说明我们如何收集、使用、
               存储和保护您的个人信息。请在使用我们的服务前仔细阅读本政策。
             </p>
 
