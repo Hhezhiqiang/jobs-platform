@@ -53,6 +53,13 @@ export function RecommendationSection({
         }
       : null
   );
+  const typeMap: Record<string, string> = {
+    FULL_TIME: "全职",
+    PART_TIME: "兼职",
+    CONTRACT: "合同",
+    INTERNSHIP: "实习",
+    FREELANCE: "自由职业",
+  };
   const [isLoading, setIsLoading] = useState(!initialJobs.length);
   const [error, setError] = useState<string | null>(null);
 
@@ -330,7 +337,7 @@ export function RecommendationSection({
                       {job.location}
                     </span>
                     <span className="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs rounded-lg">
-                      {job.employmentType}
+                      {typeMap[job.employmentType] || job.employmentType}
                     </span>
                     {job.isRemote && (
                       <span className="px-2.5 py-1 bg-green-50 text-green-700 text-xs rounded-lg">

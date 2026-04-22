@@ -38,8 +38,18 @@ export function formatSalary(min: number | null | undefined, max: number | null 
     return "薪资面议";
   }
   
-  const minK = min ? Math.round(min / 1000) : null;
-  const maxK = max ? Math.round(max / 1000) : null;
+  // 数据库存储单位可能是元或千分之一，需要判断
+  // 如果值 > 100000，说明是以分为单位，需要除以 100000 得到 K
+  // 如果值 > 10000，说明是以元为单位，需要除以 1000 得到 K
+  // 如果值 <= 10000，说明已经是 K 为单位
+  const normalizeToK = (val: number): number => {
+    if (val > 100000) return Math.round(val / 100000); // 分 → K
+    if (val > 10000) return Math.round(val / 1000);    // 元 → K  
+    return val;                                         // 已是 K
+  };
+  
+  const minK = min ? normalizeToK(min) : null;
+  const maxK = max ? normalizeToK(max) : null;
   
   if (minK && maxK) {
     return `${minK}-${maxK}K`;

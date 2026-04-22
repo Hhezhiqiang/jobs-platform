@@ -17,6 +17,16 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
   const salaryText = formatSalary(job.salaryMin, job.salaryMax);
   const timeAgo = formatDistanceToNow(job.datePosted);
 
+  const typeMap: Record<string, string> = {
+    FULL_TIME: "全职",
+    PART_TIME: "兼职",
+    CONTRACT: "合同",
+    INTERNSHIP: "实习",
+    FREELANCE: "自由职业",
+  };
+  const displayType = typeMap[job.employmentType] || job.employmentType;
+
+
   if (variant === "compact") {
     return (
       <Link
@@ -64,7 +74,7 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
             </span>
             <span className="flex items-center gap-1">
               <Briefcase className="w-3 h-3" />
-              {job.employmentType}
+              {displayType}
             </span>
           </div>
         </div>
@@ -150,7 +160,7 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
             </span>
             <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 text-gray-600 text-xs rounded-lg">
               <Briefcase className="w-3 h-3" />
-              {job.employmentType}
+              {displayType}
             </span>
             {job.isRemote && (
               <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs rounded-lg">
@@ -226,7 +236,7 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
               </span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 text-gray-600 text-sm rounded-lg">
                 <Briefcase className="w-3.5 h-3.5" />
-                {job.employmentType}
+                {displayType}
               </span>
               {job.isRemote && (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-600 text-sm rounded-lg">

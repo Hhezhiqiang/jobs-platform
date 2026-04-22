@@ -233,6 +233,7 @@ function FavoriteJobCard({
   onToggle: (jobId: string, isFavorited: boolean) => void;
 }) {
   const { jobs: job } = favorite;
+  const typeMap: Record<string, string> = { FULL_TIME: "全职", PART_TIME: "兼职", CONTRACT: "合同", INTERNSHIP: "实习", FREELANCE: "自由职业" };
   const salaryText = formatSalary(job.salaryMin, job.salaryMax);
   const timeAgo = formatDistanceToNow(new Date(job.datePosted));
 
@@ -279,7 +280,7 @@ function FavoriteJobCard({
               📍 {job.location}
             </span>
             <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-50 text-gray-600 text-sm rounded-lg">
-              💼 {job.employmentType}
+              💼 {typeMap[job.employmentType] || job.employmentType}
             </span>
             {job.isRemote && (
               <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-50 text-green-600 text-sm rounded-lg">
