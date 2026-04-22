@@ -19,19 +19,19 @@ interface FilterSidebarProps {
 }
 
 const jobTypes = [
-  { value: "FULL_TIME", labelKey: "filter.jobTypes.fullTime", icon: "💼" },
-  { value: "PART_TIME", labelKey: "filter.jobTypes.partTime", icon: "⏰" },
-  { value: "INTERNSHIP", labelKey: "filter.jobTypes.internship", icon: "🎓" },
-  { value: "CONTRACT", labelKey: "filter.jobTypes.contract", icon: "📝" },
-  { value: "FREELANCE", labelKey: "filter.jobTypes.freelance", icon: "🏠" },
+  { value: "FULL_TIME", labelKey: "jobTypes.fullTime", icon: "💼" },
+  { value: "PART_TIME", labelKey: "jobTypes.partTime", icon: "⏰" },
+  { value: "INTERNSHIP", labelKey: "jobTypes.internship", icon: "🎓" },
+  { value: "CONTRACT", labelKey: "jobTypes.contract", icon: "📝" },
+  { value: "FREELANCE", labelKey: "jobTypes.freelance", icon: "🏠" },
 ];
 
 const salaryRanges = [
-  { min: "0", max: "10000", labelKey: "filter.salary.below10" },
-  { min: "10000", max: "20000", labelKey: "filter.salary.10to20" },
-  { min: "20000", max: "30000", labelKey: "filter.salary.20to30" },
-  { min: "30000", max: "50000", labelKey: "filter.salary.30to50" },
-  { min: "50000", max: "", labelKey: "filter.salary.above50" },
+  { min: "0", max: "10000", labelKey: "salary.below10" },
+  { min: "10000", max: "20000", labelKey: "salary.10to20" },
+  { min: "20000", max: "30000", labelKey: "salary.20to30" },
+  { min: "30000", max: "50000", labelKey: "salary.30to50" },
+  { min: "50000", max: "", labelKey: "salary.above50" },
 ];
 
 function buildFilterUrl(

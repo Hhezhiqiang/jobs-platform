@@ -36,7 +36,7 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
 export default async function JobsPage({ params, searchParams }: PageProps) {
   const sp = await searchParams;
   const page = parseInt(sp.page || "1");
-  const limit = 20;
+  const limit = 500;
   const skip = (page - 1) * limit;
 
   let jobs: any[] = [];
