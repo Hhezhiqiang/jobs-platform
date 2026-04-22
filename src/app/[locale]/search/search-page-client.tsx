@@ -98,7 +98,7 @@ export function SearchPageClient({
 
       if (response.ok) {
         setJobs(data.jobs?.items ?? data.jobs ?? []);
-        const jobTotal = data.jobs?.total ?? data.total ?? data.totalCount ?? 0;
+        const jobTotal = data.jobs?.total ?? data.totalCount ?? 0;
         setTotal(jobTotal);
         const limit = data.limit ?? 20;
         setTotalPages(Math.ceil(jobTotal / limit));
