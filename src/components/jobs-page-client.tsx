@@ -10,6 +10,7 @@ import {
   JobPreferenceModal, 
   JobPreferenceButton,
   getStoredPreferences,
+  getCultureTag,
   type JobPreferences,
   type CultureTag,
   calculateMatchScore,
@@ -218,7 +219,7 @@ export function JobsPageClient({ initialJobs, total, cities, dbError, currentPar
               </div>
               <div className="flex flex-wrap gap-2">
                 {preferences.cultureTags.map(tagId => {
-                  const tag = CULTURE_TAGS.find(t => t.id === tagId);
+                  const tag = getCultureTag(tagId, locale === "en");
                   return tag ? (
                     <span
                       key={tagId}

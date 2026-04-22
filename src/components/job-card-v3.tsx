@@ -20,12 +20,13 @@ interface JobCardV3Props {
 }
 
 // 获取公司文化标签的显示信息
-function getCompanyTagInfo(tagId: string) {
-  return CULTURE_TAGS.find(t => t.id === tagId) || { 
-    id: tagId, 
-    label: tagId, 
-    icon: "🏷️",
-    description: "" 
+function getCompanyTagInfo(tagId: string, isEn: boolean = false) {
+  const tag = CULTURE_TAGS.find(t => t.id === tagId);
+  if (!tag) return { id: tagId, label: tagId, icon: "🏷️", description: "" };
+  return {
+    ...tag,
+    label: isEn ? tag.label.en : tag.label.zh,
+    description: isEn ? tag.description.en : tag.description.zh,
   };
 }
 
@@ -132,7 +133,7 @@ export function JobCardV3({
           {companyTags.length > 0 && (
             <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
               {companyTags.slice(0, 3).map((tagId: string) => {
-                const tag = getCompanyTagInfo(tagId);
+                const tag = getCompanyTagInfo(tagId, locale === "en");
                 const isMatching = matchingTags.includes(tagId);
                 return (
                   <span
@@ -286,7 +287,7 @@ export function JobCardV3({
           {companyTags.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mb-4">
               {companyTags.slice(0, 3).map((tagId: string) => {
-                const tag = getCompanyTagInfo(tagId);
+                const tag = getCompanyTagInfo(tagId, locale === "en");
                 const isMatching = matchingTags.includes(tagId);
                 return (
                   <span
@@ -391,7 +392,7 @@ export function JobCardV3({
             {companyTags.length > 0 && (
               <div className="flex flex-wrap items-center gap-2 mt-3">
                 {companyTags.slice(0, 3).map((tagId: string) => {
-                  const tag = getCompanyTagInfo(tagId);
+                  const tag = getCompanyTagInfo(tagId, locale === "en");
                   const isMatching = matchingTags.includes(tagId);
                   return (
                     <span

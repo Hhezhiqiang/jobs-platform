@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { Search, MapPin, Briefcase, DollarSign, X, SlidersHorizontal, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { CULTURE_TAGS, type CultureTag } from "./job-preference-modal";
+import { CULTURE_TAGS, type CultureTag, getCultureTag } from "./job-preference-modal";
 import { useTranslations } from "next-intl";
 
 interface FilterSidebarV2Props {
@@ -272,21 +273,24 @@ function FilterContentPanel({
                 >
                   {t("all")}
                 </a>
-                {CULTURE_TAGS.map((tag) => (
-                  <a
-                    key={tag.id}
-                    href={buildFilterUrl(baseUrl, currentParams, { cultureTag: tag.id })}
-                    className={cn(
-                      "px-3 py-1.5 rounded-lg text-sm transition-all inline-flex items-center gap-1",
-                      currentParams.cultureTag === tag.id
-                        ? "bg-purple-600 text-white"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    )}
-                    title={tag.description}
-                  >
-                    {tag.icon} {tag.label}
-                  </a>
-                ))}
+                {CULTURE_TAGS.map((tag) => {
+                  const ct = getCultureTag(tag.id, locale === "en");
+                  return (
+                    <a
+                      key={tag.id}
+                      href={buildFilterUrl(baseUrl, currentParams, { cultureTag: tag.id })}
+                      className={cn(
+                        "px-3 py-1.5 rounded-lg text-sm transition-all inline-flex items-center gap-1",
+                        currentParams.cultureTag === tag.id
+                          ? "bg-purple-600 text-white"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      )}
+                      title={ct?.description}
+                    >
+                      {ct?.icon} {ct?.label}
+                    </a>
+                  );
+                })}
               </div>
             </div>
 
