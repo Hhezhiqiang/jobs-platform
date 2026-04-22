@@ -204,6 +204,7 @@ export function SearchPageClient({
               onChange={handleFilterChange}
               cities={cities}
               totalJobs={total}
+              locale={locale}
             />
           </div>
 
