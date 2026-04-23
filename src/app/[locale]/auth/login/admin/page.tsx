@@ -5,14 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle, Shield } from "lucide-react";
-import { Metadata } from "next";
 import { SkipLink } from "@/components/skip-link";
-
-export const metadata: Metadata = {
-  title: "管理员登录 | 招聘平台",
-  description: "管理员登录后台管理系统。",
-  robots: { index: false, follow: false },
-};
 
 function AdminLoginForm() {
   const router = useRouter();
