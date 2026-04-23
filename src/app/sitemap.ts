@@ -120,20 +120,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const cityEntries: MetadataRoute.Sitemap = cities
     .filter((c) => c.city)
-    .flatMap((c) => [
-      {
-        url: `${zh}/jobs/city/${encodeURIComponent(c.city!)}`,
-        lastModified: BUILD_TIME,
-        priority: 0.6,
-        changeFrequency: "daily" as const,
-      },
-      {
-        url: `${baseUrl}/en/jobs/city/${encodeURIComponent(c.city!)}`,
-        lastModified: BUILD_TIME,
-        priority: 0.5,
-        changeFrequency: "daily" as const,
-      },
-    ]);
+    .flatMap((c) => {
+      const cityUrl = `${zh}/jobs/city/${encodeURIComponent(c.city!)}`;
+      const enCityUrl = `${baseUrl}/en/jobs/city/${encodeURIComponent(c.city!)}`;
+      const entries: MetadataRoute.Sitemap = [
+        { url: cityUrl, lastModified: BUILD_TIME, priority: 0.65, changeFrequency: "daily" as const },
+        { url: enCityUrl, lastModified: BUILD_TIME, priority: 0.55, changeFrequency: "daily" as const },
+      ];
+
+      // PSEO: 城市 × 职位类型组合页
+      const types = ["FULL_TIME", "PART_TIME", "CONTRACT", "INTERNSHIP", "FREELANCE"];
+      for (const type of types) {
+        entries.push({
+          url: `${cityUrl}/${type}`,
+          lastModified: BUILD_TIME,
+          priority: 0.55,
+          changeFrequency: "daily" as const,
+        });
+      }
+      return entries;
+    });
 
   // ── 6. 职业叙事/面经页 ──
   const stories = await prisma.careerStory.findMany({
