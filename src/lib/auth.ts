@@ -7,7 +7,6 @@ import { prisma } from "@/lib/prisma";
 
 const DEFAULT_MAX_AGE = 30 * 24 * 60 * 60;
 
-// 定义 JWT Token 类型
 interface AuthToken extends JWTPayload {
   id?: string;
   role?: string;
@@ -15,10 +14,11 @@ interface AuthToken extends JWTPayload {
   name?: string;
 }
 
+const adapter = PrismaAdapter(prisma) as unknown as NextAuthOptions["adapter"];
+
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  adapter: PrismaAdapter(prisma) as unknown as NextAuthOptions["adapter"],
+  adapter,
   providers: [
     CredentialsProvider({
       name: "credentials",
