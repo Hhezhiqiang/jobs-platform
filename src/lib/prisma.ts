@@ -8,9 +8,15 @@ function createPrismaClient() {
   });
 }
 
-// Lazy singleton: PrismaClient is only created on first use
-export const prisma: PrismaClient =
-  globalForPrisma.prisma ?? (globalForPrisma.prisma = createPrismaClient());
+// Lazy: PrismaClient only created on first access
+export const getPrisma = (): PrismaClient => {
+  if (!globalForPrisma.prisma) {
+    globalForPrisma.prisma = createPrismaClient();
+  }
+  return globalForPrisma.prisma;
+};
+
+export const prisma = getPrisma();
 
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;
