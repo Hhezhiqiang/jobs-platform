@@ -34,8 +34,10 @@ function LoginFormContent({
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   
-  // Current role state
-  const [currentRole, setCurrentRole] = useState<"USER" | "COMPANY">(role as "USER" | "COMPANY");
+  // Current role state - ADMIN stays as ADMIN
+  const [currentRole, setCurrentRole] = useState<"USER" | "COMPANY" | "ADMIN">(
+    role === "ADMIN" ? "ADMIN" : (role as "USER" | "COMPANY")
+  );
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
