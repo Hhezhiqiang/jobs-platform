@@ -1,4 +1,5 @@
-import { NextAuthOptions, Account, User } from "next-auth";
+import { NextAuthOptions } from "next-auth";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { SignJWT, jwtVerify, JWTPayload } from "jose";
@@ -13,35 +14,9 @@ interface AuthToken extends JWTPayload {
   name?: string;
 }
 
-// Lazy PrismaAdapter — only created when first needed, NOT at module load
-let _adapter: NextAuthOptions["adapter"] | null = null;
-const getAdapter = (): NextAuthOptions["adapter"] => {
-  if (!_adapter) {
-    const { PrismaAdapter } = require("@auth/prisma-adapter");
-    _adapter = PrismaAdapter(getPrisma()) as unknown as NextAuthOptions["adapter"];
-  }
-  return _adapter;
-};
-
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
-  adapter: {
-    // Lazy wrapper — all adapter methods defer to the real adapter
-    createUser: (data) => getAdapter().createUser(data),
-    getUser: (id) => getAdapter().getUser(id),
-    getUserByEmail: (email) => getAdapter().getUserByEmail(email),
-    getUserByAccount: (providerAccount) => getAdapter().getUserByAccount(providerAccount),
-    updateUser: (data) => getAdapter().updateUser(data),
-    deleteUser: (userId) => getAdapter().deleteUser(userId),
-    linkAccount: (data) => getAdapter().linkAccount(data),
-    unlinkAccount: (providerAccount) => getAdapter().unlinkAccount(providerAccount),
-    createSession: (data) => getAdapter().createSession(data),
-    getSessionAndUser: (sessionToken) => getAdapter().getSessionAndUser(sessionToken),
-    updateSession: (data) => getAdapter().updateSession(data),
-    deleteSession: (sessionToken) => getAdapter().deleteSession(sessionToken),
-    createVerificationToken: (data) => getAdapter().createVerificationToken(data),
-    useVerificationToken: (data) => getAdapter().useVerificationToken(data),
-  } as NextAuthOptions["adapter"],
+  adapter: PrismaAdapter(getPrisma()) as NextAuthOptions["adapter"],
   providers: [
     CredentialsProvider({
       name: "credentials",
