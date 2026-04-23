@@ -19,10 +19,6 @@ const inter = Inter({ subsets: ["latin"] });
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 const locales = ["zh", "en"] as const;
 
-export function generateStaticParams() {
-  return locales.map((locale) => ({ locale }));
-}
-
 export async function generateMetadata({
   params,
 }: {
