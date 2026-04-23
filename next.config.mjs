@@ -29,7 +29,11 @@ const nextConfig = {
     optimizePackageImports: ["bcryptjs"],
     // 确保 Prisma engine 二进制文件被复制进 serverless bundle (Vercel)
     outputFileTracingIncludes: {
-      "/**/*": ["./node_modules/.prisma/client/**/*"],
+      "/**/*": [
+        "./node_modules/.prisma/client/**/*",
+        "./node_modules/@prisma/engines/**/*",
+        "./prisma/schema.prisma",
+      ],
     },
   },
 
