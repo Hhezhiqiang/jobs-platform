@@ -12,6 +12,7 @@ interface PageProps {
 
 const ITEMS_PER_PAGE = 15;
 
+export const dynamic = "force-dynamic";
 export default async function AdminBlogPage({ params, searchParams }: PageProps) {
   const { locale } = await params;
   const sp = await searchParams;

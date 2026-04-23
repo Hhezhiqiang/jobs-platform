@@ -34,6 +34,7 @@ interface PageProps {
   searchParams: Promise<{ page?: string }>;
 }
 
+export const dynamic = "force-dynamic";
 export default async function UsersPage({ params, searchParams }: PageProps) {
   const { locale } = await params;
   const sp = await searchParams;

@@ -33,6 +33,7 @@ async function updatePromoterStatus(formData: FormData) {
   await prisma.promoters.update({ where: { id }, data });
 }
 
+export const dynamic = "force-dynamic";
 export default async function AdminPromotersPage({ params, searchParams }: PageProps) {
   const { locale } = await params;
   const session = await getServerSession(authOptions);

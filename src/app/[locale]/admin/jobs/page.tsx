@@ -31,6 +31,8 @@ interface PageProps {
   }>;
 }
 
+export const dynamic = "force-dynamic";
+
 const ITEMS_PER_PAGE = 10;
 
 export default async function AdminJobsPage({ params, searchParams }: PageProps) {

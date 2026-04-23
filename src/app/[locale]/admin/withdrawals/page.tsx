@@ -52,6 +52,7 @@ async function updateWithdrawal(formData: FormData) {
   await prisma.withdrawal_records.update({ where: { id }, data: updateData });
 }
 
+export const dynamic = "force-dynamic";
 export default async function AdminWithdrawalsPage({ params, searchParams }: PageProps) {
   const { locale } = await params;
   const session = await getServerSession(authOptions);

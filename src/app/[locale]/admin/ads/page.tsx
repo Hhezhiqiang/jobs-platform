@@ -30,6 +30,7 @@ async function deleteAd(formData: FormData) {
   }
 }
 
+export const dynamic = "force-dynamic";
 export default async function AdminAdsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const session = await getServerSession(authOptions);

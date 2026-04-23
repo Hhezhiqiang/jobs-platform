@@ -26,6 +26,7 @@ export const metadata: Metadata = {
   description: "管理平台职位、公司、用户和数据分析",
 };
 
+export const dynamic = "force-dynamic";
 export default async function AdminPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const session = await getServerSession(authOptions);
