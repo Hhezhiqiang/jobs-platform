@@ -1,9 +1,8 @@
-import { NextAuthOptions } from "next-auth";
-import { PrismaAdapter } from "@auth/prisma-adapter";
+import { NextAuthOptions, Account, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { SignJWT, jwtVerify, JWTPayload } from "jose";
-import { prisma } from "@/lib/prisma";
+import { getPrisma } from "@/lib/prisma";
 
 const DEFAULT_MAX_AGE = 30 * 24 * 60 * 60;
 
@@ -14,11 +13,35 @@ interface AuthToken extends JWTPayload {
   name?: string;
 }
 
-const adapter = PrismaAdapter(prisma) as unknown as NextAuthOptions["adapter"];
+// Lazy PrismaAdapter — only created when first needed, NOT at module load
+let _adapter: NextAuthOptions["adapter"] | null = null;
+const getAdapter = (): NextAuthOptions["adapter"] => {
+  if (!_adapter) {
+    const { PrismaAdapter } = require("@auth/prisma-adapter");
+    _adapter = PrismaAdapter(getPrisma()) as unknown as NextAuthOptions["adapter"];
+  }
+  return _adapter;
+};
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
-  adapter,
+  adapter: {
+    // Lazy wrapper — all adapter methods defer to the real adapter
+    createUser: (data) => getAdapter().createUser(data),
+    getUser: (id) => getAdapter().getUser(id),
+    getUserByEmail: (email) => getAdapter().getUserByEmail(email),
+    getUserByAccount: (providerAccount) => getAdapter().getUserByAccount(providerAccount),
+    updateUser: (data) => getAdapter().updateUser(data),
+    deleteUser: (userId) => getAdapter().deleteUser(userId),
+    linkAccount: (data) => getAdapter().linkAccount(data),
+    unlinkAccount: (providerAccount) => getAdapter().unlinkAccount(providerAccount),
+    createSession: (data) => getAdapter().createSession(data),
+    getSessionAndUser: (sessionToken) => getAdapter().getSessionAndUser(sessionToken),
+    updateSession: (data) => getAdapter().updateSession(data),
+    deleteSession: (sessionToken) => getAdapter().deleteSession(sessionToken),
+    createVerificationToken: (data) => getAdapter().createVerificationToken(data),
+    useVerificationToken: (data) => getAdapter().useVerificationToken(data),
+  } as NextAuthOptions["adapter"],
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -31,6 +54,7 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
+        const prisma = getPrisma();
         const user = await prisma.users.findUnique({
           where: { email: credentials.email },
         });
