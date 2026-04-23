@@ -9,7 +9,7 @@ import { HeroSection } from "@/components/hero-section";
 import { StatsSection } from "@/components/stats-section";
 import { FeaturesSection } from "@/components/features-section";
 import { JobCardV2 } from "@/components/job-card-v2";
-import { AdBanner } from "@/components/ad-banner";
+// import { AdBanner } from "@/components/ad-banner"; // 广告位已暂时隐藏
 import { RecommendationSection } from "@/components/recommendation-section";
 import { HomeCheckinWrapper } from "@/components/game/home-checkin-wrapper";
 import { getTranslations } from "next-intl/server";
@@ -47,7 +47,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       <StatsSection jobCount={stats.jobCount} companyCount={stats.companyCount} dailyNewJobs={stats.dailyNewJobs} />
 
       <div className="max-w-7xl mx-auto px-4">
-        <AdBanner position="HP_BANNER_01" className="my-8" />
+        {/* 广告位已暂时隐藏，待修复后恢复 */}
       </div>
 
       <RecommendationSection limit={6} initialJobs={featuredJobs} />
@@ -151,7 +151,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       )}
 
       <div className="max-w-5xl mx-auto px-4">
-        <AdBanner position="JOB_LIST_TOP" className="my-6" />
+        {/* 广告位已暂时隐藏，待修复后恢复 */}
       </div>
 
       {/* Latest Jobs */}
