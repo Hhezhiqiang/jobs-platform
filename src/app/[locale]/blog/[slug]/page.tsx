@@ -370,17 +370,17 @@ export default async function BlogDetailPage({ params }: PageProps) {
                   >
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="font-semibold text-gray-900">{job.title}</h3>
-                        <p className="text-sm text-gray-600">{job.companies?.name}</p>
+                        <h3 className="font-semibold text-gray-900">{isEn && job.titleEn ? job.titleEn : job.title}</h3>
+                        <p className="text-sm text-gray-600">{isEn && job.companies?.nameEn ? job.companies.nameEn : job.companies?.name}</p>
                         <div className="flex gap-2 mt-2 text-sm text-gray-500">
-                          <span>{job.location}</span>
+                          <span>{job.city || job.location}</span>
                           <span>·</span>
                           <span className="text-blue-600">
                             {formatSalary(job.salaryMin, job.salaryMax)}
                           </span>
                         </div>
                       </div>
-                      <span className="text-blue-600 text-sm">查看详情 →</span>
+                      <span className="text-blue-600 text-sm">{isEn ? "View Details →" : "查看详情 →"}</span>
                     </div>
                   </Link>
                 ))}
