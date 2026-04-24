@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
-import { getPrisma } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
@@ -12,7 +12,7 @@ export async function GET() {
       return NextResponse.json({ error: "无权访问" }, { status: 403 });
     }
 
-    const prisma = getPrisma();
+    const prisma = prisma;
     const positions = await prisma.ad_positions.findMany({
       include: {
         ads: { orderBy: { createdAt: "desc" } },
