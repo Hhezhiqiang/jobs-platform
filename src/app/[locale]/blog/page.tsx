@@ -173,16 +173,26 @@ export default async function BlogPage({ params, searchParams }: PageProps) {
       prisma.pages.count({ where }),
     ]);
 
-    // 内存中按 category 过滤
+    // 内存中按 category 过滤（使用英文 key）
     let filtered = postsData;
-    const categoryFilter = sp.category && sp.category !== t("categories.all")
+    const categoryFilter = sp.category && sp.category !== 'all'
       ? sp.category
       : null;
     if (categoryFilter) {
+      // 映射 category key 到中文关键词用于匹配
+      const catToKeywords: Record<string, string[]> = {
+        'interview': ['面试', 'interview'],
+        'resume': ['简历', 'resume'],
+        'salary': ['薪资', 'salary', '涨薪', '谈薪'],
+        'career': ['职业', 'career', '升职', '转型'],
+        'trends': ['行业', '趋势', 'trends', '现状'],
+        'skills': ['技能', 'skills', '职场', '社交'],
+      };
+      const keywords = catToKeywords[categoryFilter] || [categoryFilter];
       filtered = postsData.filter(post =>
-        post.keywords?.some(kw => kw.includes(categoryFilter)) ||
-        post.title.includes(categoryFilter) ||
-        post.excerpt?.includes(categoryFilter)
+        post.keywords?.some(kw => keywords.some(k => kw.includes(k))) ||
+        post.title.includes(keywords[0]) ||
+        post.excerpt?.includes(keywords[0])
       );
     }
     total = filtered.length;
@@ -226,19 +236,23 @@ export default async function BlogPage({ params, searchParams }: PageProps) {
       {/* Categories */}
       <div className="max-w-7xl mx-auto px-4 -mt-6">
         <div className="bg-white rounded-2xl shadow-lg p-4 flex flex-wrap gap-2">
-          {CATEGORY_KEYS.map((cat) => (
-            <Link
-              key={cat.nameKey}
-              href={`/${locale}/blog?category=${encodeURIComponent(t(`categories.${cat.nameKey}`))}`}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                sp.category === t(`categories.${cat.nameKey}`)
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              {cat.icon} {t(`categories.${cat.nameKey}`)}
-            </Link>
-          ))}
+          {CATEGORY_KEYS.map((cat) => {
+            const catKey = cat.nameKey;
+            const isActive = sp.category === catKey;
+            return (
+              <Link
+                key={cat.nameKey}
+                href={`/${locale}/blog?category=${catKey === 'all' ? '' : catKey}`}
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                  isActive
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                {cat.icon} {t(`categories.${cat.nameKey}`)}
+              </Link>
+            );
+          })}
         </div>
       </div>
 
