@@ -369,7 +369,9 @@ export function JobsPageClient({ initialJobs, total, cities, dbError, currentPar
                 </div>
 
                 <div className="space-y-4">
-                  {filteredAndSortedJobs.map((job) => (
+                  {filteredAndSortedJobs
+                    .slice((page - 1) * limit, page * limit)
+                    .map((job) => (
                     <JobCardV3
                       key={job.id}
                       job={job as any}
