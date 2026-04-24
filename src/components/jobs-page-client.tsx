@@ -435,8 +435,8 @@ export function JobsPageClient({ initialJobs, total, cities, dbError, currentPar
                         );
                       })}
 
-                      {/* 最后一页 */}
-                      {page < totalPages - 2 && (
+                      {/* 最后一页（仅当总页数 > 5 时才显示） */}
+                      {totalPages > 5 && page < totalPages - 2 && (
                         <>
                           {page < totalPages - 3 && <span className="px-2 text-gray-400">...</span>}
                           <Link
