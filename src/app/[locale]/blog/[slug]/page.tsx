@@ -308,7 +308,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
               )}
 
               {/* 目录导航 */}
-              <TableOfContents content={post.content} />
+              <TableOfContents content={isEn && post.contentEn ? post.contentEn : post.content} />
 
               {/* 文章内容 */}
               <div className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-a:text-blue-600">
