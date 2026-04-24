@@ -92,6 +92,27 @@ const CATEGORY_KEYS = [
   { icon: "💡", nameKey: "skills" },
 ];
 
+// 关键词中英文映射
+const KEYWORD_MAP: Record<string, string> = {
+  '简历优化': 'Resume Optimization',
+  '薪资谈判与报告': 'Salary Negotiation',
+  '求职避坑': 'Job Search Tips',
+  '行业求职': 'Industry Careers',
+  '职业规划与转型': 'Career Planning',
+  '内推与人脉': 'Networking & Referrals',
+  '远程与灵活工作': 'Remote Work',
+  '面试攻略': 'Interview Tips',
+  '面试技巧': 'Interview Tips',
+  '职场技能': 'Workplace Skills',
+  '副业与自由职业': 'Side Business & Freelance',
+  '远程工作': 'Remote Work',
+};
+
+function translateKeyword(kw: string, isEn: boolean): string {
+  if (!isEn) return kw;
+  return KEYWORD_MAP[kw] || kw;
+}
+
 interface PageProps {
   params: Promise<{ locale: string }>;
   searchParams: Promise<{ q?: string; category?: string; page?: string }>;
@@ -258,7 +279,7 @@ export default async function BlogPage({ params, searchParams }: PageProps) {
                   <div className="p-6">
                     <div className="flex items-center gap-2 mb-3">
                       <span className="px-2 py-1 bg-blue-50 text-blue-600 text-xs rounded-lg font-medium">
-                        {post.keywords?.[0] || t("defaultCategory")}
+                        {translateKeyword(post.keywords?.[0] || "", isEn) || t("defaultCategory")}
                       </span>
                       <span className="flex items-center gap-1 text-xs text-gray-400">
                         <Clock className="w-3 h-3" />

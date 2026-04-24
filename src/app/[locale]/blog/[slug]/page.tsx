@@ -115,12 +115,13 @@ function generateArticleSchema(post: BlogPostWithAuthor, locale: string) {
 // 生成 Breadcrumb Schema
 function generateBreadcrumbSchema(slug: string, title: string, locale: string) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
+  const isEn = locale === 'en';
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "首页", item: siteUrl },
-      { "@type": "ListItem", position: 2, name: "博客", item: `${siteUrl}/${locale}/blog` },
+      { "@type": "ListItem", position: 1, name: isEn ? "Home" : "首页", item: siteUrl },
+      { "@type": "ListItem", position: 2, name: isEn ? "Blog" : "博客", item: `${siteUrl}/${locale}/blog` },
       { "@type": "ListItem", position: 3, name: title, item: `${siteUrl}/${locale}/blog/${slug}` },
     ],
   };
@@ -212,12 +213,18 @@ export default async function BlogDetailPage({ params }: PageProps) {
     const mainKeyword = keywords[0] || post.title.slice(0, 10);
     faqs.push({
       question: `${post.title} 主要讲了什么？`,
-      answer: post.excerpt || `${post.title}是 JobQuip招聘平台的一篇专业文章，为您提供详细的求职/职业发展指导。`,
+      answer: post.excerpt || (isEn
+        ? `${post.titleEn || post.title} is a professional article from JobQuip providing detailed career guidance.`
+        : `${post.title}是 JobQuip招聘平台的一篇专业文章，为您提供详细的求职/职业发展指导。`),
     });
     if (keywords.length > 0) {
       faqs.push({
-        question: `${mainKeyword} 相关的职业发展建议有哪些？`,
-        answer: `本文围绕 ${keywords.slice(0, 3).join('、')} 等关键词，为您提供实用的职业发展建议和行业洞察。`,
+        question: isEn
+          ? `What career advice is related to ${mainKeyword}?`
+          : `${mainKeyword} 相关的职业发展建议有哪些？`,
+        answer: isEn
+          ? `This article provides practical career advice around ${keywords.slice(0, 3).join(', ')} and industry insights.`
+          : `本文围绕 ${keywords.slice(0, 3).join('、')} 等关键词，为您提供实用的职业发展建议和行业洞察。`,
       });
     }
   }
@@ -308,7 +315,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
               )}
 
               {/* 目录导航 */}
-              <TableOfContents content={isEn && post.contentEn ? post.contentEn : post.content} />
+              <TableOfContents content={isEn && post.contentEn ? post.contentEn : post.content} locale={locale} />
 
               {/* 文章内容 */}
               <div className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-a:text-blue-600">
