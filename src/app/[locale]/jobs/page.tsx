@@ -35,9 +35,6 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
 
 export default async function JobsPage({ params, searchParams }: PageProps) {
   const sp = await searchParams;
-  const page = parseInt(sp.page || "1");
-  const limit = 500;
-  const skip = (page - 1) * limit;
 
   let jobs: any[] = [];
   let total = 0;
@@ -87,7 +84,7 @@ export default async function JobsPage({ params, searchParams }: PageProps) {
       };
     }
 
-    // 获取数据
+    // 获取数据（服务端不分页，全部返回，由客户端 slice）
     const [jobsData, totalData, citiesData] = await Promise.all([
       prisma.jobs.findMany({
         where,
@@ -106,8 +103,6 @@ export default async function JobsPage({ params, searchParams }: PageProps) {
           },
         },
         orderBy: { datePosted: "desc" },
-        skip,
-        take: limit,
       }),
       prisma.jobs.count({ where }),
       prisma.jobs.findMany({
@@ -123,8 +118,6 @@ export default async function JobsPage({ params, searchParams }: PageProps) {
     console.error("Database error:", error);
     dbError = true;
   }
-
-  const totalPages = Math.ceil(total / limit);
 
   const currentParams = {
     q: sp.q,
