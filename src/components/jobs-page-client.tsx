@@ -164,7 +164,7 @@ export function JobsPageClient({ initialJobs, total, cities, dbError, currentPar
   }, [jobsWithMatchScore, preferences]);
 
   const page = parseInt(currentParams.page || "1");
-  const limit = 20;
+  const limit = 15;
   const totalPages = Math.ceil((filteredAndSortedJobs.length > 0 ? filteredAndSortedJobs.length : total) / limit);
 
   const buildPageUrl = (pageNum: number) => {
