@@ -144,16 +144,24 @@ function parseInterviewContent(content: string) {
 }
 
 export default async function JobDetailPage({ params, searchParams }: PageProps) {
-  const { slug, locale } = await params;
+  let slug: string;
+  let locale: string;
+  try {
+    const p = await params;
+    slug = p.slug;
+    locale = p.locale;
+  } catch (e) {
+    console.error("Failed to resolve params:", e);
+    return <div className="min-h-screen flex items-center justify-center"><p>加载失败</p></div>;
+  }
+
   const isEn = locale === "en";
   const resolvedSearchParams = await searchParams;
   const activeTab = (resolvedSearchParams?.tab as string) || "description";
-  const t = await getTranslations({ locale, namespace: "jobDetail" });
-  const et = employmentTypeMap[locale] || employmentTypeMap.zh;
-  
+
   let job = null;
   let dbError = false;
-  
+
   try {
     job = await prisma.jobs.findUnique({
       where: { slug },
@@ -163,6 +171,15 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
     console.error("Database error:", error);
     dbError = true;
   }
+
+  // Load translations after DB query to avoid crashing on missing namespace
+  let t: (key: string) => string;
+  try {
+    t = await getTranslations({ locale, namespace: "jobDetail" });
+  } catch {
+    t = (key: string) => key;
+  }
+  const et = employmentTypeMap[locale] || employmentTypeMap.zh;
 
   if (dbError) {
     return (
@@ -191,20 +208,25 @@ export default async function JobDetailPage({ params, searchParams }: PageProps)
   }
   
   // 检查登录状态
-  const session = await getServerSession(authOptions);
-  const isLoggedIn = !!session?.user;
-
-  // 检查是否已解锁联系方式
+  let isLoggedIn = false;
   let isContactUnlocked = false;
-  if (isLoggedIn && job) {
-    const order = await prisma.contact_unlock_orders.findFirst({
-      where: {
-        userId: session.user.id,
-        jobId: job.id,
-        status: "PAID",
-      },
-    });
-    isContactUnlocked = !!order;
+  try {
+    const session = await getServerSession(authOptions);
+    isLoggedIn = !!session?.user;
+
+    // 检查是否已解锁联系方式
+    if (isLoggedIn && job && session?.user?.id) {
+      const order = await prisma.contact_unlock_orders.findFirst({
+        where: {
+          userId: session.user.id,
+          jobId: job.id,
+          status: "PAID",
+        },
+      });
+      isContactUnlocked = !!order;
+    }
+  } catch (e) {
+    console.error("Session/contact unlock error:", e);
   }
 
   // 获取公司面试经验
