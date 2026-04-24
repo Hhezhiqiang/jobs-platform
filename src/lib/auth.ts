@@ -1,4 +1,4 @@
-import { NextAuthOptions } from "next-auth";
+import { NextAuthOptions, Adapter } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { SignJWT, jwtVerify, JWTPayload } from "jose";
@@ -12,35 +12,42 @@ interface AuthToken extends JWTPayload {
   name?: string;
 }
 
-let _adapter: NextAuthOptions["adapter"] | null = null;
+let _adapterPromise: Promise<Adapter> | null = null;
 
-function getAdapter(): NextAuthOptions["adapter"] {
-  if (!_adapter) {
-    const { PrismaAdapter } = require("@auth/prisma-adapter");
-    const { prisma } = require("@/lib/prisma");
-    _adapter = PrismaAdapter(prisma) as NextAuthOptions["adapter"];
+async function loadAdapter(): Promise<Adapter> {
+  if (!_adapterPromise) {
+    _adapterPromise = (async () => {
+      const [{ PrismaAdapter }, { prisma }] = await Promise.all([
+        import("@auth/prisma-adapter"),
+        import("@/lib/prisma"),
+      ]);
+      return PrismaAdapter(prisma) as Adapter;
+    })();
   }
-  return _adapter;
+  return _adapterPromise;
 }
+
+// Lazy adapter wrapper for next-auth
+const lazyAdapter: Adapter = {
+  createUser: async (data) => (await loadAdapter()).createUser(data),
+  getUser: async (id) => (await loadAdapter()).getUser(id),
+  getUserByEmail: async (email) => (await loadAdapter()).getUserByEmail(email),
+  getUserByAccount: async (p) => (await loadAdapter()).getUserByAccount(p),
+  updateUser: async (data) => (await loadAdapter()).updateUser(data),
+  deleteUser: async (userId) => (await loadAdapter()).deleteUser(userId),
+  linkAccount: async (data) => (await loadAdapter()).linkAccount(data),
+  unlinkAccount: async (p) => (await loadAdapter()).unlinkAccount(p),
+  createSession: async (data) => (await loadAdapter()).createSession(data),
+  getSessionAndUser: async (token) => (await loadAdapter()).getSessionAndUser(token),
+  updateSession: async (data) => (await loadAdapter()).updateSession(data),
+  deleteSession: async (token) => (await loadAdapter()).deleteSession(token),
+  createVerificationToken: async (data) => (await loadAdapter()).createVerificationToken(data),
+  useVerificationToken: async (data) => (await loadAdapter()).useVerificationToken(data),
+};
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
-  adapter: {
-    createUser: (data: any) => getAdapter().createUser(data),
-    getUser: (id: string) => getAdapter().getUser(id),
-    getUserByEmail: (email: string) => getAdapter().getUserByEmail(email),
-    getUserByAccount: (p: any) => getAdapter().getUserByAccount(p),
-    updateUser: (data: any) => getAdapter().updateUser(data),
-    deleteUser: (userId: string) => getAdapter().deleteUser(userId),
-    linkAccount: (data: any) => getAdapter().linkAccount(data),
-    unlinkAccount: (p: any) => getAdapter().unlinkAccount(p),
-    createSession: (data: any) => getAdapter().createSession(data),
-    getSessionAndUser: (token: string) => getAdapter().getSessionAndUser(token),
-    updateSession: (data: any) => getAdapter().updateSession(data),
-    deleteSession: (token: string) => getAdapter().deleteSession(token),
-    createVerificationToken: (data: any) => getAdapter().createVerificationToken(data),
-    useVerificationToken: (data: any) => getAdapter().useVerificationToken(data),
-  },
+  adapter: lazyAdapter,
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -49,16 +56,12 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
+        if (!credentials?.email || !credentials?.password) return null;
         const { prisma } = await import("@/lib/prisma");
-        const user = await prisma.users.findUnique({
-          where: { email: credentials.email },
-        });
+        const user = await prisma.users.findUnique({ where: { email: credentials.email } });
         if (!user) return null;
-        const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
-        if (!isPasswordValid) return null;
+        const valid = await bcrypt.compare(credentials.password, user.password);
+        if (!valid) return null;
         return { id: user.id, email: user.email, name: user.name, role: user.role };
       },
     }),
@@ -67,37 +70,26 @@ export const authOptions: NextAuthOptions = {
   jwt: {
     maxAge: DEFAULT_MAX_AGE,
     async encode({ token, secret }) {
-      const signingKey = new TextEncoder().encode(secret as string);
-      return await new SignJWT(token as Record<string, unknown>)
+      const key = new TextEncoder().encode(secret as string);
+      return new SignJWT(token as Record<string, unknown>)
         .setProtectedHeader({ alg: "HS256" })
         .setIssuedAt()
         .setExpirationTime("30d")
-        .sign(signingKey);
+        .sign(key);
     },
     async decode({ token, secret }) {
       if (!token) return null;
       try {
-        const signingKey = new TextEncoder().encode(secret as string);
-        const { payload } = await jwtVerify(token, signingKey);
+        const key = new TextEncoder().encode(secret as string);
+        const { payload } = await jwtVerify(token, key);
         return payload as AuthToken;
-      } catch {
-        return null;
-      }
+      } catch { return null; }
     },
   },
   callbacks: {
-    async redirect({ url, baseUrl }) {
-      if (url.startsWith(baseUrl) || url.startsWith("/")) return url;
-      return baseUrl;
-    },
-    async jwt({ token, user }) {
-      if (user) { token.id = user.id; token.role = user.role; }
-      return token;
-    },
-    async session({ session, token }) {
-      if (token?.id) { session.user.id = token.id; session.user.role = token.role; }
-      return session;
-    },
+    async redirect({ url, baseUrl }) { return url.startsWith(baseUrl) || url.startsWith("/") ? url : baseUrl; },
+    async jwt({ token, user }) { if (user) { token.id = user.id; token.role = user.role; } return token; },
+    async session({ session, token }) { if (token?.id) { session.user.id = token.id; session.user.role = token.role; } return session; },
   },
   pages: { signIn: "/auth/login", error: "/auth/error" },
 };
