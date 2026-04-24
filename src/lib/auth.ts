@@ -3,7 +3,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { SignJWT, jwtVerify, JWTPayload } from "jose";
-import { getPrisma } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 const DEFAULT_MAX_AGE = 30 * 24 * 60 * 60;
 
@@ -16,7 +16,7 @@ interface AuthToken extends JWTPayload {
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
-  adapter: PrismaAdapter(getPrisma()) as NextAuthOptions["adapter"],
+  adapter: PrismaAdapter(prisma) as NextAuthOptions["adapter"],
   providers: [
     CredentialsProvider({
       name: "credentials",

@@ -29,33 +29,36 @@ interface PageProps {
 
 export const revalidate = 3600;
 
-// generateStaticParams removed - pages are rendered on demand
-
-// generateMetadata temporarily simplified for debugging 500
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  return {
-    title: "职位详情 | JobQuip",
-    robots: { index: false },
-  };
+export async function generateStaticParams() {
+  try {
+    const jobs = await prisma.jobs.findMany({
+      where: { status: "ACTIVE", slug: { not: "" } },
+      select: { slug: true },
+      take: 500,
+    });
+    return jobs.map((j) => ({ slug: j.slug }));
+  } catch {
+    return [];
+  }
 }
 
-/*
-export async function generateMetadata_orig({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug, locale } = await params;
   try {
     const job = await prisma.jobs.findUnique({
       where: { slug },
       include: { companies: true },
     });
+
     if (!job) {
       return { title: locale === "en" ? "Job Not Found" : "职位未找到" };
     }
+
     return generateJobMetadata(job, locale);
   } catch {
     return { title: locale === "en" ? "Job Not Found" : "职位未找到" };
   }
 }
-*/
 
 /**
  * 获取公司面试经验
