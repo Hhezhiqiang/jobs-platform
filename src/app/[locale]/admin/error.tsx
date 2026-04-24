@@ -1,19 +1,27 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function AdminError({
   error,
   reset,
 }: {
-  error: Error & { digest?: string };
+  error: Error & { digest?: string; cause?: Error };
   reset: () => void;
 }) {
+  const router = useRouter();
+  const [showDetails, setShowDetails] = useState(false);
+
   useEffect(() => {
+    // 开发环境打印完整错误到控制台
     console.error("Admin page error:", error);
     console.error("Error digest:", error.digest);
     console.error("Error message:", error.message);
+    console.error("Error stack:", error.stack);
+    if (error.cause) {
+      console.error("Error cause:", error.cause);
+    }
   }, [error]);
 
   return (
@@ -24,15 +32,42 @@ export default function AdminError({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <h2 className="text-xl font-bold text-gray-900 mb-2">管理页面出错</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">管理页面加载失败</h2>
         <p className="text-gray-500 mb-4 text-sm">
           {error.message || "服务器处理请求时遇到了问题"}
         </p>
+        
         {error.digest && (
-          <p className="text-xs text-gray-400 mb-4 font-mono break-all">
-            Digest: {error.digest}
-          </p>
+          <div className="mb-4">
+            <button
+              onClick={() => setShowDetails(!showDetails)}
+              className="text-xs text-blue-600 hover:underline"
+            >
+              {showDetails ? "隐藏" : "显示"}详细错误信息
+            </button>
+            {showDetails && (
+              <div className="mt-2 p-3 bg-red-50 rounded-lg text-left">
+                <p className="text-xs font-mono text-red-700 break-all">
+                  Digest: {error.digest}
+                </p>
+                <p className="text-xs font-mono text-red-700 break-all mt-1">
+                  Message: {error.message}
+                </p>
+                {error.cause && (
+                  <p className="text-xs font-mono text-red-700 break-all mt-1">
+                    Cause: {JSON.stringify(error.cause)}
+                  </p>
+                )}
+                {error.stack && (
+                  <pre className="text-xs font-mono text-red-700 break-all mt-1 whitespace-pre-wrap">
+                    {error.stack}
+                  </pre>
+                )}
+              </div>
+            )}
+          </div>
         )}
+
         <div className="flex gap-3 justify-center">
           <button
             onClick={reset}
@@ -41,12 +76,7 @@ export default function AdminError({
             重试
           </button>
           <button
-            onClick={() => {
-              document.cookie.split(";").forEach(c => {
-                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-              });
-              window.location.href = "/zh/auth/login/admin";
-            }}
+            onClick={() => router.push("/zh/auth/login/admin")}
             className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
           >
             返回登录
