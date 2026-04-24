@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /company/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /zh/auth/
+Disallow: /en/auth/
+Disallow: /zh/promoter/
+Disallow: /en/promoter/
+
+Sitemap: https://jobquip.com/sitemap.xml
