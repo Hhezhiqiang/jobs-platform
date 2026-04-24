@@ -1,9 +1,7 @@
 import { NextAuthOptions } from "next-auth";
-import { PrismaAdapter } from "@auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { SignJWT, jwtVerify, JWTPayload } from "jose";
-import { prisma } from "@/lib/prisma";
 
 const DEFAULT_MAX_AGE = 30 * 24 * 60 * 60;
 
@@ -14,9 +12,35 @@ interface AuthToken extends JWTPayload {
   name?: string;
 }
 
+let _adapter: NextAuthOptions["adapter"] | null = null;
+
+function getAdapter(): NextAuthOptions["adapter"] {
+  if (!_adapter) {
+    const { PrismaAdapter } = require("@auth/prisma-adapter");
+    const { prisma } = require("@/lib/prisma");
+    _adapter = PrismaAdapter(prisma) as NextAuthOptions["adapter"];
+  }
+  return _adapter;
+}
+
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
-  adapter: PrismaAdapter(prisma) as NextAuthOptions["adapter"],
+  adapter: {
+    createUser: (data: any) => getAdapter().createUser(data),
+    getUser: (id: string) => getAdapter().getUser(id),
+    getUserByEmail: (email: string) => getAdapter().getUserByEmail(email),
+    getUserByAccount: (p: any) => getAdapter().getUserByAccount(p),
+    updateUser: (data: any) => getAdapter().updateUser(data),
+    deleteUser: (userId: string) => getAdapter().deleteUser(userId),
+    linkAccount: (data: any) => getAdapter().linkAccount(data),
+    unlinkAccount: (p: any) => getAdapter().unlinkAccount(p),
+    createSession: (data: any) => getAdapter().createSession(data),
+    getSessionAndUser: (token: string) => getAdapter().getSessionAndUser(token),
+    updateSession: (data: any) => getAdapter().updateSession(data),
+    deleteSession: (token: string) => getAdapter().deleteSession(token),
+    createVerificationToken: (data: any) => getAdapter().createVerificationToken(data),
+    useVerificationToken: (data: any) => getAdapter().useVerificationToken(data),
+  },
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -28,42 +52,23 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
-
+        const { prisma } = await import("@/lib/prisma");
         const user = await prisma.users.findUnique({
           where: { email: credentials.email },
         });
-
-        if (!user) {
-          return null;
-        }
-
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
-
-        if (!isPasswordValid) {
-          return null;
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-        };
+        if (!user) return null;
+        const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+        if (!isPasswordValid) return null;
+        return { id: user.id, email: user.email, name: user.name, role: user.role };
       },
     }),
   ],
-  session: {
-    strategy: "jwt",
-  },
+  session: { strategy: "jwt" },
   jwt: {
     maxAge: DEFAULT_MAX_AGE,
     async encode({ token, secret }) {
       const signingKey = new TextEncoder().encode(secret as string);
-      const tokenRecord = token as Record<string, unknown>;
-      return await new SignJWT(tokenRecord)
+      return await new SignJWT(token as Record<string, unknown>)
         .setProtectedHeader({ alg: "HS256" })
         .setIssuedAt()
         .setExpirationTime("30d")
@@ -86,22 +91,13 @@ export const authOptions: NextAuthOptions = {
       return baseUrl;
     },
     async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.role = user.role;
-      }
+      if (user) { token.id = user.id; token.role = user.role; }
       return token;
     },
     async session({ session, token }) {
-      if (token?.id) {
-        session.user.id = token.id;
-        session.user.role = token.role;
-      }
+      if (token?.id) { session.user.id = token.id; session.user.role = token.role; }
       return session;
     },
   },
-  pages: {
-    signIn: "/auth/login",
-    error: "/auth/error",
-  },
+  pages: { signIn: "/auth/login", error: "/auth/error" },
 };
