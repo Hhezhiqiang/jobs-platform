@@ -357,12 +357,20 @@ export async function generateBlogDraft(
       return { success: false, error: "Monitor not found" };
     }
 
-    // 检查是否已有相关文章
+    // 检查是否已有相关文章（多维度去重，杜绝重复创建）
     const existingBlog = await prisma.pages.findFirst({
       where: {
         type: "BLOG",
-        slug: { contains: monitor.normalized || monitor.keyword },
+        OR: [
+          // 1. slug 包含关键词
+          { slug: { contains: monitor.normalized || monitor.keyword } },
+          // 2. 标题完全相同
+          { title: monitor.keyword },
+          // 3. 标题包含关键词（防标题前缀变化）
+          { title: { contains: monitor.keyword.substring(0, Math.min(10, monitor.keyword.length)) } },
+        ],
       },
+      orderBy: { createdAt: 'desc' },
     });
 
     if (existingBlog) {
