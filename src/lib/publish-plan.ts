@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { translateBlogContent, translateJobContent } from "@/lib/auto-translator";
 
 export interface PublishPlanResult {
   success: boolean;
@@ -80,6 +81,18 @@ export async function publishSEOPlan(
       }
       throw err;
     }
+  }
+
+  // Auto-translate to English (async, don't block)
+  try {
+    const { titleEn, excerptEn, contentEn } = await translateBlogContent(plan.title, content);
+    await prisma.pages.update({
+      where: { id: page.id },
+      data: { titleEn, excerptEn, contentEn },
+    });
+    console.log(`[translate] Blog #${page.id} translated to English`);
+  } catch (err) {
+    console.error(`[translate] Failed to translate blog #${page.id}:`, err);
   }
 
   if (!page) {

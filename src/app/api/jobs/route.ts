@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { translateJobContent } from "@/lib/auto-translator";
 import { Prisma } from "@prisma/client";
 
 // 计算匹配度
@@ -134,5 +137,68 @@ export async function GET(request: NextRequest) {
       { error: "Failed to fetch jobs" },
       { status: 500 }
     );
+  }
+}
+
+// POST: 创建职位（管理员）
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id || session.user.role !== "ADMIN") {
+      return NextResponse.json({ error: "需要管理员权限" }, { status: 403 });
+    }
+
+    const body = await request.json();
+    const slug = `${body.title.toLowerCase().replace(/[^\w\s]/g, "").replace(/\s+/g, "-")}-${Date.now()}`;
+
+    const job = await prisma.jobs.create({
+      data: {
+        title: body.title,
+        slug,
+        description: body.description || "",
+        requirements: body.requirements || "",
+        benefits: body.benefits || "",
+        employmentType: body.employmentType || "FULL_TIME",
+        experience: body.experience || "MID",
+        salaryMin: body.salaryMin ? parseInt(body.salaryMin, 10) : null,
+        salaryMax: body.salaryMax ? parseInt(body.salaryMax, 10) : null,
+        location: body.location || "",
+        city: body.city || "",
+        isRemote: body.isRemote || false,
+        isHybrid: body.isHybrid || false,
+        applyUrl: body.applyUrl || "",
+        companyId: body.companyId,
+        authorId: session.user.id,
+        status: body.status || "ACTIVE",
+        datePosted: new Date(),
+      },
+    });
+
+    // Auto-translate to English
+    try {
+      const translated = await translateJobContent(
+        job.title,
+        job.description || "",
+        job.requirements || undefined,
+        job.benefits || undefined,
+      );
+      await prisma.jobs.update({
+        where: { id: job.id },
+        data: {
+          titleEn: translated.titleEn,
+          descriptionEn: translated.descriptionEn,
+          requirementsEn: translated.requirementsEn,
+          benefitsEn: translated.benefitsEn,
+        },
+      });
+      console.log(`[translate] Admin job #${job.id} translated to English`);
+    } catch (err) {
+      console.error(`[translate] Failed to translate admin job #${job.id}:`, err);
+    }
+
+    return NextResponse.json({ success: true, job });
+  } catch (error: any) {
+    console.error("Create job error:", error);
+    return NextResponse.json({ error: error.message || "发布失败" }, { status: 500 });
   }
 }

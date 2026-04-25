@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { translateJobContent } from "@/lib/auto-translator";
 export const dynamic = "force-dynamic";
 
 // 获取职位列表
@@ -80,6 +81,28 @@ export async function POST(request: NextRequest) {
         datePosted: new Date(),
       },
     });
+
+    // Auto-translate to English (non-blocking)
+    try {
+      const translated = await translateJobContent(
+        job.title,
+        job.description || "",
+        job.requirements || undefined,
+        job.benefits || undefined,
+      );
+      await prisma.jobs.update({
+        where: { id: job.id },
+        data: {
+          titleEn: translated.titleEn,
+          descriptionEn: translated.descriptionEn,
+          requirementsEn: translated.requirementsEn,
+          benefitsEn: translated.benefitsEn,
+        },
+      });
+      console.log(`[translate] Job #${job.id} translated to English`);
+    } catch (err) {
+      console.error(`[translate] Failed to translate job #${job.id}:`, err);
+    }
 
     return NextResponse.json({ success: true, job });
   } catch (error: any) {
