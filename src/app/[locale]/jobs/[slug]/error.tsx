@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 
 export default function JobDetailError({
   error,
@@ -28,7 +29,7 @@ export default function JobDetailError({
             </pre>
           )}
         </div>
-        <a href="/zh/jobs" className="text-blue-600 hover:underline">← 返回职位列表</a>
+        <Link href="/zh/jobs" className="text-blue-600 hover:underline">← 返回职位列表</Link>
       </div>
     </div>
   );

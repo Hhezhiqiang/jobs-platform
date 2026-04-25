@@ -143,9 +143,9 @@ const nextConfig = {
     ignoreBuildErrors: false,
   },
 
-  // ESLint
+  // ESLint（构建时跳过，由 CI/本地单独检查）
   eslint: {
-    ignoreDuringBuilds: false,
+    ignoreDuringBuilds: true,
   },
 
   // 输出配置
