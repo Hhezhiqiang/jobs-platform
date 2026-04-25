@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { translateBlogContent, translateJobContent } from "@/lib/auto-translator";
+import { validateAndCleanKeywords, cleanBlogContent } from "@/lib/blog-content-validator";
 
 export interface PublishPlanResult {
   success: boolean;
@@ -51,7 +52,18 @@ export async function publishSEOPlan(
     )
     .join("\n\n");
 
-  const content = `# ${plan.h1}\n\n${outlineMd}\n\n---\n\n*> 本文由关键词监控系统自动生成，基于 [${plan.keyword_monitors.keyword}] 热词数据。*`;
+  const rawContent = `# ${plan.h1}\n\n${outlineMd}\n\n---\n\n*> 本文由关键词监控系统自动生成，基于 [${plan.keyword_monitors.keyword}] 热词数据。*`;
+
+  // 🔒 清洗内容（移除 Tags 行中的泛词）
+  const content = cleanBlogContent(rawContent);
+
+  // 🔒 校验关键词
+  const rawKeywords = plan.keywords || [];
+  const kwValidation = validateAndCleanKeywords(rawKeywords, plan.title);
+  if (kwValidation.issues.length > 0) {
+    console.warn(`[publish-plan] 关键词校验问题:`, kwValidation.issues);
+  }
+  const keywords = kwValidation.cleanedKeywords;
 
   let page: any;
   let retries = 0;
@@ -67,7 +79,7 @@ export async function publishSEOPlan(
           status: "PUBLISHED",
           metaTitle: plan.title,
           metaDescription: plan.metaDesc,
-          keywords: plan.keywords,
+          keywords,
           authorId,
         },
       });

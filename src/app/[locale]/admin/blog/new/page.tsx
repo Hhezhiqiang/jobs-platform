@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { PageType, PageStatus } from "@prisma/client";
 import Link from "next/link";
+import { validateAndCleanKeywords, cleanBlogContent } from "@/lib/blog-content-validator";
 
 export default async function NewBlogPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -27,13 +28,20 @@ export default async function NewBlogPage({ params }: { params: Promise<{ locale
     const title = formData.get("title") as string;
     const slug = formData.get("slug") as string;
     const excerpt = formData.get("excerpt") as string;
-    const content = formData.get("content") as string;
+    const rawContent = formData.get("content") as string;
     const featuredImage = formData.get("featuredImage") as string;
-    const keywords = (formData.get("keywords") as string)
+    const rawKeywords = (formData.get("keywords") as string)
       .split(",")
       .map((k) => k.trim())
       .filter(Boolean);
     const status = formData.get("status") as PageStatus;
+
+    // 🔒 强制校验关键词（杜绝截断词、泛词）
+    const kwValidation = validateAndCleanKeywords(rawKeywords, title);
+    const keywords = kwValidation.cleanedKeywords;
+
+    // 🔒 清洗内容（移除 Tags 行中的泛词）
+    const content = cleanBlogContent(rawContent);
 
     await prisma.pages.create({
       data: {
