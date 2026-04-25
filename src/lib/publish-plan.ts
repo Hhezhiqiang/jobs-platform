@@ -53,7 +53,7 @@ export async function publishSEOPlan(
 
   const content = `# ${plan.h1}\n\n${outlineMd}\n\n---\n\n*> 本文由关键词监控系统自动生成，基于 [${plan.keyword_monitors.keyword}] 热词数据。*`;
 
-  let page;
+  let page: any;
   let retries = 0;
   while (retries < 3) {
     try {
@@ -84,15 +84,17 @@ export async function publishSEOPlan(
   }
 
   // Auto-translate to English (async, don't block)
-  try {
-    const { titleEn, excerptEn, contentEn } = await translateBlogContent(plan.title, content);
-    await prisma.pages.update({
-      where: { id: page.id },
-      data: { titleEn, excerptEn, contentEn },
-    });
-    console.log(`[translate] Blog #${page.id} translated to English`);
-  } catch (err) {
-    console.error(`[translate] Failed to translate blog #${page.id}:`, err);
+  if (page) {
+    try {
+      const { titleEn, excerptEn, contentEn } = await translateBlogContent(plan.title, content);
+      await prisma.pages.update({
+        where: { id: page.id },
+        data: { titleEn, excerptEn, contentEn },
+      });
+      console.log(`[translate] Blog #${page.id} translated to English`);
+    } catch (err) {
+      console.error(`[translate] Failed to translate blog #${page.id}:`, err);
+    }
   }
 
   if (!page) {
