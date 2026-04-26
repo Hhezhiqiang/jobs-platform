@@ -94,7 +94,7 @@ export default function ProfilePage({ params }: { params: Promise<{ locale: stri
   // 计算完成度
   const completeness = useCallback(() => {
     let filled = 0;
-    let total = 6;
+    const total = 6;
     if (profile.gender) filled++;
     if (profile.location) filled++;
     if (profile.bio) filled++;
