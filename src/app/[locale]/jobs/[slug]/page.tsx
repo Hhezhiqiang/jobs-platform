@@ -70,9 +70,46 @@ export default async function JobDetailPage({ params }: PageProps) {
             <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">{job.location || "-"}</span>
             <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">{salaryText}</span>
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm">
+          <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4">{isEn ? "Description" : "职位描述"}</h2>
-            <div className="prose max-w-none whitespace-pre-wrap">{job.description || "暂无描述"}</div>
+            <div className="prose max-w-none whitespace-pre-wrap">{job.description || (isEn ? "No description available" : "暂无描述")}</div>
+          </div>
+          {job.requirements && (
+            <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">{isEn ? "Requirements" : "任职要求"}</h2>
+              <div className="prose max-w-none whitespace-pre-wrap">{job.requirements}</div>
+            </div>
+          )}
+          {job.benefits && (
+            <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">{isEn ? "Benefits" : "福利待遇"}</h2>
+              <div className="prose max-w-none whitespace-pre-wrap">{job.benefits}</div>
+            </div>
+          )}
+          <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">{isEn ? "Company" : "公司信息"}</h2>
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 font-bold text-lg">
+                {(job.companies?.name || "?")[0]}
+              </div>
+              <div>
+                <p className="font-semibold text-gray-900">{job.companies?.name || (isEn ? "Unknown Company" : "未知公司")}</p>
+                {job.companies?.description && (
+                  <p className="text-sm text-gray-500 line-clamp-2">{job.companies.description}</p>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-4">
+            {job.applyUrl ? (
+              <a href={job.applyUrl} target="_blank" rel="noopener noreferrer" className="flex-1 bg-blue-600 text-white text-center py-3 rounded-xl font-semibold hover:bg-blue-700 transition">
+                {isEn ? "Apply Now" : "立即申请"}
+              </a>
+            ) : (
+              <button disabled className="flex-1 bg-gray-300 text-gray-500 text-center py-3 rounded-xl font-semibold cursor-not-allowed">
+                {isEn ? "No Application Link" : "暂无申请链接"}
+              </button>
+            )}
           </div>
         </div>
       </div>
