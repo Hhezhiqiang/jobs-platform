@@ -324,12 +324,14 @@ export async function getAnalyticsOverview() {
     visitStats,
     conversionStats,
     topJobs,
+    geoStats,
     userGrowth,
     jobGrowth,
   ] = await Promise.all([
     getVisitStats(30),
     getApplicationConversionStats(30),
     getTopJobs(10),
+    getGeoStats(),
     getUserGrowthStats(30),
     getJobGrowthStats(30),
   ]);
@@ -338,7 +340,43 @@ export async function getAnalyticsOverview() {
     visitStats,
     conversionStats,
     topJobs,
+    geoStats,
     userGrowth,
     jobGrowth,
   };
+}
+
+export async function getGeoStats() {
+  const countryData = await prisma.$queryRaw<
+    Array<{ country: string; pv: bigint; uv: bigint; city: string }>
+  >`
+    SELECT country, 
+           COUNT(*) as pv,
+           COUNT(DISTINCT "sessionId") as uv,
+           MODE() WITHIN GROUP (ORDER BY city) as city
+    FROM page_views
+    WHERE country IS NOT NULL AND country != ''
+    GROUP BY country
+    ORDER BY pv DESC
+    LIMIT 20
+  `;
+
+  // 国家名称映射
+  const COUNTRY_NAMES: Record<string, string> = {
+    'CN': '🇨🇳 中国', 'US': '🇺🇸 美国', 'HK': '🇭🇰 香港',
+    'JP': '🇯🇵 日本', 'KR': '🇰🇷 韩国', 'TH': '🇹🇭 泰国',
+    'TW': '🇹🇼 台湾', 'PL': '🇵🇱 波兰', 'VN': '🇻🇳 越南',
+    'NL': '🇳🇱 荷兰', 'GB': '🇬🇧 英国', 'CA': '🇨🇦 加拿大',
+    'IN': '🇮🇳 印度', 'MX': '🇲🇽 墨西哥', 'SG': '🇸🇬 新加坡',
+    'AU': '🇦🇺 澳大利亚', 'DE': '🇩🇪 德国', 'FR': '🇫🇷 法国',
+    'BR': '🇧🇷 巴西', 'RU': '🇷🇺 俄罗斯', 'MY': '🇲🇾 马来西亚',
+    'ID': '🇮🇩 印度尼西亚', 'PH': '🇵🇭 菲律宾',
+  };
+
+  return countryData.map(d => ({
+    code: d.country,
+    name: COUNTRY_NAMES[d.country] || d.country,
+    pv: Number(d.pv),
+    uv: Number(d.uv),
+  })).filter(d => d.pv > 0);
 }

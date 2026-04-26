@@ -111,6 +111,12 @@ interface AnalyticsData {
       activeRate: number;
     };
   };
+  geoStats: Array<{
+    code: string;
+    name: string;
+    pv: number;
+    uv: number;
+  }>;
 }
 
 interface AnalyticsClientProps {
@@ -432,6 +438,41 @@ export default function AnalyticsClient({ data }: AnalyticsClientProps) {
             </div>
 
             {/* Top Jobs Table */}
+
+            {/* Visitor Distribution */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="p-6 border-b border-gray-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                      <Globe className="w-5 h-5 text-blue-500" />
+                      访问者国家/地区分布
+                    </h2>
+                    <p className="text-gray-500 text-sm mt-1">各国家/地区访问量统计</p>
+                  </div>
+                </div>
+              </div>
+              <div className="divide-y divide-gray-100">
+                {data.geoStats && data.geoStats.map((geo: any, i: number) => (
+                  <div key={geo.code} className="px-6 py-4 flex items-center gap-4 hover:bg-gray-50 transition-colors">
+                    <span className="text-lg">{geo.name.split(' ')[0]}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-medium text-gray-900 truncate">{geo.name.split(' ').slice(1).join(' ')}</span>
+                        <span className="text-sm font-medium text-gray-900 ml-2">{geo.pv} PV</span>
+                      </div>
+                      <div className="w-full bg-gray-100 rounded-full h-2">
+                        <div 
+                          className="bg-blue-500 h-2 rounded-full transition-all" 
+                          style={{ width: `${data.geoStats[0]?.pv ? (geo.pv / data.geoStats[0].pv) * 100 : 0}%` }}
+                        />
+                      </div>
+                    </div>
+                    <span className="text-xs text-gray-500 w-16 text-right">{geo.uv} UV</span>
+                  </div>
+                ))}
+              </div>
+            </div>
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
               <div className="p-6 border-b border-gray-100 flex items-center justify-between">
                 <div>
