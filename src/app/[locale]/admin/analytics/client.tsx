@@ -242,10 +242,10 @@ export default function AnalyticsClient({ data }: AnalyticsClientProps) {
       </div>
 
       <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <nav className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 space-y-1 sticky top-24">
+          <div className="w-full lg:w-1/4">
+            <nav className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 space-y-1 lg:sticky lg:top-24">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
@@ -264,7 +264,7 @@ export default function AnalyticsClient({ data }: AnalyticsClientProps) {
           </div>
 
           {/* Main Content */}
-          <div className="lg:col-span-3 space-y-8">
+          <div className="w-full lg:w-3/4 space-y-8">
             {/* Overview Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <StatCard
@@ -496,7 +496,7 @@ export default function AnalyticsClient({ data }: AnalyticsClientProps) {
               </div>
               
               {/* Entry Pages & Duration */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 divide-x divide-gray-100">
+              <div className="grid grid-cols-1 gap-6">
                 {/* Entry Pages */}
                 <div className="p-6">
                   <h3 className="text-sm font-semibold text-gray-700 mb-3">🚪 入口页面 TOP 10</h3>
@@ -534,7 +534,7 @@ export default function AnalyticsClient({ data }: AnalyticsClientProps) {
               </div>
               
               {/* Search Terms & Funnel */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 divide-x divide-gray-100 border-t border-gray-100">
+              <div className="grid grid-cols-1 gap-6 border-t border-gray-100">
                 {/* Search Terms */}
                 <div className="p-6">
                   <h3 className="text-sm font-semibold text-gray-700 mb-3">🔍 热门搜索词</h3>
