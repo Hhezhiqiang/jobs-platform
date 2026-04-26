@@ -117,6 +117,12 @@ interface AnalyticsData {
     pv: number;
     uv: number;
   }>;
+  behaviorStats: {
+    entryPages: Array<{ path: string; pv: number; uv: number }>;
+    avgDuration: Array<{ path: string; avgDuration: number; pv: number }>;
+    searchTerms: Array<{ query: string; count: number }>;
+    funnel: Record<string, number>;
+  };
 }
 
 interface AnalyticsClientProps {
@@ -478,6 +484,108 @@ export default function AnalyticsClient({ data }: AnalyticsClientProps) {
                 <div>
                   <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                     <Calendar className="w-5 h-5 text-orange-500" />
+
+            {/* User Behavior Analysis */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+              <div className="p-6 border-b border-gray-100">
+                <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                  <MousePointer className="w-5 h-5 text-indigo-500" />
+                  用户行为分析
+                </h2>
+                <p className="text-gray-500 text-sm mt-1">入口页面、停留时长、搜索词、转化漏斗</p>
+              </div>
+              
+              {/* Entry Pages & Duration */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 divide-x divide-gray-100">
+                {/* Entry Pages */}
+                <div className="p-6">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3">🚪 入口页面 TOP 10</h3>
+                  <div className="space-y-2">
+                    {data.behaviorStats?.entryPages?.slice(0, 10).map((page: any, i: number) => (
+                      <div key={page.path} className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600 truncate flex-1 mr-2">
+                          <span className="text-gray-400 mr-1">#{i+1}</span>
+                          {page.path}
+                        </span>
+                        <span className="text-gray-900 font-medium">{page.pv} PV</span>
+                      </div>
+                    ))}
+                    {!data.behaviorStats?.entryPages?.length && (
+                      <p className="text-gray-400 text-sm">暂无数据</p>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Avg Duration */}
+                <div className="p-6">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3">⏱️ 平均停留时间</h3>
+                  <div className="space-y-2">
+                    {data.behaviorStats?.avgDuration?.slice(0, 10).map((page: any, i: number) => (
+                      <div key={page.path} className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600 truncate flex-1 mr-2">{page.path}</span>
+                        <span className="text-indigo-600 font-medium">{page.avgDuration}s</span>
+                      </div>
+                    ))}
+                    {!data.behaviorStats?.avgDuration?.length && (
+                      <p className="text-gray-400 text-sm">暂无数据</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+              
+              {/* Search Terms & Funnel */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 divide-x divide-gray-100 border-t border-gray-100">
+                {/* Search Terms */}
+                <div className="p-6">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3">🔍 热门搜索词</h3>
+                  <div className="space-y-2">
+                    {data.behaviorStats?.searchTerms?.slice(0, 10).map((term: any, i: number) => (
+                      <div key={term.query} className="flex items-center justify-between text-sm">
+                        <span className="text-gray-600 truncate flex-1 mr-2">
+                          <span className="text-gray-400 mr-1">#{i+1}</span>
+                          {term.query}
+                        </span>
+                        <span className="text-gray-900 font-medium">{term.count} 次</span>
+                      </div>
+                    ))}
+                    {!data.behaviorStats?.searchTerms?.length && (
+                      <p className="text-gray-400 text-sm">暂无数据</p>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Conversion Funnel */}
+                <div className="p-6">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3">🎯 转化漏斗</h3>
+                  <div className="space-y-3">
+                    {(() => {
+                      const funnel = data.behaviorStats?.funnel || {};
+                      const steps = [
+                        { key: 'page_views', label: '页面浏览', icon: '👁️' },
+                        { key: 'job_clicks', label: '点击职位', icon: '🖱️' },
+                        { key: 'searches', label: '搜索', icon: '🔍' },
+                        { key: 'registrations', label: '注册', icon: '👤' },
+                        { key: 'applications', label: '投递', icon: '📝' },
+                      ];
+                      const maxVal = Math.max(...steps.map(s => funnel[s.key] || 0), 1);
+                      return steps.map(step => (
+                        <div key={step.key} className="flex items-center gap-3">
+                          <span className="text-base">{step.icon}</span>
+                          <span className="text-sm text-gray-700 w-16">{step.label}</span>
+                          <div className="flex-1 bg-gray-100 rounded-full h-3">
+                            <div
+                              className="bg-indigo-500 h-3 rounded-full transition-all"
+                              style={{ width: `${((funnel[step.key] || 0) / maxVal) * 100}%` }}
+                            />
+                          </div>
+                          <span className="text-sm font-medium text-gray-900 w-12 text-right">{funnel[step.key] || 0}</span>
+                        </div>
+                      ));
+                    })()}
+                  </div>
+                </div>
+              </div>
+            </div>
                     热门职位排行
                   </h2>
                   <p className="text-gray-500 text-sm mt-1">申请量最多的职位 TOP10</p>

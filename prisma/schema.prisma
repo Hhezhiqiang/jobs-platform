@@ -328,6 +328,9 @@ model page_views {
   city      String?
   userId    String?
   sessionId String
+  duration  Int?     // 页面停留时长（秒）
+  eventType String?  // page_view / click / search / scroll
+  eventData Json?    // 事件详情 {target, keyword, depth, ...}
   createdAt DateTime @default(now())
 
   @@index([createdAt])

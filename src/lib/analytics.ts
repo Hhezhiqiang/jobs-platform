@@ -325,6 +325,7 @@ export async function getAnalyticsOverview() {
     conversionStats,
     topJobs,
     geoStats,
+    behaviorStats,
     userGrowth,
     jobGrowth,
   ] = await Promise.all([
@@ -332,6 +333,7 @@ export async function getAnalyticsOverview() {
     getApplicationConversionStats(30),
     getTopJobs(10),
     getGeoStats(),
+    getBehaviorStats(),
     getUserGrowthStats(30),
     getJobGrowthStats(30),
   ]);
@@ -341,6 +343,7 @@ export async function getAnalyticsOverview() {
     conversionStats,
     topJobs,
     geoStats,
+    behaviorStats,
     userGrowth,
     jobGrowth,
   };
@@ -348,12 +351,9 @@ export async function getAnalyticsOverview() {
 
 export async function getGeoStats() {
   const countryData = await prisma.$queryRaw<
-    Array<{ country: string; pv: bigint; uv: bigint; city: string }>
+    Array<{ country: string; pv: bigint; uv: bigint }>
   >`
-    SELECT country, 
-           COUNT(*) as pv,
-           COUNT(DISTINCT "sessionId") as uv,
-           MODE() WITHIN GROUP (ORDER BY city) as city
+    SELECT country, COUNT(*) as pv, COUNT(DISTINCT "sessionId") as uv
     FROM page_views
     WHERE country IS NOT NULL AND country != ''
     GROUP BY country
@@ -361,7 +361,6 @@ export async function getGeoStats() {
     LIMIT 20
   `;
 
-  // 国家名称映射
   const COUNTRY_NAMES: Record<string, string> = {
     'CN': '🇨🇳 中国', 'US': '🇺🇸 美国', 'HK': '🇭🇰 香港',
     'JP': '🇯🇵 日本', 'KR': '🇰🇷 韩国', 'TH': '🇹🇭 泰国',
@@ -379,4 +378,64 @@ export async function getGeoStats() {
     pv: Number(d.pv),
     uv: Number(d.uv),
   })).filter(d => d.pv > 0);
+}
+
+export async function getBehaviorStats() {
+  const entryPages = await prisma.$queryRaw<
+    Array<{ path: string; pv: bigint; uv: bigint }>
+  >`
+    SELECT path, COUNT(*) as pv, COUNT(DISTINCT "sessionId") as uv
+    FROM page_views
+    WHERE (referrer IS NULL OR referrer = '' OR referrer NOT LIKE '%jobquip.com%')
+      AND "eventType" = 'page_view'
+    GROUP BY path
+    ORDER BY pv DESC
+    LIMIT 15
+  `;
+
+  const avgDuration = await prisma.$queryRaw<
+    Array<{ path: string; avg_duration: number; pv: bigint }>
+  >`
+    SELECT path, AVG(duration) as avg_duration, COUNT(*) as pv
+    FROM page_views
+    WHERE duration IS NOT NULL AND duration > 0
+    GROUP BY path
+    HAVING COUNT(*) >= 3
+    ORDER BY avg_duration DESC
+    LIMIT 10
+  `;
+
+  const searchTerms = await prisma.$queryRaw<
+    Array<{ query: string; count: bigint }>
+  >`
+    SELECT query, COUNT(*) as count
+    FROM search_queries
+    GROUP BY query
+    ORDER BY count DESC
+    LIMIT 20
+  `;
+
+  const funnel = await prisma.$queryRaw<
+    Array<{ step: string; count: bigint }>
+  >`
+    SELECT 'page_views' as step, COUNT(*) as count FROM page_views
+    UNION ALL
+    SELECT 'job_clicks', COUNT(*) FROM page_views WHERE "eventType" = 'click_job_card'
+    UNION ALL
+    SELECT 'searches', COUNT(*) FROM page_views WHERE "eventType" = 'search'
+    UNION ALL
+    SELECT 'applications', COUNT(*) FROM job_applications WHERE "appliedAt" > NOW() - INTERVAL '30 days'
+    UNION ALL
+    SELECT 'registrations', COUNT(*) FROM users WHERE "createdAt" > NOW() - INTERVAL '30 days'
+  `;
+
+  return {
+    entryPages: (entryPages as any[]).map(p => ({ path: p.path, pv: Number(p.pv), uv: Number(p.uv) })),
+    avgDuration: (avgDuration as any[]).map(d => ({ path: d.path, avgDuration: Math.round(Number(d.avg_duration)), pv: Number(d.pv) })),
+    searchTerms: (searchTerms as any[]).map(s => ({ query: s.query, count: Number(s.count) })),
+    funnel: (funnel as any[]).reduce((acc: Record<string, number>, f: { step: string; count: bigint }) => {
+      acc[f.step] = Number(f.count);
+      return acc;
+    }, {} as Record<string, number>),
+  };
 }
