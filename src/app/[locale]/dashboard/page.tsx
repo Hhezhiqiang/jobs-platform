@@ -103,6 +103,11 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
   const gameProfile = await getGameProfile(session.user.id);
 
   const navItems = [
+    { icon: Award, label: "推荐职位", href: "/dashboard/recommended" },
+    { icon: FileText, label: "简历管理", href: "/dashboard/resumes" },
+    { icon: Briefcase, label: "求职偏好", href: "/dashboard/preferences" },
+    { icon: TrendingUp, label: "薪资对比", href: "/dashboard/salary" },
+    { icon: BarChart3, label: "投递进度", href: "/dashboard/job-progress" },
     { icon: LayoutDashboard, label: "概览", href: "/dashboard", active: true },
     { icon: FileText, label: "我的简历", href: "/dashboard/profile" },
     { icon: Briefcase, label: "我的申请", href: "/dashboard/applications" },
