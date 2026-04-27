@@ -17,10 +17,7 @@ const VALID_CITIES = [
 
 // 验证城市：检查是否在预定义列表中
 function isValidCity(city: string): boolean {
-  // 临时调试：允许所有城市
-  console.log('isValidCity check:', { city, inList: VALID_CITIES.includes(city), VALID_CITIES });
-  return true; // 临时允许所有城市
-  // return VALID_CITIES.includes(city);
+  return VALID_CITIES.includes(city);
 }
 
 const CITY_INTRO: Record<string, string> = {
@@ -97,7 +94,9 @@ interface PageProps {
   params: Promise<{ city: string; locale: string }>;
 }
 
-export const revalidate = 3600;
+// 禁用 SSG，强制动态渲染
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function generateStaticParams() {
   return VALID_CITIES.map((city) => ({ city }));
@@ -121,6 +120,8 @@ export default async function CityJobsPage({ params }: PageProps) {
     notFound();
   }
 
+  console.log('Querying jobs for city:', city);
+  
   const jobs = await prisma.jobs.findMany({
     where: {
       status: "ACTIVE",
@@ -133,6 +134,8 @@ export default async function CityJobsPage({ params }: PageProps) {
     orderBy: { datePosted: "desc" },
     take: 20,
   });
+  
+  console.log('Query result:', { city, jobCount: jobs.length, cities: jobs.map(j => j.city).slice(0, 5) });
 
   const jobSchemas = jobs.map((job) => generateJobPostingSchema(job));
   const breadcrumbSchema = generateBreadcrumbSchema([
