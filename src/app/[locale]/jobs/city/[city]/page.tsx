@@ -104,7 +104,9 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { city } = await params;
+  console.log('generateMetadata:', { city, valid: isValidCity(city) });
   if (!isValidCity(city)) {
+    console.error('Invalid city in generateMetadata:', city);
     return { title: "页面未找到" };
   }
   return generateCityMetadata(city);
@@ -113,10 +115,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function CityJobsPage({ params }: PageProps) {
   const { city, locale } = await params;
 
-  console.log('CityJobsPage rendered:', { city, locale, isValid: isValidCity(city), VALID_CITIES });
+  console.log('CityJobsPage rendered:', { 
+    city, 
+    cityType: typeof city,
+    cityLength: city?.length,
+    cityBytes: Buffer.from(city || '').toString('hex'),
+    locale, 
+    isValid: isValidCity(city), 
+    VALID_CITIES 
+  });
 
   if (!isValidCity(city)) {
-    console.error('Invalid city:', city);
+    console.error('Invalid city:', city, 'bytes:', Buffer.from(city).toString('hex'));
     notFound();
   }
 
