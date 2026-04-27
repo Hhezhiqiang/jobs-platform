@@ -97,10 +97,7 @@ interface PageProps {
 // 禁用 SSG，强制动态渲染
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
-
-export async function generateStaticParams() {
-  return VALID_CITIES.map((city) => ({ city }));
-}
+export const dynamicParams = true;
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { city } = await params;
