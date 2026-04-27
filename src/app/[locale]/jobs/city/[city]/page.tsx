@@ -101,7 +101,6 @@ export const dynamicParams = true;
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { city: encodedCity } = await params;
-  // 🔑 关键修复：解码 URL 编码的城市参数
   const city = decodeURIComponent(encodedCity);
   
   if (!isValidCity(city)) {
@@ -112,8 +111,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function CityJobsPage({ params }: PageProps) {
   const { city: encodedCity, locale } = await params;
-  
-  // 🔑 关键修复：解码 URL 编码的城市参数
   const city = decodeURIComponent(encodedCity);
 
   if (!isValidCity(city)) {
