@@ -343,14 +343,16 @@ export default async function BlogDetailPage({ params }: PageProps) {
                 <div className="mt-8 pt-8 border-t">
                   <p className="text-sm text-gray-500 mb-2">{isEn ? "Keywords:" : "关键词："}</p>
                   <div className="flex flex-wrap gap-2">
-                    {post.keywords.map((keyword: string) => (
-                      <span
-                        key={keyword}
-                        className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm"
-                      >
-                        {keyword}
-                      </span>
-                    ))}
+                    {post.keywords
+                      .filter((keyword: string) => keyword && keyword.trim().length >= 2) // 过滤掉单字符关键词
+                      .map((keyword: string) => (
+                        <span
+                          key={keyword}
+                          className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm"
+                        >
+                          {keyword}
+                        </span>
+                      ))}
                   </div>
                 </div>
               )}
