@@ -120,7 +120,9 @@ export default function JobStatusPage() {
     try {
       const response = await fetch("/api/user/job-status");
       if (!response.ok) {
-        throw new Error("获取求职状态失败");
+        const errorData = await response.json().catch(() => ({}));
+        setError(errorData.error || "加载求职状态失败，请刷新重试");
+        return;
       }
       const data = await response.json();
       
@@ -160,8 +162,9 @@ export default function JobStatusPage() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "保存失败");
+        const errorData = await response.json().catch(() => ({}));
+        setError(errorData.error || "保存失败，请重试");
+        return;
       }
 
       setSuccess(true);
