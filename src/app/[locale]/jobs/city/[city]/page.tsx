@@ -111,7 +111,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function CityJobsPage({ params }: PageProps) {
   const { city, locale } = await params;
 
+  console.log('CityJobsPage rendered:', { city, locale, isValid: isValidCity(city), VALID_CITIES });
+
   if (!isValidCity(city)) {
+    console.error('Invalid city:', city);
     notFound();
   }
 
