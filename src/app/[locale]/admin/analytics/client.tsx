@@ -196,56 +196,55 @@ export default function AnalyticsClient({ data }: AnalyticsClientProps) {
     <div className="min-h-screen bg-gray-50">
       {/* Page Header */}
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center text-white">
-                <BarChart3 className="w-6 h-6" />
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center text-white flex-shrink-0">
+                <BarChart3 className="w-5 h-5" />
               </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">数据分析</h1>
-                <p className="text-gray-500">实时数据监控与分析</p>
+              <div className="min-w-0">
+                <h1 className="text-lg font-bold text-gray-900 truncate">数据分析</h1>
               </div>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center bg-gray-100 rounded-lg p-1">
-                {[7, 30, 90].map((days) => (
-                  <button
-                    key={days}
-                    onClick={() => setTimeRange(days as 7 | 30 | 90)}
-                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                      timeRange === days
-                        ? "bg-white text-gray-900 shadow-sm"
-                        : "text-gray-500 hover:text-gray-700"
-                    }`}
-                  >
-                    {days}天
-                  </button>
-                ))}
-              </div>
-              <button
-                onClick={handleRefresh}
-                className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all"
-                disabled={isRefreshing}
-              >
-                <RefreshCw className={`w-5 h-5 ${isRefreshing ? "animate-spin" : ""}`} />
-              </button>
-              <Link
-                href="/admin"
-                className="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all"
-              >
-                返回后台
-              </Link>
+            <Link
+              href="/admin"
+              className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all flex-shrink-0"
+            >
+              返回
+            </Link>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center bg-gray-100 rounded-lg p-0.5">
+              {[7, 30, 90].map((days) => (
+                <button
+                  key={days}
+                  onClick={() => setTimeRange(days as 7 | 30 | 90)}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                    timeRange === days
+                      ? "bg-white text-gray-900 shadow-sm"
+                      : "text-gray-500 hover:text-gray-700"
+                  }`}
+                >
+                  {days}天
+                </button>
+              ))}
             </div>
+            <button
+              onClick={handleRefresh}
+              className="p-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all"
+              disabled={isRefreshing}
+            >
+              <RefreshCw className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`} />
+            </button>
           </div>
         </div>
       </div>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        <div className="flex flex-col lg:flex-row gap-4 lg:gap-8">
           {/* Sidebar */}
           <div className="w-full lg:w-1/4">
-            <nav className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 space-y-1 lg:sticky lg:top-24">
+            <nav className="bg-white rounded-xl lg:rounded-2xl shadow-sm border border-gray-100 p-3 lg:p-4 space-y-1 lg:sticky lg:top-24">
               {navItems.map((item) => (
                 <Link
                   key={item.href}
