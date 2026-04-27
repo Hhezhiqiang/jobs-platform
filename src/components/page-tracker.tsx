@@ -5,8 +5,15 @@ import { usePathname } from "next/navigation";
 
 export function PageTracker() {
   const pathname = usePathname();
-  const enterTime = useRef(Date.now());
+  const enterTime = useRef<number>(0);
   const clickedElements = useRef<string[]>([]);
+
+  // 初始化进入时间（延迟到渲染后）
+  useEffect(() => {
+    if (enterTime.current === 0) {
+      enterTime.current = Date.now();
+    }
+  }, []);
 
   // 页面进入时记录
   useEffect(() => {
