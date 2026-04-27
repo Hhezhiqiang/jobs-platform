@@ -109,6 +109,12 @@ const nextConfig = {
         destination: "/",
         permanent: true,
       },
+      // PSEO 城市页重定向：兼容旧链接 /city/北京 → /jobs/city/北京
+      {
+        source: "/:locale/city/:city",
+        destination: "/:locale/jobs/city/:city",
+        permanent: true,
+      },
     ];
   },
 

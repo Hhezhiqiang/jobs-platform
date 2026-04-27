@@ -9,18 +9,13 @@ import { generateJobPostingSchema, generateBreadcrumbSchema } from "@/lib/schema
 const SITE_NAME = "JobQuip招聘平台";
 const SITE_URL = "https://jobquip.com";
 
-const VALID_CITIES = [
-  "北京",
-  "上海",
-  "深圳",
-  "杭州",
-  "广州",
-  "成都",
-  "武汉",
-  "西安",
-  "南京",
-  "苏州",
-];
+// 动态验证城市：检查数据库中是否有该城市的活跃职位
+async function isValidCity(city: string): Promise<boolean> {
+  const count = await prisma.jobs.count({
+    where: { status: "ACTIVE", city },
+  });
+  return count > 0;
+}
 
 const CITY_INTRO: Record<string, string> = {
   北京:
@@ -45,8 +40,16 @@ const CITY_INTRO: Record<string, string> = {
     "苏州以制造业和工业园区闻名，近年来在生物医药、人工智能、工业互联网等新兴领域加速布局。园区和相城区吸引了大量外资研发中心和国内创新企业，是长三角地区不可忽视的就业高地。",
 };
 
+// 获取城市介绍，如果没有预定义则生成默认介绍
+function getCityIntro(city: string): string {
+  if (CITY_INTRO[city]) {
+    return CITY_INTRO[city];
+  }
+  return `${city}最新招聘信息 - 汇聚互联网、科技、金融等热门行业高薪职位，实时更新，快速找到${city}的理想工作。`;
+}
+
 function generateCityMetadata(city: string): Metadata {
-  const cityIntro = CITY_INTRO[city] || `${city}最新招聘信息`;
+  const cityIntro = getCityIntro(city);
   const title = `${city}招聘信息 - ${city}最新高薪职位 | ${SITE_NAME}`;
   const description = `查看${city}最新招聘信息，汇聚互联网、科技、金融等热门行业高薪职位。${cityIntro.slice(0, 120)}实时更新，快速找到${city}的理想工作。`;
   const url = `${SITE_URL}/jobs/city/${encodeURIComponent(city)}`;
@@ -92,7 +95,11 @@ export const revalidate = 3600;
 
 export async function generateStaticParams() {
   try {
-    return VALID_CITIES.map((city) => ({ city }));
+    const cities = await prisma.jobs.groupBy({
+      by: ["city"],
+      where: { status: "ACTIVE", city: { not: null } },
+    });
+    return cities.map((c) => ({ city: c.city! }));
   } catch {
     return [];
   }
@@ -100,7 +107,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { city } = await params;
-  if (!VALID_CITIES.includes(city)) {
+  if (!(await isValidCity(city))) {
     return { title: "页面未找到" };
   }
   return generateCityMetadata(city);
@@ -109,7 +116,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function CityJobsPage({ params }: PageProps) {
   const { city, locale } = await params;
 
-  if (!VALID_CITIES.includes(city)) {
+  if (!(await isValidCity(city))) {
     notFound();
   }
 
@@ -161,7 +168,7 @@ export default async function CityJobsPage({ params }: PageProps) {
               {city}招聘信息
             </h1>
             <p className="text-gray-600 max-w-3xl leading-relaxed">
-              {CITY_INTRO[city]}
+              {getCityIntro(city)}
             </p>
           </div>
         </div>
