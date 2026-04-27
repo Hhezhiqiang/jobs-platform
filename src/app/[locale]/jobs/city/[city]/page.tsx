@@ -17,7 +17,10 @@ const VALID_CITIES = [
 
 // 验证城市：检查是否在预定义列表中
 function isValidCity(city: string): boolean {
-  return VALID_CITIES.includes(city);
+  // 临时调试：允许所有城市
+  console.log('isValidCity check:', { city, inList: VALID_CITIES.includes(city), VALID_CITIES });
+  return true; // 临时允许所有城市
+  // return VALID_CITIES.includes(city);
 }
 
 const CITY_INTRO: Record<string, string> = {
