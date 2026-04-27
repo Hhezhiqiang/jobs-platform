@@ -35,13 +35,13 @@ export function generateHomeMetadata(locale = "zh"): Metadata {
       siteName: SITE_NAME,
       type: "website",
       locale: locale === "en" ? "en_US" : "zh_CN",
-      images: [`${SITE_URL}/logo.png`],
+      images: [{ url: `${SITE_URL}/og-image.png`, width: 1200, height: 630 }],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description: t.siteDesc,
-      images: [`${SITE_URL}/logo.png`],
+      images: [`${SITE_URL}/og-image.png`],
     },
     alternates: {
       canonical: `${SITE_URL}/${locale}`,
@@ -94,13 +94,13 @@ export function generateJobMetadata(job: jobs & { companies: companies }, locale
       type: "article",
       publishedTime: job.datePosted.toISOString(),
       modifiedTime: job.updatedAt.toISOString(),
-      images: job.imageUrl ? [job.imageUrl] : [`${SITE_URL}/logo.png`],
+      images: job.imageUrl ? [{ url: job.imageUrl, width: 1200, height: 630 }] : [{ url: `${SITE_URL}/og-image.png`, width: 1200, height: 630 }],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description: description.slice(0, 160),
-      images: job.imageUrl ? [job.imageUrl] : [`${SITE_URL}/logo.png`],
+      images: job.imageUrl ? [job.imageUrl] : [`${SITE_URL}/og-image.png`],
     },
     alternates: {
       canonical: url,

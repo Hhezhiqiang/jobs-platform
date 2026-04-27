@@ -17,7 +17,25 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     include: { companies: true },
   });
   if (!job) return { title: "职位未找到" };
-  return { title: `${job.title} - ${job.companies.name} | JobQuip` };
+  
+  const salaryText = job.salaryMin && job.salaryMax ? `${job.salaryMin}-${job.salaryMax}K` : "薪资面议";
+  const description = (job.description || "").slice(0, 160);
+  
+  return {
+    title: `${job.title} - ${job.companies.name} | JobQuip`,
+    description,
+    openGraph: {
+      title: `${job.title} - ${job.companies.name}`,
+      description,
+      images: [{ url: "https://jobquip.com/og-image.png", width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${job.title} - ${job.companies.name}`,
+      description,
+      images: ["https://jobquip.com/og-image.png"],
+    },
+  };
 }
 
 export default async function JobDetailPage({ params }: PageProps) {
@@ -57,12 +75,58 @@ export default async function JobDetailPage({ params }: PageProps) {
       FREELANCE: isEn ? "Freelance" : "自由职业",
     };
 
+    // 生成 JobPosting schema
+    const jobPostingSchema = {
+      "@context": "https://schema.org",
+      "@type": "JobPosting",
+      "title": job.title,
+      "description": job.description,
+      "datePosted": job.datePosted,
+      "validThrough": job.validThrough || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      "employmentType": job.employmentType,
+      "hiringOrganization": {
+        "@type": "Organization",
+        "name": job.companies?.name,
+        "url": `${process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com"}/companies/${job.companies?.slug}`,
+      },
+      "jobLocation": {
+        "@type": "Place",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": job.city,
+          "addressCountry": job.country || "CN",
+        },
+      },
+      "baseSalary": job.salaryMin && job.salaryMax ? {
+        "@type": "MonetaryAmount",
+        "currency": job.salaryCurrency || "CNY",
+        "value": {
+          "@type": "QuantitativeValue",
+          "minValue": job.salaryMin * 1000,
+          "maxValue": job.salaryMax * 1000,
+          "unitText": "YEAR",
+        },
+      } : undefined,
+      "applicantLocationRequirements": {
+        "@type": "Country",
+        "name": job.country || "CN",
+      },
+      "workLocation": job.isRemote ? {
+        "@type": "VirtualLocation",
+      } : undefined,
+    };
+
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 py-8">
-          <Link href={`/${locale}/jobs`} className="text-blue-600 hover:underline mb-4 inline-block">
-            ← {isEn ? "Back to Jobs" : "返回职位列表"}
-          </Link>
+      <>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jobPostingSchema) }}
+        />
+        <div className="min-h-screen bg-gray-50">
+          <div className="max-w-4xl mx-auto px-4 py-8">
+            <Link href={`/${locale}/jobs`} className="text-blue-600 hover:underline mb-4 inline-block">
+              ← {isEn ? "Back to Jobs" : "返回职位列表"}
+            </Link>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">{job.title}</h1>
           <p className="text-lg text-gray-600 mb-4">{job.companies?.name || "-"}</p>
           <div className="flex gap-4 mb-8">
@@ -113,6 +177,7 @@ export default async function JobDetailPage({ params }: PageProps) {
           </div>
         </div>
       </div>
+    </>
     );
   } catch (e: any) {
     return (
