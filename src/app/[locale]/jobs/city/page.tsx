@@ -19,7 +19,7 @@ const JOB_TYPES = [
 export default async function CitiesPage() {
   const cityCounts = await prisma.jobs.groupBy({
     by: ["city"],
-    where: { status: "ACTIVE", city: { not: null }, slug: { not: "" } },
+    where: { status: "ACTIVE", city: { not: null } },
     _count: { id: true },
     orderBy: { _count: { id: "desc" } },
   });
