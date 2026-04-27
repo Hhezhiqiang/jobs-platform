@@ -9,10 +9,13 @@ import { generateJobPostingSchema, generateBreadcrumbSchema } from "@/lib/schema
 const SITE_NAME = "JobQuip招聘平台";
 const SITE_URL = "https://jobquip.com";
 
-// 预定义支持的城市列表
+// 预定义支持的城市列表（中英文）
 const VALID_CITIES = [
   "北京", "上海", "深圳", "杭州", "广州", "成都",
   "武汉", "西安", "南京", "苏州", "远程",
+  // English versions
+  "Beijing", "Shanghai", "Shenzhen", "Hangzhou", "Guangzhou", "Chengdu",
+  "Wuhan", "Xi'an", "Nanjing", "Suzhou", "Remote",
 ];
 
 // 验证城市：检查是否在预定义列表中
