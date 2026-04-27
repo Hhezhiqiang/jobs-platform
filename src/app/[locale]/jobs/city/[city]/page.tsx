@@ -9,12 +9,15 @@ import { generateJobPostingSchema, generateBreadcrumbSchema } from "@/lib/schema
 const SITE_NAME = "JobQuip招聘平台";
 const SITE_URL = "https://jobquip.com";
 
-// 动态验证城市：检查数据库中是否有该城市的活跃职位
-async function isValidCity(city: string): Promise<boolean> {
-  const count = await prisma.jobs.count({
-    where: { status: "ACTIVE", city },
-  });
-  return count > 0;
+// 预定义支持的城市列表（避免 serverless 环境中数据库查询超时）
+const VALID_CITIES = [
+  "北京", "上海", "深圳", "杭州", "广州", "成都",
+  "武汉", "西安", "南京", "苏州", "远程",
+];
+
+// 验证城市：检查是否在预定义列表中
+function isValidCity(city: string): boolean {
+  return VALID_CITIES.includes(city);
 }
 
 const CITY_INTRO: Record<string, string> = {
@@ -94,20 +97,12 @@ interface PageProps {
 export const revalidate = 3600;
 
 export async function generateStaticParams() {
-  try {
-    const cities = await prisma.jobs.groupBy({
-      by: ["city"],
-      where: { status: "ACTIVE", city: { not: null } },
-    });
-    return cities.map((c) => ({ city: c.city! }));
-  } catch {
-    return [];
-  }
+  return VALID_CITIES.map((city) => ({ city }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { city } = await params;
-  if (!(await isValidCity(city))) {
+  if (!isValidCity(city)) {
     return { title: "页面未找到" };
   }
   return generateCityMetadata(city);
@@ -116,7 +111,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function CityJobsPage({ params }: PageProps) {
   const { city, locale } = await params;
 
-  if (!(await isValidCity(city))) {
+  if (!isValidCity(city)) {
     notFound();
   }
 
