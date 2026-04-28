@@ -102,15 +102,31 @@ export async function fetchAdzunaJobs(
         }
         
         // 尝试提取原始招聘网站链接
-        // Adzuna 的 redirect_url 是跳转链接，我们尝试从描述中提取原始链接
         let directApplyUrl = job.redirect_url;
         
-        // 从描述中提取 URL（如果有）
+        // 方法 1: 从描述中提取 URL
         const urlMatch = job.description.match(/(https?:\/\/[^\s<>"']+)/i);
-        if (urlMatch && urlMatch[1]) {
-          // 排除 Adzuna 自己的链接
-          if (!urlMatch[1].includes('adzuna.com')) {
-            directApplyUrl = urlMatch[1];
+        if (urlMatch && urlMatch[1] && !urlMatch[1].includes('adzuna.com')) {
+          directApplyUrl = urlMatch[1];
+        }
+        
+        // 方法 2: 从 redirect_url 中提取原始招聘网站
+        // Adzuna 链接格式：https://www.adzuna.co.uk/land/ad/{id}?se=...
+        // 我们可以尝试访问 Adzuna 详情页获取原始链接
+        if (directApplyUrl.includes('adzuna.com')) {
+          try {
+            const adzunaPageRes = await fetch(job.redirect_url, {
+              headers: { 'User-Agent': 'Mozilla/5.0' },
+              redirect: 'manual' // 不自动跳转
+            });
+            if (adzunaPageRes.status === 302 || adzunaPageRes.status === 301) {
+              const location = adzunaPageRes.headers.get('location');
+              if (location && !location.includes('adzuna.com')) {
+                directApplyUrl = location;
+              }
+            }
+          } catch (e) {
+            console.log(`  无法获取原始链接，使用 Adzuna 链接`);
           }
         }
         
@@ -139,8 +155,8 @@ export async function fetchAdzunaJobs(
         });
         savedCount++;
         
-        // 频率控制（AI API 限制）
-        await sleep(500);
+        // 频率控制（避免 Kimi API 限流）
+        await sleep(2000); // 增加到 2 秒，避免 RPM 限流
       } catch (error: any) {
         if (!error.message.includes('Unique constraint')) {
           console.error(`Failed to save job ${job.id}:`, error.message);
