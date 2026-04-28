@@ -47,6 +47,14 @@ export async function fetchJoobleJobs(
     console.log(`Jooble: 获取到 ${jobs.length} 个职位`);
 
     // 保存职位
+    const companyId = process.env.JOOBLE_COMPANY_ID;
+    const authorId = process.env.JOOBLE_AUTHOR_ID;
+    
+    if (!companyId || !authorId) {
+      console.warn('Jooble: 未配置公司/作者 ID');
+      return 0;
+    }
+
     let savedCount = 0;
     for (const job of jobs) {
       try {
@@ -58,8 +66,8 @@ export async function fetchJoobleJobs(
             location: job.location,
             applyUrl: job.link,
             status: 'ACTIVE',
-            companyId: process.env.JOOBLE_COMPANY_ID,
-            authorId: process.env.JOOBLE_AUTHOR_ID
+            companyId,
+            authorId
           }
         });
         savedCount++;
@@ -135,6 +143,14 @@ export async function fetchMuseJobs(
     console.log(`The Muse: 获取到 ${jobs.length} 个职位`);
 
     // 保存职位
+    const companyId = process.env.MUSE_COMPANY_ID;
+    const authorId = process.env.MUSE_AUTHOR_ID;
+    
+    if (!companyId || !authorId) {
+      console.warn('Muse: 未配置公司/作者 ID');
+      return 0;
+    }
+
     let savedCount = 0;
     for (const job of jobs) {
       try {
@@ -146,8 +162,8 @@ export async function fetchMuseJobs(
             location: job.locations?.[0]?.name || 'Remote',
             applyUrl: job.refs?.landing || '',
             status: 'ACTIVE',
-            companyId: process.env.MUSE_COMPANY_ID,
-            authorId: process.env.MUSE_AUTHOR_ID
+            companyId,
+            authorId
           }
         });
         savedCount++;
