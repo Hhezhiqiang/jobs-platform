@@ -1,5 +1,4 @@
 import { prisma } from './prisma';
-import { EmploymentType } from '@prisma/client';
 
 interface AdzunaJob {
   id: string;
@@ -69,41 +68,40 @@ export async function fetchAdzunaJobs(
     
     console.log(`Adzuna: 获取到 ${data.results.length} 个职位`);
 
-    // 保存到数据库
-    const jobs = data.results.map(job => {
-      // 映射合同类型为 EmploymentType 枚举
-      let employmentType: EmploymentType = 'FULL_TIME';
-      if (job.contract_type === 'part_time') employmentType = 'PART_TIME';
-      else if (job.contract_type === 'contract') employmentType = 'CONTRACT';
-      else if (job.contract_type === 'internship') employmentType = 'INTERNSHIP';
-      else if (job.contract_type === 'freelance') employmentType = 'FREELANCE';
+    // 保存到数据库（单个创建，避免外键问题）
+    let savedCount = 0;
+    for (const job of data.results) {
+      try {
+        await prisma.jobs.create({
+          data: {
+            slug: `adzuna-${job.id}`,
+            title: job.title,
+            description: job.description,
+            location: job.location.display_name,
+            salaryMin: job.salary_min || null,
+            salaryMax: job.salary_max || null,
+            employmentType: job.contract_type === 'part_time' ? 'PART_TIME' : 
+                           job.contract_type === 'contract' ? 'CONTRACT' : 
+                           job.contract_type === 'internship' ? 'INTERNSHIP' : 
+                           job.contract_type === 'freelance' ? 'FREELANCE' : 'FULL_TIME',
+            applyUrl: job.redirect_url,
+            source: 'ADZUNA',
+            sourceId: job.id,
+            status: 'ACTIVE'
+          }
+        });
+        savedCount++;
+      } catch (error: any) {
+        // 跳过已存在的职位
+        if (!error.message.includes('Unique constraint')) {
+          console.error(`Failed to save job ${job.id}:`, error.message);
+        }
+      }
+    }
 
-      return {
-        slug: `adzuna-${job.id}`,
-        title: job.title,
-        description: job.description,
-        location: job.location.display_name,
-        salaryMin: job.salary_min || null,
-        salaryMax: job.salary_max || null,
-        employmentType,
-        applyUrl: job.redirect_url,
-        source: 'ADZUNA',
-        sourceId: job.id,
-        status: 'ACTIVE' as const,
-        companyId: null,
-        authorId: null
-      };
-    });
-
-    // 批量保存（去重）
-    const saved = await prisma.jobs.createMany({
-      data: jobs,
-      skipDuplicates: true
-    });
-
-    console.log(`Adzuna: 新增 ${saved.count} 个职位`);
+    console.log(`Adzuna: 新增 ${savedCount} 个职位`);
     
-    return saved.count;
+    return savedCount;
   } catch (error: any) {
     console.error('Adzuna API error:', error.message);
     return 0;
