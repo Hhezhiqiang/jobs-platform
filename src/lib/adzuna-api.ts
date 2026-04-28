@@ -1,4 +1,5 @@
 import { prisma } from './prisma';
+import { parseJobDescriptionWithAI } from './parse-job-description';
 
 interface AdzunaJob {
   id: string;
@@ -28,7 +29,7 @@ export async function fetchAdzunaJobs(
   keyword?: string,
   location?: string,
   page: number = 1,
-  country: string = 'gb' // 默认英国，支持：gb, us, sg, de, fr, au 等
+  country: string = 'gb'
 ): Promise<number> {
   const appId = process.env.ADZUNA_APP_ID;
   const appKey = process.env.ADZUNA_APP_KEY;
@@ -58,7 +59,7 @@ export async function fetchAdzunaJobs(
       headers: {
         'Accept': 'application/json'
       },
-      next: { revalidate: 3600 } // 1 小时缓存
+      next: { revalidate: 3600 }
     });
 
     if (!response.ok) {
@@ -67,22 +68,36 @@ export async function fetchAdzunaJobs(
 
     const data: AdzunaResponse = await response.json();
     
-    console.log(`Adzuna: 获取到 ${data.results.length} 个职位`);
+    console.log(`Adzuna (${country}): 获取到 ${data.results.length} 个职位`);
 
-    // 保存到数据库（单个创建，避免外键问题）
-    const companyId = process.env.ADZUNA_COMPANY_ID!;
-    const authorId = process.env.ADZUNA_AUTHOR_ID!;
+    const companyId = process.env.ADZUNA_COMPANY_ID || '';
+    const authorId = process.env.ADZUNA_AUTHOR_ID || '';
     
+    if (!companyId || !authorId) {
+      console.error('未配置公司/作者 ID');
+      return 0;
+    }
+
     let savedCount = 0;
     for (const job of data.results) {
       try {
+        // 使用 AI 解析职位描述
+        const parsed = await parseJobDescriptionWithAI(job.description);
+        
+        // 提取城市名
+        const fullLocation = job.location?.display_name || location || 'Remote';
+        const city = fullLocation.split(',')[0]?.trim() || fullLocation;
+        
         await prisma.jobs.create({
           data: {
             slug: `adzuna-${job.id}`,
             title: job.title,
-            description: job.description,
-            location: job.location.display_name,
-            city: job.location.area?.[0] || null,
+            description: parsed.description, // 岗位职责
+            requirements: parsed.requirements, // 任职要求
+            benefits: parsed.benefits, // 福利待遇
+            location: fullLocation,
+            city: city,
+            country: country.toUpperCase(),
             salaryMin: job.salary_min || null,
             salaryMax: job.salary_max || null,
             employmentType: job.contract_type === 'part_time' ? 'PART_TIME' : 
@@ -96,8 +111,10 @@ export async function fetchAdzunaJobs(
           }
         });
         savedCount++;
+        
+        // 频率控制（AI API 限制）
+        await sleep(500);
       } catch (error: any) {
-        // 跳过已存在的职位
         if (!error.message.includes('Unique constraint')) {
           console.error(`Failed to save job ${job.id}:`, error.message);
         }
@@ -105,7 +122,6 @@ export async function fetchAdzunaJobs(
     }
 
     console.log(`Adzuna: 新增 ${savedCount} 个职位`);
-    
     return savedCount;
   } catch (error: any) {
     console.error('Adzuna API error:', error.message);
@@ -113,36 +129,29 @@ export async function fetchAdzunaJobs(
   }
 }
 
-// 批量获取多个关键词的职位
+// 批量获取
 export async function fetchAdzunaBulkJobs() {
-  const keywords = [
-    'frontend', 'backend', 'fullstack', 
-    'java', 'python', 'javascript',
-    'product manager', 'designer'
-  ];
-  
-  const locations = [
-    'Beijing', 'Shanghai', 'Shenzhen', 
-    'Guangzhou', 'Hangzhou', 'Remote'
-  ];
+  const keywords = ['software engineer', 'developer', 'engineer'];
+  const locations = ['London', 'Manchester', 'Birmingham'];
+  const countries = ['gb'];
 
   let total = 0;
 
-  for (const keyword of keywords) {
-    for (const location of locations) {
-      try {
-        const count = await fetchAdzunaJobs(keyword, location, 1);
-        total += count;
-        
-        // 频率控制
-        await sleep(1000);
-      } catch (error: any) {
-        console.error(`Failed ${keyword} ${location}:`, error.message);
+  for (const country of countries) {
+    for (const keyword of keywords) {
+      for (const location of locations) {
+        try {
+          const count = await fetchAdzunaJobs(keyword, location, 1, country);
+          total += count;
+          await sleep(2000); // 频率控制
+        } catch (error: any) {
+          console.error(`Failed ${keyword} ${location}:`, error.message);
+        }
       }
     }
   }
 
-  console.log(`Adzuna 批量获取完成：新增 ${total} 个职位`);
+  console.log(`批量获取完成：新增 ${total} 个职位`);
   return total;
 }
 
