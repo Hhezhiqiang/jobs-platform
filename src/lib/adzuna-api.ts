@@ -70,8 +70,8 @@ export async function fetchAdzunaJobs(
 
     // 保存到数据库
     const jobs = data.results.map(job => ({
+      slug: `adzuna-${job.id}`,
       title: job.title,
-      company: job.company.display_name,
       description: job.description,
       location: job.location.display_name,
       salaryMin: job.salary_min || null,
@@ -80,7 +80,9 @@ export async function fetchAdzunaJobs(
       applyUrl: job.redirect_url,
       source: 'ADZUNA',
       sourceId: job.id,
-      status: 'ACTIVE' as const
+      status: 'ACTIVE' as const,
+      companyId: null,
+      authorId: null
     }));
 
     // 批量保存（去重）
