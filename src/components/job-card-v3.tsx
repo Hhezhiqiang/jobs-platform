@@ -74,11 +74,16 @@ export function JobCardV3({
   // 是否文化契合（>80%）
   const isCultureFit = matchScore >= 80;
 
+  // 安全路由：如果 slug 丢失，回退到搜索页，避免 404
+  const jobLink = job.slug 
+    ? `${jobLink}` 
+    : `/${locale}/search?q=${encodeURIComponent(job.title)}`;
+
   // 紧凑版
   if (variant === "compact") {
     return (
       <Link
-        href={`/${locale}/jobs/${job.slug}`}
+        href={jobLink}
         className="group flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all duration-300"
       >
         {/* Company Logo */}
@@ -201,7 +206,7 @@ export function JobCardV3({
   if (variant === "featured") {
     return (
       <Link
-        href={`/${locale}/jobs/${job.slug}`}
+        href={`${jobLink}`}
         className="group flex flex-col h-full bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
       >
         {/* Featured Badge */}
@@ -341,7 +346,7 @@ export function JobCardV3({
           <HeartButton jobId={job.id} size="sm" />
         </div>
       )}
-      <Link href={`/${locale}/jobs/${job.slug}`}>
+      <Link href={`${jobLink}`}>
         <div className="flex items-start gap-4">
           {/* Logo */}
           <div className="flex-shrink-0">

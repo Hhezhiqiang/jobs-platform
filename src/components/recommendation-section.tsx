@@ -261,10 +261,15 @@ export function RecommendationSection({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
-          {recommendations.jobs.map((job) => (
+          {recommendations.jobs.map((job) => {
+            const jobLink = job.slug 
+              ? `/${locale}/jobs/${job.slug}` 
+              : `/${locale}/search?q=${encodeURIComponent(job.title)}`;
+            
+            return (
             <div key={job.id} className="relative group h-full">
               <Link
-                href={`/${locale}/jobs/${job.slug}`}
+                href={jobLink}
                 className="group flex flex-col h-full bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
               >
                 <div className="relative flex-shrink-0">
@@ -371,7 +376,7 @@ export function RecommendationSection({
                 </div>
               </Link>
             </div>
-          ))}
+          );})}
         </div>
 
         <div className="mt-8 text-center md:hidden">
