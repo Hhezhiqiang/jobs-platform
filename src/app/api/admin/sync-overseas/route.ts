@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { syncOverseasJobs } from '../../../../scripts/sync-overseas-jobs';
 
 // POST /api/admin/sync-overseas
 export async function POST(req: Request) {
@@ -15,6 +14,9 @@ export async function POST(req: Request) {
   }
 
   try {
+    // 动态导入
+    const { syncOverseasJobs } = await import('../../../../scripts/sync-overseas-jobs');
+    
     // 异步执行
     syncOverseasJobs().catch(console.error);
     
@@ -42,6 +44,7 @@ export async function GET(req: Request) {
   }
 
   try {
+    const { syncOverseasJobs } = await import('../../../../scripts/sync-overseas-jobs');
     const total = await syncOverseasJobs();
     
     return NextResponse.json({
