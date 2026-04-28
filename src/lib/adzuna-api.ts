@@ -69,6 +69,9 @@ export async function fetchAdzunaJobs(
     console.log(`Adzuna: 获取到 ${data.results.length} 个职位`);
 
     // 保存到数据库（单个创建，避免外键问题）
+    const companyId = process.env.ADZUNA_COMPANY_ID!;
+    const authorId = process.env.ADZUNA_AUTHOR_ID!;
+    
     let savedCount = 0;
     for (const job of data.results) {
       try {
@@ -86,7 +89,9 @@ export async function fetchAdzunaJobs(
                            job.contract_type === 'internship' ? 'INTERNSHIP' : 
                            job.contract_type === 'freelance' ? 'FREELANCE' : 'FULL_TIME',
             applyUrl: job.redirect_url,
-            status: 'ACTIVE'
+            status: 'ACTIVE',
+            companyId,
+            authorId
           }
         });
         savedCount++;
