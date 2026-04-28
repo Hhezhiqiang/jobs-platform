@@ -9,8 +9,6 @@ import { HeroSection } from "@/components/hero-section";
 import { StatsSection } from "@/components/stats-section";
 import { FeaturesSection } from "@/components/features-section";
 import { JobCardV2 } from "@/components/job-card-v2";
-// import { AdBanner } from "@/components/ad-banner"; // 广告位已暂时隐藏
-import { RecommendationSection } from "@/components/recommendation-section";
 import { HomeCheckinWrapper } from "@/components/game/home-checkin-wrapper";
 import { getTranslations } from "next-intl/server";
 
@@ -38,21 +36,22 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const { featuredJobs, latestJobs, hotCompanies, stats } = await getHomePageData();
   const homeFAQ = await getHomeFAQ(locale);
 
+  // 确保统计数据不为 0（如果为 0 则显示最小值 1）
+  const displayStats = {
+    jobCount: Math.max(stats.jobCount, 1),
+    companyCount: Math.max(stats.companyCount, 1),
+    dailyNewJobs: Math.max(stats.dailyNewJobs, 0),
+  };
+
   return (
     <div className="min-h-screen bg-white">
       <HomeCheckinWrapper />
 
-      <HeroSection jobCount={stats.jobCount} />
+      <HeroSection jobCount={displayStats.jobCount} />
       
-      <StatsSection jobCount={stats.jobCount} companyCount={stats.companyCount} dailyNewJobs={stats.dailyNewJobs} />
+      <StatsSection jobCount={displayStats.jobCount} companyCount={displayStats.companyCount} dailyNewJobs={displayStats.dailyNewJobs} />
 
-      <div className="max-w-7xl mx-auto px-4">
-        {/* 广告位已暂时隐藏，待修复后恢复 */}
-      </div>
-
-      <RecommendationSection limit={6} initialJobs={featuredJobs} />
-
-      {/* Featured Jobs */}
+      {/* Hot Jobs - 合并后的单一职位模块 */}
       {featuredJobs.length > 0 && (
         <section className="py-20 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4">
@@ -74,9 +73,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
               {featuredJobs.slice(0, 6).map((job) => (
-                <div key={job.id} className="h-full">
-                  <JobCardV2 job={job} variant="featured" locale={locale} />
-                </div>
+                <JobCardV2 key={job.id} job={job} variant="featured" locale={locale} />
               ))}
             </div>
 
