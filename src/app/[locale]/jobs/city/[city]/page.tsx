@@ -98,8 +98,7 @@ interface PageProps {
 }
 
 // 禁用 SSG，强制动态渲染
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const revalidate = 60;
 export const dynamicParams = true;
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
