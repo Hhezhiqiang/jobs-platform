@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Briefcase, ChevronLeft, Eye, Edit, Trash2, MapPin } from "lucide-react";
+import { Briefcase, ChevronLeft, Eye, Edit, Trash2, MapPin, X, ExternalLink, Building, DollarSign, Calendar } from "lucide-react";
 
 type Job = {
   id: string;
@@ -19,40 +19,60 @@ type Job = {
   _count: { job_applications: number };
 };
 
+type JobDetail = Job & {
+  description?: string;
+  requirements?: string;
+  benefits?: string;
+  applyUrl?: string;
+  slug?: string;
+};
+
 export default function AdminJobsPage({ params }: { params: { locale: string } }) {
   const router = useRouter();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [totalCount, setTotalCount] = useState(0);
+  const [selectedJob, setSelectedJob] = useState<JobDetail | null>(null);
+
+  const fetchJobs = async () => {
+    try {
+      const res = await fetch(`/api/admin/jobs?page=1`);
+      if (res.status === 401) {
+        router.push(`/${params.locale}/auth/login/admin`);
+        return;
+      }
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "获取职位列表失败");
+      }
+      const data = await res.json();
+      if (data) {
+        setJobs(data.jobs || []);
+        setTotalCount(data.totalCount || 0);
+      }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // 通过 API 获取职位列表
-    fetch(`/api/admin/jobs?page=1`)
-      .then(async (res) => {
-        if (res.status === 401) {
-          router.push(`/${params.locale}/auth/login/admin`);
-          return;
-        }
-        if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data.error || "获取职位列表失败");
-        }
-        return res.json();
-      })
-      .then((data) => {
-        if (data) {
-          setJobs(data.jobs || []);
-          setTotalCount(data.totalCount || 0);
-        }
-      })
-      .catch((err) => {
-        setError(err.message);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    fetchJobs();
   }, [params.locale, router]);
+
+  const handleViewJob = async (jobId: string) => {
+    try {
+      const res = await fetch(`/api/admin/jobs/${jobId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setSelectedJob(data.job);
+      }
+    } catch (error) {
+      console.error('Failed to fetch job details:', error);
+    }
+  };
 
   const statusMap: Record<string, { label: string; className: string }> = {
     ACTIVE: { label: "招聘中", className: "bg-green-100 text-green-700" },
@@ -161,9 +181,40 @@ export default function AdminJobsPage({ params }: { params: { locale: string } }
                         <td className="px-6 py-4 text-sm">{job._count?.job_applications || 0}</td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <Link href={`/jobs/${job.title}`} target="_blank" className="p-1.5 text-gray-600 hover:text-blue-600"><Eye className="w-4 h-4" /></Link>
-                            <Link href={`/admin/jobs/edit/${job.id}`} className="p-1.5 text-indigo-600 hover:text-indigo-700"><Edit className="w-4 h-4" /></Link>
-                            <button className="p-1.5 text-red-600 hover:text-red-700"><Trash2 className="w-4 h-4" /></button>
+                            {/* 查看详情按钮 */}
+                            <button 
+                              onClick={() => handleViewJob(job.id)}
+                              className="p-1.5 text-blue-600 hover:text-blue-700"
+                              title="查看职位详情"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
+                            
+                            {/* 前台详情页 - 使用 slug 或回退到搜索 */}
+                            <Link 
+                              href={`/jobs/${job.title}`} 
+                              target="_blank" 
+                              className="p-1.5 text-gray-600 hover:text-gray-700"
+                              title="打开前台页面"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </Link>
+                            
+                            {/* 编辑按钮 - Adzuna 职位显示为灰色 */}
+                            {job.title.startsWith('adzuna-') || job.title.includes('Adzuna') ? (
+                              <span className="p-1.5 text-gray-300 cursor-not-allowed" title="API 同步职位不可编辑">
+                                <Edit className="w-4 h-4" />
+                              </span>
+                            ) : (
+                              <Link href={`/admin/jobs/edit/${job.id}`} className="p-1.5 text-indigo-600 hover:text-indigo-700">
+                                <Edit className="w-4 h-4" />
+                              </Link>
+                            )}
+                            
+                            {/* 删除按钮 */}
+                            <button className="p-1.5 text-red-600 hover:text-red-700" title="删除职位">
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -175,6 +226,108 @@ export default function AdminJobsPage({ params }: { params: { locale: string } }
           )}
         </div>
       </main>
+
+      {/* 职位详情弹窗 */}
+      {selectedJob && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setSelectedJob(null)}>
+          <div 
+            className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 头部 */}
+            <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-900">职位详情</h2>
+              <button
+                onClick={() => setSelectedJob(null)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            {/* 内容 */}
+            <div className="p-6 space-y-6">
+              {/* 基本信息 */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">{selectedJob.title}</h3>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Building className="w-4 h-4" />
+                    <span>{selectedJob.companies?.name}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-600 mt-1">
+                    <MapPin className="w-4 h-4" />
+                    <span>{selectedJob.city || selectedJob.location}</span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="flex items-center justify-end gap-2 text-sm text-gray-600">
+                    <DollarSign className="w-4 h-4" />
+                    <span className="font-semibold">
+                      {selectedJob.salaryMin && selectedJob.salaryMax
+                        ? `${selectedJob.salaryMin}-${selectedJob.salaryMax}K`
+                        : '面议'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-end gap-2 text-sm text-gray-600 mt-1">
+                    <Calendar className="w-4 h-4" />
+                    <span>{typeMap[selectedJob.employmentType]}</span>
+                  </div>
+                  <span className={`inline-block mt-2 px-3 py-1 rounded-full text-xs font-medium ${statusMap[selectedJob.status]?.className}`}>
+                    {statusMap[selectedJob.status]?.label}
+                  </span>
+                </div>
+              </div>
+
+              {/* AI 解析内容 */}
+              <div className="space-y-4">
+                {selectedJob.description && (
+                  <div className="bg-blue-50 rounded-xl p-4">
+                    <h4 className="font-semibold text-blue-900 mb-2">📋 岗位职责</h4>
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{selectedJob.description}</p>
+                  </div>
+                )}
+                
+                {selectedJob.requirements && (
+                  <div className="bg-green-50 rounded-xl p-4">
+                    <h4 className="font-semibold text-green-900 mb-2">✅ 任职要求</h4>
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{selectedJob.requirements}</p>
+                  </div>
+                )}
+                
+                {selectedJob.benefits && (
+                  <div className="bg-purple-50 rounded-xl p-4">
+                    <h4 className="font-semibold text-purple-900 mb-2">🎁 福利待遇</h4>
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{selectedJob.benefits}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* 外部链接 */}
+              {selectedJob.applyUrl && (
+                <div className="border-t pt-4">
+                  <a
+                    href={selectedJob.applyUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    前往申请页面
+                  </a>
+                </div>
+              )}
+
+              {/* 元数据 */}
+              <div className="border-t pt-4 text-xs text-gray-500">
+                <p>职位 ID: {selectedJob.id}</p>
+                <p>Slug: {selectedJob.slug}</p>
+                <p>创建时间：{new Date(selectedJob.createdAt).toLocaleString('zh-CN')}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
