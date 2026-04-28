@@ -84,7 +84,7 @@ export async function fetchAdzunaJobs(
     }));
 
     // 批量保存（去重）
-    const saved = await prisma.job.createMany({
+    const saved = await prisma.jobs.createMany({
       data: jobs,
       skipDuplicates: true
     });
