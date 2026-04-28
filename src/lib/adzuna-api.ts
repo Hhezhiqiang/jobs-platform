@@ -1,5 +1,6 @@
 import { prisma } from './prisma';
 import { parseJobDescriptionWithAI } from './parse-job-description';
+import { getRegionTags } from './global-job-tags';
 
 interface AdzunaJob {
   id: string;
@@ -18,6 +19,10 @@ interface AdzunaJob {
   contract_time?: string;
   contract_type?: string;
   created: string;
+  category?: {
+    label: string;
+    tag: string;
+  };
 }
 
 interface AdzunaResponse {
@@ -88,6 +93,14 @@ export async function fetchAdzunaJobs(
         const fullLocation = job.location?.display_name || location || 'Remote';
         const city = fullLocation.split(',')[0]?.trim() || fullLocation;
         
+        // 自动生成全球标签
+        const globalTags = getRegionTags(country, fullLocation);
+        
+        // 添加行业分类标签
+        if (job.category?.tag) {
+          globalTags.push(job.category.tag);
+        }
+        
         await prisma.jobs.create({
           data: {
             slug: `adzuna-${job.id}`,
@@ -107,7 +120,8 @@ export async function fetchAdzunaJobs(
             applyUrl: job.redirect_url,
             status: 'ACTIVE',
             companyId,
-            authorId
+            authorId,
+            keywords: globalTags // 自动添加全球标签
           }
         });
         savedCount++;
