@@ -23,6 +23,9 @@ interface PageProps {
   }>;
 }
 
+// ISR 缓存：30 秒后重新生成
+export const revalidate = 30;
+
 export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
   const { locale } = await params;
   const sp = await searchParams;
@@ -84,7 +87,7 @@ export default async function JobsPage({ params, searchParams }: PageProps) {
       };
     }
 
-    // 获取数据（服务端不分页，全部返回，由客户端 slice）
+    // 获取数据（优化：限制最多 200 条，提升查询速度）
     const [jobsData, totalData, citiesData] = await Promise.all([
       prisma.jobs.findMany({
         where,
@@ -95,19 +98,17 @@ export default async function JobsPage({ params, searchParams }: PageProps) {
               name: true,
               slug: true,
               logo: true,
-              industry: true,
-              size: true,
-              location: true,
-              cultureTags: true,
             },
           },
         },
         orderBy: { datePosted: "desc" },
+        take: 200, // 限制返回数量，提升性能
       }),
       prisma.jobs.count({ where }),
       prisma.jobs.findMany({
         select: { city: true },
         distinct: ["city"],
+        where: { status: "ACTIVE" },
       }),
     ]);
 
