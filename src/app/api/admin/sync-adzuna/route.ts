@@ -23,7 +23,7 @@ export async function POST(req: Request) {
       // 批量获取
       count = await fetchAdzunaBulkJobs();
     } else {
-      // 单次获取
+      // 单次获取 - 使用 50 条结果获取更多新职位
       count = await fetchAdzunaJobs(keyword, location, 1);
     }
 

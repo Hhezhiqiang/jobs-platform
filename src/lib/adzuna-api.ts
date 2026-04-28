@@ -49,7 +49,7 @@ export async function fetchAdzunaJobs(
   
   url.searchParams.set('app_id', appId);
   url.searchParams.set('app_key', appKey);
-  url.searchParams.set('results_per_page', '50');
+  url.searchParams.set('results_per_page', '50'); // 获取 50 条，增加新职位概率
   
   if (keyword) {
     url.searchParams.set('what', keyword);
@@ -66,6 +66,12 @@ export async function fetchAdzunaJobs(
       },
       next: { revalidate: 3600 }
     });
+    
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error(`Adzuna API error ${response.status}:`, errorBody);
+      throw new Error(`Adzuna API error: ${response.status} - ${errorBody}`);
+    }
 
     if (!response.ok) {
       throw new Error(`Adzuna API error: ${response.status}`);

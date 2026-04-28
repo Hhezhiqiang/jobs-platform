@@ -14,7 +14,7 @@ export function AdzunaSyncButtons() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          keyword: "software engineer",
+          keyword: "data scientist",
           location: "London",
           bulk: false,
         }),
@@ -89,7 +89,7 @@ export function AdzunaSyncButtons() {
           ) : (
             <>
               <Globe className="w-5 h-5" />
-              测试同步（伦敦 - 软件工程师）
+              测试同步（伦敦 - 数据科学家）
             </>
           )}
         </button>
