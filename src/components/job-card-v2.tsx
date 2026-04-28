@@ -38,7 +38,7 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
 
   // 安全路由：如果 slug 丢失，回退到搜索页，避免 404
   const jobLink = job.slug 
-    ? `${jobLink}` 
+    ? `/${locale}/jobs/${job.slug}` 
     : `/${locale}/search?q=${encodeURIComponent(job.title)}`;
 
   if (variant === "compact") {

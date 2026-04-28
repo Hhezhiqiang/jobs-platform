@@ -76,7 +76,7 @@ export function JobCardV3({
 
   // 安全路由：如果 slug 丢失，回退到搜索页，避免 404
   const jobLink = job.slug 
-    ? `${jobLink}` 
+    ? `/${locale}/jobs/${job.slug}` 
     : `/${locale}/search?q=${encodeURIComponent(job.title)}`;
 
   // 紧凑版
