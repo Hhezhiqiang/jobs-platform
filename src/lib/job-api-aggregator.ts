@@ -47,15 +47,15 @@ export async function fetchJoobleJobs(
     console.log(`Jooble: 获取到 ${jobs.length} 个职位`);
 
     // 保存职位
-    const companyId = process.env.JOOBLE_COMPANY_ID;
-    const authorId = process.env.JOOBLE_AUTHOR_ID;
+    let savedCount = 0;
+    const companyId = process.env.JOOBLE_COMPANY_ID || '';
+    const authorId = process.env.JOOBLE_AUTHOR_ID || '';
     
     if (!companyId || !authorId) {
-      console.warn('Jooble: 未配置公司/作者 ID');
-      return 0;
+      console.warn('⚠️ Jooble: 未配置公司/作者 ID，跳过保存');
+      return jobs.length; // 返回抓取数量但不保存
     }
-
-    let savedCount = 0;
+    
     for (const job of jobs) {
       try {
         await prisma.jobs.create({
@@ -143,15 +143,15 @@ export async function fetchMuseJobs(
     console.log(`The Muse: 获取到 ${jobs.length} 个职位`);
 
     // 保存职位
-    const companyId = process.env.MUSE_COMPANY_ID;
-    const authorId = process.env.MUSE_AUTHOR_ID;
+    let savedCount = 0;
+    const companyId = process.env.MUSE_COMPANY_ID || '';
+    const authorId = process.env.MUSE_AUTHOR_ID || '';
     
     if (!companyId || !authorId) {
-      console.warn('Muse: 未配置公司/作者 ID');
-      return 0;
+      console.warn('⚠️ Muse: 未配置公司/作者 ID，跳过保存');
+      return jobs.length;
     }
-
-    let savedCount = 0;
+    
     for (const job of jobs) {
       try {
         await prisma.jobs.create({
