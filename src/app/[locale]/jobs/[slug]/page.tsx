@@ -166,9 +166,22 @@ export default async function JobDetailPage({ params }: PageProps) {
           </div>
           <div className="flex gap-4">
             {job.applyUrl ? (
-              <a href={job.applyUrl} target="_blank" rel="noopener noreferrer" className="flex-1 bg-blue-600 text-white text-center py-3 rounded-xl font-semibold hover:bg-blue-700 transition">
-                {isEn ? "Apply Now" : "立即申请"}
-              </a>
+              // Adzuna 链接容易拦截服务器 IP，改为引导用户去 Adzuna 搜索
+              job.slug?.startsWith('adzuna-') ? (
+                <a 
+                  href={`https://www.adzuna.com/jobs?q=${encodeURIComponent(job.title)}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="flex-1 bg-blue-600 text-white text-center py-3 rounded-xl font-semibold hover:bg-blue-700 transition flex items-center justify-center gap-2"
+                >
+                  <span>{isEn ? "Search on Adzuna" : "去 Adzuna 搜索"}</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                </a>
+              ) : (
+                <a href={job.applyUrl} target="_blank" rel="noopener noreferrer" className="flex-1 bg-blue-600 text-white text-center py-3 rounded-xl font-semibold hover:bg-blue-700 transition">
+                  {isEn ? "Apply Now" : "立即申请"}
+                </a>
+              )
             ) : (
               <button disabled className="flex-1 bg-gray-300 text-gray-500 text-center py-3 rounded-xl font-semibold cursor-not-allowed">
                 {isEn ? "No Application Link" : "暂无申请链接"}
