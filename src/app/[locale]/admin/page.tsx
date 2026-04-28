@@ -20,6 +20,7 @@ import {
   PieChart,
   Globe,
 } from "lucide-react";
+import { AdzunaSyncButtons } from "@/components/adzuna-sync-buttons";
 
 export const metadata: Metadata = {
   title: "管理员控制台 | 求职平台",
@@ -250,6 +251,9 @@ export default async function AdminPage({ params }: { params: Promise<{ locale: 
                 </div>
               </div>
             </div>
+
+            {/* Adzuna Sync Buttons */}
+            <AdzunaSyncButtons />
           </div>
         </div>
       </main>
