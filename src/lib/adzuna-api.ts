@@ -78,6 +78,7 @@ export async function fetchAdzunaJobs(
             title: job.title,
             description: job.description,
             location: job.location.display_name,
+            city: job.location.area?.[0] || null,
             salaryMin: job.salary_min || null,
             salaryMax: job.salary_max || null,
             employmentType: job.contract_type === 'part_time' ? 'PART_TIME' : 
@@ -85,8 +86,6 @@ export async function fetchAdzunaJobs(
                            job.contract_type === 'internship' ? 'INTERNSHIP' : 
                            job.contract_type === 'freelance' ? 'FREELANCE' : 'FULL_TIME',
             applyUrl: job.redirect_url,
-            source: 'ADZUNA',
-            sourceId: job.id,
             status: 'ACTIVE'
           }
         });
