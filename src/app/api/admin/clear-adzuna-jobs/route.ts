@@ -4,9 +4,10 @@ import { prisma } from '@/lib/prisma';
 // DELETE /api/admin/clear-adzuna-jobs
 export async function DELETE() {
   try {
+    // 删除所有 slug 以 adzuna- 开头的职位
     const result = await prisma.jobs.deleteMany({
       where: {
-        sourceId: { startsWith: 'adzuna-' }
+        slug: { startsWith: 'adzuna-' }
       }
     });
 
