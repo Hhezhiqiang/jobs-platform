@@ -101,6 +101,19 @@ export async function fetchAdzunaJobs(
           globalTags.push(job.category.tag);
         }
         
+        // 尝试提取原始招聘网站链接
+        // Adzuna 的 redirect_url 是跳转链接，我们尝试从描述中提取原始链接
+        let directApplyUrl = job.redirect_url;
+        
+        // 从描述中提取 URL（如果有）
+        const urlMatch = job.description.match(/(https?:\/\/[^\s<>"']+)/i);
+        if (urlMatch && urlMatch[1]) {
+          // 排除 Adzuna 自己的链接
+          if (!urlMatch[1].includes('adzuna.com')) {
+            directApplyUrl = urlMatch[1];
+          }
+        }
+        
         await prisma.jobs.create({
           data: {
             slug: `adzuna-${job.id}`,
@@ -117,7 +130,7 @@ export async function fetchAdzunaJobs(
                            job.contract_type === 'contract' ? 'CONTRACT' : 
                            job.contract_type === 'internship' ? 'INTERNSHIP' : 
                            job.contract_type === 'freelance' ? 'FREELANCE' : 'FULL_TIME',
-            applyUrl: job.redirect_url,
+            applyUrl: directApplyUrl, // 使用直接链接
             status: 'ACTIVE',
             companyId,
             authorId,
