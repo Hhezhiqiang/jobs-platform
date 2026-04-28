@@ -27,7 +27,8 @@ interface AdzunaResponse {
 export async function fetchAdzunaJobs(
   keyword?: string,
   location?: string,
-  page: number = 1
+  page: number = 1,
+  country: string = 'gb' // 默认英国，支持：gb, us, sg, de, fr, au 等
 ): Promise<number> {
   const appId = process.env.ADZUNA_APP_ID;
   const appKey = process.env.ADZUNA_APP_KEY;
@@ -37,7 +38,7 @@ export async function fetchAdzunaJobs(
     return 0;
   }
 
-  const baseUrl = 'https://api.adzuna.com/v1/api/jobs/cn/search';
+  const baseUrl = `https://api.adzuna.com/v1/api/jobs/${country}/search`;
   const url = new URL(`${baseUrl}/${page}`);
   
   url.searchParams.set('app_id', appId);
