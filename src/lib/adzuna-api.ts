@@ -1,4 +1,5 @@
 import { prisma } from './prisma';
+import { EmploymentType } from '@prisma/client';
 
 interface AdzunaJob {
   id: string;
@@ -69,21 +70,30 @@ export async function fetchAdzunaJobs(
     console.log(`Adzuna: 获取到 ${data.results.length} 个职位`);
 
     // 保存到数据库
-    const jobs = data.results.map(job => ({
-      slug: `adzuna-${job.id}`,
-      title: job.title,
-      description: job.description,
-      location: job.location.display_name,
-      salaryMin: job.salary_min || null,
-      salaryMax: job.salary_max || null,
-      employmentType: job.contract_type || 'FULL_TIME',
-      applyUrl: job.redirect_url,
-      source: 'ADZUNA',
-      sourceId: job.id,
-      status: 'ACTIVE' as const,
-      companyId: null,
-      authorId: null
-    }));
+    const jobs = data.results.map(job => {
+      // 映射合同类型为 EmploymentType 枚举
+      let employmentType: EmploymentType = 'FULL_TIME';
+      if (job.contract_type === 'part_time') employmentType = 'PART_TIME';
+      else if (job.contract_type === 'contract') employmentType = 'CONTRACT';
+      else if (job.contract_type === 'internship') employmentType = 'INTERNSHIP';
+      else if (job.contract_type === 'freelance') employmentType = 'FREELANCE';
+
+      return {
+        slug: `adzuna-${job.id}`,
+        title: job.title,
+        description: job.description,
+        location: job.location.display_name,
+        salaryMin: job.salary_min || null,
+        salaryMax: job.salary_max || null,
+        employmentType,
+        applyUrl: job.redirect_url,
+        source: 'ADZUNA',
+        sourceId: job.id,
+        status: 'ACTIVE' as const,
+        companyId: null,
+        authorId: null
+      };
+    });
 
     // 批量保存（去重）
     const saved = await prisma.jobs.createMany({
