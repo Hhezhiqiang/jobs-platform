@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { syncOverseasJobs } from '@/scripts/sync-overseas-jobs';
+import { syncOverseasJobs } from '../../../../scripts/sync-overseas-jobs';
 
 // POST /api/admin/sync-overseas
 export async function POST(req: Request) {
