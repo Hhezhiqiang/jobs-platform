@@ -43,6 +43,10 @@ export default function ProfilePage({ params }: { params: Promise<{ locale: stri
   const fetchData = async () => {
     try {
       const res = await fetch("/api/user/profile");
+      if (res.status === 401) {
+        router.push(`/${locale}/auth/login`);
+        return;
+      }
       if (res.ok) {
         const data = await res.json();
         setUser(data.users);

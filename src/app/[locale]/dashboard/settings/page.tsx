@@ -60,6 +60,11 @@ export default function SettingsPage() {
         body: JSON.stringify({ currentPassword, newPassword }),
       });
 
+      if (res.status === 401) {
+        router.push(`/${locale}/auth/login`);
+        return;
+      }
+
       if (res.ok) {
         setMessage({ type: "success", text: "密码修改成功" });
         setCurrentPassword("");
@@ -80,16 +85,26 @@ export default function SettingsPage() {
     e.preventDefault();
     setMessage({ type: "", text: "" });
 
-    // 这里应该调用API保存通知设置
-    // 暂时使用本地存储模拟
+    const settings = {
+      email: emailNotifications,
+      jobAlerts,
+      applicationUpdates,
+      marketingEmails,
+    };
+
+    try {
+      await fetch("/api/user/notification-settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settings),
+      });
+    } catch (error) {
+      console.error("保存通知设置失败:", error);
+    }
+
     localStorage.setItem(
       "notificationSettings",
-      JSON.stringify({
-        emailNotifications,
-        jobAlerts,
-        applicationUpdates,
-        marketingEmails,
-      })
+      JSON.stringify(settings)
     );
 
     setMessage({ type: "success", text: "通知设置已保存" });
@@ -175,25 +190,25 @@ export default function SettingsPage() {
           <div className="md:col-span-1">
             <nav className="bg-white rounded-lg shadow p-4 space-y-2">
               <Link
-                href="/dashboard"
+                href={`/${locale}/dashboard`}
                 className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg"
               >
                 📊 概览
               </Link>
               <Link
-                href="/dashboard/profile"
+                href={`/${locale}/dashboard/profile`}
                 className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg"
               >
                 📄 我的简历
               </Link>
               <Link
-                href="/dashboard/applications"
+                href={`/${locale}/dashboard/applications`}
                 className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg"
               >
                 📋 我的申请
               </Link>
               <Link
-                href="/dashboard/settings"
+                href={`/${locale}/dashboard/settings`}
                 className="block px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-medium"
               >
                 ⚙️ 账号设置

@@ -87,30 +87,36 @@ export default async function JobsPage({ params, searchParams }: PageProps) {
       };
     }
 
-    // 获取数据（优化：限制最多 200 条，提升查询速度）
-    const [jobsData, totalData, citiesData] = await Promise.all([
-      prisma.jobs.findMany({
-        where,
-        include: { 
-          companies: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-              logo: true,
-            },
+  // Server-side pagination
+  const ITEMS_PER_PAGE = 15;
+  const page = Math.max(1, parseInt(sp?.page as string || "1", 10));
+  const skip = (page - 1) * ITEMS_PER_PAGE;
+
+  // 获取数据（服务端分页）
+  const [jobsData, totalData, citiesData] = await Promise.all([
+    prisma.jobs.findMany({
+      where,
+      include: { 
+        companies: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            logo: true,
           },
         },
-        orderBy: { datePosted: "desc" },
-        take: 200, // 限制返回数量，提升性能
-      }),
-      prisma.jobs.count({ where }),
-      prisma.jobs.findMany({
-        select: { city: true },
-        distinct: ["city"],
-        where: { status: "ACTIVE" },
-      }),
-    ]);
+      },
+      orderBy: { datePosted: "desc" },
+      skip,
+      take: ITEMS_PER_PAGE,
+    }),
+    prisma.jobs.count({ where }),
+    prisma.jobs.findMany({
+      select: { city: true },
+      distinct: ["city"],
+      where: { status: "ACTIVE" },
+    }),
+  ]);
 
     jobs = jobsData;
     total = totalData;

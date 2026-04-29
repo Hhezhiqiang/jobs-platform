@@ -103,17 +103,17 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
   const gameProfile = await getGameProfile(session.user.id);
 
   const navItems = [
-    { icon: Award, label: "推荐职位", href: "/dashboard/recommended" },
-    { icon: FileText, label: "简历管理", href: "/dashboard/resumes" },
-    { icon: Briefcase, label: "求职偏好", href: "/dashboard/preferences" },
-    { icon: TrendingUp, label: "薪资对比", href: "/dashboard/salary" },
-    { icon: BarChart3, label: "投递进度", href: "/dashboard/job-progress" },
-    { icon: LayoutDashboard, label: "概览", href: "/dashboard", active: true },
-    { icon: FileText, label: "我的简历", href: "/dashboard/profile" },
-    { icon: Briefcase, label: "我的申请", href: "/dashboard/applications" },
-    { icon: Search, label: "求职状态", href: "/dashboard/job-status" },
-    { icon: Wallet, label: "账户余额", href: "/user/recharge" },
-    { icon: Settings, label: "账号设置", href: "/dashboard/settings" },
+    { icon: Award, label: "推荐职位", href: `/${locale}/dashboard/recommended` },
+    { icon: FileText, label: "简历管理", href: `/${locale}/dashboard/resumes` },
+    { icon: Briefcase, label: "求职偏好", href: `/${locale}/dashboard/preferences` },
+    { icon: TrendingUp, label: "薪资对比", href: `/${locale}/dashboard/salary` },
+    { icon: BarChart3, label: "投递进度", href: `/${locale}/dashboard/job-progress` },
+    { icon: LayoutDashboard, label: "概览", href: `/${locale}/dashboard`, active: true },
+    { icon: FileText, label: "我的简历", href: `/${locale}/dashboard/profile` },
+    { icon: Briefcase, label: "我的申请", href: `/${locale}/dashboard/applications` },
+    { icon: Search, label: "求职状态", href: `/${locale}/dashboard/job-status` },
+    { icon: Wallet, label: "账户余额", href: `/${locale}/user/recharge` },
+    { icon: Settings, label: "账号设置", href: `/${locale}/dashboard/settings` },
   ];
 
   return (
@@ -133,7 +133,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
               </div>
             </div>
             <Link
-              href="/dashboard/settings"
+              href={`/${locale}/dashboard/settings`}
               className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all"
             >
               <Settings className="w-6 h-6" />
@@ -172,21 +172,21 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
               <div className="px-4 pb-2 text-xs font-medium text-gray-400 uppercase">游戏中心</div>
               
               <Link
-                href="/dashboard/achievements"
+                href={`/${locale}/dashboard/achievements`}
                 className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all"
               >
                 <Trophy className="w-5 h-5" />
                 我的成就
               </Link>
               <Link
-                href="/dashboard/quests"
+                href={`/${locale}/dashboard/quests`}
                 className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all"
               >
                 <ScrollText className="w-5 h-5" />
                 我的任务
               </Link>
               <Link
-                href="/dashboard/leaderboard"
+                href={`/${locale}/dashboard/leaderboard`}
                 className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all"
               >
                 <BarChart3 className="w-5 h-5" />
@@ -258,7 +258,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
                   </div>
                 </div>
                 <Link 
-                  href="/dashboard/profile" 
+                  href={`/${locale}/dashboard/profile`} 
                   className="mt-4 text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
                 >
                   管理简历 <ChevronRight className="w-4 h-4" />
@@ -328,7 +328,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
                     浏览职位
                   </Link>
                   <Link
-                    href="/dashboard/profile"
+                    href={`/${locale}/dashboard/profile`}
                     className="px-6 py-3 bg-white/10 text-white font-semibold rounded-xl hover:bg-white/20 transition-all flex items-center gap-2 border border-white/20"
                   >
                     <FileText className="w-5 h-5" />
@@ -343,7 +343,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
               <div className="p-6 border-b border-gray-100 flex items-center justify-between">
                 <h2 className="text-lg font-bold text-gray-900">最近申请</h2>
                 <Link
-                  href="/dashboard/applications"
+                  href={`/${locale}/dashboard/applications`}
                   className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1"
                 >
                   查看全部 <ChevronRight className="w-4 h-4" />

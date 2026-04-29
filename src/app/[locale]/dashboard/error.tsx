@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { AlertTriangle, RefreshCcw, Home } from "lucide-react";
 
 export default function DashboardError({
@@ -12,6 +12,10 @@ export default function DashboardError({
   reset: () => void;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
+
+  // Extract locale from pathname (e.g. /zh/dashboard -> zh)
+  const locale = pathname?.split("/")[1] || "zh";
 
   useEffect(() => {
     console.error("Dashboard error:", error);
@@ -40,7 +44,7 @@ export default function DashboardError({
             重试
           </button>
           <button
-            onClick={() => router.push("/dashboard")}
+            onClick={() => router.push(`/${locale}/dashboard`)}
             className="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all"
           >
             <Home className="w-4 h-4" />

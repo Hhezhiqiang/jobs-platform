@@ -68,6 +68,7 @@ async function getCompanyInterviewData(slug: string, page: number = 1) {
     const interviews = await prisma.careerStory.findMany({
       where: {
         type: "EXPERIENCE",
+        companyId: company.id,
       },
       orderBy: [
         { resonanceCount: "desc" },
@@ -87,7 +88,7 @@ async function getCompanyInterviewData(slug: string, page: number = 1) {
     });
 
     const total = await prisma.careerStory.count({
-      where: { type: "EXPERIENCE" },
+      where: { type: "EXPERIENCE", companyId: company.id },
     });
 
     // 解析面试经验数据
@@ -99,9 +100,9 @@ async function getCompanyInterviewData(slug: string, page: number = 1) {
       };
     });
 
-    // 统计分析
+    // 统计分析（仅当前公司数据）
     const allInterviews = await prisma.careerStory.findMany({
-      where: { type: "EXPERIENCE" },
+      where: { type: "EXPERIENCE", companyId: company.id },
       select: {
         content: true,
         resonanceCount: true,

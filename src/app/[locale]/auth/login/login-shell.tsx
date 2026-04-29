@@ -73,11 +73,12 @@ function LoginFormContent({
 
         // Role check logic
         if (currentRole === "USER" && userRole !== "USER" && userRole !== "ADMIN") {
-           // If logging in as User but account is Company, warn or redirect
-           finalRedirect = "/company/dashboard"; 
+           setError("请使用正确的角色入口登录");
+           setLoading(false);
+           return;
         }
         if (currentRole === "COMPANY" && userRole !== "COMPANY" && userRole !== "ADMIN") {
-           setError("该账户不是企业账户，请切换至求职者登录");
+           setError("请使用正确的角色入口登录");
            setLoading(false);
            return;
         }
