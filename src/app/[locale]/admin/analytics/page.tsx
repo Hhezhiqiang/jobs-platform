@@ -13,8 +13,9 @@ export default async function AnalyticsPage({ params }: { params: Promise<{ loca
     redirect(`/${locale}/unauthorized`);
   }
 
-  // 获取分析数据
-  const data = await getAnalyticsOverview();
+  // 获取分析数据 (默认30天)
+  const days = 30;
+  const data = await getAnalyticsOverview(days);
 
   return <AnalyticsClient data={data} />;
 }

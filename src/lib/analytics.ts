@@ -319,7 +319,7 @@ export async function getJobGrowthStats(days: number = 30) {
   };
 }
 
-export async function getAnalyticsOverview() {
+export async function getAnalyticsOverview(days: number = 30) {
   const [
     visitStats,
     conversionStats,
@@ -329,13 +329,13 @@ export async function getAnalyticsOverview() {
     userGrowth,
     jobGrowth,
   ] = await Promise.all([
-    getVisitStats(30),
-    getApplicationConversionStats(30),
+    getVisitStats(days),
+    getApplicationConversionStats(days),
     getTopJobs(10),
     getGeoStats(),
     getBehaviorStats(),
-    getUserGrowthStats(30),
-    getJobGrowthStats(30),
+    getUserGrowthStats(days),
+    getJobGrowthStats(days),
   ]);
 
   return {
