@@ -35,8 +35,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   try {
     const { slug, locale } = await params;
     const decodedSlug = decodeURIComponent(slug);
+    // 允许预览草稿和已发布的文章
     const post = await prisma.pages.findUnique({
-    where: { slug: decodedSlug, type: "BLOG", status: "PUBLISHED" },
+    where: { slug: decodedSlug, type: "BLOG" },
     include: { users: true },
   });
 
@@ -150,14 +151,17 @@ export default async function BlogDetailPage({ params }: PageProps) {
     const locale = resolvedParams.locale || "zh";
     const isEn = locale === "en";
     const slug = decodeURIComponent(rawSlug);
+    // 允许预览草稿和已发布的文章
     const post = await prisma.pages.findUnique({
-      where: { slug, type: "BLOG", status: "PUBLISHED" },
+      where: { slug, type: "BLOG" },
       include: { users: true },
     });
 
     if (!post) {
       notFound();
     }
+
+    const isDraft = post.status === "DRAFT";
 
     // 获取相关职位（基于关键词匹配）
   const keyword = post.keywords?.[0] || "";
@@ -266,6 +270,16 @@ export default async function BlogDetailPage({ params }: PageProps) {
         </header>
 
         <main className="max-w-4xl mx-auto px-4 py-8">
+          {/* 草稿提示 */}
+          {isDraft && (
+            <div className="mb-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4 flex items-center gap-3">
+              <span className="text-2xl">⚠️</span>
+              <div>
+                <p className="font-semibold text-yellow-800">{isEn ? "Draft Preview" : "草稿预览"}</p>
+                <p className="text-sm text-yellow-700">{isEn ? "This is a draft. Only administrators can view it." : "这是草稿，仅管理员可见"}</p>
+              </div>
+            </div>
+          )}
           <article className="bg-white rounded-lg shadow-md overflow-hidden">
             {/* 封面图 */}
             {post.featuredImage && (
@@ -283,9 +297,16 @@ export default async function BlogDetailPage({ params }: PageProps) {
 
             <div className="p-8">
               {/* 标题 */}
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                {isEn && post.titleEn ? post.titleEn : post.title}
-              </h1>
+              <div className="flex items-center gap-3 mb-4">
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
+                  {isEn && post.titleEn ? post.titleEn : post.title}
+                </h1>
+                {isDraft && (
+                  <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
+                    {isEn ? "DRAFT" : "草稿"}
+                  </span>
+                )}
+              </div>
 
               {/* 作者信息 + 浏览量 */}
               <div className="flex items-center gap-4 text-gray-600 mb-8 pb-8 border-b">
