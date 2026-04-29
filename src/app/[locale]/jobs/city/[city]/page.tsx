@@ -55,31 +55,36 @@ function getCityIntro(city: string): string {
   return `${city}最新招聘信息 - 汇聚互联网、科技、金融等热门行业高薪职位，实时更新，快速找到${city}的理想工作。`;
 }
 
-function generateCityMetadata(city: string): Metadata {
+function generateCityMetadata(city: string, locale = "zh"): Metadata {
   const cityIntro = getCityIntro(city);
-  const title = `${city}招聘信息 - ${city}最新高薪职位 | ${SITE_NAME}`;
-  const description = `查看${city}最新招聘信息，汇聚互联网、科技、金融等热门行业高薪职位。${cityIntro.slice(0, 120)}实时更新，快速找到${city}的理想工作。`;
-  const url = `${SITE_URL}/jobs/city/${encodeURIComponent(city)}`;
+  const isEn = locale === "en";
+  const title = isEn ? `${city} Jobs - Latest Openings | ${SITE_NAME}` : `${city}招聘信息 - ${city}最新高薪职位 | ${SITE_NAME}`;
+  const description = isEn
+    ? `Browse latest job openings in ${city}. ${cityIntro.slice(0, 120)}Real-time updates.`
+    : `查看${city}最新招聘信息，汇聚互联网、科技、金融等热门行业高薪职位。${cityIntro.slice(0, 120)}实时更新，快速找到${city}的理想工作。`;
+  const url = `${SITE_URL}/${locale}/jobs/city/${encodeURIComponent(city)}`;
   return {
     title,
     description,
-    keywords: [
-      `${city}招聘`,
-      `${city}求职`,
-      `${city}找工作`,
-      `${city}高薪职位`,
-      `${city}互联网招聘`,
-      `${city}最新招聘`,
-      `${city}人才网`,
-      `${city}招聘信息`,
-    ],
+    keywords: isEn
+      ? [`${city} jobs`, `${city} recruitment`, `${city} hiring`, `${city} tech jobs`, "latest jobs"]
+      : [
+        `${city}招聘`,
+        `${city}求职`,
+        `${city}找工作`,
+        `${city}高薪职位`,
+        `${city}互联网招聘`,
+        `${city}最新招聘`,
+        `${city}人才网`,
+        `${city}招聘信息`,
+      ],
     openGraph: {
       title,
       description,
       url,
       siteName: SITE_NAME,
       type: "website",
-      locale: "zh_CN",
+      locale: isEn ? "en_US" : "zh_CN",
       images: [`${SITE_URL}/logo.png`],
     },
     twitter: {
@@ -90,6 +95,11 @@ function generateCityMetadata(city: string): Metadata {
     },
     alternates: {
       canonical: url,
+      languages: {
+        "zh-CN": `${SITE_URL}/zh/jobs/city/${encodeURIComponent(city)}`,
+        "en": `${SITE_URL}/en/jobs/city/${encodeURIComponent(city)}`,
+        "x-default": `${SITE_URL}/zh/jobs/city/${encodeURIComponent(city)}`,
+      },
     },
   };
 }
@@ -103,13 +113,13 @@ export const revalidate = 60;
 export const dynamicParams = true;
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { city: encodedCity } = await params;
+  const { city: encodedCity, locale } = await params;
   const city = decodeURIComponent(encodedCity);
   
   if (!isValidCity(city)) {
     return { title: "页面未找到" };
   }
-  return generateCityMetadata(city);
+  return generateCityMetadata(city, locale);
 }
 
 export default async function CityJobsPage({ params }: PageProps) {
@@ -134,7 +144,7 @@ export default async function CityJobsPage({ params }: PageProps) {
     take: 20,
   });
 
-  const jobSchemas = jobs.map((job) => generateJobPostingSchema(job));
+  const jobSchemas = jobs.map((job) => generateJobPostingSchema(job, locale));
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: isEn ? "Home" : "首页", url: `${SITE_URL}/${locale}` },
     { name: isEn ? "Jobs" : "职位", url: `${SITE_URL}/${locale}/jobs` },

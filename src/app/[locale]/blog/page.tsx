@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { Metadata } from "next";
-import { BookOpen, Users, Clock, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { BookOpen, Clock, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { safeJsonLdStringify } from "@/lib/utils";
 import { getTranslations } from "next-intl/server";
 
@@ -120,7 +120,7 @@ interface PageProps {
 
 type PostWithAuthor = pages & { users: users | null };
 
-function generateBlogListSchema(posts: PostWithAuthor[], _total: number, locale: string) {
+function generateBlogListSchema(_posts: PostWithAuthor[], _total: number, locale: string) {
   const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
   return {
     "@context": "https://schema.org",
@@ -141,6 +141,23 @@ function generateBlogListSchema(posts: PostWithAuthor[], _total: number, locale:
   };
 }
 
+// 构建 category 数据库查询条件
+function buildCategoryWhere(category: string | undefined): Record<string, unknown>[] | undefined {
+  if (!category || category === 'all') return undefined;
+
+  const catToKeywords: Record<string, string[]> = {
+    'interview': ['面试', 'interview'],
+    'resume': ['简历', 'resume'],
+    'salary': ['薪资', 'salary', '涨薪', '谈薪'],
+    'career': ['职业', 'career', '升职', '转型'],
+    'trends': ['行业', '趋势', 'trends', '现状'],
+    'skills': ['技能', 'skills', '职场', '社交'],
+  };
+  const keywords = catToKeywords[category] || [category];
+  // 使用 keywords 数组的 contains 匹配（PostgreSQL array overlap）
+  return [{ keywords: { hasSome: keywords } }];
+}
+
 export default async function BlogPage({ params, searchParams }: PageProps) {
   const { locale } = await params;
   const sp = await searchParams;
@@ -155,49 +172,42 @@ export default async function BlogPage({ params, searchParams }: PageProps) {
   let total = 0;
 
   try {
+    // 构建数据库查询条件（数据库级别过滤）
     const where: any = { type: "BLOG", status: "PUBLISHED" };
+
+    // 搜索关键词过滤（数据库级别）
     if (sp.q) {
       where.OR = [
         { title: { contains: sp.q, mode: "insensitive" } },
+        { titleEn: { contains: sp.q, mode: "insensitive" } },
         { excerpt: { contains: sp.q, mode: "insensitive" } },
+        { excerptEn: { contains: sp.q, mode: "insensitive" } },
         { content: { contains: sp.q, mode: "insensitive" } },
+        { contentEn: { contains: sp.q, mode: "insensitive" } },
       ];
     }
 
+    // 分类过滤（数据库级别 - keywords 数组匹配）
+    const categoryFilter = sp.category && sp.category !== 'all' ? sp.category : null;
+    const categoryWhere = buildCategoryWhere(categoryFilter);
+    if (categoryWhere) {
+      where.keywords = { hasSome: categoryWhere[0].keywords as string[] };
+    }
+
+    // 数据库分页（skip/take）
     const [postsData, totalData] = await Promise.all([
       prisma.pages.findMany({
         where,
         include: { users: true },
         orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
       }),
       prisma.pages.count({ where }),
     ]);
 
-    // 内存中按 category 过滤（使用英文 key）
-    let filtered = postsData;
-    const categoryFilter = sp.category && sp.category !== 'all'
-      ? sp.category
-      : null;
-    if (categoryFilter) {
-      // 映射 category key 到中文关键词用于匹配
-      const catToKeywords: Record<string, string[]> = {
-        'interview': ['面试', 'interview'],
-        'resume': ['简历', 'resume'],
-        'salary': ['薪资', 'salary', '涨薪', '谈薪'],
-        'career': ['职业', 'career', '升职', '转型'],
-        'trends': ['行业', '趋势', 'trends', '现状'],
-        'skills': ['技能', 'skills', '职场', '社交'],
-      };
-      const keywords = catToKeywords[categoryFilter] || [categoryFilter];
-      filtered = postsData.filter(post =>
-        post.keywords?.some(kw => keywords.some(k => kw.includes(k))) ||
-        post.title.includes(keywords[0]) ||
-        post.excerpt?.includes(keywords[0])
-      );
-    }
-    total = filtered.length;
-    // 内存分页
-    posts = filtered.slice(skip, skip + limit);
+    posts = postsData;
+    total = totalData;
   } catch {
     // db error
   }

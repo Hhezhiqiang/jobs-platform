@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Noto_Sans_SC } from "next/font/google";
 import "./globals.css";
 import { generateWebsiteSchema } from "@/lib/schema";
 import { safeJsonLdStringify } from "@/lib/utils";
@@ -15,6 +15,11 @@ import { getMessages } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
 
 const inter = Inter({ subsets: ["latin"] });
+const notoSansSC = Noto_Sans_SC({
+  subsets: ["latin"],
+  variable: "--font-noto-sans-sc",
+  preload: false,
+});
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 const locales = ["zh", "en"] as const;
@@ -164,7 +169,7 @@ export default async function RootLayout({
         {/* 预加载关键资源 */}
         <link rel="preload" href="/logo.png" as="image" />
       </head>
-      <body className={inter.className}>
+      <body className={`${inter.className} ${notoSansSC.variable} font-sans`}>
         <NextIntlClientProvider messages={messages} locale={locale}>
           <Providers>
             <Header />

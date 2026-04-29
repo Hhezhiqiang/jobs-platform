@@ -8,5 +8,6 @@ Disallow: /zh/auth/
 Disallow: /en/auth/
 Disallow: /zh/promoter/
 Disallow: /en/promoter/
+Disallow: /dashboard/
 
 Sitemap: https://jobquip.com/sitemap.xml

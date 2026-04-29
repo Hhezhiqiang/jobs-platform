@@ -347,7 +347,7 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
                 )}
 
                 <span className="px-4 py-2 text-gray-600">
-                  isEn ? `Page ${currentPage} / ${totalPages}` : `第 ${currentPage} / ${totalPages} 页`
+                  {isEn ? `Page ${currentPage} / ${totalPages}` : `第 ${currentPage} / ${totalPages} 页`}
                 </span>
 
                 {currentPage < totalPages && (

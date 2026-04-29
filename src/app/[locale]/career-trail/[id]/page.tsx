@@ -8,12 +8,13 @@ import { StoryDetail } from "@/components/career-trail/story-detail";
 import { ResonanceSection } from "@/components/career-trail/resonance-section";
 
 interface StoryPageProps {
-  params: { locale: string; id: string };
+  params: Promise<{ locale: string; id: string }>;
 }
 
 export async function generateMetadata({ params }: StoryPageProps): Promise<Metadata> {
+  const { id } = await params;
   const story = await prisma.careerStory.findUnique({
-    where: { id: params.id },
+    where: { id },
     select: { title: true, content: true },
   });
 
@@ -30,7 +31,7 @@ export async function generateMetadata({ params }: StoryPageProps): Promise<Meta
 }
 
 export default async function StoryPage({ params }: StoryPageProps) {
-  const { locale, id } = params;
+  const { locale, id } = await params;
   const session = await getServerSession(authOptions);
   const userId = session?.user?.id;
 

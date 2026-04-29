@@ -169,7 +169,7 @@ export function generateCompanyMetadata(company: companies, locale = "zh"): Meta
 }
 
 // 职位列表页 Metadata
-export function generateJobsListMetadata(params?: { city?: string; type?: string; query?: string }, locale = "zh"): Metadata {
+export function generateJobsListMetadata(params?: { city?: string; type?: string; query?: string; searchParams?: Record<string, string> }, locale = "zh"): Metadata {
   const isEn = locale === "en";
   const cityText = params?.city ? `${params.city} ` : "";
   const typeText = params?.type ? `${params.type} ` : "";
@@ -182,6 +182,16 @@ export function generateJobsListMetadata(params?: { city?: string; type?: string
   const description = queryText
     ? (isEn ? `Search for "${queryText}" jobs and view the latest openings.` : `搜索"${queryText}"相关职位，查看最新的${queryText}招聘信息。`)
     : (isEn ? `Browse the latest ${cityText}${typeText}job listings.` : `查看${cityText}${typeText}最新招聘信息。`);
+
+  let canonicalUrl = `${SITE_URL}/${locale}/jobs`;
+  if (params?.searchParams) {
+    const searchEntries = Object.entries(params.searchParams)
+      .filter(([k, v]) => v && k !== 'page')
+      .map(([k, v]) => `${k}=${encodeURIComponent(v)}`);
+    if (searchEntries.length > 0) {
+      canonicalUrl += `?${searchEntries.join('&')}`;
+    }
+  }
 
   return {
     title,
@@ -209,7 +219,7 @@ export function generateJobsListMetadata(params?: { city?: string; type?: string
       follow: true,
     },
     alternates: {
-      canonical: `${SITE_URL}/${locale}/jobs`,
+      canonical: canonicalUrl,
       languages: {
         "zh-CN": `${SITE_URL}/zh/jobs`,
         "en": `${SITE_URL}/en/jobs`,

@@ -11,9 +11,8 @@
 
 import { prisma } from "@/lib/prisma";
 import { validateAndCleanKeywords, cleanBlogContent } from "@/lib/blog-content-validator";
+import { aiChat, isAIConfigured } from "@/lib/ai-client";
 
-const KIMI_API_KEY = process.env.KIMI_API_KEY;
-const KIMI_BASE_URL = process.env.KIMI_BASE_URL || "https://api.moonshot.cn/v1";
 const KIMI_MODEL = process.env.KIMI_MODEL || "moonshot-v1-32k";
 
 // 优先写作方向（流量已验证）
@@ -172,51 +171,46 @@ ${priorityGuidance}
 }
 
 /**
- * 调用 KIMI API 生成内容
+ * 调用 AI 生成内容（使用统一 ai-client，含重试和缓存）
  */
-async function callKIMI(prompt: string): Promise<string> {
-  if (!KIMI_API_KEY) {
-    throw new Error("KIMI_API_KEY not configured");
+async function callAI(prompt: string): Promise<string> {
+  if (!isAIConfigured()) {
+    throw new Error("AI API key not configured");
   }
 
-  // 两次尝试：第一次用低温度追求质量，失败后用高温度重试
-  const attempts = [
-    { temperature: 0.5, model: KIMI_MODEL },
-    { temperature: 0.7, model: KIMI_MODEL },
-  ];
+  // 尝试不同温度以获得更好的内容
+  const temperatures = [0.5, 0.7];
+  let lastError: Error | null = null;
 
-  for (let i = 0; i < attempts.length; i++) {
-    const attempt = attempts[i];
-    const res = await fetch(`${KIMI_BASE_URL}/chat/completions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${KIMI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: attempt.model,
-        messages: [
+  for (const temp of temperatures) {
+    try {
+      const content = await aiChat(
+        [
           {
             role: "system",
-            content: "你是 JobQuip 招聘平台的资深内容专家。你的文章：数据驱动、案例丰富、建议可操作、语言直接。绝不用套话和空洞论述。",
+            content:
+              "你是 JobQuip 招聘平台的资深内容专家。你的文章：数据驱动、案例丰富、建议可操作、语言直接。绝不用套话和空洞论述。",
           },
           { role: "user", content: prompt },
         ],
-        temperature: attempt.temperature,
-        max_tokens: 10000,
-      }),
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      const content = data.choices?.[0]?.message?.content || "";
+        {
+          model: KIMI_MODEL,
+          temperature: temp,
+          maxTokens: 10000,
+          maxRetries: 2,
+          cacheTTL: 1800, // 30分钟
+        },
+      );
       if (content && content.length > 500) {
         return content;
       }
+    } catch (e) {
+      lastError = e as Error;
+      console.warn(`[auto-blog] 温度 ${temp} 失败:`, (e as Error).message);
     }
   }
 
-  throw new Error("KIMI API failed to return quality content after 2 attempts");
+  throw lastError ?? new Error("AI failed to return quality content after all attempts");
 }
 
 /**
@@ -382,9 +376,9 @@ export async function generateBlogDraft(
       (a) => a.contentTitle ? `## ${a.contentTitle}\n${a.contentBody}` : a.contentBody
     );
 
-    // 调用 KIMI 生成内容
+    // 调用 AI 生成内容
     const prompt = buildProfessionalPrompt(monitor.keyword, archives, monitor.intent);
-    const content = await callKIMI(prompt);
+    const content = await callAI(prompt);
 
     // 提取标题和内容
     const { title: extractedTitle, content: cleanContent } = extractTitleAndContent(content);
@@ -464,7 +458,7 @@ export async function runAutoBlogPipeline(newMonitorIds: string[]): Promise<{
   errors: number;
   details: Array<{ keyword: string; success: boolean; title?: string; qualityScore?: number; qualityIssues?: string[]; error?: string }>;
 }> {
-  if (!KIMI_API_KEY || newMonitorIds.length === 0) {
+  if (!isAIConfigured() || newMonitorIds.length === 0) {
     return { processed: 0, drafted: 0, errors: 0, details: [] };
   }
 

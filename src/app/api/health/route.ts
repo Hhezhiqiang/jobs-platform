@@ -11,8 +11,8 @@ export async function GET() {
     const prisma = getPrisma();
     await prisma.$queryRaw`SELECT 1`;
     checks.prisma = "OK";
-  } catch (e: any) {
-    checks.prisma = `FAIL: ${e.message}`;
+  } catch (e: unknown) {
+    checks.prisma = `FAIL: ${e instanceof Error ? e.message : 'Unknown error'}`;
   }
 
   return NextResponse.json({ status: "ok", checks });

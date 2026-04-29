@@ -3,7 +3,7 @@ import { jobs, companies } from "@prisma/client";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 
 // JobPosting Schema 生成（Google for Jobs 支持）
-export function generateJobPostingSchema(job: jobs & { companies: companies }) {
+export function generateJobPostingSchema(job: jobs & { companies: companies }, locale = "zh") {
   const employmentTypeMap: Record<string, string> = {
     FULL_TIME: "FULLTIME",
     PART_TIME: "PARTTIME",
@@ -47,7 +47,7 @@ export function generateJobPostingSchema(job: jobs & { companies: companies }) {
       "@type": "Organization",
       name: job.schemaOrganizationName || job.companies.name,
       logo: job.schemaOrganizationLogo || job.companies.logo || undefined,
-      url: `${SITE_URL}/companies/${job.companies.slug}`,
+      url: `${SITE_URL}/${locale}/companies/${job.companies.slug}`,
     },
     jobLocation: job.isRemote
       ? {
@@ -71,7 +71,7 @@ export function generateJobPostingSchema(job: jobs & { companies: companies }) {
           },
         },
     baseSalary,
-    url: `${SITE_URL}/jobs/${job.slug}`,
+    url: `${SITE_URL}/${locale}/jobs/${job.slug}`,
     identifier: {
       "@type": "PropertyValue",
       name: job.companies.name,

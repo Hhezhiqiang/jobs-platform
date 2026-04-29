@@ -60,17 +60,24 @@ function getTypeLabel(type: string): string {
   return JOB_TYPES[type]?.label || type;
 }
 
-function generateTypeMetadata(city: string, type: string): Metadata {
+function generateTypeMetadata(city: string, type: string, locale = "zh"): Metadata {
   const typeLabel = getTypeLabel(type);
   const cityIntro = CITY_INTRO[city] || "";
-  const title = `${city}${typeLabel}招聘 - ${city}最新${typeLabel}职位 | ${SITE_NAME}`;
-  const description = `查看${city}${typeLabel}招聘信息，${typeLabel}岗位汇总。${cityIntro.slice(0, 80)}实时更新，快速找到${city}的理想${typeLabel}工作。`;
-  const url = `${SITE_URL}/jobs/city/${encodeURIComponent(city)}/${encodeURIComponent(type)}`;
+  const isEn = locale === "en";
+  const title = isEn
+    ? `${city} ${typeLabel} Jobs - Latest Openings | ${SITE_NAME}`
+    : `${city}${typeLabel}招聘 - ${city}最新${typeLabel}职位 | ${SITE_NAME}`;
+  const description = isEn
+    ? `Browse ${typeLabel} jobs in ${city}. ${cityIntro.slice(0, 80)}Real-time updates.`
+    : `查看${city}${typeLabel}招聘信息，${typeLabel}岗位汇总。${cityIntro.slice(0, 80)}实时更新，快速找到${city}的理想${typeLabel}工作。`;
+  const url = `${SITE_URL}/${locale}/jobs/city/${encodeURIComponent(city)}/${encodeURIComponent(type)}`;
 
   return {
     title,
     description,
-    keywords: [
+    keywords: isEn
+      ? [`${city} ${typeLabel} jobs`, `${city} hiring`, `${city} tech jobs`, `${typeLabel} work`]
+      : [
       `${city}${typeLabel}招聘`,
       `${city}${typeLabel}职位`,
       `${city}${typeLabel}求职`,
@@ -86,7 +93,7 @@ function generateTypeMetadata(city: string, type: string): Metadata {
       url,
       siteName: SITE_NAME,
       type: "website",
-      locale: "zh_CN",
+      locale: isEn ? "en_US" : "zh_CN",
       images: [`${SITE_URL}/logo.png`],
     },
     twitter: {
@@ -97,6 +104,11 @@ function generateTypeMetadata(city: string, type: string): Metadata {
     },
     alternates: {
       canonical: url,
+      languages: {
+        "zh-CN": `${SITE_URL}/zh/jobs/city/${encodeURIComponent(city)}/${encodeURIComponent(type)}`,
+        "en": `${SITE_URL}/en/jobs/city/${encodeURIComponent(city)}/${encodeURIComponent(type)}`,
+        "x-default": `${SITE_URL}/zh/jobs/city/${encodeURIComponent(city)}/${encodeURIComponent(type)}`,
+      },
     },
   };
 }
@@ -131,8 +143,8 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { city, type } = await params;
-  return generateTypeMetadata(city, type);
+  const { city, type, locale } = await params;
+  return generateTypeMetadata(city, type, locale);
 }
 
 export default async function CityTypeJobsPage({ params }: PageProps) {
@@ -157,7 +169,7 @@ export default async function CityTypeJobsPage({ params }: PageProps) {
     take: 20,
   });
 
-  const jobSchemas = jobs.map((job) => generateJobPostingSchema(job));
+  const jobSchemas = jobs.map((job) => generateJobPostingSchema(job, locale));
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: "首页", url: `${SITE_URL}/${locale}` },
     { name: "职位", url: `${SITE_URL}/${locale}/jobs` },

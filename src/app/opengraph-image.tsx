@@ -36,9 +36,19 @@ export default function Image() {
             fontSize: 36,
             fontWeight: 500,
             opacity: 0.95,
+            marginBottom: 8,
           }}
         >
           专业求职招聘平台
+        </div>
+        <div
+          style={{
+            fontSize: 24,
+            fontWeight: 400,
+            opacity: 0.8,
+          }}
+        >
+          Professional Job Recruitment Platform
         </div>
       </div>
     ),
