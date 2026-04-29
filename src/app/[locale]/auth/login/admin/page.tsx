@@ -5,10 +5,12 @@ import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle, Shield } from "lucide-react";
+import { useLocale } from "next-intl";
 import { SkipLink } from "@/components/skip-link";
 
 function AdminLoginForm() {
   const router = useRouter();
+  const locale = useLocale();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams?.get("callbackUrl");
   const [loading, setLoading] = useState(false);
@@ -156,10 +158,10 @@ function AdminLoginForm() {
           </form>
 
           <div className="mt-8 border-t pt-6 text-center space-y-3">
-            <Link href="/auth/login" className="text-sm text-blue-600 font-medium hover:underline block">
+            <Link href={`/${locale}/auth/login`} className="text-sm text-blue-600 font-medium hover:underline block">
               ← 切换至求职者登录
             </Link>
-            <Link href="/auth/login/company" className="text-sm text-emerald-600 font-medium hover:underline block">
+            <Link href={`/${locale}/auth/login/company`} className="text-sm text-emerald-600 font-medium hover:underline block">
               切换至企业登录 →
             </Link>
           </div>

@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle, User, Building2 } from "lucide-react";
+import { useLocale } from "next-intl";
 import { SkipLink } from "@/components/skip-link";
 
 interface LoginPageProps {
@@ -28,6 +29,7 @@ function LoginFormContent({
 }: LoginPageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const locale = useLocale();
   const callbackUrl = searchParams?.get("callbackUrl");
   const registered = searchParams?.get("registered");
   const [loading, setLoading] = useState(false);
@@ -260,7 +262,7 @@ function LoginFormContent({
                     注册企业
                   </Link>
                 </p>
-                <Link href="/auth/login" className="text-sm text-blue-600 font-medium hover:underline block">
+                <Link href={`/${locale}/auth/login`} className="text-sm text-blue-600 font-medium hover:underline block">
                   &larr; 切换至求职者登录
                 </Link>
               </div>

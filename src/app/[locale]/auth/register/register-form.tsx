@@ -4,6 +4,7 @@ import { useLocale } from "next-intl";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight, CheckCircle, Building2 } from "lucide-react";
 import { SkipLink } from "@/components/skip-link";
 
@@ -310,15 +311,6 @@ export default function RegisterForm() {
           <p className="mt-6 text-sm text-gray-500 text-center">
             注册即表示同意{" "}
             <Link href="/terms" className="text-blue-600 hover:text-blue-700 font-medium">用户协议</Link>
-            {" "}和{" "}
-            <Link href="/privacy" className="text-blue-600 hover:text-blue-700 font-medium">隐私政策</Link>
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-00 hover:text-blue-700 font-medium">用户协议</Link>
             {" "}和{" "}
             <Link href="/privacy" className="text-blue-600 hover:text-blue-700 font-medium">隐私政策</Link>
           </p>
