@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { PromoterStatus } from "@prisma/client";
+import { DataTable, AdminBadge, AdminPagination, AdminSearchBar, type Column, type FilterOption } from "@/components/admin";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -32,6 +33,19 @@ async function updatePromoterStatus(formData: FormData) {
   if (defaultRate) data.defaultRate = Number(defaultRate);
   await prisma.promoters.update({ where: { id }, data });
 }
+
+const statusFilterOptions: FilterOption[] = [
+  { label: "全部状态", value: "" },
+  { label: "待审核", value: "PENDING" },
+  { label: "正常", value: "ACTIVE" },
+  { label: "已封禁", value: "SUSPENDED" },
+];
+
+const statusBadgeMap: Record<PromoterStatus, { label: string; variant: "success" | "warning" | "error" }> = {
+  ACTIVE: { label: "正常", variant: "success" },
+  PENDING: { label: "待审核", variant: "warning" },
+  SUSPENDED: { label: "已封禁", variant: "error" },
+};
 
 export const dynamic = "force-dynamic";
 export default async function AdminPromotersPage({ params, searchParams }: PageProps) {
@@ -67,121 +81,99 @@ export default async function AdminPromotersPage({ params, searchParams }: PageP
 
   const totalPages = Math.ceil(total / ITEMS_PER_PAGE);
 
+  const columns: Column<typeof promoters[number]>[] = [
+    {
+      key: "name",
+      label: "姓名/邮箱",
+      render: (_val, row) => (
+        <div>
+          <div className="font-medium">{row.name}</div>
+          <div className="text-xs text-gray-500">{row.email}</div>
+        </div>
+      ),
+    },
+    {
+      key: "status",
+      label: "状态",
+      render: (_val, row) => {
+        const s = statusBadgeMap[row.status];
+        return <AdminBadge variant={s.variant}>{s.label}</AdminBadge>;
+      },
+    },
+    {
+      key: "defaultRate",
+      label: "默认比例",
+      render: (_val, row) => <span>{row.defaultRate.toFixed(0)}%</span>,
+    },
+    {
+      key: "availableBalance",
+      label: "可提现",
+      render: (_val, row) => <span>${Number(row.availableBalance).toFixed(2)}</span>,
+    },
+    {
+      key: "totalEarnings",
+      label: "累计收益",
+      render: (_val, row) => <span>${Number(row.totalEarnings).toFixed(2)}</span>,
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/admin" className="text-blue-600 hover:text-blue-800">← 返回管理后台</Link>
-              <h1 className="text-2xl font-bold">推广者管理</h1>
-            </div>
-            <p className="text-gray-600">共 {total} 位推广者</p>
-          </div>
-        </div>
-      </header>
+    <div className="space-y-6">
+      {/* 标题 */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900">推广者管理</h1>
+        <p className="text-gray-600">共 {total} 位推广者</p>
+      </div>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* 筛选 */}
-        <div className="bg-white rounded-lg shadow p-4 mb-6">
-          <form method="GET" className="flex flex-wrap gap-4">
-            <input
-              type="text"
-              name="query"
-              defaultValue={query}
-              placeholder="搜索姓名/邮箱"
-              className="px-4 py-2 border rounded-lg max-w-xs"
-            />
-            <select name="status" defaultValue={statusFilter || ""} className="px-4 py-2 border rounded-lg">
-              <option value="">全部状态</option>
+      {/* 搜索筛选 */}
+      <AdminSearchBar
+        value={query}
+        onChange={() => {}}
+        filters={statusFilterOptions}
+        placeholder="搜索姓名/邮箱"
+      />
+
+      {/* 数据表格 */}
+      <DataTable
+        columns={columns}
+        data={promoters}
+        actions={(row) => [
+          <form key="update" action={updatePromoterStatus} className="flex items-center gap-2">
+            <input type="hidden" name="id" value={row.id} />
+            <select
+              name="status"
+              defaultValue={row.status}
+              className="px-2 py-1 border rounded text-xs"
+            >
               <option value="PENDING">待审核</option>
-              <option value="ACTIVE">正常</option>
-              <option value="SUSPENDED">已封禁</option>
+              <option value="ACTIVE">通过</option>
+              <option value="SUSPENDED">封禁</option>
             </select>
-            <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">筛选</button>
-          </form>
-        </div>
+            <input
+              type="number"
+              name="defaultRate"
+              defaultValue={row.defaultRate.toNumber()}
+              min={1}
+              max={98}
+              className="w-16 px-2 py-1 border rounded text-xs"
+            />
+            <button type="submit" className="px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700">
+              更新
+            </button>
+          </form>,
+        ]}
+        emptyState="暂无推广者数据"
+      />
 
-        {/* 列表 */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="bg-gray-50 text-gray-600">
-                <tr>
-                  <th className="px-4 py-3">姓名/邮箱</th>
-                  <th className="px-4 py-3">状态</th>
-                  <th className="px-4 py-3">默认比例</th>
-                  <th className="px-4 py-3">可提现</th>
-                  <th className="px-4 py-3">累计收益</th>
-                  <th className="px-4 py-3">操作</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {promoters.map((p) => (
-                  <tr key={p.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3">
-                      <div className="font-medium">{p.name}</div>
-                      <div className="text-xs text-gray-500">{p.email}</div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        p.status === "ACTIVE"
-                          ? "bg-green-100 text-green-800"
-                          : p.status === "PENDING"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-red-100 text-red-800"
-                      }`}>
-                        {p.status === "ACTIVE" ? "正常" : p.status === "PENDING" ? "待审核" : "已封禁"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">{p.defaultRate.toFixed(0)}%</td>
-                    <td className="px-4 py-3">${Number(p.availableBalance).toFixed(2)}</td>
-                    <td className="px-4 py-3">${Number(p.totalEarnings).toFixed(2)}</td>
-                    <td className="px-4 py-3">
-                      <form action={updatePromoterStatus} className="flex items-center gap-2">
-                        <input type="hidden" name="id" value={p.id} />
-                        <select name="status" defaultValue={p.status} className="px-2 py-1 border rounded text-xs">
-                          <option value="PENDING">待审核</option>
-                          <option value="ACTIVE">通过</option>
-                          <option value="SUSPENDED">封禁</option>
-                        </select>
-                        <input
-                          type="number"
-                          name="defaultRate"
-                          defaultValue={p.defaultRate.toNumber()}
-                          min={1}
-                          max={98}
-                          className="w-16 px-2 py-1 border rounded text-xs"
-                        />
-                        <button type="submit" className="px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700">
-                          更新
-                        </button>
-                      </form>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* 分页 */}
-        {totalPages > 1 && (
-          <div className="mt-6 flex items-center justify-center gap-2">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <Link
-                key={page}
-                href={`/admin/promoters?page=${page}&status=${statusFilter || ""}&query=${query}`}
-                className={`px-3 py-1 rounded ${
-                  page === currentPage ? "bg-blue-600 text-white" : "bg-white text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                {page}
-              </Link>
-            ))}
-          </div>
-        )}
-      </main>
+      {/* 分页 */}
+      {totalPages > 1 && (
+        <AdminPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          baseUrl="/admin/promoters"
+          params={{ status: statusFilter, query }}
+        />
+      )}
     </div>
   );
 }

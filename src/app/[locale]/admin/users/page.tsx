@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Users, User, Building2, Shield } from "lucide-react";
+import { DataTable, AdminBadge, AdminPagination, StatCard, type Column } from "@/components/admin";
 import { UserRole, UserStatus } from "@prisma/client";
 
 async function toggleUserStatus(formData: FormData) {
@@ -67,207 +69,126 @@ export default async function UsersPage({ params, searchParams }: PageProps) {
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
-  const roleMap: Record<UserRole, { label: string; color: string }> = {
-    ADMIN: { label: "管理员", color: "bg-red-100 text-red-800" },
-    USER: { label: "用户", color: "bg-blue-100 text-blue-800" },
-    COMPANY: { label: "企业", color: "bg-green-100 text-green-800" },
+  const userCount = users.filter((u) => u.role === "USER").length;
+  const companyCount = users.filter((u) => u.role === "COMPANY").length;
+  const adminCount = users.filter((u) => u.role === "ADMIN").length;
+
+  const roleBadge = (role: UserRole) => {
+    if (role === "ADMIN") return <AdminBadge variant="error">管理员</AdminBadge>;
+    if (role === "COMPANY") return <AdminBadge variant="success">企业</AdminBadge>;
+    return <AdminBadge variant="info">用户</AdminBadge>;
   };
 
-  const statusMap: Record<UserStatus, { label: string; color: string }> = {
-    ACTIVE: { label: "正常", color: "bg-green-100 text-green-800" },
-    DISABLED: { label: "禁用", color: "bg-red-100 text-red-800" },
+  const statusBadge = (status: UserStatus) => {
+    if (status === "ACTIVE") return <AdminBadge variant="success">正常</AdminBadge>;
+    return <AdminBadge variant="error">禁用</AdminBadge>;
   };
+
+  const columns: Column<typeof users[number]>[] = [
+    {
+      key: "name",
+      label: "用户信息",
+      render: (_val, row) => (
+        <div className="flex items-center">
+          <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold flex-shrink-0">
+            {row.name.charAt(0)}
+          </div>
+          <div className="ml-4">
+            <div className="text-sm font-medium text-gray-900">{row.name}</div>
+            <div className="text-sm text-gray-500">{row.email}</div>
+            {row.phone && <div className="text-xs text-gray-400">{row.phone}</div>}
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "role",
+      label: "角色",
+      render: (_val, row) => roleBadge(row.role),
+    },
+    {
+      key: "status",
+      label: "状态",
+      render: (_val, row) => statusBadge(row.status),
+    },
+    {
+      key: "stats",
+      label: "统计",
+      render: (_val, row) => (
+        <div className="text-sm text-gray-500">
+          <div>申请: {row._count.job_applications}</div>
+          <div>发布: {row._count.jobs}</div>
+        </div>
+      ),
+    },
+    {
+      key: "createdAt",
+      label: "注册时间",
+      render: (_val, row) => (
+        <span className="text-sm text-gray-500">
+          {row.createdAt.toLocaleDateString("zh-CN")}
+        </span>
+      ),
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/admin" className="text-blue-600 hover:text-blue-800">
-                ← 返回管理后台
-              </Link>
-              <h1 className="text-2xl font-bold">用户管理</h1>
-            </div>
-            <p className="text-gray-600">共 {totalCount} 位用户</p>
-          </div>
-        </div>
-      </header>
+    <div className="space-y-6">
+      {/* 标题 */}
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900">用户管理</h1>
+        <p className="text-gray-600">共 {totalCount} 位用户</p>
+      </div>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        {/* 统计卡片 */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow">
-            <p className="text-gray-600">总用户数</p>
-            <p className="text-3xl font-bold">{users.length}</p>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <p className="text-gray-600">普通用户</p>
-            <p className="text-3xl font-bold text-blue-600">
-              {users.filter((u) => u.role === "USER").length}
-            </p>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <p className="text-gray-600">企业用户</p>
-            <p className="text-3xl font-bold text-green-600">
-              {users.filter((u) => u.role === "COMPANY").length}
-            </p>
-          </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <p className="text-gray-600">管理员</p>
-            <p className="text-3xl font-bold text-red-600">
-              {users.filter((u) => u.role === "ADMIN").length}
-            </p>
-          </div>
-        </div>
+      {/* 统计卡片 */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <StatCard title="总用户数" value={users.length} icon={Users} color="blue" />
+        <StatCard title="普通用户" value={userCount} icon={User} color="blue" />
+        <StatCard title="企业用户" value={companyCount} icon={Building2} color="green" />
+        <StatCard title="管理员" value={adminCount} icon={Shield} color="orange" />
+      </div>
 
-        {/* 用户列表 */}
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="p-6 border-b">
-            <h2 className="text-xl font-bold">用户列表</h2>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    用户信息
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    角色
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    状态
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    统计
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    注册时间
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    操作
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {users.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center">
-                        <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
-                          {user.name.charAt(0)}
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">
-                            {user.name}
-                          </div>
-                          <div className="text-sm text-gray-500">{user.email}</div>
-                          {user.phone && (
-                            <div className="text-xs text-gray-400">{user.phone}</div>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          roleMap[user.role].color
-                        }`}
-                      >
-                        {roleMap[user.role].label}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          statusMap[user.status].color
-                        }`}
-                      >
-                        {statusMap[user.status].label}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      <div>申请: {user._count.job_applications}</div>
-                      <div>发布: {user._count.jobs}</div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {user.createdAt.toLocaleDateString("zh-CN")}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium">
-                      <Link
-                        href={`/admin/users/${user.id}`}
-                        className="text-indigo-600 hover:text-indigo-900 mr-4"
-                      >
-                        查看
-                      </Link>
-                      {user.status === "ACTIVE" ? (
-                        <form
-                          action={toggleUserStatus}
-                          className="inline"
-                        >
-                          <input type="hidden" name="userId" value={user.id} />
-                          <input type="hidden" name="status" value="DISABLED" />
-                          <button
-                            type="submit"
-                            className="text-red-600 hover:text-red-900"
-                          >
-                            禁用
-                          </button>
-                        </form>
-                      ) : (
-                        <form
-                          action={toggleUserStatus}
-                          className="inline"
-                        >
-                          <input type="hidden" name="userId" value={user.id} />
-                          <input type="hidden" name="status" value="ACTIVE" />
-                          <button
-                            type="submit"
-                            className="text-green-600 hover:text-green-900"
-                          >
-                            启用
-                          </button>
-                        </form>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {users.length === 0 && (
-            <div className="p-8 text-center text-gray-500">
-              <p>暂无用户数据</p>
-            </div>
-          )}
-          {totalPages > 1 && (
-            <div className="px-6 py-4 border-t flex items-center justify-between">
-              <p className="text-sm text-gray-500">
-                第 {currentPage} 页，共 {totalPages} 页
-              </p>
-              <div className="flex gap-2">
-                {currentPage > 1 && (
-                  <Link href={`/admin/users?page=${currentPage - 1}`} className="px-4 py-2 text-sm bg-gray-100 rounded-lg hover:bg-gray-200">上一页</Link>
-                )}
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  let page: number;
-                  if (totalPages <= 5) page = i + 1;
-                  else if (currentPage <= 3) page = i + 1;
-                  else if (currentPage >= totalPages - 2) page = totalPages - 4 + i;
-                  else page = currentPage - 2 + i;
-                  return (
-                    <Link key={page} href={`/admin/users?page=${page}`} className={`px-3 py-2 text-sm rounded-lg ${page === currentPage ? 'bg-blue-600 text-white' : 'bg-gray-100 hover:bg-gray-200'}`}>{page}</Link>
-                  );
-                })}
-                {currentPage < totalPages && (
-                  <Link href={`/admin/users?page=${currentPage + 1}`} className="px-4 py-2 text-sm bg-gray-100 rounded-lg hover:bg-gray-200">下一页</Link>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-      </main>
+      {/* 用户列表 */}
+      <DataTable
+        columns={columns}
+        data={users}
+        actions={(row) => [
+          <Link
+            key="view"
+            href={`/admin/users/${row.id}`}
+            className="text-indigo-600 hover:text-indigo-900 text-sm"
+          >
+            查看
+          </Link>,
+          row.status === "ACTIVE" ? (
+            <form key="toggle" action={toggleUserStatus} className="inline">
+              <input type="hidden" name="userId" value={row.id} />
+              <input type="hidden" name="status" value="DISABLED" />
+              <button type="submit" className="text-red-600 hover:text-red-900 text-sm">
+                禁用
+              </button>
+            </form>
+          ) : (
+            <form key="toggle" action={toggleUserStatus} className="inline">
+              <input type="hidden" name="userId" value={row.id} />
+              <input type="hidden" name="status" value="ACTIVE" />
+              <button type="submit" className="text-green-600 hover:text-green-900 text-sm">
+                启用
+              </button>
+            </form>
+          ),
+        ]}
+        emptyState="暂无用户数据"
+      />
+
+      {/* 分页 */}
+      {totalPages > 1 && (
+        <AdminPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          baseUrl="/admin/users"
+        />
+      )}
     </div>
   );
 }
