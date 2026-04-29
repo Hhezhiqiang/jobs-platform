@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import { MetadataRoute } from "next";
 
+export const dynamic = "force-dynamic";
+
 // Build-time timestamp — set once per deployment
 const BUILD_TIME = new Date();
 

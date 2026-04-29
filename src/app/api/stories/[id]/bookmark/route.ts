@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
  */
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { storyId: string } },
+  { params }: { params: { id: string } },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -21,7 +21,7 @@ export async function GET(
     const bookmark = await prisma.storyBookmark.findUnique({
       where: {
         storyId_userId: {
-          storyId: params.storyId,
+          storyId: params.id,
           userId: session.user.id,
         },
       },
@@ -39,7 +39,7 @@ export async function GET(
  */
 export async function POST(
   _request: NextRequest,
-  { params }: { params: { storyId: string } },
+  { params }: { params: { id: string } },
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -47,7 +47,7 @@ export async function POST(
       return NextResponse.json({ error: "未登录" }, { status: 401 });
     }
 
-    const storyId = params.storyId;
+    const storyId = params.id;
     const userId = session.user.id;
 
     // 检查故事是否存在
