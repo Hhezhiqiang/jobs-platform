@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
-import { DataTable, AdminBadge, AdminPagination, type Column } from "@/components/admin";
+import { ChevronLeft, ChevronRight, Eye, Edit, ExternalLink } from "lucide-react";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -36,48 +36,11 @@ export default async function AdminBlogPage({ params, searchParams }: PageProps)
 
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
-  const statusBadge = (status: string) => {
-    if (status === "PUBLISHED") return <AdminBadge variant="success">已发布</AdminBadge>;
-    if (status === "DRAFT") return <AdminBadge variant="warning">草稿</AdminBadge>;
-    return <AdminBadge>已归档</AdminBadge>;
+  const statusMap: Record<string, { label: string; className: string }> = {
+    PUBLISHED: { label: "已发布", className: "bg-green-100 text-green-700" },
+    DRAFT: { label: "草稿", className: "bg-yellow-100 text-yellow-700" },
+    ARCHIVED: { label: "已归档", className: "bg-gray-100 text-gray-700" },
   };
-
-  const columns: Column<typeof posts[number]>[] = [
-    {
-      key: "title",
-      label: "文章",
-      render: (_val, row) => (
-        <div>
-          <div className="text-sm font-medium text-gray-900">{row.title}</div>
-          <div className="text-sm text-gray-500">/blog/{row.slug}</div>
-        </div>
-      ),
-    },
-    {
-      key: "author",
-      label: "作者",
-      render: (_val, row) => (
-        <span className="text-sm text-gray-900">{row.users?.name || "-"}</span>
-      ),
-    },
-    {
-      key: "status",
-      label: "状态",
-      render: (_val, row) => statusBadge(row.status),
-    },
-    {
-      key: "viewCount",
-      label: "浏览量",
-      render: (_val, row) => <span className="text-sm text-gray-900">{row.viewCount}</span>,
-    },
-    {
-      key: "createdAt",
-      label: "发布时间",
-      render: (_val, row) => (
-        <span className="text-sm text-gray-500">{row.createdAt.toLocaleDateString("zh-CN")}</span>
-      ),
-    },
-  ];
 
   return (
     <div className="space-y-6">
@@ -92,39 +55,130 @@ export default async function AdminBlogPage({ params, searchParams }: PageProps)
         </Link>
       </div>
 
-      {/* 数据表格 */}
-      <DataTable
-        columns={columns}
-        data={posts}
-        actions={(row) => [
-          <Link
-            key="preview"
-            href={`/${locale}/blog/${encodeURIComponent(row.slug)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-900 text-sm"
-          >
-            预览
-          </Link>,
-          <Link
-            key="edit"
-            href={`/${locale}/admin/blog/edit/${row.id}`}
-            className="text-indigo-600 hover:text-indigo-900 text-sm"
-          >
-            编辑
-          </Link>,
-        ]}
-        emptyState="暂无博客文章"
-      />
+      {/* 统计 */}
+      <p className="text-sm text-gray-600">共 {totalCount} 篇文章</p>
 
-      {/* 分页 */}
-      {totalPages > 1 && (
-        <AdminPagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          baseUrl={`/${locale}/admin/blog`}
-        />
-      )}
+      {/* 数据表格 */}
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="border-b border-gray-100 bg-gray-50 text-gray-500">
+              <tr>
+                <th className="px-4 py-3 text-left font-medium">文章</th>
+                <th className="px-4 py-3 text-left font-medium">作者</th>
+                <th className="px-4 py-3 text-left font-medium">状态</th>
+                <th className="px-4 py-3 text-left font-medium">浏览量</th>
+                <th className="px-4 py-3 text-left font-medium">发布时间</th>
+                <th className="px-4 py-3 text-right font-medium">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {posts.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-4 py-12 text-center text-gray-400">
+                    暂无博客文章
+                  </td>
+                </tr>
+              ) : (
+                posts.map((post) => {
+                  const status = statusMap[post.status] || statusMap.ARCHIVED;
+                  return (
+                    <tr key={post.id} className="border-b border-gray-50 hover:bg-gray-50/50 last:border-0">
+                      <td className="px-4 py-3">
+                        <div className="text-sm font-medium text-gray-900">{post.title}</div>
+                        <div className="text-sm text-gray-500">/blog/{post.slug}</div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="text-sm text-gray-900">{post.users?.name || "-"}</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${status.className}`}>
+                          {status.label}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="text-sm text-gray-900">{post.viewCount}</span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="text-sm text-gray-500">
+                          {post.createdAt.toLocaleDateString("zh-CN")}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <Link
+                            href={`/${locale}/blog/${encodeURIComponent(post.slug)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-1.5 text-gray-600 hover:text-blue-600"
+                            title="预览"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Link>
+                          <Link
+                            href={`/${locale}/admin/blog/edit/${post.id}`}
+                            className="p-1.5 text-gray-600 hover:text-indigo-600"
+                            title="编辑"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Link>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* 分页 */}
+        {totalPages > 1 && (
+          <div className="px-4 py-3 border-t border-gray-100 flex items-center justify-between">
+            <p className="text-sm text-gray-500">
+              第 {currentPage} 页，共 {totalPages} 页
+            </p>
+            <div className="flex gap-2">
+              {currentPage > 1 && (
+                <Link
+                  href={`/${locale}/admin/blog?page=${currentPage - 1}`}
+                  className="flex items-center gap-1 px-3 py-1.5 text-sm bg-gray-100 rounded-lg hover:bg-gray-200"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  上一页
+                </Link>
+              )}
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let page: number;
+                if (totalPages <= 5) page = i + 1;
+                else if (currentPage <= 3) page = i + 1;
+                else if (currentPage >= totalPages - 2) page = totalPages - 4 + i;
+                else page = currentPage - 2 + i;
+                return (
+                  <Link
+                    key={page}
+                    href={`/${locale}/admin/blog?page=${page}`}
+                    className={`px-3 py-1.5 text-sm rounded-lg ${
+                      page === currentPage ? "bg-blue-600 text-white" : "bg-gray-100 hover:bg-gray-200"
+                    }`}
+                  >
+                    {page}
+                  </Link>
+                );
+              })}
+              {currentPage < totalPages && (
+                <Link
+                  href={`/${locale}/admin/blog?page=${currentPage + 1}`}
+                  className="flex items-center gap-1 px-3 py-1.5 text-sm bg-gray-100 rounded-lg hover:bg-gray-200"
+                >
+                  下一页
+                  <ChevronRight className="w-4 h-4" />
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
