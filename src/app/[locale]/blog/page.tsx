@@ -188,7 +188,7 @@ export default async function BlogPage({ params, searchParams }: PageProps) {
     }
 
     // 分类过滤（数据库级别 - keywords 数组匹配）
-    const categoryFilter = sp.category && sp.category !== 'all' ? sp.category : null;
+    const categoryFilter = sp.category && sp.category !== 'all' ? sp.category : undefined;
     const categoryWhere = buildCategoryWhere(categoryFilter);
     if (categoryWhere) {
       where.keywords = { hasSome: categoryWhere[0].keywords as string[] };
