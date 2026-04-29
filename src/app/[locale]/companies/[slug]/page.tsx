@@ -53,7 +53,6 @@ async function getCompanyData(slug: string) {
         jobs: {
           where: { status: "ACTIVE" },
           orderBy: { datePosted: "desc" },
-          include: { companies: true },
         },
       },
     });

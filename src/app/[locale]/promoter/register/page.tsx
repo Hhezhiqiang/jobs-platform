@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useLocale } from "next-intl";
 
 export default function PromoterRegisterPage() {
+  const locale = useLocale();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -49,7 +51,7 @@ export default function PromoterRegisterPage() {
           </div>
           <h1 className="text-xl font-bold text-gray-900 mb-2">申请已提交</h1>
           <p className="text-gray-600 mb-6">我们会在 1-2 个工作日内审核，审核通过后将邮件通知您。</p>
-          <Link href="/promoter/login" className="text-blue-600 hover:underline">
+          <Link href={`/${locale}/promoter/login`} className="text-blue-600 hover:underline">
             返回推广者登录
           </Link>
         </div>
@@ -122,7 +124,7 @@ export default function PromoterRegisterPage() {
 
         <p className="mt-4 text-center text-sm text-gray-500">
           已有账号？{" "}
-          <Link href="/promoter/login" className="text-blue-600 hover:underline">
+          <Link href={`/${locale}/promoter/login`} className="text-blue-600 hover:underline">
             立即登录
           </Link>
         </p>

@@ -36,7 +36,7 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
   if (params_.type) canonicalParams.set("type", params_.type);
   if (params_.minSalary) canonicalParams.set("minSalary", params_.minSalary);
   if (params_.maxSalary) canonicalParams.set("maxSalary", params_.maxSalary);
-  const canonical = `${SITE_URL}/search${canonicalParams.toString() ? "?" + canonicalParams.toString() : ""}`;
+  const canonical = `${SITE_URL}/${locale}/search${canonicalParams.toString() ? "?" + canonicalParams.toString() : ""}`;
 
   return {
     title,
@@ -48,7 +48,7 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
       url: `${SITE_URL}/search`,
       siteName: SITE_NAME,
       type: "website",
-      locale: "zh_CN",
+      locale: locale === "en" ? "en_US" : "zh_CN",
       images: [DEFAULT_OG_IMAGE],
     },
     twitter: {

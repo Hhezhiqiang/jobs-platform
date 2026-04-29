@@ -3,8 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Mail, ArrowRight, CheckCircle, AlertCircle } from "lucide-react";
+import { useLocale } from "next-intl";
 
 export default function ForgotPasswordClient() {
+  const locale = useLocale();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -96,7 +98,7 @@ export default function ForgotPasswordClient() {
                 请检查您的邮箱 {email}，点击邮件中的链接重置密码
               </p>
               <Link
-                href="/auth/login"
+                href={`/${locale}/auth/login`}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all"
               >
                 返回登录
@@ -153,7 +155,7 @@ export default function ForgotPasswordClient() {
               <div className="mt-8 text-center">
                 <p className="text-gray-500">
                   想起密码了？{" "}
-                  <Link href="/auth/login" className="text-blue-600 hover:text-blue-700 font-medium">
+                  <Link href={`/${locale}/auth/login`} className="text-blue-600 hover:text-blue-700 font-medium">
                     返回登录
                   </Link>
                 </p>

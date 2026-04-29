@@ -7,8 +7,8 @@ import { Metadata } from "next";
 import { safeJsonLdStringify } from "@/lib/utils";
 export const revalidate = 3600;
 
-const SITE_NAME = "JobQuip招聘平台";
-const SITE_URL = "https://jobquip.com";
+const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "JobQuip";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 
 export async function generateMetadata({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<{ q?: string }> }): Promise<Metadata> {
   const { locale } = await params;

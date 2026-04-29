@@ -137,7 +137,7 @@ export default function RegisterForm() {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">创建账号</h1>
             <p className="text-gray-500">
               已有账号？{" "}
-              <Link href="/auth/login" className="text-blue-600 hover:text-blue-700 font-semibold">
+              <Link href={`/${locale}/auth/login`} className="text-blue-600 hover:text-blue-700 font-semibold">
                 立即登录
               </Link>
             </p>

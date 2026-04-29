@@ -141,7 +141,7 @@ export default function PromoterLoginPage() {
 
         <p className="mt-4 text-center text-sm text-gray-500">
           还没有账号？{" "}
-          <Link href="/promoter/register" className="text-blue-600 hover:underline">
+          <Link href={`/${locale}/promoter/register`} className="text-blue-600 hover:underline">
             申请成为推广者
           </Link>
         </p>

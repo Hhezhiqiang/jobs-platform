@@ -165,7 +165,7 @@ export default function FavoritesPage() {
               浏览职位并点击心形图标，将感兴趣的职位添加到收藏夹
             </p>
             <Link
-              href="/jobs"
+              href={`/${locale}/jobs`}
               className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               <svg

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { JobCardV2 } from "@/components/job-card-v2";
 import { generateJobPostingSchema, generateBreadcrumbSchema } from "@/lib/schema";
@@ -160,7 +161,7 @@ export default async function CityTypeJobsPage({ params }: PageProps) {
       status: "ACTIVE",
       slug: { not: "" },
       city,
-      employmentType: type as any,
+      employmentType: type as Prisma.jobsCreateInput["employmentType"],
     },
     include: {
       companies: true,

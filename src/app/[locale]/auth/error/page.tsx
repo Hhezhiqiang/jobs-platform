@@ -1,6 +1,7 @@
 import Link from "next/link";
 
-export default function AuthErrorPage() {
+export default async function AuthErrorPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="text-center max-w-md px-4">
@@ -9,7 +10,7 @@ export default function AuthErrorPage() {
           认证过程中出现错误，请稍后重试或更换登录方式。
         </p>
         <Link
-          href="/auth/login"
+          href={`/${locale}/auth/login`}
           className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
           返回登录页

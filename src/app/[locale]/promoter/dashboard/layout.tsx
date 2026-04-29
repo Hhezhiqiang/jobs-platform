@@ -2,15 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-const navItems = [
-  { href: "/promoter/dashboard", label: "数据看板" },
-  { href: "/promoter/dashboard/links", label: "推广链接" },
-  { href: "/promoter/dashboard/earnings", label: "收益提现" },
-];
+import { useLocale } from "next-intl";
 
 export default function PromoterLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const locale = useLocale();
+
+  const navItems = [
+    { href: `/${locale}/promoter/dashboard`, label: "数据看板" },
+    { href: `/${locale}/promoter/dashboard/links`, label: "推广链接" },
+    { href: `/${locale}/promoter/dashboard/earnings`, label: "收益提现" },
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -18,7 +20,7 @@ export default function PromoterLayout({ children }: { children: React.ReactNode
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-8">
-              <Link href="/promoter/dashboard" className="text-xl font-bold text-gray-900">
+              <Link href={`/${locale}/promoter/dashboard`} className="text-xl font-bold text-gray-900">
                 推广者中心
               </Link>
               <nav className="hidden md:flex gap-1">
@@ -37,7 +39,7 @@ export default function PromoterLayout({ children }: { children: React.ReactNode
                 ))}
               </nav>
             </div>
-            <Link href="/promoter/login" className="text-sm text-gray-500 hover:text-gray-700">
+            <Link href={`/${locale}/promoter/login`} className="text-sm text-gray-500 hover:text-gray-700">
               退出
             </Link>
           </div>

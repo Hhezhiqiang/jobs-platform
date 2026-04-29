@@ -142,6 +142,8 @@ export default async function JobsPage({ params, searchParams }: PageProps) {
     <JobsPageClient
       initialJobs={jobs}
       total={total}
+      totalPages={Math.ceil(total / ITEMS_PER_PAGE)}
+      currentPage={page}
       cities={cities.map((c) => c.city).filter(Boolean) as string[]}
       dbError={dbError}
       currentParams={currentParams}

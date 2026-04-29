@@ -19,6 +19,8 @@ import {
 import { ChevronLeft, ChevronRight, SlidersHorizontal, Settings, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+const ITEMS_PER_PAGE = 15;
+
 // 职位数据接口
 interface Job {
   id: string;
@@ -58,6 +60,8 @@ interface Job {
 interface JobsPageClientProps {
   initialJobs: Job[];
   total: number;
+  totalPages: number;
+  currentPage: number;
   cities: string[];
   dbError: boolean;
   currentParams: {
@@ -73,7 +77,7 @@ interface JobsPageClientProps {
   };
 }
 
-export function JobsPageClient({ initialJobs, total, cities, dbError, currentParams }: JobsPageClientProps) {
+export function JobsPageClient({ initialJobs, total, totalPages, currentPage, cities, dbError, currentParams }: JobsPageClientProps) {
   const pathname = usePathname();
   const locale = pathname?.split("/")[1] || "zh";
   const [isPreferenceModalOpen, setIsPreferenceModalOpen] = useState(false);
@@ -163,9 +167,9 @@ export function JobsPageClient({ initialJobs, total, cities, dbError, currentPar
     return jobsWithMatchScore.filter(job => job.matchScore >= 80).length;
   }, [jobsWithMatchScore, preferences]);
 
-  const page = parseInt(currentParams.page || "1");
-  const limit = 15;
-  const totalPages = Math.ceil((filteredAndSortedJobs.length > 0 ? filteredAndSortedJobs.length : total) / limit);
+  // Use server-side pagination info directly
+  const page = currentPage;
+  const limit = ITEMS_PER_PAGE;
 
   const buildPageUrl = (pageNum: number) => {
     const params = new URLSearchParams();
@@ -369,9 +373,7 @@ export function JobsPageClient({ initialJobs, total, cities, dbError, currentPar
                 </div>
 
                 <div className="space-y-4">
-                  {filteredAndSortedJobs
-                    .slice((page - 1) * limit, page * limit)
-                    .map((job) => (
+                  {filteredAndSortedJobs.map((job) => (
                     <JobCardV3
                       key={job.id}
                       job={job as any}

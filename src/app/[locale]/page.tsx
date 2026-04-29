@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getHomePageData } from "@/lib/optimized-queries";
 import { generateHomeMetadata } from "@/lib/metadata";
-import { generateFAQSchema, generateOrganizationSchema } from "@/lib/schema";
+import { generateFAQSchema } from "@/lib/schema";
 import { safeJsonLdStringify } from "@/lib/utils";
 import { Metadata } from "next";
 import { HeroSection } from "@/components/hero-section";

@@ -6,7 +6,8 @@ export const metadata: Metadata = {
   description: "加入JobQuip推广者计划，分享推广链接即可获得高额佣金。每次注册和订单都能获得分成，多劳多得，提现到TRC-20钱包。",
 };
 
-export default function AffiliatePage() {
+export default async function AffiliatePage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   return (
     <div className="min-h-screen bg-white">
       {/* Hero */}
@@ -20,13 +21,13 @@ export default function AffiliatePage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/promoter/register"
+              href={`/${locale}/promoter/register`}
               className="px-8 py-3 bg-white text-blue-600 font-semibold rounded-xl hover:bg-gray-50 transition-all"
             >
               立即申请
             </Link>
             <Link
-              href="/promoter/login"
+              href={`/${locale}/promoter/login`}
               className="px-8 py-3 bg-white/20 text-white font-semibold rounded-xl hover:bg-white/30 transition-all border border-white/30"
             >
               推广者登录
@@ -128,7 +129,7 @@ export default function AffiliatePage() {
             加入 JobQuip 推广者计划，用你的影响力赚取收益
           </p>
           <Link
-            href="/promoter/register"
+            href={`/${locale}/promoter/register`}
             className="inline-block px-8 py-3 bg-white text-blue-600 font-semibold rounded-xl hover:bg-gray-50 transition-all"
           >
             立即注册推广者 →
