@@ -34,22 +34,26 @@ export default async function TopicsPage({ params }: { params: Promise<{ locale:
 
       <main className="max-w-7xl mx-auto px-4 py-12">
         <div className="text-center mb-12">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">专题精选</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            {isEn ? "Topic Collections" : "专题精选"}
+          </h1>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            探索热门行业、技术栈与职业发展的深度专题内容
+            {isEn
+              ? "Explore curated content on hot industries, tech stacks, and career development"
+              : "探索热门行业、技术栈与职业发展的深度专题内容"}
           </p>
         </div>
 
         {topics.length === 0 ? (
           <div className="text-center py-20 bg-white rounded-2xl border border-gray-100">
-            <p className="text-gray-500">暂无专题内容，敬请期待</p>
+            <p className="text-gray-500">{isEn ? "No topics available yet. Stay tuned!" : "暂无专题内容，敬请期待"}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {topics.map((topic) => (
               <Link
                 key={topic.id}
-                href={`/topics/${topic.slug}`}
+                href={`/${locale}/topics/${topic.slug}`}
                 className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all"
               >
                 <div className="aspect-[16/9] relative bg-gray-100">
@@ -74,7 +78,7 @@ export default async function TopicsPage({ params }: { params: Promise<{ locale:
                     <p className="text-gray-600 text-sm line-clamp-2">{topic.excerpt}</p>
                   )}
                   <div className="mt-4 flex items-center text-blue-600 font-medium text-sm">
-                    阅读专题
+                    {isEn ? "Read Topic" : "阅读专题"}
                     <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>

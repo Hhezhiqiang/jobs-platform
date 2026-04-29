@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (updates.length > 0) {
-      await Promise.all(updates);
+      await prisma.$transaction(updates);
     }
     results.updatedJobs = updates.length;
 

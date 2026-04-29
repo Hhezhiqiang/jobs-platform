@@ -34,10 +34,11 @@ export default function AdminJobsPage({ params }: { params: { locale: string } }
   const [error, setError] = useState("");
   const [totalCount, setTotalCount] = useState(0);
   const [selectedJob, setSelectedJob] = useState<JobDetail | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const fetchJobs = async () => {
+  const fetchJobs = async (page: number = currentPage) => {
     try {
-      const res = await fetch(`/api/admin/jobs?page=1`);
+      const res = await fetch(`/api/admin/jobs?page=${page}`);
       if (res.status === 401) {
         router.push(`/${params.locale}/auth/login/admin`);
         return;
@@ -59,8 +60,13 @@ export default function AdminJobsPage({ params }: { params: { locale: string } }
   };
 
   useEffect(() => {
-    fetchJobs();
+    fetchJobs(1);
   }, [params.locale, router]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    fetchJobs(page);
+  };
 
   const handleViewJob = async (jobId: string) => {
     try {
@@ -225,6 +231,21 @@ export default function AdminJobsPage({ params }: { params: { locale: string } }
             </div>
           )}
         </div>
+
+        {/* 分页 */}
+        {totalCount > 20 && (
+          <div className="mt-6 flex items-center justify-center gap-2">
+            {Array.from({ length: Math.min(10, Math.ceil(totalCount / 20)) }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                className={`px-3 py-1 rounded ${page === currentPage ? "bg-blue-600 text-white" : "bg-white text-gray-700 hover:bg-gray-100 border"}`}
+              >
+                {page}
+              </button>
+            ))}
+          </div>
+        )}
       </main>
 
       {/* 职位详情弹窗 */}

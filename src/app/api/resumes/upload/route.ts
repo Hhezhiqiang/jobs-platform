@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
+import { mkdir, writeFile } from "fs/promises";
+import { join } from "path";
 export const dynamic = "force-dynamic";
 
 const ALLOWED_EXTENSIONS = ["pdf", "doc", "docx", "txt", "md"];
@@ -38,9 +40,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "文件大小不能超过 10MB" }, { status: 400 });
     }
 
-    // 使用 Vercel Blob 或外部存储（这里先用数据库存储元数据，文件通过 CDN 或外部服务）
-    // 对于 Vercel 部署，建议集成 Vercel Blob 存储
+    // 保存文件到 public/uploads/resumes/
+    const uploadDir = join(process.cwd(), "public", "uploads", "resumes");
+    await mkdir(uploadDir, { recursive: true });
+
     const fileId = `${session.user.id}-${Date.now()}.${ext}`;
+    const filePath = join(uploadDir, fileId);
+    const fileBuffer = Buffer.from(await file.arrayBuffer());
+    await writeFile(filePath, fileBuffer);
+
     const fileUrl = `/uploads/resumes/${fileId}`;
 
     const existingResumes = await prisma.resumes.count({

@@ -31,23 +31,25 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "该公司名称已被注册，请换一个" }, { status: 400 });
       }
 
-      const company = await prisma.companies.create({
-        data: {
-          name, slug,
-          creditCode: "REG-" + Date.now(),
-          description: "",
-          industry: industry || "",
-          size: size || "",
-          location: location || "",
-          verificationStatus: "APPROVED",
-        },
+      const result = await prisma.$transaction(async (tx) => {
+        const company = await tx.companies.create({
+          data: {
+            name, slug,
+            creditCode: "REG-" + Date.now(),
+            description: "",
+            industry: industry || "",
+            size: size || "",
+            location: location || "",
+            verificationStatus: "APPROVED",
+          },
+        });
+        await tx.company_members.create({
+          data: { companyId: company.id, userId: session.user.id, role: "ADMIN" },
+        });
+        return company;
       });
 
-      await prisma.company_members.create({
-        data: { companyId: company.id, userId: session.user.id, role: "ADMIN" },
-      });
-
-      return NextResponse.json({ success: true, companyId: company.id });
+      return NextResponse.json({ success: true, companyId: result.id });
     }
 
     // 场景2：未登录 → 自动创建用户 + 企业（一步注册）
@@ -61,40 +63,40 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "该邮箱已注册，请先登录" }, { status: 400 });
     }
 
-    // 创建用户（COMPANY 角色）
+    // 创建用户、企业、关系 - 使用事务
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await prisma.users.create({
-      data: {
-        email,
-        name: name,
-        password: hashedPassword,
-        role: "COMPANY",
-      },
-    });
-
-    // 创建企业
     const slug = generateSlug(name);
-    const company = await prisma.companies.create({
-      data: {
-        name, slug,
-        creditCode: "REG-" + Date.now(),
-        description: "",
-        industry: industry || "",
-        size: size || "",
-        location: location || "",
-        verificationStatus: "APPROVED",
-      },
-    });
 
-    // 绑定关系
-    await prisma.company_members.create({
-      data: { companyId: company.id, userId: user.id, role: "ADMIN" },
+    const result = await prisma.$transaction(async (tx) => {
+      const user = await tx.users.create({
+        data: {
+          email,
+          name: name,
+          password: hashedPassword,
+          role: "COMPANY",
+        },
+      });
+      const company = await tx.companies.create({
+        data: {
+          name, slug,
+          creditCode: "REG-" + Date.now(),
+          description: "",
+          industry: industry || "",
+          size: size || "",
+          location: location || "",
+          verificationStatus: "APPROVED",
+        },
+      });
+      await tx.company_members.create({
+        data: { companyId: company.id, userId: user.id, role: "ADMIN" },
+      });
+      return { user, company };
     });
 
     return NextResponse.json({
       success: true,
-      companyId: company.id,
-      userId: user.id,
+      companyId: result.company.id,
+      userId: result.user.id,
       autoLogin: true,
     });
   } catch (error: any) {

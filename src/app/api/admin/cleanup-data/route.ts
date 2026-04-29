@@ -41,13 +41,14 @@ export async function POST(req: NextRequest) {
       select: { id: true, createdAt: true },
     });
     if (jobsToUpdate.length > 0) {
-      const updates = jobsToUpdate.map((j) =>
-        prisma.jobs.update({
-          where: { id: j.id },
-          data: { datePosted: j.createdAt },
-        })
+      await prisma.$transaction(
+        jobsToUpdate.map((j) =>
+          prisma.jobs.update({
+            where: { id: j.id },
+            data: { datePosted: j.createdAt },
+          })
+        )
       );
-      await Promise.all(updates);
     }
     results.updatedDatePosted = jobsToUpdate.length;
 
@@ -57,13 +58,14 @@ export async function POST(req: NextRequest) {
       select: { id: true, createdAt: true },
     });
     if (futureJobs.length > 0) {
-      const updates = futureJobs.map((j) =>
-        prisma.jobs.update({
-          where: { id: j.id },
-          data: { datePosted: j.createdAt },
-        })
+      await prisma.$transaction(
+        futureJobs.map((j) =>
+          prisma.jobs.update({
+            where: { id: j.id },
+            data: { datePosted: j.createdAt },
+          })
+        )
       );
-      await Promise.all(updates);
     }
     results.updatedFutureDates = futureJobs.length;
 

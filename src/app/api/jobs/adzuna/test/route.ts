@@ -1,8 +1,14 @@
 import { NextResponse } from 'next/server';
 import { fetchAdzunaJobs } from '@/lib/adzuna-api';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
 
 // GET /api/jobs/adzuna/test
 export async function GET(req: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user || session.user.role !== 'ADMIN') {
+    return NextResponse.json({ error: '未授权访问' }, { status: 401 });
+  }
   const { searchParams } = new URL(req.url);
   const keyword = searchParams.get('keyword') || 'frontend';
   const location = searchParams.get('location') || 'Beijing';

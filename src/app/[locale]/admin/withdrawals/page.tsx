@@ -64,7 +64,7 @@ export default async function AdminWithdrawalsPage({ params, searchParams }: Pag
   const currentPage = Math.max(1, parseInt(sp.page || "1"));
   const statusFilter = sp.status || "";
 
-  const where: Prisma.withdrawal_recordsWhereInput = {};;
+  const where: Prisma.withdrawal_recordsWhereInput = {};
   if (statusFilter) where.status = statusFilter as WithdrawalStatus;
 
   const [records, total] = await Promise.all([

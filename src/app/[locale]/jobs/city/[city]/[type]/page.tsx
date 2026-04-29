@@ -5,9 +5,10 @@ import { prisma } from "@/lib/prisma";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { JobCardV2 } from "@/components/job-card-v2";
 import { generateJobPostingSchema, generateBreadcrumbSchema } from "@/lib/schema";
+import { safeJsonLdStringify } from "@/lib/utils";
 
-const SITE_NAME = "JobQuip招聘平台";
-const SITE_URL = "https://jobquip.com";
+const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "JobQuip招聘平台";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 
 // 职位类型映射
 const JOB_TYPES: Record<string, { label: string; desc: string; icon: string }> = {
@@ -158,21 +159,21 @@ export default async function CityTypeJobsPage({ params }: PageProps) {
 
   const jobSchemas = jobs.map((job) => generateJobPostingSchema(job));
   const breadcrumbSchema = generateBreadcrumbSchema([
-    { name: "首页", url: SITE_URL },
-    { name: "职位", url: `${SITE_URL}/jobs` },
-    { name: `${city}招聘`, url: `${SITE_URL}/jobs/city/${encodeURIComponent(city)}` },
-    { name: `${city}${typeInfo.label}招聘`, url: `${SITE_URL}/jobs/city/${encodeURIComponent(city)}/${encodeURIComponent(type)}` },
+    { name: "首页", url: `${SITE_URL}/${locale}` },
+    { name: "职位", url: `${SITE_URL}/${locale}/jobs` },
+    { name: `${city}招聘`, url: `${SITE_URL}/${locale}/jobs/city/${encodeURIComponent(city)}` },
+    { name: `${city}${typeInfo.label}招聘`, url: `${SITE_URL}/${locale}/jobs/city/${encodeURIComponent(city)}/${encodeURIComponent(type)}` },
   ]);
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(breadcrumbSchema) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jobSchemas) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(jobSchemas) }}
       />
 
       <div className="min-h-screen bg-gray-50">
@@ -182,8 +183,8 @@ export default async function CityTypeJobsPage({ params }: PageProps) {
             <div className="mb-4">
               <Breadcrumb
                 items={[
-                  { label: "职位列表", href: "/jobs" },
-                  { label: `${city}招聘`, href: `/jobs/city/${encodeURIComponent(city)}` },
+                  { label: "职位列表", href: `/${locale}/jobs` },
+                  { label: `${city}招聘`, href: `/${locale}/jobs/city/${encodeURIComponent(city)}` },
                   { label: `${city}${typeInfo.label}招聘` },
                 ]}
               />
@@ -211,7 +212,7 @@ export default async function CityTypeJobsPage({ params }: PageProps) {
               {Object.entries(JOB_TYPES).map(([key, info]) => (
                 <Link
                   key={key}
-                  href={`/jobs/city/${encodeURIComponent(city)}/${key}`}
+                  href={`/${locale}/jobs/city/${encodeURIComponent(city)}/${key}`}
                   className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm transition-all ${
                     key === type
                       ? "bg-blue-600 text-white"
@@ -234,7 +235,7 @@ export default async function CityTypeJobsPage({ params }: PageProps) {
                 该城市下暂时没有{typeInfo.label}岗位，看看其他类型或全部职位吧
               </p>
               <Link
-                href={`/jobs/city/${encodeURIComponent(city)}`}
+                href={`/${locale}/jobs/city/${encodeURIComponent(city)}`}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all"
               >
                 查看{city}全部职位
@@ -260,7 +261,7 @@ export default async function CityTypeJobsPage({ params }: PageProps) {
 
               <div className="mt-10 text-center">
                 <Link
-                  href={`/jobs?city=${encodeURIComponent(city)}&type=${type}`}
+                  href={`/${locale}/jobs?city=${encodeURIComponent(city)}&type=${type}`}
                   className="inline-flex items-center gap-2 px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-all font-medium"
                 >
                   查看更多{city}{typeInfo.label}职位

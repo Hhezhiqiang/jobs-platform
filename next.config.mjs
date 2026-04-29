@@ -4,8 +4,8 @@ const withNextIntl = createNextIntlPlugin('./src/i18n.ts');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // 生产环境也显示详细错误（用于调试 admin 页面问题）
-  productionBrowserSourceMaps: true,
+  // 生产环境关闭 sourceMap 减小体积
+  productionBrowserSourceMaps: false,
 
   // 图片优化配置
   images: {
@@ -16,7 +16,15 @@ const nextConfig = {
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     remotePatterns: [
-      { protocol: "https", hostname: "**" },
+      { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "cdn.pixabay.com" },
+      { protocol: "https", hostname: "picsum.photos" },
+      { protocol: "https", hostname: "placehold.co" },
+      { protocol: "https", hostname: "avatars.githubusercontent.com" },
+      { protocol: "https", hostname: "*.githubusercontent.com" },
+      { protocol: "https", hostname: "res.cloudinary.com" },
+      { protocol: "https", hostname: "img.shields.io" },
+      { protocol: "https", hostname: "opengraph.githubassets.com" },
     ],
   },
 
