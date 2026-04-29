@@ -10,8 +10,8 @@ export type SearchType = "jobs" | "companies" | "stories" | "interviews" | "all"
 
 export async function GET(request: NextRequest) {
   const ip = getClientIP(request);
-  const rateLimit = checkRateLimit(ip, 5, 1000);
-  if (!rateLimit.success) {
+  const rateLimitResult = checkRateLimit(ip, 30, 60 * 1000);
+  if (!rateLimitResult.success) {
     return NextResponse.json(
       { error: "请求过于频繁，请稍后再试" },
       { status: 429 }

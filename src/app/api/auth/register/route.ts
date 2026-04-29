@@ -6,18 +6,47 @@ import bcrypt from "bcryptjs";
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
 import { bindUserReferral, getPromoRef } from "@/lib/promoter";
 
+// 简单 CAPTCHA 验证（可选，若提供则验证）
+async function verifyCaptcha(token: string | undefined): Promise<boolean> {
+  if (!token) return true; // 未提供则跳过
+  try {
+    const secret = process.env.CAPTCHA_SECRET_KEY;
+    if (!secret) return true; // 未配置密钥则跳过
+    const res = await fetch("https://hcaptcha.com/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `secret=${encodeURIComponent(secret)}&response=${encodeURIComponent(token)}`,
+    });
+    const data = await res.json();
+    return !!data.success;
+  } catch {
+    return false;
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const ip = getClientIP(request);
-    const rateLimit = checkRateLimit(ip, 10, 15 * 60 * 1000);
-    if (!rateLimit.success) {
+    // 注册：每分钟 5 次
+    const rateLimitResult = checkRateLimit(ip, 5, 60 * 1000);
+    if (!rateLimitResult.success) {
       return NextResponse.json(
         { error: "请求过于频繁，请稍后再试" },
         { status: 429 }
       );
     }
 
-    const { name, email, password, phone } = await request.json();
+    const body = await request.json();
+    const { name, email, password, phone, captcha } = body;
+
+    // CAPTCHA 验证（如果提供了 token）
+    const captchaValid = await verifyCaptcha(captcha);
+    if (!captchaValid) {
+      return NextResponse.json(
+        { error: "验证码验证失败，请重试" },
+        { status: 400 }
+      );
+    }
 
     // 验证必填字段
     if (!name || !email || !password) {
