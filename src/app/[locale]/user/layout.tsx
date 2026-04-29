@@ -1,12 +1,24 @@
-import { Metadata } from "next";
+"use client";
+import { useSession } from "next-auth/react";
+import { useRouter, usePathname } from "next/navigation";
+import { useEffect } from "react";
+import { useLocale } from "next-intl";
 
-export const metadata: Metadata = {
-  robots: {
-    index: false,
-    follow: false,
-  },
-};
+export default function UserLayout({ children }: { children: React.ReactNode }) {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const pathname = usePathname();
+  const locale = useLocale();
 
-export default function PrivateLayout({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push(`/${locale}/auth/login?callbackUrl=${encodeURIComponent(pathname)}`);
+    }
+  }, [status, router, pathname, locale]);
+
+  if (status === "loading" || status === "unauthenticated") {
+    return <div className="min-h-screen flex items-center justify-center">加载中...</div>;
+  }
+
   return <>{children}</>;
 }

@@ -1,5 +1,5 @@
 "use client"
-import { useLocale } from "next-intl";;
+import { useLocale } from "next-intl";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -64,21 +64,16 @@ export default function RegisterForm() {
         return;
       }
 
-      const loginResponse = await fetch("/api/auth/callback/credentials", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          callbackUrl: "/dashboard",
-        }),
+      const result = await signIn("credentials", {
+        redirect: false,
+        email: formData.email,
+        password: formData.password,
       });
 
-      if (loginResponse.ok) {
+      if (result?.ok) {
         router.push(`/${locale}/dashboard`);
-        router.refresh();
       } else {
-        router.push(`/${locale}/auth/login?registered=true`);
+        router.push(`/${locale}/auth/login`);
       }
     } catch {
       setError("注册失败，请稍后重试");
@@ -315,6 +310,15 @@ export default function RegisterForm() {
           <p className="mt-6 text-sm text-gray-500 text-center">
             注册即表示同意{" "}
             <Link href="/terms" className="text-blue-600 hover:text-blue-700 font-medium">用户协议</Link>
+            {" "}和{" "}
+            <Link href="/privacy" className="text-blue-600 hover:text-blue-700 font-medium">隐私政策</Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+00 hover:text-blue-700 font-medium">用户协议</Link>
             {" "}和{" "}
             <Link href="/privacy" className="text-blue-600 hover:text-blue-700 font-medium">隐私政策</Link>
           </p>

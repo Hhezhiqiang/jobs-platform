@@ -1,5 +1,5 @@
 "use client"
-import { useLocale } from "next-intl";;
+import { useLocale } from "next-intl";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -112,9 +112,13 @@ export default function SettingsPage() {
 
     setLoading(true);
     try {
-      // 这里应该调用删除账号的API
-      // await fetch("/api/user/delete", { method: "DELETE" });
-      alert("账号删除功能需要管理员确认");
+      const res = await fetch("/api/user/delete", { method: "DELETE" });
+      if (res.ok) {
+        signOut({ callbackUrl: `/${locale}/auth/login?deleted=true` });
+      } else {
+        const data = await res.json();
+        setMessage({ type: "error", text: data.error || "删除账号失败" });
+      }
     } catch (error) {
       setMessage({ type: "error", text: "删除账号失败" });
     } finally {

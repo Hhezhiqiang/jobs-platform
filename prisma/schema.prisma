@@ -552,6 +552,11 @@ model users {
   UserJobPreferences      UserJobPreferences?
   user_profiles           user_profiles?
   user_referrals          user_referrals?
+  notificationEmail       Boolean?                @default(true)
+  notificationSms         Boolean?                @default(false)
+  notificationPush        Boolean?                @default(false)
+  resetToken              String?               @unique
+  resetTokenExpires       DateTime?
 
   @@index([email])
 }

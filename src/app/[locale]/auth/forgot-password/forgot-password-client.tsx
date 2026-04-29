@@ -25,9 +25,19 @@ export default function ForgotPasswordClient() {
     }
 
     try {
-      // 这里应该调用实际的密码重置API
-      // 暂时模拟成功
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const res = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "服务暂时不可用，请稍后重试");
+        return;
+      }
+
       setSuccess(true);
     } catch (err) {
       console.error("Password reset error:", err);

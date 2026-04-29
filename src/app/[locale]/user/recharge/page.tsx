@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { useLocale } from "next-intl";
 import { Footer } from "@/components/footer";
 import { Wallet, Coins, Loader2, CheckCircle2, Bitcoin, CreditCard, ExternalLink, ArrowLeft } from "lucide-react";
 
@@ -22,27 +24,36 @@ const RECHARGE_OPTIONS: RechargeOption[] = [
 type PaymentMethod = "CARD" | "CRYPTO";
 
 export default function RechargePage() {
+  const { data: session, status } = useSession();
   const router = useRouter();
+  const locale = useLocale();
   const searchParams = useSearchParams();
   const [balance, setBalance] = useState<number | null>(null);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<number>(50);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("CARD");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("CRYPTO");
   const [submitting, setSubmitting] = useState(false);
   const [plisioUrl, setPlisioUrl] = useState<string | null>(null);
   const [message, setMessage] = useState<{ type: "success" | "error" | "info"; text: string } | null>(null);
 
   // 检查URL参数（支付返回状态）
   useEffect(() => {
-    const status = searchParams?.get("status");
-    if (status === "success") {
+    const statusParam = searchParams?.get("status");
+    if (statusParam === "success") {
       setMessage({ type: "success", text: "支付成功！余额已到账" });
       fetchBalance();
-    } else if (status === "cancelled") {
+    } else if (statusParam === "cancelled") {
       setMessage({ type: "info", text: "支付已取消" });
     }
   }, [searchParams]);
+
+  // 鉴权重定向
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push(`/${locale}/auth/login?callbackUrl=/user/recharge`);
+    }
+  }, [status, router, locale]);
 
   const fetchBalance = async () => {
     try {

@@ -1,5 +1,5 @@
 "use client"
-import { useLocale } from "next-intl";;
+import { useLocale } from "next-intl";
 
 import { useState, useEffect, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
@@ -149,3 +149,4 @@ export default function PromoterLoginPage() {
     </div>
   );
 }
+

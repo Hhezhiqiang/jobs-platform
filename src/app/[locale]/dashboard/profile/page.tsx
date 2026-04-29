@@ -2,10 +2,14 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { useLocale } from "next-intl";
 import { User, Save, MapPin, Calendar, BookOpen, Briefcase, Award, FileText, Upload, Edit2 } from "lucide-react";
 import Link from "next/link";
 
 export default function ProfilePage({ params }: { params: Promise<{ locale: string }> }) {
+  const { data: session, status: sessionStatus } = useSession();
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   
@@ -27,6 +31,14 @@ export default function ProfilePage({ params }: { params: Promise<{ locale: stri
     params.then(p => setLocale(p.locale)).catch(() => {});
     fetchData();
   }, []);
+
+  // 未登录重定向
+  useEffect(() => {
+    if (sessionStatus === "unauthenticated") {
+      router.push(`/${locale}/auth/login`);
+      return;
+    }
+  }, [sessionStatus, router, locale]);
 
   const fetchData = async () => {
     try {

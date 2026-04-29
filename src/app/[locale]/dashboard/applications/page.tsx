@@ -1,5 +1,5 @@
 "use client"
-import { useLocale } from "next-intl";;
+import { useLocale } from "next-intl";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -191,25 +191,25 @@ export default function ApplicationsPage() {
           <div className="md:col-span-1">
             <nav className="bg-white rounded-lg shadow p-4 space-y-2">
               <Link
-                href="/dashboard"
+                href={`/${locale}/dashboard`}
                 className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg"
               >
                 📊 概览
               </Link>
               <Link
-                href="/dashboard/profile"
+                href={`/${locale}/dashboard/profile`}
                 className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg"
               >
                 📄 我的简历
               </Link>
               <Link
-                href="/dashboard/applications"
+                href={`/${locale}/dashboard/applications`}
                 className="block px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-medium"
               >
                 📋 我的申请
               </Link>
               <Link
-                href="/dashboard/settings"
+                href={`/${locale}/dashboard/settings`}
                 className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg"
               >
                 ⚙️ 账号设置

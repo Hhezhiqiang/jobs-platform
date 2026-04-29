@@ -1,5 +1,5 @@
 "use client"
-import { useLocale } from "next-intl";;
+import { useLocale } from "next-intl";
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
