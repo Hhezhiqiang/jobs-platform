@@ -252,7 +252,7 @@ export default async function BlogPage({ params, searchParams }: PageProps) {
             return (
               <Link
                 key={cat.nameKey}
-                href={`/${locale}/blog?category=${catKey === 'all' ? '' : catKey}`}
+                href={catKey === 'all' ? `/${locale}/blog` : `/${locale}/blog?category=${catKey}`}
                 className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                   isActive
                     ? "bg-blue-600 text-white"
@@ -349,7 +349,7 @@ export default async function BlogPage({ params, searchParams }: PageProps) {
           <div className="flex items-center justify-center gap-2 mt-12">
             {page > 1 && (
               <Link
-                href={`/${locale}/blog?page=${page - 1}${sp.q ? `&q=${sp.q}` : ""}${sp.category ? `&category=${sp.category}` : ""}`}
+                href={`/${locale}/blog?page=${page - 1}${sp.q ? `&q=${sp.q}` : ""}${sp.category && sp.category !== 'all' ? `&category=${sp.category}` : ""}`}
                 className="flex items-center gap-1 px-4 py-2 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -365,7 +365,7 @@ export default async function BlogPage({ params, searchParams }: PageProps) {
               return (
                 <Link
                   key={pageNum}
-                  href={`/${locale}/blog?page=${pageNum}${sp.q ? `&q=${sp.q}` : ""}${sp.category ? `&category=${sp.category}` : ""}`}
+                  href={`/${locale}/blog?page=${pageNum}${sp.q ? `&q=${sp.q}` : ""}${sp.category && sp.category !== 'all' ? `&category=${sp.category}` : ""}`}
                   className={`w-10 h-10 flex items-center justify-center rounded-xl font-medium transition-all ${
                     page === pageNum
                       ? "bg-blue-600 text-white"
@@ -378,7 +378,7 @@ export default async function BlogPage({ params, searchParams }: PageProps) {
             })}
             {page < totalPages && (
               <Link
-                href={`/${locale}/blog?page=${page + 1}${sp.q ? `&q=${sp.q}` : ""}${sp.category ? `&category=${sp.category}` : ""}`}
+                href={`/${locale}/blog?page=${page + 1}${sp.q ? `&q=${sp.q}` : ""}${sp.category && sp.category !== 'all' ? `&category=${sp.category}` : ""}`}
                 className="flex items-center gap-1 px-4 py-2 bg-white border border-gray-200 rounded-xl hover:bg-gray-50 transition-all"
               >
                 {t("next")}

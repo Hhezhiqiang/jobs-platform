@@ -19,38 +19,43 @@ const ITEMS_PER_PAGE = 20;
 
 async function updateWithdrawal(formData: FormData) {
   "use server";
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id || session.user.role !== "ADMIN") {
-    throw new Error("无权操作");
-  }
-  const id = formData.get("id") as string;
-  const status = formData.get("status") as string;
-  const txHash = formData.get("txHash") as string;
-  const remark = formData.get("remark") as string;
-
-  const updateData: Prisma.withdrawal_recordsUpdateInput = { status: status as WithdrawalStatus };
-  if (status === "APPROVED" || status === "REJECTED") updateData.reviewedAt = new Date();
-  if (status === "TRANSFERRING" || status === "COMPLETED") {
-    if (!txHash) throw new Error("缺少 TXID");
-    updateData.txHash = txHash;
-  }
-  if (status === "COMPLETED") updateData.completedAt = new Date();
-  if (remark) updateData.remark = remark;
-
-  if (status === "REJECTED") {
-    const record = await prisma.withdrawal_records.findUnique({ where: { id } });
-    if (record) {
-      await prisma.promoters.update({
-        where: { id: record.promoterId },
-        data: {
-          availableBalance: { increment: record.amount },
-          withdrawnBalance: { decrement: record.amount },
-        },
-      });
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id || session.user.role !== "ADMIN") {
+      throw new Error("无权操作");
     }
-  }
+    const id = formData.get("id") as string;
+    const status = formData.get("status") as string;
+    const txHash = formData.get("txHash") as string;
+    const remark = formData.get("remark") as string;
 
-  await prisma.withdrawal_records.update({ where: { id }, data: updateData });
+    const updateData: Prisma.withdrawal_recordsUpdateInput = { status: status as WithdrawalStatus };
+    if (status === "APPROVED" || status === "REJECTED") updateData.reviewedAt = new Date();
+    if (status === "TRANSFERRING" || status === "COMPLETED") {
+      if (!txHash) throw new Error("缺少 TXID");
+      updateData.txHash = txHash;
+    }
+    if (status === "COMPLETED") updateData.completedAt = new Date();
+    if (remark) updateData.remark = remark;
+
+    if (status === "REJECTED") {
+      const record = await prisma.withdrawal_records.findUnique({ where: { id } });
+      if (record) {
+        await prisma.promoters.update({
+          where: { id: record.promoterId },
+          data: {
+            availableBalance: { increment: record.amount },
+            withdrawnBalance: { decrement: record.amount },
+          },
+        });
+      }
+    }
+
+    await prisma.withdrawal_records.update({ where: { id }, data: updateData });
+  } catch (error) {
+    console.error("updateWithdrawal error:", error);
+    throw error;
+  }
 }
 
 const statusFilterOptions: FilterOption[] = [

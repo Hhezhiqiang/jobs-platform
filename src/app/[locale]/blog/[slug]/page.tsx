@@ -25,7 +25,10 @@ export async function generateStaticParams() {
       select: { slug: true },
       take: 500,
     });
-    return posts.map((post) => ({ slug: post.slug }));
+    return posts.flatMap((post) => [
+      { slug: post.slug, locale: 'zh' as const },
+      { slug: post.slug, locale: 'en' as const },
+    ]);
   } catch {
     return [];
   }
@@ -161,33 +164,33 @@ export default async function BlogDetailPage({ params }: PageProps) {
       notFound();
     }
 
-    // 获取相关职位（基于关键词匹配）
+    // 获取相关职位（基于关键词匹配）+ 最新职位（并行查询）
   const keyword = post.keywords?.[0] || "";
-  const relatedJobs = keyword ? await prisma.jobs.findMany({
-    where: {
-      status: "ACTIVE",
-      slug: { not: "" }, // 确保有 slug
-      OR: [
-        { title: { contains: keyword, mode: "insensitive" } },
-        { description: { contains: keyword, mode: "insensitive" } },
-      ],
-    },
-    include: { companies: true },
-    take: 3,
-  }) : [];
-
-  // 如果没有匹配到，获取最新职位
-  const fallbackJobs = relatedJobs.length === 0 
-    ? await prisma.jobs.findMany({
-        where: { 
-          status: "ACTIVE",
-          slug: { not: "" }, // 确保有 slug
-        },
-        include: { companies: true },
-        orderBy: { datePosted: "desc" },
-        take: 3,
-      })
-    : [];
+  const [relatedJobs, fallbackJobs] = await Promise.all([
+    keyword
+      ? prisma.jobs.findMany({
+          where: {
+            status: "ACTIVE",
+            slug: { not: "" },
+            OR: [
+              { title: { contains: keyword, mode: "insensitive" } },
+              { description: { contains: keyword, mode: "insensitive" } },
+            ],
+          },
+          include: { companies: true },
+          take: 3,
+        })
+      : Promise.resolve([]),
+    prisma.jobs.findMany({
+      where: {
+        status: "ACTIVE",
+        slug: { not: "" },
+      },
+      include: { companies: true },
+      orderBy: { datePosted: "desc" },
+      take: 3,
+    }),
+  ]);
 
   const displayJobs = relatedJobs.length > 0 ? relatedJobs : fallbackJobs;
 
@@ -306,7 +309,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
                   })}
                 </time>
                 <span>·</span>
-                <ViewCounter slug={slug} initialCount={post.viewCount} />
+                <ViewCounter slug={slug} initialCount={post.viewCount ?? 0} />
               </div>
 
               {/* 摘要 */}
