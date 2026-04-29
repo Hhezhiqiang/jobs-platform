@@ -1,5 +1,5 @@
-"use client"
-import { useLocale } from "next-intl";;
+"use client";
+import { useLocale } from "next-intl";
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -58,72 +58,68 @@ export default function NewAdPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b">
-        <div className="max-w-xl mx-auto px-4 py-4 flex items-center gap-4">
-          <Link href="/admin/ads" className="text-gray-500 hover:text-gray-700">← 返回</Link>
-          <h1 className="text-lg font-bold">发布广告</h1>
+    <div className="space-y-6">
+      <div className="flex items-center gap-4">
+        <Link href={`/${locale}/admin/ads`} className="text-gray-500 hover:text-gray-700">← 返回</Link>
+        <h1 className="text-lg font-bold">发布广告</h1>
+      </div>
+
+      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-5">
+        {error && <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg">{error}</div>}
+
+        <div>
+          <label className="block text-sm font-medium mb-1.5">广告标题 *</label>
+          <input name="title" type="text" required className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="简短描述" />
         </div>
-      </header>
 
-      <main className="max-w-xl mx-auto px-4 py-6">
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-5">
-          {error && <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg">{error}</div>}
+        <div>
+          <label className="block text-sm font-medium mb-1.5">广告位 *</label>
+          <select name="positionId" required className="w-full border rounded-lg px-3 py-2 text-sm">
+            <option value="">选择广告位</option>
+            {positions.filter(p => p.isActive).map(p => (
+              <option key={p.id} value={p.name}>{p.displayName} ({p.name})</option>
+            ))}
+          </select>
+        </div>
 
+        <div>
+          <label className="block text-sm font-medium mb-1.5">类型</label>
+          <div className="flex gap-4">
+            {["IMAGE", "TEXT"].map(type => (
+              <label key={type} className="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="adType" value={type} checked={adType === type} onChange={() => setAdType(type)} className="accent-blue-600" />
+                <span className="text-sm">{type === "IMAGE" ? "图片" : "文字链"}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {adType === "IMAGE" && (
           <div>
-            <label className="block text-sm font-medium mb-1.5">广告标题 *</label>
-            <input name="title" type="text" required className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="简短描述" />
+            <label className="block text-sm font-medium mb-1.5">图片URL *</label>
+            <input name="imageUrl" type="url" className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="https://..." />
           </div>
+        )}
 
+        <div>
+          <label className="block text-sm font-medium mb-1.5">链接URL *</label>
+          <input name="linkUrl" type="url" required className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="https://..." />
+        </div>
+
+        {adType === "TEXT" && (
           <div>
-            <label className="block text-sm font-medium mb-1.5">广告位 *</label>
-            <select name="positionId" required className="w-full border rounded-lg px-3 py-2 text-sm">
-              <option value="">选择广告位</option>
-              {positions.filter(p => p.isActive).map(p => (
-                <option key={p.id} value={p.name}>{p.displayName} ({p.name})</option>
-              ))}
-            </select>
+            <label className="block text-sm font-medium mb-1.5">文字内容</label>
+            <textarea name="textContent" rows={2} className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="简短描述..." />
           </div>
+        )}
 
-          <div>
-            <label className="block text-sm font-medium mb-1.5">类型</label>
-            <div className="flex gap-4">
-              {["IMAGE", "TEXT"].map(type => (
-                <label key={type} className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="adType" value={type} checked={adType === type} onChange={() => setAdType(type)} className="accent-blue-600" />
-                  <span className="text-sm">{type === "IMAGE" ? "图片" : "文字链"}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {adType === "IMAGE" && (
-            <div>
-              <label className="block text-sm font-medium mb-1.5">图片URL *</label>
-              <input name="imageUrl" type="url" className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="https://..." />
-            </div>
-          )}
-
-          <div>
-            <label className="block text-sm font-medium mb-1.5">链接URL *</label>
-            <input name="linkUrl" type="url" required className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="https://..." />
-          </div>
-
-          {adType === "TEXT" && (
-            <div>
-              <label className="block text-sm font-medium mb-1.5">文字内容</label>
-              <textarea name="textContent" rows={2} className="w-full border rounded-lg px-3 py-2 text-sm" placeholder="简短描述..." />
-            </div>
-          )}
-
-          <div className="flex gap-3 pt-2">
-            <button type="submit" disabled={loading} className="flex-1 bg-blue-600 text-white py-2.5 rounded-lg hover:bg-blue-700 disabled:opacity-50 text-sm font-medium">
-              {loading ? "发布中..." : "发布"}
-            </button>
-            <Link href="/admin/ads" className="px-6 py-2.5 border rounded-lg text-sm text-gray-600 hover:bg-gray-50">取消</Link>
-          </div>
-        </form>
-      </main>
+        <div className="flex gap-3 pt-2">
+          <button type="submit" disabled={loading} className="flex-1 bg-blue-600 text-white py-2.5 rounded-lg hover:bg-blue-700 disabled:opacity-50 text-sm font-medium">
+            {loading ? "发布中..." : "发布"}
+          </button>
+          <Link href={`/${locale}/admin/ads`} className="px-6 py-2.5 border rounded-lg text-sm text-gray-600 hover:bg-gray-50">取消</Link>
+        </div>
+      </form>
     </div>
   );
 }

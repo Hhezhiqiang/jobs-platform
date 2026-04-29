@@ -9,108 +9,56 @@
  */
 
 import { prisma } from "@/lib/prisma";
+import { aiChat, aiChatJSON } from "@/lib/ai-client";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 
-// 调用 Kimi API 翻译
-async function translateWithKimi(text: string, context: { title: string }): Promise<{ title: string; excerpt: string }> {
-  const apiKey = process.env.KIMI_API_KEY;
-  if (!apiKey) throw new Error("KIMI_API_KEY not set");
+// 调用 ai-client 翻译标题和摘要
+async function translateTitleExcerpt(text: string, context: { title: string }): Promise<{ title: string; excerpt: string }> {
+  try {
+    const result = await aiChatJSON<{ title: string; excerpt: string }>([
+      {
+        role: "system",
+        content: "You are a professional translator. Translate the following Chinese blog content into professional English. Return ONLY a JSON object with format: {\"title\": \"...\", \"excerpt\": \"...\"}. Keep title concise and SEO-friendly. Keep excerpt under 160 characters.",
+      },
+      {
+        role: "user",
+        content: `Chinese Title: ${context.title}\nChinese Content (first 500 chars): ${text.slice(0, 500)}`,
+      },
+    ], { maxTokens: 500, temperature: 0.3, cacheTTL: 86400 });
 
-  const prompt = `You are a professional translator. Translate the following Chinese blog content into professional English.
+    if (!result.title || !result.excerpt) throw new Error("Missing title or excerpt in translation");
 
-Rules:
-- Keep the title concise and engaging (SEO-friendly)
-- Keep the excerpt under 160 characters (for SEO meta description)
-- Maintain the original meaning and tone
-- Use natural, professional English
-- Do NOT add any extra content or commentary
-
-Chinese Title: ${context.title}
-Chinese Content (first 500 chars): ${text.slice(0, 500)}
-
-Return ONLY a JSON object with this format:
-{"title": "English title here", "excerpt": "English excerpt here (max 160 chars)"}`;
-
-  const response = await fetch("https://api.moonshot.cn/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: "moonshot-v1-8k",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.3,
-      max_tokens: 500,
-    }),
-  });
-
-  if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`Kimi API error: ${response.status} - ${err}`);
+    return {
+      title: result.title,
+      excerpt: result.excerpt.slice(0, 160),
+    };
+  } catch (error: any) {
+    throw new Error(`Translation failed: ${error.message}`);
   }
-
-  const data = await response.json();
-  const content = data.choices?.[0]?.message?.content?.trim();
-  if (!content) throw new Error("Empty response from Kimi API");
-
-  // Parse JSON from response
-  const jsonMatch = content.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error(`Invalid JSON response: ${content.slice(0, 200)}`);
-
-  const result = JSON.parse(jsonMatch[0]);
-  if (!result.title || !result.excerpt) throw new Error("Missing title or excerpt in translation");
-
-  return {
-    title: result.title,
-    excerpt: result.excerpt.slice(0, 160),
-  };
 }
 
 // 翻译博客正文（单独调用，因为内容可能很长）
 async function translateContent(content: string): Promise<string> {
-  const apiKey = process.env.KIMI_API_KEY;
-  if (!apiKey) throw new Error("KIMI_API_KEY not set");
+  try {
+    const contentEn = await aiChat([
+      {
+        role: "system",
+        content: "你是一个专业的翻译助手。请将中文翻译为英文。保持 Markdown 格式。只返回翻译结果，不要其他内容。",
+      },
+      {
+        role: "user",
+        content: content.slice(0, 8000),
+      },
+    ], { maxTokens: 4000, temperature: 0.3, cacheTTL: 86400 });
 
-  const prompt = `Translate the following Chinese blog content into professional English.
+    if (!contentEn) throw new Error("Empty translation response");
 
-Rules:
-- Maintain the original formatting (headings, lists, code blocks, etc.)
-- Use natural, professional English
-- Keep markdown syntax intact
-- Do NOT add any extra content or commentary
-
-Chinese Content:
-${content.slice(0, 4000)}
-
-Return ONLY the translated English text. Do not wrap it in JSON or any other format.`;
-
-  const response = await fetch("https://api.moonshot.cn/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: "moonshot-v1-32k",
-      messages: [{ role: "user", content: prompt }],
-      temperature: 0.3,
-      max_tokens: 4000,
-    }),
-  });
-
-  if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`Kimi API error: ${response.status} - ${err}`);
+    return contentEn;
+  } catch (error: any) {
+    throw new Error(`Content translation failed: ${error.message}`);
   }
-
-  const data = await response.json();
-  const content_en = data.choices?.[0]?.message?.content?.trim();
-  if (!content_en) throw new Error("Empty response from Kimi API");
-
-  return content_en;
 }
 
 export async function POST(request: NextRequest) {
@@ -170,7 +118,7 @@ export async function POST(request: NextRequest) {
     for (const blog of blogs) {
       try {
         // Step 1: 翻译标题和摘要（短文本）
-        const titleExcerpt = await translateWithKimi(
+        const titleExcerpt = await translateTitleExcerpt(
           blog.excerpt || blog.content.slice(0, 300),
           { title: blog.title }
         );

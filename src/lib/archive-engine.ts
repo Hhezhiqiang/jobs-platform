@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { aiChat, isAIConfigured } from "@/lib/ai-client";
 import axios from "axios";
 
 export interface ArchiveResult {
@@ -57,49 +58,36 @@ interface RawArchive {
 }
 
 async function fetchPerplexity(keyword: string): Promise<RawArchive[]> {
-  const apiKey = process.env.KIMI_API_KEY;
-  if (!apiKey) return [];
+  if (!isAIConfigured()) return [];
 
-  const res = await fetch("https://api.moonshot.cn/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: "sonar",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are a research assistant. Provide a concise, factual summary with key bullet points. Cite sources if possible.",
-        },
-        {
-          role: "user",
-          content: `What is the current trend and key discussion points around "${keyword}" in the job market or tech industry? Please keep it under 300 words.`,
-        },
-      ],
-      max_tokens: 600,
-    }),
-  });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`KIMI API error ${res.status}: ${text}`);
-  }
-
-  const data = await res.json();
-  const content = data.choices?.[0]?.message?.content || "";
-  if (!content) return [];
-
-  return [
+  const messages = [
     {
-      contentType: "KIMI_QA",
-      contentTitle: `Trend analysis: ${keyword}`,
-      contentBody: content,
-      relevanceScore: 0.9,
+      role: "system" as const,
+      content:
+        "You are a research assistant. Provide a concise, factual summary with key bullet points. Cite sources if possible.",
+    },
+    {
+      role: "user" as const,
+      content: `What is the current trend and key discussion points around "${keyword}" in the job market or tech industry? Please keep it under 300 words.`,
     },
   ];
+
+  try {
+    const content = await aiChat(messages, { maxTokens: 2000, temperature: 0.3 });
+    if (!content) return [];
+
+    return [
+      {
+        contentType: "KIMI_QA",
+        contentTitle: `Trend analysis: ${keyword}`,
+        contentBody: content,
+        relevanceScore: 0.9,
+      },
+    ];
+  } catch (err) {
+    console.error(`[archive-engine] ai-chat failed:`, (err as Error).message);
+    return [];
+  }
 }
 
 async function fetchZhihuSearch(keyword: string): Promise<RawArchive[]> {
