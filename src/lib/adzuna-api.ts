@@ -30,6 +30,26 @@ interface AdzunaResponse {
   results: AdzunaJob[];
 }
 
+/**
+ * 判断是否需要对职位调用 AI 解析
+ * 如果职位描述已包含结构化关键词，可直接跳过 AI
+ */
+function needsAIParsing(description: string): boolean {
+  // 如果描述很短或已经是结构化格式（包含明确的岗位职责/任职要求标记），跳过 AI
+  const hasStructure = /岗位职责|任职要求|岗位要求|responsibilities|requirements|qualifications/i.test(description);
+  // 非常短的描述不值得 AI 解析
+  if (description.length < 200) return false;
+  // 没有结构化标记的需要 AI 解析
+  return !hasStructure;
+}
+
+/**
+ * 批量提取城市名
+ */
+function extractCity(displayName: string): string {
+  return displayName.split(',')[0]?.trim() || displayName;
+}
+
 export async function fetchAdzunaJobs(
   keyword?: string,
   location?: string,
@@ -46,15 +66,15 @@ export async function fetchAdzunaJobs(
 
   const baseUrl = `https://api.adzuna.com/v1/api/jobs/${country}/search`;
   const url = new URL(`${baseUrl}/${page}`);
-  
+
   url.searchParams.set('app_id', appId);
   url.searchParams.set('app_key', appKey);
-  url.searchParams.set('results_per_page', '50'); // 获取 50 条，增加新职位概率
-  
+  url.searchParams.set('results_per_page', '50');
+
   if (keyword) {
     url.searchParams.set('what', keyword);
   }
-  
+
   if (location) {
     url.searchParams.set('where', location);
   }
@@ -66,114 +86,94 @@ export async function fetchAdzunaJobs(
       },
       next: { revalidate: 3600 }
     });
-    
+
     if (!response.ok) {
       const errorBody = await response.text();
       console.error(`Adzuna API error ${response.status}:`, errorBody);
       throw new Error(`Adzuna API error: ${response.status} - ${errorBody}`);
     }
 
-    if (!response.ok) {
-      throw new Error(`Adzuna API error: ${response.status}`);
-    }
-
     const data: AdzunaResponse = await response.json();
-    
     console.log(`Adzuna (${country}): 获取到 ${data.results.length} 个职位`);
 
     const companyId = process.env.ADZUNA_COMPANY_ID || '';
     const authorId = process.env.ADZUNA_AUTHOR_ID || '';
-    
+
     if (!companyId || !authorId) {
       console.error('未配置公司/作者 ID');
       return 0;
     }
 
     let savedCount = 0;
+    const failedJobs: string[] = [];
+
     for (const job of data.results) {
       try {
-        // 使用 AI 解析职位描述
-        const parsed = await parseJobDescriptionWithAI(job.description);
-        
-        // 提取城市名
         const fullLocation = job.location?.display_name || location || 'Remote';
-        const city = fullLocation.split(',')[0]?.trim() || fullLocation;
-        
-        // 自动生成全球标签
+        const city = extractCity(fullLocation);
         const globalTags = getRegionTags(country, fullLocation);
-        
-        // 添加行业分类标签
+
         if (job.category?.tag) {
           globalTags.push(job.category.tag);
         }
-        
-        // 尝试提取原始招聘网站链接
+
         let directApplyUrl = job.redirect_url;
-        
-        // 方法 1: 从描述中提取 URL
+
+        // 从描述中提取 URL
         const urlMatch = job.description.match(/(https?:\/\/[^\s<>"']+)/i);
         if (urlMatch && urlMatch[1] && !urlMatch[1].includes('adzuna.com')) {
           directApplyUrl = urlMatch[1];
         }
-        
-        // 方法 2: 从 redirect_url 中提取原始招聘网站
-        // Adzuna 链接格式：https://www.adzuna.co.uk/land/ad/{id}?se=...
-        // 我们可以尝试访问 Adzuna 详情页获取原始链接
-        if (directApplyUrl.includes('adzuna.com')) {
-          try {
-            const adzunaPageRes = await fetch(job.redirect_url, {
-              headers: { 'User-Agent': 'Mozilla/5.0' },
-              redirect: 'manual' // 不自动跳转
-            });
-            if (adzunaPageRes.status === 302 || adzunaPageRes.status === 301) {
-              const location = adzunaPageRes.headers.get('location');
-              if (location && !location.includes('adzuna.com')) {
-                directApplyUrl = location;
-              }
-            }
-          } catch (e) {
-            console.log(`  无法获取原始链接，使用 Adzuna 链接`);
-          }
+
+        // 成本优化：只在需要时调用 AI 解析职位描述
+        let parsed = { description: '', requirements: '', benefits: '' };
+        if (needsAIParsing(job.description)) {
+          parsed = await parseJobDescriptionWithAI(job.description);
+        } else {
+          // 直接使用原始描述
+          parsed.description = job.description.substring(0, 500);
         }
-        
+
         await prisma.jobs.create({
           data: {
             slug: `adzuna-${job.id}`,
             title: job.title,
-            description: parsed.description, // 岗位职责
-            requirements: parsed.requirements, // 任职要求
-            benefits: parsed.benefits, // 福利待遇
+            description: parsed.description,
+            requirements: parsed.requirements,
+            benefits: parsed.benefits,
             location: fullLocation,
-            city: city,
+            city,
             country: country.toUpperCase(),
             salaryMin: job.salary_min || null,
             salaryMax: job.salary_max || null,
-            employmentType: job.contract_type === 'part_time' ? 'PART_TIME' : 
-                           job.contract_type === 'contract' ? 'CONTRACT' : 
-                           job.contract_type === 'internship' ? 'INTERNSHIP' : 
-                           job.contract_type === 'freelance' ? 'FREELANCE' : 'FULL_TIME',
-            applyUrl: directApplyUrl, // 使用直接链接
+            employmentType: job.contract_type === 'part_time' ? 'PART_TIME' :
+              job.contract_type === 'contract' ? 'CONTRACT' :
+                job.contract_type === 'internship' ? 'INTERNSHIP' :
+                  job.contract_type === 'freelance' ? 'FREELANCE' : 'FULL_TIME',
+            applyUrl: directApplyUrl,
             status: 'ACTIVE',
             companyId,
             authorId,
-            keywords: globalTags // 自动添加全球标签
+            keywords: globalTags
           }
         });
         savedCount++;
-        
-        // 频率控制（避免 Kimi API 限流）
-        await sleep(2000); // 增加到 2 秒，避免 RPM 限流
-      } catch (error: any) {
-        if (!error.message.includes('Unique constraint')) {
-          console.error(`Failed to save job ${job.id}:`, error.message);
+
+        // 限流
+        await sleep(2000);
+      } catch (error: unknown) {
+        const errMsg = (error as Error).message;
+        if (!errMsg.includes('Unique constraint')) {
+          console.error(`Failed to save job ${job.id}:`, errMsg);
+          failedJobs.push(job.id);
         }
       }
     }
 
-    console.log(`Adzuna: 新增 ${savedCount} 个职位`);
+    console.log(`Adzuna: 新增 ${savedCount} 个职位, 失败 ${failedJobs.length} 个`);
     return savedCount;
-  } catch (error: any) {
-    console.error('Adzuna API error:', error.message);
+  } catch (error: unknown) {
+    console.error('Adzuna API error:', (error as Error).message);
     return 0;
   }
 }
@@ -192,9 +192,9 @@ export async function fetchAdzunaBulkJobs() {
         try {
           const count = await fetchAdzunaJobs(keyword, location, 1, country);
           total += count;
-          await sleep(2000); // 频率控制
-        } catch (error: any) {
-          console.error(`Failed ${keyword} ${location}:`, error.message);
+          await sleep(2000);
+        } catch (error: unknown) {
+          console.error(`Failed ${keyword} ${location}:`, (error as Error).message);
         }
       }
     }

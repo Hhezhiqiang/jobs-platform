@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const settledCount = await settleCommissions();
+    const settledCount = await settleCommissions(3); // 最多重试 3 次
     return NextResponse.json({
       success: true,
       settledCount,
@@ -20,6 +20,9 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error("Commission settlement cron error:", error);
-    return NextResponse.json({ error: "Settlement failed" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Settlement failed", details: (error as Error).message },
+      { status: 500 },
+    );
   }
 }

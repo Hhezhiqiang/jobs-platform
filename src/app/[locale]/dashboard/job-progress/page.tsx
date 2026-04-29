@@ -17,10 +17,11 @@ const STATUS_MAP: Record<string, { icon: any; label: string; labelEn: string; co
 export default function JobProgressPage({ params }: { params: Promise<{ locale: string }> }) {
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  
   const [locale, setLocale] = useState("zh");
 
   useEffect(() => {
-    params.then(p => setLocale(p.locale));
+    params.then(p => setLocale(p.locale)).catch(() => {});
     fetchApplications();
   }, []);
 

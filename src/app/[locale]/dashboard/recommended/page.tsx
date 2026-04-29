@@ -9,10 +9,11 @@ export default function RecommendedJobsPage({ params }: { params: Promise<{ loca
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPersonalized, setIsPersonalized] = useState(false);
+  
   const [locale, setLocale] = useState("zh");
 
   useEffect(() => {
-    params.then(p => setLocale(p.locale));
+    params.then(p => setLocale(p.locale)).catch(() => {});
     fetchRecommended();
   }, []);
 

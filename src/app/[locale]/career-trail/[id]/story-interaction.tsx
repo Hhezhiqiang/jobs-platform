@@ -24,23 +24,31 @@ export function StoryInteraction({ storyId, initialResonanceCount, title }: Stor
   const router = useRouter();
   const isAuthenticated = status === "authenticated";
 
-  // Check if user has already resonated
+  // Check if user has already resonated and bookmarked
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    const checkResonanceStatus = async () => {
+    const checkStatus = async () => {
       try {
-        const response = await fetch(`/api/stories/${storyId}/resonance/check`);
-        if (response.ok) {
-          const data = await response.json();
-          setHasResonated(data.hasResonated);
+        // Check resonance status
+        const resonanceRes = await fetch(`/api/stories/${storyId}/resonance/check`);
+        if (resonanceRes.ok) {
+          const resonanceData = await resonanceRes.json();
+          setHasResonated(resonanceData.hasResonated);
+        }
+
+        // Check bookmark status
+        const bookmarkRes = await fetch(`/api/stories/${storyId}/bookmark`);
+        if (bookmarkRes.ok) {
+          const bookmarkData = await bookmarkRes.json();
+          setIsBookmarked(bookmarkData.isBookmarked);
         }
       } catch (error) {
-        console.error("检查共鸣状态失败:", error);
+        console.error("检查故事状态失败:", error);
       }
     };
 
-    checkResonanceStatus();
+    checkStatus();
   }, [storyId, isAuthenticated]);
 
   const handleResonance = async () => {
@@ -100,14 +108,25 @@ export function StoryInteraction({ storyId, initialResonanceCount, title }: Stor
     }
   };
 
-  const handleBookmark = () => {
+  const handleBookmark = async () => {
     if (!isAuthenticated) {
       router.push(`/${locale}/auth/login?callbackUrl=${encodeURIComponent(window.location.href)}`);
       return;
     }
 
-    setIsBookmarked(!isBookmarked);
-    // TODO: Implement bookmark API
+    try {
+      const response = await fetch(`/api/stories/${storyId}/bookmark`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setIsBookmarked(data.isBookmarked);
+      }
+    } catch (error) {
+      console.error("收藏操作失败:", error);
+    }
   };
 
   return (

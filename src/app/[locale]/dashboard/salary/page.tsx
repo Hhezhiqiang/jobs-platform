@@ -6,12 +6,12 @@ import { DollarSign, BarChart3, TrendingUp, MapPin, Briefcase } from "lucide-rea
 
 export default function SalaryComparePage({ params }: { params: Promise<{ locale: string }> }) {
   const [loading, setLoading] = useState(true);
+  
   const [locale, setLocale] = useState("zh");
   const [selectedCity, setSelectedCity] = useState("北京");
   const [selectedRole, setSelectedRole] = useState("前端工程师");
 
   useEffect(() => {
-    params.then(p => setLocale(p.locale));
     setLoading(false);
   }, []);
 

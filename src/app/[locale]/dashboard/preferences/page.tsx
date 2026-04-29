@@ -21,6 +21,7 @@ const EXPERIENCE_LEVELS = [
 ];
 
 export default function PreferencesPage({ params }: { params: Promise<{ locale: string }> }) {
+  
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [locale, setLocale] = useState("zh");
@@ -35,7 +36,7 @@ export default function PreferencesPage({ params }: { params: Promise<{ locale: 
   });
 
   useEffect(() => {
-    params.then(p => setLocale(p.locale));
+    params.then(p => setLocale(p.locale)).catch(() => {});
     fetchPreferences();
   }, []);
 

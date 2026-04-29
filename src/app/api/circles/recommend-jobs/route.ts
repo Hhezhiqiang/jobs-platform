@@ -224,23 +224,47 @@ async function checkRecommendPermission(
 ): Promise<boolean> {
   // PUBLIC: 任何人可以推荐
   if (privacy === "PUBLIC") return true;
-  
-  // PRIVATE: 只有自己可见，不应该允许推荐
+
+  // PRIVATE: 只有自己可见，不允许推荐
   if (privacy === "PRIVATE") return false;
-  
-  // FOLLOWERS: 检查是否关注了该用户
+
+  // FOLLOWERS: 检查是否存在关注关系
   if (privacy === "FOLLOWERS") {
-    // TODO: 实现关注关系检查
-    // 这里暂时简化处理，假设都可见
-    return true;
+    // 检查是否有故事共鸣关系作为替代指标
+    const resonance = await prisma.storyResonance.findFirst({
+      where: {
+        story: { authorId: seekerId },
+        userId: recommenderId,
+      },
+    });
+    // 有互动则允许推荐
+    return !!resonance;
   }
-  
-  // CIRCLES: 检查是否在同个圈子
+
+  // CIRCLES: 检查是否在同个圈子（通过是否有共同互动记录判断）
   if (privacy === "CIRCLES") {
-    // TODO: 实现圈子成员检查
-    // 这里暂时简化处理，假设都可见
-    return true;
+    // 检查是否有过共鸣或评论互动
+    const hasInteraction = await prisma.storyResonance.findFirst({
+      where: {
+        OR: [
+          { story: { authorId: seekerId }, userId: recommenderId },
+          { story: { authorId: recommenderId }, userId: seekerId },
+        ],
+      },
+    });
+    if (hasInteraction) return true;
+
+    // 检查是否有评论互动
+    const hasComment = await prisma.storyComment.findFirst({
+      where: {
+        OR: [
+          { story: { authorId: seekerId }, authorId: recommenderId },
+          { story: { authorId: recommenderId }, authorId: seekerId },
+        ],
+      },
+    });
+    return !!hasComment;
   }
-  
+
   return false;
 }

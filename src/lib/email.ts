@@ -1,5 +1,32 @@
 import nodemailer from "nodemailer";
 
+/**
+ * HTML 转义用户输入，防止 XSS
+ */
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;");
+}
+
+/**
+ * 转义 URL，防止 href 注入
+ */
+function escapeUrl(url: string): string {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+      return parsed.toString();
+    }
+  } catch {
+    // Invalid URL, escape it
+  }
+  return escapeHtml(url);
+}
+
 // 检查邮件配置是否完整
 const isEmailConfigured = () => {
   return !!(
@@ -193,25 +220,25 @@ export async function sendNotificationEmail({
           <div class="logo">招聘平台</div>
         </div>
         
-        <div class="type-label">${typeLabel}</div>
+        <div class="type-label">${escapeHtml(typeLabel)}</div>
         
-        <h1 class="title">${title}</h1>
+        <h1 class="title">${escapeHtml(title)}</h1>
         
-        <p>${userName ? `您好，${userName}！` : "您好！"}</p>
+        <p>${userName ? `您好，${escapeHtml(userName)}！` : "您好！"}</p>
         
         <div class="content">
-          <p>${content}</p>
+          <p>${escapeHtml(content)}</p>
         </div>
         
         ${
           actionUrl
-            ? `<a href="${actionUrl}" class="button">${actionText}</a>`
+            ? `<a href="${escapeUrl(actionUrl)}" class="button">${escapeHtml(actionText)}</a>`
             : ""
         }
         
         <div class="footer">
           <p>此邮件由系统自动发送，请勿直接回复。</p>
-          <p>如需帮助，请访问 <a href="${process.env.NEXT_PUBLIC_APP_URL || "#"}">招聘平台</a></p>
+          <p>如需帮助，请访问 <a href="${escapeUrl(process.env.NEXT_PUBLIC_APP_URL || "#")}">招聘平台</a></p>
           <p>© ${new Date().getFullYear()} 招聘平台 版权所有</p>
         </div>
       </div>
@@ -220,13 +247,13 @@ export async function sendNotificationEmail({
   `;
 
   const text = `
-${typeLabel}: ${title}
+${escapeHtml(typeLabel)}: ${escapeHtml(title)}
 
-您好${userName ? `，${userName}` : ""}！
+您好${userName ? `，${escapeHtml(userName)}` : ""}！
 
-${content}
+${escapeHtml(content)}
 
-${actionUrl ? `点击查看详情：${actionUrl}` : ""}
+${actionUrl ? `点击查看详情：${escapeUrl(actionUrl)}` : ""}
 
 此邮件由系统自动发送，请勿直接回复。
 © ${new Date().getFullYear()} 招聘平台 版权所有

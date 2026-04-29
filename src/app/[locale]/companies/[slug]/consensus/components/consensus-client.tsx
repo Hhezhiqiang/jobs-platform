@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import { ThumbsUp, ThumbsDown, Plus, MessageSquare, CheckCircle, AlertTriangle, XCircle, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -64,8 +65,9 @@ const categoryOptions: { value: ConsensusCategory; label: string }[] = [
 ];
 
 export function ConsensusClient({ companyId, initialTags, locale }: ConsensusClientProps) {
+  const { data: session } = useSession();
+  const isLoggedIn = !!session?.user;
   const [tags, setTags] = useState<Tag[]>(initialTags);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // TODO: 从session获取
   const [newTagName, setNewTagName] = useState("");
   const [newTagCategory, setNewTagCategory] = useState<ConsensusCategory>("POSITIVE");
   const [isSubmitting, setIsSubmitting] = useState(false);

@@ -138,6 +138,9 @@ model companies {
   CompanyCultureTag  CompanyCultureTag[]
   company_members    company_members[]
   jobs               jobs[]
+
+  @@index([verificationStatus])
+  @@index([slug, verificationStatus])
 }
 
 model company_members {
@@ -205,6 +208,7 @@ model job_applications {
 
   @@index([jobId, status])
   @@index([userId, status])
+  @@index([status])
 }
 
 model jobs {
@@ -258,6 +262,9 @@ model jobs {
   @@index([employmentType, status])
   @@index([isFeatured, status])
   @@index([status, datePosted])
+  @@index([status, createdAt])
+  @@index([country, status])
+  @@index([companyId, status])
 }
 
 model keyword_archives {
@@ -364,6 +371,8 @@ model pages {
 
   @@index([slug, status])
   @@index([type, status])
+  @@index([status, createdAt])
+  @@index([authorId, createdAt])
 }
 
 model promoter_links {
@@ -581,6 +590,7 @@ model CareerStory {
   company        companies?       @relation(fields: [companyId], references: [id])
   storyComments  StoryComment[]
   resonances     StoryResonance[]
+  bookmarks      StoryBookmark[]
 
   @@index([authorId, createdAt])
   @@index([type, createdAt])
@@ -600,6 +610,19 @@ model StoryResonance {
   @@index([storyId])
   @@index([userId])
   @@map("story_resonances")
+}
+
+model StoryBookmark {
+  id        String      @id @default(cuid())
+  storyId   String
+  userId    String
+  createdAt DateTime    @default(now())
+  story     CareerStory @relation(fields: [storyId], references: [id], onDelete: Cascade)
+
+  @@unique([storyId, userId])
+  @@index([storyId])
+  @@index([userId, createdAt])
+  @@map("story_bookmarks")
 }
 
 model UserGameProfile {

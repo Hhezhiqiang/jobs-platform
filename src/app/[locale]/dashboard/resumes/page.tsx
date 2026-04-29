@@ -20,15 +20,16 @@ export default function ResumesPage({ params }: { params: Promise<{ locale: stri
   const [uploading, setUploading] = useState(false);
   const [editingName, setEditingName] = useState<string | null>(null);
   const [newName, setNewName] = useState("");
+
   const [locale, setLocale] = useState("zh");
   const router = useRouter();
 
   useEffect(() => {
-    params.then(p => setLocale(p.locale));
+    params.then(p => setLocale(p.locale)).catch(() => {});
     fetchResumes();
   }, []);
 
-  const fetchResumes = async () => {
+  const fetchResumes = useCallback(async () => {
     try {
       const res = await fetch("/api/resumes");
       if (res.ok) {
@@ -40,7 +41,7 @@ export default function ResumesPage({ params }: { params: Promise<{ locale: stri
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -54,7 +55,7 @@ export default function ResumesPage({ params }: { params: Promise<{ locale: stri
     try {
       const res = await fetch("/api/resumes/upload", { method: "POST", body: formData });
       if (res.ok) {
-        await fetchResumes();
+        fetchResumes();
       } else {
         const err = await res.json();
         alert(err.error || "上传失败");
@@ -70,7 +71,7 @@ export default function ResumesPage({ params }: { params: Promise<{ locale: stri
   const setDefault = async (id: string) => {
     try {
       await fetch(`/api/resumes/${id}`, { method: "PATCH", body: JSON.stringify({ isDefault: true }) });
-      await fetchResumes();
+      fetchResumes();
     } catch (e) {
       alert("设置失败");
     }
@@ -80,7 +81,7 @@ export default function ResumesPage({ params }: { params: Promise<{ locale: stri
     if (!confirm(locale === "en" ? "Delete this resume?" : "确定删除这份简历吗？")) return;
     try {
       await fetch(`/api/resumes/${id}`, { method: "DELETE" });
-      await fetchResumes();
+      fetchResumes();
     } catch (e) {
       alert("删除失败");
     }
@@ -91,7 +92,7 @@ export default function ResumesPage({ params }: { params: Promise<{ locale: stri
     try {
       await fetch(`/api/resumes/${id}`, { method: "PATCH", body: JSON.stringify({ name: newName }) });
       setEditingName(null);
-      await fetchResumes();
+      fetchResumes();
     } catch (e) {
       alert("保存失败");
     }

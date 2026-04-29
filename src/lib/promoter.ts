@@ -121,36 +121,65 @@ export async function createCommission(
   return commission;
 }
 
-// 佣金解冻 Cron 逻辑
-export async function settleCommissions(): Promise<number> {
-  const now = new Date();
-  const frozenRecords = await prisma.commission_records.findMany({
-    where: {
-      status: CommissionStatus.FROZEN,
-      availableAt: { lte: now },
-    },
-  });
+// 佣金解冻 Cron 逻辑（带重试 + 幂等性保证）
+export async function settleCommissions(maxRetries = 3): Promise<number> {
+  let lastError: Error | null = null;
 
-  if (frozenRecords.length === 0) return 0;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const now = new Date();
 
-  await prisma.$transaction(async (tx) => {
-    for (const record of frozenRecords) {
-      await tx.promoters.update({
-        where: { id: record.promoterId },
-        data: {
-          frozenBalance: { decrement: record.commissionAmount },
-          availableBalance: { increment: record.commissionAmount },
+      // 幂等性：使用事务确保原子性，重复调用不会产生副作用
+      const frozenRecords = await prisma.commission_records.findMany({
+        where: {
+          status: CommissionStatus.FROZEN,
+          availableAt: { lte: now },
         },
       });
 
-      await tx.commission_records.update({
-        where: { id: record.id },
-        data: { status: CommissionStatus.AVAILABLE },
-      });
-    }
-  });
+      if (frozenRecords.length === 0) return 0;
 
-  return frozenRecords.length;
+      await prisma.$transaction(async (tx) => {
+        for (const record of frozenRecords) {
+          // 幂等：只更新仍为 FROZEN 状态的记录
+          const current = await tx.commission_records.findUnique({
+            where: { id: record.id },
+            select: { status: true },
+          });
+          if (current?.status !== CommissionStatus.FROZEN) continue;
+
+          await tx.promoters.update({
+            where: { id: record.promoterId },
+            data: {
+              frozenBalance: { decrement: record.commissionAmount },
+              availableBalance: { increment: record.commissionAmount },
+            },
+          });
+
+          await tx.commission_records.update({
+            where: { id: record.id },
+            data: { status: CommissionStatus.AVAILABLE },
+          });
+        }
+      });
+
+      return frozenRecords.length;
+    } catch (error) {
+      lastError = error as Error;
+
+      if (attempt < maxRetries) {
+        // 指数退避: 2s, 4s, 8s
+        const delay = Math.pow(2, attempt) * 2000;
+        console.warn(
+          `[settleCommissions] 重试 ${attempt + 1}/${maxRetries} 在 ${delay}ms 后`,
+          error,
+        );
+        await new Promise((r) => setTimeout(r, delay));
+      }
+    }
+  }
+
+  throw lastError ?? new Error("settleCommissions failed after retries");
 }
 
 // 退款/争议追回佣金

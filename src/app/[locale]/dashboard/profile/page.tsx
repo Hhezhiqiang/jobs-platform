@@ -8,6 +8,7 @@ import Link from "next/link";
 export default function ProfilePage({ params }: { params: Promise<{ locale: string }> }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  
   const [locale, setLocale] = useState("zh");
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>({
@@ -23,7 +24,7 @@ export default function ProfilePage({ params }: { params: Promise<{ locale: stri
   const [editingSection, setEditingSection] = useState<string | null>(null);
 
   useEffect(() => {
-    params.then(p => setLocale(p.locale));
+    params.then(p => setLocale(p.locale)).catch(() => {});
     fetchData();
   }, []);
 
@@ -69,7 +70,7 @@ export default function ProfilePage({ params }: { params: Promise<{ locale: stri
       });
       if (res.ok) {
         setEditingSection(null);
-        await fetchData();
+        fetchData();
       }
     } catch (e) {
       console.error(e);
