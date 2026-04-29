@@ -1,42 +1,95 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { fetchAdzunaJobs, fetchAdzunaBulkJobs } from '@/lib/adzuna-api';
+import { fetchAdzunaJobs, fetchAdzunaBulkJobs, type ProgressCallback } from '@/lib/adzuna-api';
 
 // POST /api/admin/sync-adzuna
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user?.role || session.user.role !== 'ADMIN') {
     return NextResponse.json(
       { error: '无权操作' },
-      { status: 403 }
+      { status: 403 },
     );
   }
 
   try {
-    const { keyword, location, bulk } = await req.json();
+    const body = await req.json();
+    const { keyword, location, bulk, pages, stream } = body;
 
-    let count: number;
+    if (stream) {
+      // SSE 流式进度报告
+      const encoder = new TextEncoder();
+      const stream = new TransformStream();
+      const writer = stream.writable.getWriter();
+
+      const progressCallback: ProgressCallback = (progress) => {
+        const data = `data: ${JSON.stringify(progress)}\n\n`;
+        writer.write(encoder.encode(data)).catch(() => {});
+      };
+
+      // 异步执行同步，完成后关闭流
+      (async () => {
+        try {
+          let result;
+          if (bulk) {
+            result = await fetchAdzunaBulkJobs({
+              pages,
+              onProgress: progressCallback,
+            });
+          } else {
+            const count = await fetchAdzunaJobs(keyword, location, 1);
+            result = { total: count, fetched: count, inserted: count, skipped: 0, failed: 0, aiCalls: 0 };
+          }
+          progressCallback({
+            phase: 'done',
+            fetched: result.fetched,
+            parsed: 0,
+            inserted: result.inserted,
+            skipped: result.skipped,
+            failed: result.failed,
+            aiCalls: result.aiCalls,
+            totalPages: 0,
+            message: '同步完成',
+          });
+        } catch (error: unknown) {
+          const errData = `data: ${JSON.stringify({ phase: 'error', message: (error as Error).message })}\n\n`;
+          writer.write(encoder.encode(errData)).catch(() => {});
+        } finally {
+          writer.close().catch(() => {});
+        }
+      })();
+
+      return new Response(stream.readable, {
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          Connection: 'keep-alive',
+        },
+      });
+    }
+
+    // 普通 JSON 响应
+    let result: Awaited<ReturnType<typeof fetchAdzunaBulkJobs>>;
 
     if (bulk) {
-      // 批量获取
-      count = await fetchAdzunaBulkJobs();
+      result = await fetchAdzunaBulkJobs({ pages });
     } else {
-      // 单次获取 - 使用 50 条结果获取更多新职位
-      count = await fetchAdzunaJobs(keyword, location, 1);
+      const count = await fetchAdzunaJobs(keyword, location, 1);
+      result = { total: count, fetched: count, inserted: count, skipped: 0, failed: 0, aiCalls: 0 };
     }
 
     return NextResponse.json({
       success: true,
-      count,
-      message: `成功同步 ${count} 个职位`
+      ...result,
+      message: `同步完成: 新增 ${result.inserted} 个, 跳过 ${result.skipped} 个`,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Sync Adzuna error:', error);
     return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
+      { error: (error as Error).message },
+      { status: 500 },
     );
   }
 }
@@ -49,17 +102,17 @@ export async function GET(req: Request) {
 
   try {
     const count = await fetchAdzunaJobs(keyword, location, 1);
-    
+
     return NextResponse.json({
       success: true,
       count,
       keyword,
-      location
+      location,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
+      { error: (error as Error).message },
+      { status: 500 },
     );
   }
 }
