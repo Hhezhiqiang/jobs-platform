@@ -8,7 +8,7 @@ import { Lock, ArrowRight, CheckCircle, AlertCircle } from "lucide-react";
 export default function ResetPasswordPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = use(params);
   const searchParams = useSearchParams();
-  const token = searchParams.get("token") || "";
+  const token = searchParams?.get("token") || "";
   const router = useRouter();
 
   const [password, setPassword] = useState("");

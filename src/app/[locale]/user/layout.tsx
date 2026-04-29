@@ -12,7 +12,8 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push(`/${locale}/auth/login?callbackUrl=${encodeURIComponent(pathname)}`);
+      const cb = pathname ? encodeURIComponent(pathname) : "";
+      router.push(`/${locale}/auth/login?callbackUrl=${cb}`);
     }
   }, [status, router, pathname, locale]);
 

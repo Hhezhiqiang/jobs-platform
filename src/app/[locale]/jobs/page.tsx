@@ -43,6 +43,9 @@ export default async function JobsPage({ params, searchParams }: PageProps) {
   let total = 0;
   let cities: { city: string | null }[] = [];
   let dbError = false;
+  const ITEMS_PER_PAGE = 15;
+  const page = Math.max(1, parseInt(sp?.page as string || "1", 10));
+  const skip = (page - 1) * ITEMS_PER_PAGE;
 
   try {
     // 构建查询条件
@@ -88,9 +91,6 @@ export default async function JobsPage({ params, searchParams }: PageProps) {
     }
 
   // Server-side pagination
-  const ITEMS_PER_PAGE = 15;
-  const page = Math.max(1, parseInt(sp?.page as string || "1", 10));
-  const skip = (page - 1) * ITEMS_PER_PAGE;
 
   // 获取数据（服务端分页）
   const [jobsData, totalData, citiesData] = await Promise.all([

@@ -26,12 +26,9 @@ async function getCompanyStories(companySlug: string, statusFilter?: string) {
     if (!company) return null;
 
     // 构建查询条件
-    const where: { companyId: string; invitationStatus?: string } = {
+    const where: { companyId: string } = {
       companyId: company.id,
     };
-    if (statusFilter && ["pending", "accepted", "declined"].includes(statusFilter)) {
-      where.invitationStatus = statusFilter;
-    }
 
     // 获取故事列表
     const stories = await prisma.careerStory.findMany({
@@ -224,9 +221,6 @@ export default async function CompanyStoriesPage({ params, searchParams }: PageP
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {getStatusBadge(story.invitationStatus)}
-                  </div>
                 </div>
 
                 <Link href={`/${locale}/career-trail/${story.id}`}>
@@ -254,25 +248,11 @@ export default async function CompanyStoriesPage({ params, searchParams }: PageP
                 </p>
 
                 <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
-                  {!story.invitationStatus && (
-                    <StoryInviteButton
-                      storyId={story.id}
-                      companyName={company.name}
-                      locale={locale}
-                    />
-                  )}
-                  {story.invitationStatus === "pending" && (
-                    <span className="text-amber-600 text-sm flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      等待作者响应...
-                    </span>
-                  )}
-                  {story.invitationStatus === "accepted" && (
-                    <span className="text-green-600 text-sm flex items-center gap-1">
-                      <CheckCircle className="w-4 h-4" />
-                      作者已接受邀请
-                    </span>
-                  )}
+                  <StoryInviteButton
+                    storyId={story.id}
+                    companyName={company.name}
+                    locale={locale}
+                  />
                   <Link
                     href={`/${locale}/career-trail/${story.id}`}
                     className="text-gray-500 hover:text-gray-700 text-sm"
