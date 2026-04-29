@@ -87,10 +87,10 @@ ${jobContext ? `${jobContext}\n` : ""}
 - 如果是 TRAFFIC 类，优先选 "BLOG" 类型，目标URL以 /blog/ 开头
 - internalLinks 至少给出 2 条平台内链（如 /jobs、/salary-insights、/topics/xxx）`;
 
-  let content: string;
-  if (isLLMConfigured()) {
+  let parsed: SEOPlanPayload;
+  if (isAIConfigured()) {
     try {
-      content = await llmChat(
+      parsed = await aiChatJSON<SEOPlanPayload>(
         [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
@@ -99,19 +99,10 @@ ${jobContext ? `${jobContext}\n` : ""}
       );
     } catch (_err: unknown) {
       const error = _err as Error;
-      console.error("[seo-plan] LLM call failed, using fallback:", error.message);
-      content = fallbackSEOPayload(keyword, category);
+      console.error("[seo-plan] AI call failed, using fallback:", error.message);
+      parsed = JSON.parse(fallbackSEOPayload(keyword, category));
     }
   } else {
-    content = fallbackSEOPayload(keyword, category);
-  }
-
-  const jsonText = content.replace(/```json|```/g, "").trim();
-  let parsed: SEOPlanPayload;
-  try {
-    parsed = JSON.parse(jsonText);
-  } catch (err) {
-    console.error("[seo-plan] LLM returned invalid JSON:", jsonText);
     parsed = JSON.parse(fallbackSEOPayload(keyword, category));
   }
 
@@ -128,7 +119,7 @@ ${jobContext ? `${jobContext}\n` : ""}
       targetUrl: parsed.targetUrl,
       internalLinks: parsed.internalLinks as unknown as Prisma.InputJsonValue,
       status: "PENDING",
-      generatedBy: isLLMConfigured() ? "llm" : "fallback",
+      generatedBy: isAIConfigured() ? "llm" : "fallback",
     },
   });
 
