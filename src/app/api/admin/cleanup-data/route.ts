@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 const CLEANUP_SECRET = process.env.CLEANUP_SECRET;
@@ -6,6 +8,12 @@ const CLEANUP_SECRET = process.env.CLEANUP_SECRET;
 // 一次性数据清理 API
 // 用法: POST /api/admin/cleanup-data?secret=YOUR_CLEANUP_SECRET (从环境变量获取)
 export async function POST(req: NextRequest) {
+  // Admin auth check
+  const session = await getServerSession(authOptions);
+  if (!session?.user || session.user.role !== "ADMIN") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const { searchParams } = new URL(req.url);
     const secret = searchParams.get("secret");

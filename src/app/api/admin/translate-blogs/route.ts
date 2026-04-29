@@ -10,6 +10,8 @@
 
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 
 // 调用 Kimi API 翻译
 async function translateWithKimi(text: string, context: { title: string }): Promise<{ title: string; excerpt: string }> {
@@ -112,11 +114,15 @@ Return ONLY the translated English text. Do not wrap it in JSON or any other for
 }
 
 export async function POST(request: NextRequest) {
-  // 验证权限
+  // 验证权限：cron 认证 + admin 认证
   const authHeader = request.headers.get("authorization");
   const cronSecret = process.env.CRON_SECRET;
   if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // 不是 cron，检查是否是 admin
+    const session = await getServerSession(authOptions);
+    if (!session?.user || session.user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
   }
 
   const body = await request.json().catch(() => ({}));

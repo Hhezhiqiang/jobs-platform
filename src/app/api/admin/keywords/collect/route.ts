@@ -47,19 +47,13 @@ async function releaseCronLock(): Promise<void> {
 
 export async function POST(request: NextRequest) {
   try {
-    // 权限验证
-    const secretHeader = request.headers.get("Authorization")?.replace("Bearer ", "");
-    const { searchParams } = new URL(request.url);
-    const secretQuery = searchParams.get("secret");
+    // 权限验证：Authorization Header (禁止 URL query 泄露 secret)
+    const authHeader = request.headers.get("authorization");
     const cronSecret = process.env.CRON_SECRET;
     const userAgent = request.headers.get("user-agent") || "";
     const isVercelCron = userAgent.includes("Vercelbot");
 
-    const isCronAuthorized =
-      isVercelCron ||
-      (!!cronSecret && (secretHeader === cronSecret || secretQuery === cronSecret));
-
-    if (!isCronAuthorized) {
+    if (cronSecret && authHeader !== `Bearer ${cronSecret}` && !isVercelCron) {
       const session = await getServerSession(authOptions);
       if (!session?.user?.id || session.user.role !== "ADMIN") {
         return NextResponse.json({ error: "Forbidden" }, { status: 403 });

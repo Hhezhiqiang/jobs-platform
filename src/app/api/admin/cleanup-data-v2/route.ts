@@ -1,10 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 const CLEANUP_SECRET = process.env.CLEANUP_SECRET;
 
 // 第二次数据清理：将 4/10 的职位日期推到最近 7 天
 export async function POST(req: NextRequest) {
+  // Admin auth check
+  const session = await getServerSession(authOptions);
+  if (!session?.user || session.user.role !== "ADMIN") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const { searchParams } = new URL(req.url);
     const secret = searchParams.get("secret");

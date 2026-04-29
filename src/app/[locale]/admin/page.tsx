@@ -45,11 +45,11 @@ export default async function AdminPage() {
   const quickActions = [
     { label: "发布新职位", href: "/admin/jobs/new", color: "bg-blue-600 hover:bg-blue-700" },
     { label: "发布博客", href: "/admin/blog/new", color: "bg-green-600 hover:bg-green-700" },
-    { label: "管理博客", href: "/admin/blog", color: "bg-indigo-600 hover:bg-indigo-700" },
     { label: "用户管理", href: "/admin/users", color: "bg-purple-600 hover:bg-purple-700" },
-    { label: "广告管理", href: "/admin/ads", color: "bg-gray-600 hover:bg-gray-700" },
+    { label: "推广者管理", href: "/admin/promoters", color: "bg-teal-600 hover:bg-teal-700" },
+    { label: "提现审核", href: "/admin/withdrawals", color: "bg-orange-600 hover:bg-orange-700" },
     { label: "关键词监控", href: "/admin/keywords", color: "bg-pink-600 hover:bg-pink-700" },
-    { label: "数据分析", href: "/admin/analytics", color: "bg-orange-600 hover:bg-orange-700" },
+    { label: "数据分析", href: "/admin/analytics", color: "bg-cyan-600 hover:bg-cyan-700" },
   ];
 
   return (

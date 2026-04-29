@@ -1,8 +1,15 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 import { prisma } from '@/lib/prisma';
 
 // DELETE /api/admin/clear-adzuna-jobs
 export async function DELETE() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user || session.user.role !== "ADMIN") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     // 删除所有 slug 以 adzuna- 开头的职位
     const result = await prisma.jobs.deleteMany({

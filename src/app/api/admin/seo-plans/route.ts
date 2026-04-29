@@ -48,6 +48,10 @@ export async function PATCH(request: NextRequest) {
     if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
 
     const data: any = {};
+    // 禁止通过 PATCH 直接设为 PUBLISHED
+    if (status === "PUBLISHED") {
+      return NextResponse.json({ error: "请使用发布端点" }, { status: 400 });
+    }
     if (status) data.status = status;
     if (contentMarkdown !== undefined) data.contentMarkdown = contentMarkdown;
     if (status === "APPROVED") data.approvedAt = new Date();
