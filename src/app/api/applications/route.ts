@@ -54,13 +54,8 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
-
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "未登录" }, { status: 401 });
-    }
-
     const body = await request.json();
-    const { jobId, resumeId, coverLetter } = body;
+    const { jobId, resumeId, coverLetter, email } = body;
 
     if (!jobId) {
       return NextResponse.json({ error: "请提供职位ID" }, { status: 400 });
@@ -79,6 +74,56 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "该职位已停止招聘" }, { status: 400 });
     }
 
+    // 未登录用户可以通过邮箱申请
+    if (!session?.user?.id) {
+      if (!email) {
+        return NextResponse.json({ error: "请提供邮箱地址" }, { status: 400 });
+      }
+
+      // 验证邮箱格式
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return NextResponse.json({ error: "邮箱格式不正确" }, { status: 400 });
+      }
+
+      // 检查是否已经用此邮箱申请过
+      const existingApplication = await prisma.job_applications.findFirst({
+        where: {
+          jobId,
+          guestEmail: email,
+          status: { not: "WITHDRAWN" },
+        },
+      });
+
+      if (existingApplication) {
+        return NextResponse.json(
+          { error: "您已经用此邮箱申请过该职位，请勿重复申请" },
+          { status: 400 }
+        );
+      }
+
+      // 创建游客申请
+      const application = await prisma.job_applications.create({
+        data: {
+          jobId,
+          guestEmail: email,
+          coverLetter: coverLetter || null,
+          status: "PENDING",
+        },
+        include: {
+          jobs: {
+            include: { companies: true },
+          },
+        },
+      });
+
+      return NextResponse.json(
+        { message: "申请成功", application },
+        { status: 201 }
+      );
+    }
+
+    // 登录用户申请
     // 检查是否已经申请过
     const existingApplication = await prisma.job_applications.findFirst({
       where: {
@@ -104,7 +149,8 @@ export async function POST(request: NextRequest) {
         coverLetter: coverLetter || null,
         status: "PENDING",
       },
-      include: { jobs: {
+      include: {
+        jobs: {
           include: { companies: true },
         },
       },

@@ -24,17 +24,14 @@ export default function ApplyModal({
   const router = useRouter();
   const pathname = usePathname();
   const locale = pathname?.split("/")[1] || "zh";
+  const isEn = locale === "en";
+  const [email, setEmail] = useState("");
   const [coverLetter, setCoverLetter] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!session) {
-      router.push("/auth/login?callbackUrl=" + encodeURIComponent(window.location.href));
-      return;
-    }
 
     setLoading(true);
     setError("");
@@ -46,6 +43,7 @@ export default function ApplyModal({
         body: JSON.stringify({
           jobId,
           coverLetter: coverLetter.trim() || undefined,
+          email: !session ? email.trim() : undefined,
         }),
       });
 
@@ -63,41 +61,13 @@ export default function ApplyModal({
     }
   };
 
-  if (!session) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg max-w-md w-full mx-4 p-6">
-          <div className="text-center">
-            <div className="text-4xl mb-4">🔒</div>
-            <h3 className="text-lg font-semibold mb-2">需要登录</h3>
-            <p className="text-gray-600 mb-6">请先登录后再申请职位</p>
-            <div className="flex gap-4 justify-center">
-              <button
-                onClick={onClose}
-                className="px-4 py-2 border rounded-lg hover:bg-gray-50"
-              >
-                取消
-              </button>
-              <Link
-                href={`/${locale}/auth/login`}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-              >
-                去登录
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto">
         <div className="p-6 border-b">
           <div className="flex justify-between items-start">
             <div>
-              <h2 className="text-xl font-bold">申请职位</h2>
+              <h2 className="text-xl font-bold">{isEn ? "Apply for Position" : "申请职位"}</h2>
               <p className="text-gray-600 mt-1">
                 {jobTitle} · {companyName}
               </p>
@@ -118,27 +88,63 @@ export default function ApplyModal({
             </div>
           )}
 
+          {/* 未登录用户需要填写邮箱 */}
+          {!session && (
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {isEn ? "Email Address" : "邮箱地址"} <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder={isEn ? "your@email.com" : "请输入邮箱地址"}
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              <p className="text-sm text-gray-500 mt-2">
+                {isEn ? "We'll send application updates to this email" : "我们将通过此邮箱发送申请进度通知"}
+              </p>
+            </div>
+          )}
+
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              求职信（可选）
+              {isEn ? "Cover Letter (Optional)" : "求职信（可选）"}
             </label>
             <textarea
               value={coverLetter}
               onChange={(e) => setCoverLetter(e.target.value)}
               rows={6}
-              placeholder="向招聘方介绍自己，说明为什么适合这个职位..."
+              placeholder={isEn ? "Introduce yourself and explain why you're a great fit..." : "向招聘方介绍自己，说明为什么适合这个职位..."}
               className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
             />
             <p className="text-sm text-gray-500 mt-2">
-              建议包含：您的相关经验、为什么对这个职位感兴趣、以及为什么认为自己是合适的人选。
+              {isEn ? "Include: your relevant experience, why you're interested, and why you're a great fit." : "建议包含：您的相关经验、为什么对这个职位感兴趣、以及为什么认为自己是合适的人选。"}
             </p>
           </div>
 
           <div className="bg-blue-50 p-4 rounded-lg mb-6">
             <p className="text-sm text-blue-800">
-              💡 提示：申请后可以在「个人中心 -&gt; 我的申请」中查看申请状态
+              {session
+                ? (isEn ? "💡 Tip: Check application status in Dashboard -> My Applications" : "💡 提示：申请后可以在「个人中心 -> 我的申请」中查看申请状态")
+                : (isEn ? "💡 Tip: Create an account to track your applications" : "💡 提示：注册账号后可以追踪申请状态")}
             </p>
           </div>
+
+          {!session && (
+            <div className="bg-green-50 p-4 rounded-lg mb-6">
+              <p className="text-sm text-green-800 mb-2">
+                {isEn ? "🎉 Don't have an account? You can still apply!" : "🎉 没有账号？也可以直接申请！"}
+              </p>
+              <Link
+                href={`/${locale}/auth/register`}
+                className="text-sm text-green-700 underline hover:text-green-900"
+              >
+                {isEn ? "Create an account to track applications →" : "注册账号以便追踪申请进度 →"}
+              </Link>
+            </div>
+          )}
 
           <div className="flex gap-4">
             <button
@@ -146,14 +152,14 @@ export default function ApplyModal({
               onClick={onClose}
               className="flex-1 px-4 py-3 border rounded-lg hover:bg-gray-50"
             >
-              取消
+              {isEn ? "Cancel" : "取消"}
             </button>
             <button
               type="submit"
               disabled={loading}
               className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
             >
-              {loading ? "提交中..." : "确认申请"}
+              {loading ? (isEn ? "Submitting..." : "提交中...") : (isEn ? "Submit Application" : "确认申请")}
             </button>
           </div>
         </form>

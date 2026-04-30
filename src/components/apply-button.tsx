@@ -31,10 +31,6 @@ export function ApplyButton({
   const [applied, setApplied] = useState(false);
 
   const handleApply = () => {
-    if (!session) {
-      router.push(`/${locale}/auth/login`);
-      return;
-    }
     setShowModal(true);
   };
 
@@ -54,17 +50,6 @@ export function ApplyButton({
       console.error("Failed to track application:", error);
     }
   };
-
-  if (!session) {
-    return (
-      <button
-        onClick={handleApply}
-        className="w-full bg-gray-600 text-white text-center py-4 rounded-lg font-semibold hover:bg-gray-700 transition-colors"
-      >
-        🔒 {isEn ? "Log in to see application methods" : "登录后查看申请方式"}
-      </button>
-    );
-  }
 
   if (applied) {
     return (
