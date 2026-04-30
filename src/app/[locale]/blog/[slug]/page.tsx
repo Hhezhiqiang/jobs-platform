@@ -258,149 +258,133 @@ export default async function BlogDetailPage({ params }: PageProps) {
         />
       )}
 
-      <div className="min-h-screen bg-gray-50">
-        {/* Header */}
-        <header className="bg-white shadow-sm">
-          <div className="max-w-4xl mx-auto px-4 py-4">
-            <div className="flex items-center gap-4">
-              <Link href={`/${locale}/blog`} className="text-blue-600 hover:text-blue-800">
-                {isEn ? "← Back to Blog List" : "← 返回博客列表"}
-              </Link>
+      <div className="min-h-screen bg-[#f8f7fc]">
+        {/* Aurora Blog Header */}
+        <div className="bg-gradient-to-br from-[#1e1b4b] via-[#312e81] to-[#3730a3] py-8">
+          <div className="max-w-5xl mx-auto px-4">
+            <Link href={`/${locale}/blog`} className="inline-flex items-center gap-2 text-white/70 hover:text-white mb-6 transition-colors">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+              {isEn ? "Back to Blog List" : "返回博客列表"}
+            </Link>
+          </div>
+        </div>
+
+        <main className="max-w-5xl mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left: Article Content */}
+            <div className="lg:col-span-2">
+              <article className="aurora-card rounded-2xl overflow-hidden">
+                {/* 封面图 */}
+                {post.featuredImage && (
+                  <div className="relative h-64 md:h-96 w-full">
+                    <Image src={post.featuredImage} alt={post.title} fill sizes="100vw" className="object-cover" priority />
+                  </div>
+                )}
+
+                {/* Aurora top gradient bar */}
+                <div className="h-1 bg-gradient-to-r from-[#6366f1] via-[#8b5cf6] to-[#06b6d4]" />
+
+                <div className="p-8">
+                  {/* 标题 */}
+                  <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                    {isEn && post.titleEn ? post.titleEn : post.title}
+                  </h1>
+
+                  {/* 作者信息 + 浏览量 */}
+                  <div className="flex items-center gap-4 text-gray-600 mb-8 pb-8 border-b">
+                    <div className="flex items-center gap-2">
+                      <div className="w-10 h-10 bg-gradient-to-br from-[#6366f1] to-[#8b5cf6] rounded-full flex items-center justify-center text-white font-bold">
+                        {post.users?.name?.[0] || "A"}
+                      </div>
+                      <span>{post.users?.name || (isEn ? "Anonymous" : "匿名作者")}</span>
+                    </div>
+                    <span>·</span>
+                    <time dateTime={post.createdAt.toISOString()}>
+                      {post.createdAt.toLocaleDateString(isEn ? "en-US" : "zh-CN", { year: "numeric", month: "long", day: "numeric" })}
+                    </time>
+                    <span>·</span>
+                    <ViewCounter slug={slug} initialCount={post.viewCount ?? 0} />
+                  </div>
+
+                  {/* 摘要 */}
+                  {(isEn ? post.excerptEn : post.excerpt) && (
+                    <div className="bg-[#eef2ff] border-l-4 border-[#6366f1] p-4 mb-8 rounded-r-lg">
+                      <p className="text-gray-700 italic">{isEn && post.excerptEn ? post.excerptEn : post.excerpt}</p>
+                    </div>
+                  )}
+
+                  {/* 目录导航 */}
+                  <TableOfContents content={isEn && post.contentEn ? post.contentEn : post.content} locale={locale} />
+
+                  {/* 文章内容 */}
+                  <div className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-a:text-[#6366f1]">
+                    <ReactMarkdown
+                      components={{
+                        h2: ({ children }) => {
+                          const text = String(children);
+                          const id = text.replace(/[^\w\s-]/g, "").replace(/\s+/g, "-").slice(0, 30);
+                          return <h2 id={`heading-${id}`} className="scroll-mt-24">{children}</h2>;
+                        },
+                        h3: ({ children }) => {
+                          const text = String(children);
+                          const id = text.replace(/[^\w\s-]/g, "").replace(/\s+/g, "-").slice(0, 30);
+                          return <h3 id={`heading-${id}`} className="scroll-mt-24">{children}</h3>;
+                        },
+                      }}
+                    >
+                      {isEn && post.contentEn ? post.contentEn : post.content}
+                    </ReactMarkdown>
+                  </div>
+
+                  {/* 关键词标签 */}
+                  {post.keywords && post.keywords.length > 0 && (
+                    <div className="mt-8 pt-8 border-t">
+                      <p className="text-sm text-gray-500 mb-2">{isEn ? "Keywords:" : "关键词："}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {post.keywords.filter((keyword: string) => keyword && keyword.trim().length >= 2).map((keyword: string) => (
+                          <span key={keyword} className="px-3 py-1 bg-[#eef2ff] text-[#4f46e5] rounded-full text-sm font-medium">
+                            {keyword}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </article>
+            </div>
+
+            {/* Right: Sidebar */}
+            <div className="space-y-6">
+              {/* Related Jobs */}
+              {displayJobs.length > 0 && (
+                <div className="aurora-card rounded-2xl p-6 sticky top-24">
+                  <h2 className="text-lg font-bold text-gray-900 mb-4">{isEn ? "🔥 Related Jobs" : "🔥 相关职位推荐"}</h2>
+                  <div className="space-y-4">
+                    {displayJobs.filter(job => job.slug).map((job) => (
+                      <Link key={job.id} href={`/${locale}/jobs/${job.slug}`} className="block p-4 border border-gray-100 rounded-xl hover:border-[#6366f1]/30 hover:shadow-md transition-all">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-semibold text-gray-900">{isEn && job.titleEn ? job.titleEn : job.title}</h3>
+                            <p className="text-sm text-gray-600">{isEn && job.companies?.nameEn ? job.companies.nameEn : job.companies?.name}</p>
+                            <div className="flex gap-2 mt-2 text-sm text-gray-500">
+                              <span>{job.city || job.location}</span>
+                              <span>·</span>
+                              <span className="text-[#6366f1]">{formatSalary(job.salaryMin, job.salaryMax)}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                  <div className="mt-4 text-center">
+                    <Link href={`/${locale}/jobs`} className="inline-block w-full px-6 py-2.5 bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] text-white rounded-xl font-medium hover:shadow-lg transition-all">
+                      {isEn ? "View More Jobs" : "查看更多职位"}
+                    </Link>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-        </header>
-
-        <main className="max-w-4xl mx-auto px-4 py-8">
-          <article className="bg-white rounded-lg shadow-md overflow-hidden">
-            {/* 封面图 */}
-            {post.featuredImage && (
-              <div className="relative h-64 md:h-96 w-full">
-                <Image
-                  src={post.featuredImage}
-                  alt={post.title}
-                  fill
-                  sizes="100vw"
-                  className="object-cover"
-                  priority
-                />
-              </div>
-            )}
-
-            <div className="p-8">
-              {/* 标题 */}
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                {isEn && post.titleEn ? post.titleEn : post.title}
-              </h1>
-
-              {/* 作者信息 + 浏览量 */}
-              <div className="flex items-center gap-4 text-gray-600 mb-8 pb-8 border-b">
-                <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
-                    {post.users?.name?.[0] || "A"}
-                  </div>
-                  <span>{post.users?.name || (isEn ? "Anonymous" : "匿名作者")}</span>
-                </div>
-                <span>·</span>
-                <time dateTime={post.createdAt.toISOString()}>
-                  {post.createdAt.toLocaleDateString(isEn ? "en-US" : "zh-CN", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </time>
-                <span>·</span>
-                <ViewCounter slug={slug} initialCount={post.viewCount ?? 0} />
-              </div>
-
-              {/* 摘要 */}
-              {(isEn ? post.excerptEn : post.excerpt) && (
-                <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-8 rounded-r-lg">
-                  <p className="text-gray-700 italic">{isEn && post.excerptEn ? post.excerptEn : post.excerpt}</p>
-                </div>
-              )}
-
-              {/* 目录导航 */}
-              <TableOfContents content={isEn && post.contentEn ? post.contentEn : post.content} locale={locale} />
-
-              {/* 文章内容 */}
-              <div className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-strong:text-gray-900 prose-a:text-blue-600">
-                <ReactMarkdown
-                  components={{
-                    h2: ({ children }) => {
-                      const text = String(children);
-                      const id = text.replace(/[^\w\s-]/g, "").replace(/\s+/g, "-").slice(0, 30);
-                      return <h2 id={`heading-${id}`} className="scroll-mt-24">{children}</h2>;
-                    },
-                    h3: ({ children }) => {
-                      const text = String(children);
-                      const id = text.replace(/[^\w\s-]/g, "").replace(/\s+/g, "-").slice(0, 30);
-                      return <h3 id={`heading-${id}`} className="scroll-mt-24">{children}</h3>;
-                    },
-                  }}
-                >
-                  {isEn && post.contentEn ? post.contentEn : post.content}
-                </ReactMarkdown>
-              </div>
-
-              {/* 关键词标签 */}
-              {post.keywords && post.keywords.length > 0 && (
-                <div className="mt-8 pt-8 border-t">
-                  <p className="text-sm text-gray-500 mb-2">{isEn ? "Keywords:" : "关键词："}</p>
-                  <div className="flex flex-wrap gap-2">
-                    {post.keywords
-                      .filter((keyword: string) => keyword && keyword.trim().length >= 2) // 过滤掉单字符关键词
-                      .map((keyword: string) => (
-                        <span
-                          key={keyword}
-                          className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm"
-                        >
-                          {keyword}
-                        </span>
-                      ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </article>
-
-          {/* 相关职位推荐 */}
-          {displayJobs.length > 0 && (
-            <div className="mt-8 bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">{isEn ? "🔥 Related Jobs" : "🔥 相关职位推荐"}</h2>
-              <div className="space-y-4">
-                {displayJobs.filter(job => job.slug).map((job) => (
-                  <Link
-                    key={job.id}
-                    href={`/${locale}/jobs/${job.slug}`}
-                    className="block p-4 border rounded-lg hover:bg-blue-50 transition-colors"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-semibold text-gray-900">{isEn && job.titleEn ? job.titleEn : job.title}</h3>
-                        <p className="text-sm text-gray-600">{isEn && job.companies?.nameEn ? job.companies.nameEn : job.companies?.name}</p>
-                        <div className="flex gap-2 mt-2 text-sm text-gray-500">
-                          <span>{job.city || job.location}</span>
-                          <span>·</span>
-                          <span className="text-blue-600">
-                            {formatSalary(job.salaryMin, job.salaryMax)}
-                          </span>
-                        </div>
-                      </div>
-                      <span className="text-blue-600 text-sm">{isEn ? "View Details →" : "查看详情 →"}</span>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-              <div className="mt-4 text-center">
-                <Link
-                  href={`/${locale}/jobs`}
-                  className="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  {isEn ? "View More Jobs" : "查看更多职位"}
-                </Link>
-              </div>
-            </div>
-          )}
         </main>
       </div>
     </>
