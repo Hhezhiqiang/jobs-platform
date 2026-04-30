@@ -5,10 +5,10 @@ import { generateHomeMetadata } from "@/lib/metadata";
 import { generateFAQSchema } from "@/lib/schema";
 import { safeJsonLdStringify } from "@/lib/utils";
 import { Metadata } from "next";
-import { HeroSection } from "@/components/hero-section";
-import { StatsSection } from "@/components/stats-section";
+import { HeroSection } from "@/components/aurora/hero-section";
+import { AuroraStatsSection as StatsSection } from "@/components/aurora/stats-section";
 import { FeaturesSection } from "@/components/features-section";
-import { JobCardV2 } from "@/components/job-card-v2";
+import { JobCardV2 } from "@/components/aurora/job-card";
 import { HomeCheckinWrapper } from "@/components/game/home-checkin-wrapper";
 import { getTranslations } from "next-intl/server";
 

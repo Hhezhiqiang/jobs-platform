@@ -1,0 +1,100 @@
+/* ===================================
+ * Aurora Design System - JobQuip
+ * 极光设计系统 - 面向全球求职者
+ * =================================== */
+
+:root {
+  /* === Aurora 主色系 === */
+  --aurora-50: #eef2ff;
+  --aurora-100: #e0e7ff;
+  --aurora-200: #c7d2fe;
+  --aurora-300: #a5b4fc;
+  --aurora-400: #818cf8;
+  --aurora-500: #6366f1;
+  --aurora-600: #4f46e5;
+  --aurora-700: #4338ca;
+  --aurora-800: #3730a3;
+  --aurora-900: #312e81;
+  --aurora-950: #1e1b4b;
+
+  /* === 中性色 === */
+  --void: #0f0b1e;
+  --night: #1a1630;
+  --slate: #3d3557;
+  --mist: #e2dff0;
+  --snow: #f8f7fc;
+  --pure: #ffffff;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+
+  /* === 功能色 === */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+
+  /* === 圆角 === */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* === 阴影 === */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-aurora: 0 4px 20px rgba(99, 102, 241, 0.15);
+
+  /* === 过渡 === */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Aurora 渐变 */
+.aurora-gradient {
+  background: linear-gradient(135deg, var(--aurora-600), var(--aurora-500), var(--aurora-400));
+}
+
+.aurora-gradient-hero {
+  background: linear-gradient(135deg, var(--aurora-950), var(--aurora-900), var(--aurora-800));
+}
+
+/* 极光发光 */
+.aurora-glow {
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+}
+
+/* 文字渐变 */
+.text-aurora {
+  background: linear-gradient(135deg, var(--aurora-600), var(--aurora-400));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 动画 */
+@keyframes aurora-flow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.animate-aurora {
+  background-size: 200% 200%;
+  animation: aurora-flow 8s ease infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}

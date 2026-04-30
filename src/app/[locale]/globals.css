@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "../../styles/design-system.css";
+@import "../../styles/aurora.css";
 
 :root {
   --background: #ffffff;
@@ -11,6 +12,18 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  /* Aurora Design System */
+  --color-aurora-50: #eef2ff;
+  --color-aurora-100: #e0e7ff;
+  --color-aurora-200: #c7d2fe;
+  --color-aurora-300: #a5b4fc;
+  --color-aurora-400: #818cf8;
+  --color-aurora-500: #6366f1;
+  --color-aurora-600: #4f46e5;
+  --color-aurora-700: #4338ca;
+  --color-aurora-800: #3730a3;
+  --color-aurora-900: #312e81;
+  --color-aurora-950: #1e1b4b;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -42,5 +55,30 @@ input[type="checkbox"],
 input[type="radio"] {
   min-height: 44px;
   min-width: 44px;
+}
+
+/* Aurora Design System Utilities */
+.aurora-gradient-text {
+  background: linear-gradient(135deg, var(--aurora-600) 0%, var(--aurora-400) 50%, #22d3ee 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.aurora-border-glow {
+  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.1), 0 4px 20px rgba(99, 102, 241, 0.15);
+}
+
+.aurora-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(99, 102, 241, 0.08);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.aurora-card:hover {
+  border-color: rgba(99, 102, 241, 0.2);
+  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.12), 0 0 0 1px rgba(99, 102, 241, 0.05);
+  transform: translateY(-2px);
 }
 
