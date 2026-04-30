@@ -158,9 +158,9 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
   const totalPages = Math.ceil(total / limit);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 text-white">
+    <div className="min-h-screen bg-[#f8f7fc]">
+      {/* Aurora Hero Section */}
+      <div className="bg-gradient-to-br from-[#1e1b4b] via-[#312e81] to-[#3730a3] text-white">
         <div className="max-w-7xl mx-auto px-4 py-16 md:py-20">
           <div className="text-center max-w-3xl mx-auto">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm mb-6">
@@ -205,8 +205,8 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
                     }
                     className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center gap-2 ${
                       isActive
-                        ? "bg-indigo-600 text-white shadow-md"
-                        : "bg-white text-gray-600 border border-gray-200 hover:border-indigo-300 hover:text-indigo-600"
+                        ? "bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] text-white shadow-md"
+                        : "bg-white text-gray-600 border border-gray-200 hover:border-[#6366f1]/30 hover:text-[#6366f1]"
                     }`}
                   >
                     <span>{config.icon}</span>
@@ -261,8 +261,10 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
                     <Link
                       key={story.id}
                       href={`/${locale}/career-trail/${story.id}`}
-                      className="group block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+                      className="group aurora-card rounded-2xl overflow-hidden"
                     >
+                      {/* Aurora top gradient bar */}
+                      <div className="h-1 bg-gradient-to-r from-[#6366f1] via-[#8b5cf6] to-[#ec4899]" />
                       <div className="p-6">
                         {/* Author & Type */}
                         <div className="flex items-center justify-between mb-4">
@@ -365,14 +367,14 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
           {/* Sidebar - Right column */}
           <div className="space-y-8">
             {/* 求职状态快捷入口 */}
-            <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-6 text-white">
+            <div className="aurora-gradient rounded-2xl p-6 text-white shadow-lg">
               <h3 className="font-bold text-lg mb-2">{isEn ? "Looking for new opportunities?" : "正在寻找新机会？"}</h3>
-              <p className="text-blue-100 text-sm mb-4">
+              <p className="text-white/80 text-sm mb-4">
                 {isEn ? "Enable job-seeking status for community recommendations" : "开启求职状态，让圈内人帮你推荐合适的职位"}
               </p>
               <Link
                 href={`/${locale}/dashboard/job-status`}
-                className="block w-full py-3 bg-white text-blue-600 rounded-xl font-semibold text-center hover:bg-blue-50 transition-all"
+                className="block w-full py-3 bg-white text-[#4f46e5] rounded-xl font-semibold text-center hover:bg-white/90 transition-all"
               >
                 {isEn ? "Set Job-Seeking Status" : "设置求职状态"}
               </Link>
