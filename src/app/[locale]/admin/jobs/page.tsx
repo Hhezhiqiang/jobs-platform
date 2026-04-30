@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { MapPin, X, ExternalLink, Building, DollarSign, Calendar } from "lucide-react";
-import { AdminBadge, AdminPagination, type Column } from "@/components/admin";
+import { DataTable, AdminBadge, AdminPagination, type Column } from "@/components/admin";
 
 type Job = {
   id: string;
