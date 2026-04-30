@@ -1,12 +1,9 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { generateJobsListMetadata } from "@/lib/metadata";
-import { FilterSidebarV2 } from "@/components/filter-sidebar-v2";
-import { Breadcrumb } from "@/components/breadcrumb";
-import { JobsPageClient } from "@/components/jobs-page-client";
+import { JobsPageClient } from "@/components/aurora/jobs-page-client";
 import { Metadata } from "next";
 import { Prisma } from "@prisma/client";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
