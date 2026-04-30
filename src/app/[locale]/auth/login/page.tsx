@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { LoginPageShell } from "./login-shell";
+import { LoginPageShell } from "./aurora-login-shell";
 
 export const metadata: Metadata = {
   title: "用户登录 | 招聘平台",
@@ -14,7 +14,7 @@ export default function UserLoginPage() {
       subtitle="求职者登录平台，查看和管理您的求职进度"
       role="USER"
       redirectUrl="/dashboard"
-      accentColor="blue"
+      accentColor="aurora"
       registerLink={{ text: "立即注册", href: "/auth/register" }}
       alternateLinks={[
         { text: "企业用户登录 →", href: "/auth/login/company" },
