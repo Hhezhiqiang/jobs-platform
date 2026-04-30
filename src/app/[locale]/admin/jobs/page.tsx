@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { MapPin, X, ExternalLink, Building, DollarSign, Calendar } from "lucide-react";
 import { DataTable, AdminBadge, AdminPagination, type Column } from "@/components/admin";
+import { formatSalary } from "@/lib/utils";
 
 type Job = {
   id: string;
@@ -145,7 +146,7 @@ export default function AdminJobsPage({ params }: { params: { locale: string } }
                 <p className="font-semibold text-gray-900">{row.title}</p>
                 <p className="text-xs text-gray-500">
                   {typeMap[row.employmentType]}
-                  {row.salaryMin && row.salaryMax && ` · ${row.salaryMin}-${row.salaryMax}K`}
+                  {row.salaryMin && row.salaryMax && ` · ${formatSalary(row.salaryMin, row.salaryMax)}`}
                 </p>
               </div>
             ),
@@ -263,7 +264,7 @@ export default function AdminJobsPage({ params }: { params: { locale: string } }
                     <DollarSign className="w-4 h-4" />
                     <span className="font-semibold bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] bg-clip-text text-transparent">
                       {selectedJob.salaryMin && selectedJob.salaryMax
-                        ? `${selectedJob.salaryMin}-${selectedJob.salaryMax}K`
+                        ? formatSalary(selectedJob.salaryMin, selectedJob.salaryMax)
                         : '面议'}
                     </span>
                   </div>
