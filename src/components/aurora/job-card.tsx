@@ -189,17 +189,18 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
 
   // Default variant
   return (
-    <div className="group block bg-white rounded-xl border border-gray-100 p-5 hover:border-[#6366f1]/30 hover:shadow-lg hover:shadow-[#6366f1]/5 hover:-translate-y-0.5 transition-all duration-300 relative">
+    <div className="group block bg-white rounded-xl border border-gray-100 p-4 md:p-5 hover:border-[#6366f1]/30 hover:shadow-lg hover:shadow-[#6366f1]/5 hover:-translate-y-0.5 transition-all duration-300 relative">
       {showFavorite && (
-        <div className="absolute top-4 right-4 z-10">
+        <div className="absolute top-3 right-3 md:top-4 md:right-4 z-10">
           <HeartButton jobId={job.id} size="sm" />
         </div>
       )}
       <Link href={jobLink}>
-        <div className="flex items-start gap-4">
+        {/* Mobile: Stack layout, Desktop: Row layout */}
+        <div className="flex flex-col md:flex-row md:items-start gap-3 md:gap-4">
           <div className="flex-shrink-0">
             {job.companies.logo ? (
-              <div className="w-14 h-14 rounded-xl overflow-hidden ring-2 ring-gray-100 group-hover:ring-[#6366f1]/20 transition-all">
+              <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl overflow-hidden ring-2 ring-gray-100 group-hover:ring-[#6366f1]/20 transition-all">
                 <Image
                   src={job.companies.logo}
                   alt={job.companies.name}
@@ -210,51 +211,54 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
                 />
               </div>
             ) : (
-              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#6366f1] to-[#8b5cf6] flex items-center justify-center text-white font-bold text-xl shadow-md">
+              <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-gradient-to-br from-[#6366f1] to-[#8b5cf6] flex items-center justify-center text-white font-bold text-lg md:text-xl shadow-md">
                 {job.companies.name.charAt(0)}
               </div>
             )}
           </div>
 
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-4">
-              <div className={showFavorite ? "pr-12" : ""}>
-                <h3 className="font-bold text-lg text-gray-900 group-hover:text-[#4f46e5] transition-colors">
+            {/* Title + Salary row */}
+            <div className="flex items-start justify-between gap-2 md:gap-4">
+              <div className={showFavorite ? "pr-10 md:pr-12" : ""}>
+                <h3 className="font-bold text-base md:text-lg text-gray-900 group-hover:text-[#4f46e5] transition-colors">
                   {job.title}
                 </h3>
-                <p className="text-gray-600 text-sm">{job.companies.name}</p>
+                <p className="text-gray-600 text-xs md:text-sm">{job.schemaOrganizationName || job.companies.name}</p>
               </div>
-              <span className="text-lg font-bold bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] bg-clip-text text-transparent flex-shrink-0">
+              <span className="text-base md:text-lg font-bold bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] bg-clip-text text-transparent flex-shrink-0">
                 {salaryText}
               </span>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 mt-3">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 text-gray-600 text-sm rounded-lg">
-                <MapPin className="w-3.5 h-3.5" />
-                {job.location}
+            {/* Tags */}
+            <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mt-2 md:mt-3">
+              <span className="inline-flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 bg-gray-50 text-gray-600 text-xs md:text-sm rounded-lg">
+                <MapPin className="w-3 h-3 md:w-3.5 md:h-3.5" />
+                <span className="truncate max-w-[120px] md:max-w-none">{job.location}</span>
               </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 text-gray-600 text-sm rounded-lg">
-                <Briefcase className="w-3.5 h-3.5" />
+              <span className="inline-flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 bg-gray-50 text-gray-600 text-xs md:text-sm rounded-lg">
+                <Briefcase className="w-3 h-3 md:w-3.5 md:h-3.5" />
                 {displayType}
               </span>
               {job.isRemote && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#ecfdf5] text-[#059669] text-sm rounded-lg">
+                <span className="inline-flex items-center gap-1 px-2 py-1 md:px-3 md:py-1.5 bg-[#ecfdf5] text-[#059669] text-xs md:text-sm rounded-lg">
                   {t.remoteOffice}
                 </span>
               )}
             </div>
 
-            <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-50">
-              <div className="flex items-center gap-4 text-sm text-gray-400">
+            {/* Bottom bar */}
+            <div className="flex items-center justify-between mt-3 md:mt-4 pt-3 md:pt-4 border-t border-gray-50">
+              <div className="flex items-center gap-3 md:gap-4 text-xs md:text-sm text-gray-400">
                 <span className="flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5" />
+                  <Clock className="w-3 h-3 md:w-3.5 md:h-3.5" />
                   {timeAgo}
                 </span>
               </div>
-              <span className="text-[#6366f1] text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+              <span className="text-[#6366f1] text-xs md:text-sm font-medium opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center gap-1">
                 {t.viewDetail}
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-3 h-3 md:w-4 md:h-4" />
               </span>
             </div>
           </div>
