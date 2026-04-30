@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { MapPin, X, ExternalLink, Building, DollarSign, Calendar } from "lucide-react";
-import { DataTable, AdminBadge, AdminPagination, type Column } from "@/components/admin";
+import { AdminBadge, AdminPagination, type Column } from "@/components/admin";
 
 type Job = {
   id: string;
@@ -123,13 +123,13 @@ export default function AdminJobsPage({ params }: { params: { locale: string } }
 
   return (
     <div className="space-y-6">
-      {/* 标题栏 */}
-      <div className="flex items-center justify-between">
+      {/* Aurora 标题栏 */}
+      <div className="aurora-card rounded-2xl p-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">职位管理</h1>
           <p className="text-sm text-gray-500">共 {totalCount} 个职位</p>
         </div>
-        <Link href="/admin/jobs/new" className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium">
+        <Link href="/admin/jobs/new" className="bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] hover:shadow-lg hover:shadow-[#6366f1]/25 text-white px-5 py-2.5 rounded-xl font-medium transition-all">
           + 发布职位
         </Link>
       </div>
@@ -225,13 +225,16 @@ export default function AdminJobsPage({ params }: { params: { locale: string } }
         />
       )}
 
-      {/* 职位详情弹窗 */}
+      {/* Aurora 职位详情弹窗 */}
       {selectedJob && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setSelectedJob(null)}>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in" onClick={() => setSelectedJob(null)}>
           <div
-            className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+            className="aurora-card rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto animate-slide-in"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Aurora top gradient bar */}
+            <div className="h-1 bg-gradient-to-r from-[#6366f1] via-[#8b5cf6] to-[#06b6d4] rounded-t-2xl" />
+            
             <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
               <h2 className="text-xl font-bold text-gray-900">职位详情</h2>
               <button
@@ -258,7 +261,7 @@ export default function AdminJobsPage({ params }: { params: { locale: string } }
                 <div className="text-right">
                   <div className="flex items-center justify-end gap-2 text-sm text-gray-600">
                     <DollarSign className="w-4 h-4" />
-                    <span className="font-semibold">
+                    <span className="font-semibold bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] bg-clip-text text-transparent">
                       {selectedJob.salaryMin && selectedJob.salaryMax
                         ? `${selectedJob.salaryMin}-${selectedJob.salaryMax}K`
                         : '面议'}
@@ -280,22 +283,22 @@ export default function AdminJobsPage({ params }: { params: { locale: string } }
 
               <div className="space-y-4">
                 {selectedJob.description && (
-                  <div className="bg-blue-50 rounded-xl p-4">
-                    <h4 className="font-semibold text-blue-900 mb-2">📋 岗位职责</h4>
+                  <div className="bg-[#eef2ff] rounded-xl p-4 border border-[#6366f1]/10">
+                    <h4 className="font-semibold text-[#4f46e5] mb-2">📋 岗位职责</h4>
                     <p className="text-sm text-gray-700 whitespace-pre-wrap">{selectedJob.description}</p>
                   </div>
                 )}
 
                 {selectedJob.requirements && (
-                  <div className="bg-green-50 rounded-xl p-4">
-                    <h4 className="font-semibold text-green-900 mb-2">✅ 任职要求</h4>
+                  <div className="bg-[#ecfdf5] rounded-xl p-4 border border-[#059669]/10">
+                    <h4 className="font-semibold text-[#059669] mb-2">✅ 任职要求</h4>
                     <p className="text-sm text-gray-700 whitespace-pre-wrap">{selectedJob.requirements}</p>
                   </div>
                 )}
 
                 {selectedJob.benefits && (
-                  <div className="bg-purple-50 rounded-xl p-4">
-                    <h4 className="font-semibold text-purple-900 mb-2">🎁 福利待遇</h4>
+                  <div className="bg-[#fdf4ff] rounded-xl p-4 border border-[#a855f7]/10">
+                    <h4 className="font-semibold text-[#a855f7] mb-2">🎁 福利待遇</h4>
                     <p className="text-sm text-gray-700 whitespace-pre-wrap">{selectedJob.benefits}</p>
                   </div>
                 )}
@@ -307,7 +310,7 @@ export default function AdminJobsPage({ params }: { params: { locale: string } }
                     href={selectedJob.applyUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] text-white rounded-xl font-medium hover:shadow-lg hover:shadow-[#6366f1]/25 transition-all"
                   >
                     <ExternalLink className="w-4 h-4" />
                     前往申请页面
