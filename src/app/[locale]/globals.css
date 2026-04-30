@@ -34,9 +34,10 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--page-bg, var(--background));
+  color: var(--text-primary, var(--foreground));
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  transition: background var(--transition-normal), color var(--transition-normal);
 }
 
 /* Prevent iOS Safari auto-zoom on input focus when font-size < 16px */
