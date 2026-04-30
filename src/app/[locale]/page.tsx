@@ -10,6 +10,7 @@ import { AuroraStatsSection as StatsSection } from "@/components/aurora/stats-se
 import { FeaturesSection } from "@/components/features-section";
 import { JobCardV2 } from "@/components/aurora/job-card";
 import { HomeCheckinWrapper } from "@/components/game/home-checkin-wrapper";
+import { KeywordCloud } from "@/components/aurora/keyword-cloud";
 import { getTranslations } from "next-intl/server";
 
 export const revalidate = 60;
@@ -220,6 +221,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             </div>
           </div>
         </section>
+      )}
+
+      {/* Keyword Cloud Section */}
+      {stats.blogCount > 0 && (
+        <KeywordCloud locale={locale} />
       )}
 
       {/* CTA Section */}
