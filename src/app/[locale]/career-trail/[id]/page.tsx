@@ -118,13 +118,13 @@ export default async function StoryPage({ params }: StoryPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-[#f8f7fc] py-8">
       <div className="max-w-4xl mx-auto px-4">
-        {/* Breadcrumb */}
+        {/* Aurora Breadcrumb */}
         <nav className="mb-6">
           <Link
             href={`/${locale}/career-trail`}
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-blue-600"
+            className="inline-flex items-center gap-2 text-gray-600 hover:text-[#6366f1] transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
