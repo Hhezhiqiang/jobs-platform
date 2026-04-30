@@ -199,9 +199,9 @@ export default function SalaryInsightsClient({ initialData, locale = "zh" }: Sal
           {/* isEn ? "Salary by Industry" : "各行业薪资对比" */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-6">{isEn ? "Average Salary by Industry" : "各行业平均薪资对比"}</h2>
-            <div className="h-[350px]">
+            <div className="h-[350px] w-full min-h-0">
               {mounted ? (
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minHeight={300}>
                 <BarChart data={filteredData.industry.slice(0, 8)}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis
@@ -241,9 +241,9 @@ export default function SalaryInsightsClient({ initialData, locale = "zh" }: Sal
           {/* 各城市薪资分布 */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-6">{isEn ? "Salary by City" : "各城市薪资分布"}</h2>
-            <div className="h-[350px]">
+            <div className="h-[350px] w-full min-h-0">
               {mounted ? (
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minHeight={300}>
                 <BarChart data={filteredData.city.slice(0, 8)}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis
@@ -287,9 +287,9 @@ export default function SalaryInsightsClient({ initialData, locale = "zh" }: Sal
           {/* 薪资趋势图 */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-6">{isEn ? "Salary Trends (Last 6 Months)" : "薪资趋势（近6个月）"}</h2>
-            <div className="h-[300px]">
+            <div className="h-[300px] w-full min-h-0">
               {mounted ? (
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minHeight={250}>
                 <LineChart data={filteredData.trend}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis
@@ -335,9 +335,9 @@ export default function SalaryInsightsClient({ initialData, locale = "zh" }: Sal
           {/* 职位类型薪资对比 */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-6">{isEn ? "Salary by Job Type" : "职位类型薪资对比"}</h2>
-            <div className="h-[300px]">
+            <div className="h-[300px] w-full min-h-0">
               {mounted ? (
-              <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%" minHeight={250}>
                 <BarChart data={filteredData.jobType} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis

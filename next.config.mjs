@@ -25,6 +25,7 @@ const nextConfig = {
       { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "https", hostname: "img.shields.io" },
       { protocol: "https", hostname: "opengraph.githubassets.com" },
+      { protocol: "https", hostname: "ui-avatars.com" },
     ],
   },
 
