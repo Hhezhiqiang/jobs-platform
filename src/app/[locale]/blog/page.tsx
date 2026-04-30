@@ -69,7 +69,7 @@ function buildCategoryWhere(category: string | undefined): string[] | undefined 
 
 interface PageProps {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ q?: string; category?: string; page?: string }>;
+  searchParams: Promise<{ q?: string; category?: string; keyword?: string; page?: string }>;
 }
 
 type PostWithAuthor = pages & { users: users | null };
@@ -99,6 +99,11 @@ export default async function BlogPage({ params, searchParams }: PageProps) {
     const categoryKeywords = buildCategoryWhere(sp.category);
     if (categoryKeywords) {
       where.keywords = { hasSome: categoryKeywords };
+    }
+    
+    // 支持关键词筛选
+    if (sp.keyword) {
+      where.keywords = { has: sp.keyword };
     }
 
     const [postsData, totalData] = await Promise.all([
