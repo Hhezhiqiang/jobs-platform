@@ -164,23 +164,38 @@ export default async function BlogDetailPage({ params }: PageProps) {
       notFound();
     }
 
-    // 获取相关职位（基于关键词匹配）+ 最新职位（并行查询）
-  const keyword = post.keywords?.[0] || "";
-  const [relatedJobs, fallbackJobs] = await Promise.all([
-    keyword
+    // 获取相关职位 + 相关文章 + 最新职位（并行查询）
+  const keywords = post.keywords || [];
+  const [relatedJobs, relatedArticles, fallbackJobs] = await Promise.all([
+    // 相关职位
+    keywords.length > 0
       ? prisma.jobs.findMany({
           where: {
             status: "ACTIVE",
             slug: { not: "" },
-            OR: [
-              { title: { contains: keyword, mode: "insensitive" } },
-              { description: { contains: keyword, mode: "insensitive" } },
-            ],
+            OR: keywords.map(kw => ({
+              title: { contains: kw, mode: "insensitive" },
+            })),
           },
           include: { companies: true },
           take: 3,
         })
       : Promise.resolve([]),
+    // 相关文章（基于关键词匹配）
+    keywords.length > 0
+      ? prisma.pages.findMany({
+          where: {
+            type: "BLOG",
+            status: "PUBLISHED",
+            id: { not: post.id },
+            keywords: { hasSome: keywords.slice(0, 3) },
+          },
+          include: { users: true },
+          orderBy: { createdAt: "desc" },
+          take: 5,
+        })
+      : Promise.resolve([]),
+    // 最新职位
     prisma.jobs.findMany({
       where: {
         status: "ACTIVE",
@@ -339,13 +354,19 @@ export default async function BlogDetailPage({ params }: PageProps) {
                   {/* 关键词标签 */}
                   {post.keywords && post.keywords.length > 0 && (
                     <div className="mt-8 pt-8 border-t">
-                      <p className="text-sm text-gray-500 mb-2">{isEn ? "Keywords:" : "关键词："}</p>
+                      <p className="text-sm text-gray-500 mb-3">{isEn ? "Tags:" : "标签："}</p>
                       <div className="flex flex-wrap gap-2">
-                        {post.keywords.filter((keyword: string) => keyword && keyword.trim().length >= 2).map((keyword: string) => (
-                          <span key={keyword} className="px-3 py-1 bg-[#eef2ff] text-[#4f46e5] rounded-full text-sm font-medium">
-                            {keyword}
-                          </span>
-                        ))}
+                        {post.keywords
+                          .filter((keyword: string) => keyword && keyword.trim().length >= 2 && keyword.trim().length < 20)
+                          .map((keyword: string) => (
+                            <Link
+                              key={keyword}
+                              href={`/${locale}/blog?keyword=${encodeURIComponent(keyword)}`}
+                              className="px-3 py-1.5 bg-[#eef2ff] hover:bg-[#6366f1] hover:text-white text-[#4f46e5] rounded-lg text-sm font-medium transition-all"
+                            >
+                              #{keyword}
+                            </Link>
+                          ))}
                       </div>
                     </div>
                   )}
@@ -355,29 +376,45 @@ export default async function BlogDetailPage({ params }: PageProps) {
 
             {/* Right: Sidebar */}
             <div className="space-y-6">
-              {/* Related Jobs */}
-              {displayJobs.length > 0 && (
+              {/* 相关文章推荐 */}
+              {relatedArticles.length > 0 && (
                 <div className="aurora-card rounded-2xl p-6 sticky top-24">
-                  <h2 className="text-lg font-bold text-gray-900 mb-4">{isEn ? "🔥 Related Jobs" : "🔥 相关职位推荐"}</h2>
+                  <h2 className="text-lg font-bold text-gray-900 mb-4">📚 {isEn ? "Related Articles" : "相关文章"}</h2>
+                  <div className="space-y-4">
+                    {relatedArticles.map((article) => (
+                      <Link key={article.id} href={`/${locale}/blog/${article.slug}`} className="group block">
+                        <h3 className="text-sm font-medium text-gray-900 group-hover:text-[#6366f1] transition-colors line-clamp-2 mb-1">
+                          {isEn && article.titleEn ? article.titleEn : article.title}
+                        </h3>
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                          <span>{article.users?.name || "管理员"}</span>
+                          <span>·</span>
+                          <span>{new Date(article.createdAt).toLocaleDateString(isEn ? "en-US" : "zh-CN", { month: "short", day: "numeric" })}</span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 相关职位推荐 */}
+              {displayJobs.length > 0 && (
+                <div className="aurora-card rounded-2xl p-6">
+                  <h2 className="text-lg font-bold text-gray-900 mb-4">💼 {isEn ? "Related Jobs" : "相关职位"}</h2>
                   <div className="space-y-4">
                     {displayJobs.filter(job => job.slug).map((job) => (
-                      <Link key={job.id} href={`/${locale}/jobs/${job.slug}`} className="block p-4 border border-gray-100 rounded-xl hover:border-[#6366f1]/30 hover:shadow-md transition-all">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="font-semibold text-gray-900">{isEn && job.titleEn ? job.titleEn : job.title}</h3>
-                            <p className="text-sm text-gray-600">{isEn && job.companies?.nameEn ? job.companies.nameEn : job.companies?.name}</p>
-                            <div className="flex gap-2 mt-2 text-sm text-gray-500">
-                              <span>{job.city || job.location}</span>
-                              <span>·</span>
-                              <span className="text-[#6366f1]">{formatSalary(job.salaryMin, job.salaryMax)}</span>
-                            </div>
-                          </div>
+                      <Link key={job.id} href={`/${locale}/jobs/${job.slug}`} className="block p-3 border border-gray-100 rounded-xl hover:border-[#6366f1]/30 hover:shadow-md transition-all">
+                        <h3 className="font-medium text-gray-900 text-sm line-clamp-2 mb-1">{isEn && job.titleEn ? job.titleEn : job.title}</h3>
+                        <p className="text-xs text-gray-600">{isEn && job.companies?.nameEn ? job.companies.nameEn : job.companies?.name}</p>
+                        <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
+                          <span>{job.city || job.location}</span>
+                          <span className="text-[#6366f1] font-medium">{formatSalary(job.salaryMin, job.salaryMax)}</span>
                         </div>
                       </Link>
                     ))}
                   </div>
                   <div className="mt-4 text-center">
-                    <Link href={`/${locale}/jobs`} className="inline-block w-full px-6 py-2.5 bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] text-white rounded-xl font-medium hover:shadow-lg transition-all">
+                    <Link href={`/${locale}/jobs`} className="inline-block w-full px-4 py-2 bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] text-white rounded-xl text-sm font-medium hover:shadow-lg transition-all">
                       {isEn ? "View More Jobs" : "查看更多职位"}
                     </Link>
                   </div>
