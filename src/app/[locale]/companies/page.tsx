@@ -2,9 +2,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { prisma } from "@/lib/prisma";
-import { Building2, MapPin, Users, Briefcase, Search } from "lucide-react";
+import { Building2, Search, ChevronRight } from "lucide-react";
 import { Metadata } from "next";
 import { safeJsonLdStringify } from "@/lib/utils";
+import { AuroraCompanyCard } from "@/components/aurora/company-card";
 export const revalidate = 3600;
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "JobQuip";
@@ -106,30 +107,33 @@ export default async function CompaniesPage({ params, searchParams }: PageProps)
           dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(schema) }}
         />
       ))}
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-[#f8f7fc]">
 
-      {/* Hero Section */}
-      <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white">
-        <div className="max-w-7xl mx-auto px-4 py-12">
+      {/* Aurora Hero Section */}
+      <div className="bg-gradient-to-br from-[#1e1b4b] via-[#312e81] to-[#3730a3] text-white">
+        <div className="max-w-7xl mx-auto px-4 py-16">
           <div className="text-center max-w-2xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full text-sm mb-4">
-              <Building2 className="w-4 h-4" />
-              {companies.length} 家优质企业
+            <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/10 backdrop-blur-md rounded-full text-sm mb-6 border border-white/10">
+              <Building2 className="w-4 h-4 text-[#a5b4fc]" />
+              <span className="font-medium">{companies.length} 家优质企业</span>
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold mb-4">{isEn ? "Discover Great Companies" : "发现优秀企业"}</h1>
-            <p className="text-blue-100 mb-6">{isEn ? "Explore top internet companies, find your ideal platform" : "探索知名互联网公司，找到理想的职业平台"}</p>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+              发现
+              <span className="bg-gradient-to-r from-[#a5b4fc] via-[#22d3ee] to-[#a78bfa] bg-clip-text text-transparent"> 优秀企业</span>
+            </h1>
+            <p className="text-[#c7d2fe]/80 mb-8 text-lg">{isEn ? "Explore top internet companies, find your ideal platform" : "探索知名互联网公司，找到理想的职业平台"}</p>
 
             {/* Search */}
             <form action="/companies" className="max-w-xl mx-auto">
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
                 <input
                   type="search"
                   name="q"
                   defaultValue={searchQuery}
                   placeholder={isEn ? "Search company name, industry or city..." : "搜索公司名称、行业或城市..."}
                   aria-label={isEn ? "Search companies" : "搜索公司"}
-                  className="w-full pl-12 pr-4 py-4 bg-white rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-white/20"
+                  className="w-full pl-12 pr-4 py-4 bg-white/10 backdrop-blur-xl rounded-xl border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#6366f1]/50 transition-all"
                 />
               </div>
             </form>
@@ -159,76 +163,19 @@ export default async function CompaniesPage({ params, searchParams }: PageProps)
         {companies.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {companies.map((company) => (
-              <Link
-                key={company.id}
-                href={`/${locale}/companies/${company.slug}`}
-                className="group bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
-              >
-                <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0">
-                    {company.logo ? (
-                      <div className="w-16 h-16 rounded-xl overflow-hidden ring-2 ring-gray-100 group-hover:ring-blue-200 transition-all">
-                        <Image
-                          src={company.logo}
-                          alt={`${company.name} 公司Logo`}
-                          width={64}
-                          height={64}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                    ) : (
-                      <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-2xl shadow-md">
-                        {company.name.charAt(0)}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-lg text-gray-900 group-hover:text-blue-600 transition-colors truncate">
-                      {company.name}
-                    </h3>
-                    <p className="text-gray-500 text-sm mt-1 truncate">{company.industry || "互联网"}</p>
-
-                    <div className="flex flex-wrap items-center gap-3 mt-3 text-sm text-gray-500">
-                      {company.location && (
-                        <span className="inline-flex items-center gap-1">
-                          <MapPin className="w-3.5 h-3.5" />
-                          {company.location}
-                        </span>
-                      )}
-                      {company.size && (
-                        <span className="inline-flex items-center gap-1">
-                          <Users className="w-3.5 h-3.5" />
-                          {company.size}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-4 mt-4 pt-4 border-t border-gray-100">
-                      <span className="inline-flex items-center gap-1 text-sm text-blue-600 font-medium">
-                        <Briefcase className="w-4 h-4" />
-                        {company._count.jobs} 个职位
-                      </span>
-                      <span className="text-gray-400 text-sm opacity-0 group-hover:opacity-100 transition-opacity ml-auto">
-                        查看详情 →
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
+              <AuroraCompanyCard key={company.id} company={company as any} />
             ))}
           </div>
         ) : (
-          <div className="text-center py-16">
-            <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
-              <Building2 className="w-12 h-12 text-gray-400" />
+          <div className="text-center py-16 bg-white rounded-2xl border border-gray-100">
+            <div className="w-16 h-16 bg-[#eef2ff] rounded-full flex items-center justify-center mx-auto mb-4">
+              <Building2 className="w-8 h-8 text-[#6366f1]" />
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">{isEn ? "No Companies Found" : "未找到公司"}</h3>
             <p className="text-gray-500 mb-6">{isEn ? "Try different keywords" : "尝试使用其他关键词搜索"}</p>
             <Link
               href={`/${locale}/companies`}
-              className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all inline-block"
+              className="px-6 py-3 bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] text-white rounded-xl font-medium hover:shadow-lg transition-all inline-block"
             >
               查看全部公司
             </Link>
