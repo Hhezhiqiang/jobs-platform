@@ -75,7 +75,7 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
               job.title
             )}
           </h3>
-          <p className="text-sm text-gray-500 truncate">{job.companies.name}</p>
+          <p className="text-sm text-gray-500 truncate">{job.schemaOrganizationName || job.companies.name}</p>
           <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
             <span className="flex items-center gap-1">
               <MapPin className="w-3 h-3" />
@@ -136,7 +136,7 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
             </div>
 
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-gray-500 mb-1">{job.companies.name}</p>
+              <p className="text-sm text-gray-500 mb-1">{job.schemaOrganizationName || job.companies.name}</p>
               <h3 className="text-lg font-bold text-gray-900 group-hover:text-[#4f46e5] transition-colors line-clamp-2">
                 {job.title}
               </h3>

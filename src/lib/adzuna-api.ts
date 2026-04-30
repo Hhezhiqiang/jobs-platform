@@ -323,6 +323,8 @@ function transformJob(
     authorId,
     keywords: globalTags,
     datePosted,
+    // 存储 Adzuna 真实公司名，用于前端显示
+    schemaOrganizationName: job.company?.display_name || 'Adzuna Jobs',
     // 这些字段在 Prisma schema 中有默认值，不需要显式设置
     // isRemote, isHybrid, isFeatured, viewCount 都有默认值
   };
