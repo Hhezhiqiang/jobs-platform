@@ -4,7 +4,7 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { generateCompanyMetadata } from "@/lib/metadata";
 import { generateOrganizationSchema } from "@/lib/schema";
-import { JobCardV2 } from "@/components/job-card-v2";
+import { JobCardV2 } from "@/components/aurora/job-card";
 import { Metadata } from "next";
 import { MapPin, Globe, Users, Building2, Briefcase, ChevronRight } from "lucide-react";
 import { safeJsonLdStringify, ensureHttpProtocol } from "@/lib/utils";
@@ -81,10 +81,10 @@ export default async function CompanyDetailPage({ params }: PageProps) {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(orgSchema) }} />
 
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-[#f8f7fc]">
 
-        {/* Hero Banner */}
-        <div className="relative bg-gradient-to-br from-blue-600 to-blue-800">
+        {/* Aurora Hero Banner */}
+        <div className="relative bg-gradient-to-br from-[#1e1b4b] via-[#312e81] to-[#3730a3]">
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-white/5 rounded-full blur-3xl" />
           </div>
@@ -167,7 +167,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
             <div className="lg:col-span-2 space-y-8">
               {/* Company Description */}
               {company.description && (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+                <div className="aurora-card rounded-2xl p-8">
                   <h2 className="text-xl font-bold text-gray-900 mb-4">{isEn ? "Company Profile" : "公司简介"}</h2>
                   <div className="prose prose-gray max-w-none text-gray-700 whitespace-pre-wrap leading-relaxed">
                     {company.description}
@@ -179,7 +179,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
               <div>
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-bold text-gray-900">{isEn ? "Open Positions" : "在招职位"}</h2>
-                  <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
+                  <span className="px-3 py-1 bg-[#eef2ff] text-[#4f46e5] text-sm font-medium rounded-full">
                     {validJobs.length} 个职位
                   </span>
                 </div>
@@ -205,14 +205,14 @@ export default async function CompanyDetailPage({ params }: PageProps) {
             {/* Sidebar */}
             <div className="space-y-6">
               {/* Company Info Card */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sticky top-24">
+              <div className="aurora-card rounded-2xl p-6 sticky top-24">
                 <h3 className="font-bold text-gray-900 mb-6">{isEn ? "Company Info" : "公司信息"}</h3>
                 
                 <div className="space-y-4">
                   {company.location && (
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <MapPin className="w-5 h-5 text-blue-600" />
+                      <div className="w-10 h-10 bg-[#eef2ff] rounded-lg flex items-center justify-center flex-shrink-0">
+                        <MapPin className="w-5 h-5 text-[#6366f1]" />
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">{isEn ? "Address" : "公司地址"}</p>
@@ -223,8 +223,8 @@ export default async function CompanyDetailPage({ params }: PageProps) {
 
                   {company.size && (
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Users className="w-5 h-5 text-green-600" />
+                      <div className="w-10 h-10 bg-[#ecfdf5] rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Users className="w-5 h-5 text-[#059669]" />
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">{isEn ? "Company Size" : "公司规模"}</p>
@@ -235,8 +235,8 @@ export default async function CompanyDetailPage({ params }: PageProps) {
 
                   {company.industry && (
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Building2 className="w-5 h-5 text-purple-600" />
+                      <div className="w-10 h-10 bg-[#fdf4ff] rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Building2 className="w-5 h-5 text-[#a855f7]" />
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">{isEn ? "Industry" : "所属行业"}</p>
@@ -247,8 +247,8 @@ export default async function CompanyDetailPage({ params }: PageProps) {
 
                   {company.website && (
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Globe className="w-5 h-5 text-orange-600" />
+                      <div className="w-10 h-10 bg-[#fff7ed] rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Globe className="w-5 h-5 text-[#ea580c]" />
                       </div>
                       <div>
                         <p className="text-sm text-gray-500">{isEn ? "Website" : "官方网站"}</p>
@@ -256,7 +256,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
                           href={ensureHttpProtocol(company.website)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1"
+                          className="font-medium text-[#6366f1] hover:text-[#4f46e5] flex items-center gap-1"
                         >
                           访问官网
                           <ChevronRight className="w-4 h-4" />
