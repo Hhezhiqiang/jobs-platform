@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
 
 interface ApplyModalProps {
@@ -20,12 +18,10 @@ export default function ApplyModal({
   onClose,
   onSuccess,
 }: ApplyModalProps) {
-  const { data: session } = useSession();
   const router = useRouter();
   const pathname = usePathname();
   const locale = pathname?.split("/")[1] || "zh";
   const isEn = locale === "en";
-  const [email, setEmail] = useState("");
   const [coverLetter, setCoverLetter] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -43,7 +39,6 @@ export default function ApplyModal({
         body: JSON.stringify({
           jobId,
           coverLetter: coverLetter.trim() || undefined,
-          email: !session ? email.trim() : undefined,
         }),
       });
 
@@ -88,26 +83,6 @@ export default function ApplyModal({
             </div>
           )}
 
-          {/* 未登录用户需要填写邮箱 */}
-          {!session && (
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {isEn ? "Email Address" : "邮箱地址"} <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                placeholder={isEn ? "your@email.com" : "请输入邮箱地址"}
-                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <p className="text-sm text-gray-500 mt-2">
-                {isEn ? "We'll send application updates to this email" : "我们将通过此邮箱发送申请进度通知"}
-              </p>
-            </div>
-          )}
-
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               {isEn ? "Cover Letter (Optional)" : "求职信（可选）"}
@@ -126,25 +101,9 @@ export default function ApplyModal({
 
           <div className="bg-blue-50 p-4 rounded-lg mb-6">
             <p className="text-sm text-blue-800">
-              {session
-                ? (isEn ? "💡 Tip: Check application status in Dashboard -> My Applications" : "💡 提示：申请后可以在「个人中心 -> 我的申请」中查看申请状态")
-                : (isEn ? "💡 Tip: Create an account to track your applications" : "💡 提示：注册账号后可以追踪申请状态")}
+              {isEn ? "💡 Tip: Check application status in Dashboard -> My Applications" : "💡 提示：申请后可以在「个人中心 -> 我的申请」中查看申请状态"}
             </p>
           </div>
-
-          {!session && (
-            <div className="bg-green-50 p-4 rounded-lg mb-6">
-              <p className="text-sm text-green-800 mb-2">
-                {isEn ? "🎉 Don't have an account? You can still apply!" : "🎉 没有账号？也可以直接申请！"}
-              </p>
-              <Link
-                href={`/${locale}/auth/register`}
-                className="text-sm text-green-700 underline hover:text-green-900"
-              >
-                {isEn ? "Create an account to track applications →" : "注册账号以便追踪申请进度 →"}
-              </Link>
-            </div>
-          )}
 
           <div className="flex gap-4">
             <button

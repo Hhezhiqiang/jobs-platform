@@ -97,8 +97,8 @@ export async function PATCH(
       },
     });
 
-    // 创建通知（如果状态发生变化）
-    if (oldStatus !== newStatus) {
+    // 创建通知（如果状态发生变化且是注册用户）
+    if (oldStatus !== newStatus && application.userId) {
       await createApplicationStatusNotification(
         application.userId,
         applicationId,

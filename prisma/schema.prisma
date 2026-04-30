@@ -192,8 +192,7 @@ model favorites {
 model job_applications {
   id           String            @id @default(uuid())
   jobId        String
-  userId       String?
-  guestEmail   String?
+  userId       String
   resumeId     String?
   status       ApplicationStatus @default(PENDING)
   coverLetter  String?
@@ -205,12 +204,11 @@ model job_applications {
   responseNote String?
   jobs         jobs              @relation(fields: [jobId], references: [id])
   resumes      resumes?          @relation(fields: [resumeId], references: [id])
-  users        users?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  users        users             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([jobId, status])
   @@index([userId, status])
   @@index([status])
-  @@index([guestEmail])
 }
 
 model jobs {

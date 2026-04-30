@@ -182,7 +182,7 @@ export async function PATCH(
     });
 
     // 发送通知给申请者
-    await prisma.notifications.create({
+    if (application.userId) { await prisma.notifications.create({
       data: {
         userId: application.userId,
         type: "APPLICATION_UPDATE",
@@ -259,7 +259,7 @@ export async function POST(
     }
 
     // 发送通知给申请者
-    await prisma.notifications.create({
+    if (application.userId) { await prisma.notifications.create({
       data: {
         userId: application.userId,
         type: "INTERVIEW_INVITE",
