@@ -9,9 +9,10 @@ import { useSession } from "next-auth/react";
 
 interface HeroSectionProps {
   jobCount: number;
+  companyCount?: number;
 }
 
-export function HeroSection({ jobCount }: HeroSectionProps) {
+export function HeroSection({ jobCount, companyCount }: HeroSectionProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [location, setLocation] = useState("");
   const { status } = useSession();
@@ -45,7 +46,7 @@ export function HeroSection({ jobCount }: HeroSectionProps) {
           <Sparkles className="w-4 h-4 text-[#a5b4fc]" />
           <span className="font-medium">{jobCount.toLocaleString()}+ 在招职位</span>
           <span className="w-1 h-1 bg-white/40 rounded-full" />
-          <span className="text-white/60">500+ 合作企业</span>
+          <span className="text-white/60">{companyCount ? `${companyCount}+` : '多家'} 合作企业</span>
         </div>
 
         {/* Main heading */}

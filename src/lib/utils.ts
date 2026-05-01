@@ -33,13 +33,21 @@ export function formatDistanceToNow(date: Date | string): string {
   }
 }
 
-export function formatSalary(min: number | null | undefined, max: number | null | undefined): string {
+export function formatSalary(min: number | null | undefined, max: number | null | undefined, currency: string = "CNY", locale: string = "zh"): string {
   if (!min && !max) {
     return "薪资面议";
   }
 
+  // 货币符号映射
+  const currencySymbols: Record<string, string> = {
+    CNY: "¥",
+    USD: "$",
+    GBP: "£",
+    EUR: "€",
+  };
+  const symbol = currencySymbols[currency] || currency;
+
   // 统一规范化到 K：所有 >1000 的值都除以 1000
-  // 修复之前 min >10000 才转 K 导致 8000 和 15000 显示不一致的问题
   const normalizeToK = (val: number): number => {
     if (val > 1000) return Math.round(val / 1000);
     return val;
@@ -48,12 +56,19 @@ export function formatSalary(min: number | null | undefined, max: number | null 
   const minK = min ? normalizeToK(min) : null;
   const maxK = max ? normalizeToK(max) : null;
 
+  // 英文环境下的后缀处理
+  const suffix = locale === "en" ? "k" : "K";
+
   if (minK && maxK) {
-    return `${minK}-${maxK}K`;
+    // 如果 min == max，显示固定薪资
+    if (minK === maxK) {
+      return `${symbol}${minK}${suffix}`;
+    }
+    return `${symbol}${minK}-${maxK}${suffix}`;
   } else if (minK) {
-    return `${minK}K+`;
+    return `${symbol}${minK}${suffix}+`;
   } else if (maxK) {
-    return `≤${maxK}K`;
+    return `≤${symbol}${maxK}${suffix}`;
   }
 
   return "薪资面议";

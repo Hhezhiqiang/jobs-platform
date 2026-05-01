@@ -93,7 +93,7 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
         </div>
 
         <div className="text-right flex-shrink-0">
-          <p className="font-bold bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] bg-clip-text text-transparent text-sm">{salaryText}</p>
+          <p className="font-bold bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] bg-clip-text text-transparent text-sm">{formatSalary(job.salaryMin, job.salaryMax, job.salaryCurrency, locale)}</p>
           <p className="text-xs text-gray-400 flex items-center gap-1 justify-end">
             <Clock className="w-3 h-3" />
             {timeAgo}

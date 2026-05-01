@@ -48,7 +48,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     <div className="min-h-screen bg-white">
       <HomeCheckinWrapper />
 
-      <HeroSection jobCount={displayStats.jobCount} />
+      <HeroSection jobCount={displayStats.jobCount} companyCount={displayStats.companyCount} />
       
       <StatsSection jobCount={displayStats.jobCount} companyCount={displayStats.companyCount} dailyNewJobs={displayStats.dailyNewJobs} />
 
