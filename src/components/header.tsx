@@ -13,7 +13,6 @@ interface HeaderProps {
 }
 
 export function Header({ transparent = false }: HeaderProps) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { data: session, status } = useSession();
@@ -220,87 +219,14 @@ export function Header({ transparent = false }: HeaderProps) {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button - 隐藏，使用底部导航替代 */}
           <button
-            className={`md:hidden p-2 rounded-lg transition-all ${
-              transparent && !scrolled
-                ? "text-white hover:bg-white/10"
-                : "text-gray-600 hover:bg-gray-100/50"
-            }`}
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 rounded-lg transition-all invisible"
             aria-label={t("header.menu")}
           >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            <Menu className="w-5 h-5" />
           </button>
         </div>
-
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-200/50 py-4 space-y-2">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <Icon className="w-5 h-5 text-gray-400" />
-                  {item.label}
-                </Link>
-              );
-            })}
-            <div className="border-t border-gray-200 my-2" />
-            <Link
-              href={switchLocalePath}
-              className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <Globe className="w-5 h-5 text-gray-400" />
-              {t("locale.switch")}: {isEn ? "中文" : "English"}
-            </Link>
-            {!isLoggedIn && (
-              <>
-                <div className="border-t border-gray-200 my-2" />
-                <Link
-                  href={`/${locale}/auth/login`}
-                  className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {t("nav.login")}
-                </Link>
-                <Link
-                  href={`/${locale}/auth/register`}
-                  className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-lg"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {t("nav.register")}
-                </Link>
-              </>
-            )}
-            {isLoggedIn && (
-              <>
-                <div className="border-t border-gray-200 my-2" />
-                <Link
-                  href={`/${locale}/dashboard`}
-                  className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <User className="w-5 h-5 text-gray-400" />
-                  {t("nav.dashboard")}
-                </Link>
-                <button
-                  onClick={() => { setMobileMenuOpen(false); signOut({ callbackUrl: `/${locale}` }); }}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg"
-                >
-                  <LogOut className="w-5 h-5" />
-                  {t("nav.logout")}
-                </button>
-              </>
-            )}
-          </div>
-        )}
       </div>
     </header>
   );
