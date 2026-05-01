@@ -63,7 +63,7 @@ export function Header({ transparent = false }: HeaderProps) {
 
   return (
     <header
-      className={`sticky top-0 z-50 transition-all duration-300 ${
+      className={`sticky top-0 z-50 transition-all duration-300 hidden md:block ${
         transparent && !scrolled
           ? "bg-transparent"
           : "bg-white/90 backdrop-blur-xl border-b border-gray-200/50 shadow-sm"

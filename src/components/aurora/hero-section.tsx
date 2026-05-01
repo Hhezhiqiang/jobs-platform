@@ -39,7 +39,7 @@ export function HeroSection({ jobCount }: HeroSectionProps) {
         }} />
       </div>
 
-      <div className="relative z-10 max-w-5xl mx-auto px-4 py-20 text-center">
+      <div className="relative z-10 max-w-5xl mx-auto px-4 pt-32 pb-20 md:pt-20 md:pb-20 text-center">
         {/* Trust badge */}
         <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/10 backdrop-blur-md rounded-full text-white/90 text-sm mb-8 border border-white/10 shadow-lg">
           <Sparkles className="w-4 h-4 text-[#a5b4fc]" />
