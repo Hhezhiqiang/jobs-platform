@@ -24,6 +24,8 @@ import {
 import { LevelCard } from "@/components/game/level-card";
 import { getGameProfile } from "@/lib/game/exp-system";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "个人中心 | 求职平台",
   description: "查看您的职位申请、收藏、通知和个人资料",
