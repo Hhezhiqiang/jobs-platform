@@ -195,6 +195,7 @@ model job_applications {
   userId       String?
   guestEmail   String?
   guestName    String?
+  isLinked     Boolean           @default(false)
   resumeId     String?
   status       ApplicationStatus @default(PENDING)
   coverLetter  String?

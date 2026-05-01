@@ -96,6 +96,7 @@ export async function POST(request: NextRequest) {
           jobId,
           guestEmail: email.trim(),
           guestName: name?.trim() || null,
+          isLinked: false,
           coverLetter: coverLetter?.trim() || null,
           status: "PENDING",
         },
@@ -121,6 +122,8 @@ export async function POST(request: NextRequest) {
       data: {
         jobId,
         userId: session.user.id,
+        guestEmail: session.user.email || null,
+        isLinked: true,
         resumeId: resumeId || null,
         coverLetter: coverLetter?.trim() || null,
         status: "PENDING",
