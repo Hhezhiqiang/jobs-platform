@@ -91,6 +91,7 @@ export async function POST(request: NextRequest) {
 
     for (const app of applications) {
       try {
+        if (!app.userId) continue; // Skip guest applications
         await prisma.notifications.create({
           data: {
             userId: app.userId,

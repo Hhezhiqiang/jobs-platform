@@ -181,20 +181,22 @@ export async function PATCH(
       },
     });
 
-    // 发送通知给申请者
-    if (application.userId) { await prisma.notifications.create({
-      data: {
-        userId: application.userId,
-        type: "APPLICATION_UPDATE",
-        title: "申请状态更新",
-        content: `您在「${application.jobs.title}」职位的申请状态已更新为：${getStatusText(status)}`,
-        metadata: {
-          applicationId: id,
-          jobId: application.jobId,
-          status,
+    // 发送通知给申请者（仅注册用户）
+    if (application.userId) {
+      await prisma.notifications.create({
+        data: {
+          userId: application.userId,
+          type: "APPLICATION_UPDATE",
+          title: "申请状态更新",
+          content: `您在「${application.jobs.title}」职位的申请状态已更新为：${getStatusText(status)}`,
+          metadata: {
+            applicationId: id,
+            jobId: application.jobId,
+            status,
+          },
         },
-      },
-    });
+      });
+    }
 
     return NextResponse.json({
       message: "状态更新成功",
@@ -258,19 +260,21 @@ export async function POST(
       return NextResponse.json({ error: "申请不存在" }, { status: 404 });
     }
 
-    // 发送通知给申请者
-    if (application.userId) { await prisma.notifications.create({
-      data: {
-        userId: application.userId,
-        type: "INTERVIEW_INVITE",
-        title: `${application.jobs.companies.name} 给您发送了消息`,
-        content: message,
-        metadata: {
-          applicationId: id,
-          jobId: application.jobId,
+    // 发送通知给申请者（仅注册用户）
+    if (application.userId) {
+      await prisma.notifications.create({
+        data: {
+          userId: application.userId,
+          type: "INTERVIEW_INVITE",
+          title: `${application.jobs.companies.name} 给您发送了消息`,
+          content: message,
+          metadata: {
+            applicationId: id,
+            jobId: application.jobId,
+          },
         },
-      },
-    });
+      });
+    }
 
     return NextResponse.json({ message: "回复已发送" });
   } catch (error) {
