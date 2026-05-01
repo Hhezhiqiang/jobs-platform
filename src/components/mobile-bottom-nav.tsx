@@ -25,7 +25,7 @@ export function MobileBottomNav() {
   };
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-2 z-50 safe-area-bottom">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-lg border-t border-gray-200/50 flex justify-around py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] z-50">
       {navItems.map((item) => {
         const active = isActive(item.href);
         const Icon = item.icon;
