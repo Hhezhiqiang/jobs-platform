@@ -3,6 +3,8 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Menu, Bell, ArrowLeft } from "lucide-react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 const routeTitles: Record<string, string> = {
@@ -76,10 +78,14 @@ export function AdminHeader({ onMenuToggle, collapsed }: AdminHeaderProps) {
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <button className="relative rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600" aria-label="通知">
+        <Link
+          href={`/${locale}/dashboard/notifications`}
+          className="relative rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+          aria-label="通知"
+        >
           <Bell className="h-5 w-5" />
           <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500" />
-        </button>
+        </Link>
         <Link href="/" className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900">
           <ArrowLeft className="h-4 w-4" />
           <span className="hidden sm:inline">返回前台</span>
