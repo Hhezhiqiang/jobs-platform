@@ -3,11 +3,14 @@
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
 
 export function HomeCTA() {
   const { status } = useSession();
   const isLoggedIn = status === "authenticated";
   const t = useTranslations("home");
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] || "zh";
 
   return (
     <section className="py-12 md:py-20 bg-gray-900">
@@ -18,28 +21,28 @@ export function HomeCTA() {
         {isLoggedIn ? (
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href={`/${typeof window !== 'undefined' ? window.location.pathname.split('/')[1] : 'zh'}/jobs`}
+              href={`/${locale}/jobs`}
               className="px-8 py-4 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-all hover:shadow-lg"
             >
               {t("cta.browseJobs")}
             </Link>
             <Link
-              href={`/${typeof window !== 'undefined' ? window.location.pathname.split('/')[1] : 'zh'}/dashboard`}
+              href={`/${locale}/dashboard`}
               className="px-8 py-4 bg-white/10 text-white font-semibold rounded-xl hover:bg-white/20 transition-all border border-white/20"
             >
-              {typeof window !== 'undefined' ? window.location.pathname.split('/')[1] === 'en' ? "Dashboard" : "个人中心"}
+              {locale === 'en' ? "Dashboard" : "个人中心"}
             </Link>
           </div>
         ) : (
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href={`/${typeof window !== 'undefined' ? window.location.pathname.split('/')[1] : 'zh'}/auth/register`}
+              href={`/${locale}/auth/register`}
               className="px-8 py-4 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-all hover:shadow-lg hover:-translate-y-0.5"
             >
               {t("cta.register")}
             </Link>
             <Link
-              href={`/${typeof window !== 'undefined' ? window.location.pathname.split('/')[1] : 'zh'}/jobs`}
+              href={`/${locale}/jobs`}
               className="px-8 py-4 bg-white/10 text-white font-semibold rounded-xl hover:bg-white/20 transition-all border border-white/20"
             >
               {t("cta.browseJobs")}
