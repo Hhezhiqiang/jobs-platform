@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Mail, Twitter, Linkedin, Github } from "lucide-react";
+import { Mail } from "lucide-react";
 
 export function Footer() {
   const pathname = usePathname();
@@ -60,14 +60,14 @@ export function Footer() {
             </p>
             {/* Social Links */}
             <div className="flex items-center gap-3 mt-6">
-              <a href="https://twitter.com/jobsbro" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-gray-100 hover:bg-blue-50 hover:text-blue-600 flex items-center justify-center text-gray-400 transition-all">
-                <Twitter className="w-4 h-4" />
+              <a href="https://twitter.com/jobsbro" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-gray-100 hover:bg-blue-50 hover:text-blue-600 flex items-center justify-center text-gray-400 transition-all text-xs font-bold">
+                X
               </a>
-              <a href="https://linkedin.com/company/jobsbro" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-gray-100 hover:bg-blue-50 hover:text-blue-600 flex items-center justify-center text-gray-400 transition-all">
-                <Linkedin className="w-4 h-4" />
+              <a href="https://linkedin.com/company/jobsbro" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-gray-100 hover:bg-blue-50 hover:text-blue-600 flex items-center justify-center text-gray-400 transition-all text-xs font-bold">
+                in
               </a>
-              <a href="https://github.com/Hhezhiqiang/jobs-platform" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 hover:text-gray-700 flex items-center justify-center text-gray-400 transition-all">
-                <Github className="w-4 h-4" />
+              <a href="https://github.com/Hhezhiqiang/jobs-platform" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 hover:text-gray-700 flex items-center justify-center text-gray-400 transition-all text-xs font-bold">
+                GH
               </a>
               <a href={`/${locale}/contact`} className="w-9 h-9 rounded-lg bg-gray-100 hover:bg-blue-50 hover:text-blue-600 flex items-center justify-center text-gray-400 transition-all">
                 <Mail className="w-4 h-4" />
