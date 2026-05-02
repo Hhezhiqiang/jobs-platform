@@ -11,6 +11,7 @@ import { FeaturesSection } from "@/components/features-section";
 import { JobCardV2 } from "@/components/aurora/job-card";
 import { HomeCheckinWrapper } from "@/components/game/home-checkin-wrapper";
 import { KeywordCloud } from "@/components/aurora/keyword-cloud";
+import { HomeCTA } from "@/components/home-cta";
 import { getTranslations } from "next-intl/server";
 
 export const revalidate = 60;
@@ -52,13 +53,13 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       
       <StatsSection jobCount={displayStats.jobCount} companyCount={displayStats.companyCount} dailyNewJobs={displayStats.dailyNewJobs} />
 
-      {/* Hot Jobs - 合并后的单一职位模块 */}
+      {/* Hot Jobs - 合并后的单一职位模块，解决冲突 */}
       {featuredJobs.length > 0 && (
-        <section className="py-20 bg-gray-50">
+        <section className="py-12 md:py-20 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="flex items-center justify-between mb-10">
+            <div className="flex items-center justify-between mb-8 md:mb-10">
               <div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">{t("hotJobs")}</h2>
+                <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{t("hotJobs")}</h2>
                 <p className="text-gray-600">{t("hotJobsSub")}</p>
               </div>
               <Link
@@ -95,21 +96,22 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
       <FeaturesSection />
 
-      {/* Hot Companies */}
+      {/* Hot Companies - 动态获取 & 修复移动端排版 */}
       {hotCompanies.length > 0 && (
-        <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
+        <section className="py-12 md:py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">{t("hotCompanies")}</h2>
+            <div className="text-center mb-8 md:mb-12">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">{t("hotCompanies")}</h2>
               <p className="text-gray-600">{t("hotCompaniesSub")}</p>
             </div>
 
-            <div className="flex flex-wrap justify-center gap-4">
-              {hotCompanies.map((company) => (
+            {/* 移动端单列/双列，桌面端多列 */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+              {hotCompanies.slice(0, 8).map((company) => (
                 <Link
                   key={company.id}
                   href={`/${locale}/companies/${company.slug}`}
-                  className="group flex items-center gap-3 px-6 py-4 bg-white rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all"
+                  className="group flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all"
                 >
                   {company.logo ? (
                   <Image
@@ -121,13 +123,13 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                     unoptimized
                   />
                   ) : (
-                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-lg">
+                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
                       {company.name.charAt(0)}
                     </div>
                   )}
-                  <div>
-                    <p className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">{company.name}</p>
-                    <p className="text-sm text-gray-500">{company.industry || (locale === "en" ? "Tech" : "互联网")}</p>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors truncate">{company.name}</p>
+                    <p className="text-xs text-gray-500 truncate">{company.industry || (locale === "en" ? "Tech" : "互联网")}</p>
                   </div>
                 </Link>
               ))}
@@ -152,34 +154,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         {/* 广告位已暂时隐藏，待修复后恢复 */}
       </div>
 
-      {/* Latest Jobs */}
-      {latestJobs.length > 0 && (
-        <section className="py-20 bg-white">
-          <div className="max-w-5xl mx-auto px-4">
-            <div className="flex items-center justify-between mb-10">
-              <div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">{t("latestJobs")}</h2>
-                <p className="text-gray-600">{t("latestJobsSub")}</p>
-              </div>
-              <Link
-                href={`/${locale}/jobs`}
-                className="hidden md:inline-flex items-center gap-2 text-blue-600 font-medium hover:gap-3 transition-all"
-              >
-                {t("viewAll")}
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </Link>
-            </div>
-
-            <div className="space-y-4">
-              {latestJobs.slice(0, 5).map((job) => (
-                <JobCardV2 key={job.id} job={job} variant="compact" locale={locale} />
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      {/* Removed Latest Jobs section to avoid conflict with Hot Jobs */}
 
       {/* Blog Section */}
       {stats.blogCount > 0 && (
@@ -228,27 +203,8 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         <KeywordCloud locale={locale} />
       )}
 
-      {/* CTA Section */}
-      <section className="py-20 bg-gray-900">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">{t("cta.title")}</h2>
-          <p className="text-xl text-gray-400 mb-10">{t("cta.subtitle")}</p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href={`/${locale}/auth/register`}
-              className="px-8 py-4 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-all hover:shadow-lg hover:-translate-y-0.5"
-            >
-              {t("cta.register")}
-            </Link>
-            <Link
-              href={`/${locale}/jobs`}
-              className="px-8 py-4 bg-white/10 text-white font-semibold rounded-xl hover:bg-white/20 transition-all border border-white/20"
-            >
-              {t("cta.browseJobs")}
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* Dynamic CTA Section (Checks Login State) */}
+      <HomeCTA />
 
       {/* FAQ Section — SEO + AI Indexing */}
       <section className="py-16 bg-gray-50">

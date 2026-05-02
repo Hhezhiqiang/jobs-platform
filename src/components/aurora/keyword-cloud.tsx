@@ -171,16 +171,16 @@ export async function KeywordCloud({ locale }: KeywordCloudProps) {
                 </div>
 
                 {/* 关键词标签 */}
-                <div className="flex flex-wrap gap-2">
-                  {keywords.slice(0, 10).map(({ keyword, count }) => (
+                <div className="flex flex-wrap gap-2 md:gap-3">
+                  {keywords.slice(0, 15).map(({ keyword, count }) => (
                     <Link
                       key={keyword}
                       href={`/${locale}/blog?keyword=${encodeURIComponent(keyword)}`}
-                      className={`px-4 py-2 ${config.bgColor} ${config.color} rounded-lg text-sm font-medium transition-all hover:shadow-md`}
+                      className={`px-3 py-1.5 md:px-4 md:py-2 ${config.bgColor} ${config.color} rounded-lg text-xs md:text-sm font-medium transition-all hover:shadow-md whitespace-nowrap`}
                     >
                       #{keyword}
                       {count > 1 && (
-                        <span className="ml-1 text-xs opacity-60">
+                        <span className="ml-1 text-[10px] md:text-xs opacity-60">
                           ({count})
                         </span>
                       )}
