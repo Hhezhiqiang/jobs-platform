@@ -44,22 +44,22 @@ export function HeroSection({ jobCount, companyCount }: HeroSectionProps) {
         {/* Trust badge */}
         <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/10 backdrop-blur-md rounded-full text-white/90 text-sm mb-8 border border-white/10 shadow-lg">
           <Sparkles className="w-4 h-4 text-[#a5b4fc]" />
-          <span className="font-medium">{jobCount.toLocaleString()}+ 在招职位</span>
+          <span className="font-medium">{jobCount.toLocaleString()}+ {t("hero.stats.jobs")}</span>
           <span className="w-1 h-1 bg-white/40 rounded-full" />
-          <span className="text-white/60">{companyCount ? `${companyCount}+` : '多家'} 合作企业</span>
+          <span className="text-white/60">{companyCount ? `${companyCount}+` : ''} {t("hero.stats.companies")}</span>
         </div>
 
         {/* Main heading */}
         <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight tracking-tight">
-          发现你的
+          {t("hero.title")}
           <span className="block mt-2 bg-gradient-to-r from-[#a5b4fc] via-[#22d3ee] to-[#a78bfa] bg-clip-text text-transparent">
-            下一个职业可能
+            {t("hero.titleHighlight")}
           </span>
         </h1>
 
         {/* Subtitle */}
         <p className="text-lg md:text-xl text-[#c7d2fe]/80 mb-12 max-w-2xl mx-auto leading-relaxed">
-          汇聚全球 Web3、互联网、科技行业高薪职位，让职业发展更有方向
+          {t("hero.subtitle")}
         </p>
 
         {/* Search box */}
@@ -72,7 +72,7 @@ export function HeroSection({ jobCount, companyCount }: HeroSectionProps) {
               <input
                 type="search"
                 name="q"
-                placeholder="搜索职位、公司、技能..."
+                placeholder={t("hero.searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-12 pr-4 py-4 text-white bg-white/5 rounded-xl border border-white/10 placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#6366f1]/50 focus:border-[#6366f1]/50 text-lg transition-all"
@@ -89,7 +89,7 @@ export function HeroSection({ jobCount, companyCount }: HeroSectionProps) {
                 onChange={(e) => setLocation(e.target.value)}
                 className="w-full md:w-48 pl-12 pr-8 py-4 text-white bg-white/5 rounded-xl border border-white/10 focus:outline-none focus:ring-2 focus:ring-[#6366f1]/50 appearance-none cursor-pointer transition-all"
               >
-                <option value="" className="bg-[#1e1b4b] text-white">全国</option>
+                <option value="" className="bg-[#1e1b4b] text-white">{t("hero.allCities")}</option>
                 {locations.map((loc: string) => (
                   <option key={loc} value={loc} className="bg-[#1e1b4b] text-white">{loc}</option>
                 ))}
@@ -101,14 +101,14 @@ export function HeroSection({ jobCount, companyCount }: HeroSectionProps) {
               className="px-8 py-4 bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] text-white rounded-xl font-semibold text-lg hover:from-[#4f46e5] hover:to-[#7c3aed] transition-all hover:shadow-lg hover:shadow-[#6366f1]/25 flex items-center justify-center gap-2"
             >
               <Search className="w-5 h-5" />
-              搜索职位
+              {t("hero.searchButton")}
             </button>
           </form>
         </div>
 
         {/* Hot tags */}
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <span className="text-sm text-[#a5b4fc]/60">热门搜索：</span>
+          <span className="text-sm text-[#a5b4fc]/60">{t("hero.popularSearchesLabel")}：</span>
           {hotTags.map((tag: string) => (
             <Link
               key={tag}
@@ -128,14 +128,14 @@ export function HeroSection({ jobCount, companyCount }: HeroSectionProps) {
               className="px-8 py-3.5 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-[#1e1b4b] font-semibold rounded-xl hover:from-[#f59e0b] hover:to-[#d97706] transition-all hover:shadow-lg hover:shadow-[#fbbf24]/25 flex items-center gap-2"
             >
               <TrendingUp className="w-5 h-5" />
-              浏览全部职位
+              {t("home.viewAllJobs")}
             </Link>
             <Link
               href={`/${locale}/dashboard`}
               className="px-6 py-3.5 bg-white/10 hover:bg-white/15 text-white font-medium rounded-xl backdrop-blur-sm transition-all border border-white/10 flex items-center gap-2"
             >
               <Users className="w-5 h-5" />
-              个人中心
+              {t("nav.dashboard")}
             </Link>
           </div>
         ) : (
@@ -144,13 +144,13 @@ export function HeroSection({ jobCount, companyCount }: HeroSectionProps) {
               href={`/${locale}/auth/register`}
               className="px-8 py-3.5 bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] text-[#1e1b4b] font-semibold rounded-xl hover:from-[#f59e0b] hover:to-[#d97706] transition-all hover:shadow-lg hover:shadow-[#fbbf24]/25"
             >
-              免费注册
+              {t("home.cta.register")}
             </Link>
             <Link
               href={`/${locale}/auth/login`}
               className="px-6 py-3.5 bg-white/10 hover:bg-white/15 text-white font-medium rounded-xl backdrop-blur-sm transition-all border border-white/10"
             >
-              已有账号？登录
+              {t("hero.login")}
             </Link>
           </div>
         )}

@@ -1,0 +1,48 @@
+{
+  "meta": {
+    "title": "Dashboard | JobQuip",
+    "description": "View your job applications, favorites, notifications, and profile"
+  },
+  "welcome": "Welcome back, {name}",
+  "gameCenter": "Game Center",
+  "achievements": "My Achievements",
+  "quests": "My Quests",
+  "leaderboard": "Leaderboard",
+  "logout": "Log out",
+  "profileCompletenessTip": "Reach 100% completeness to increase your chances of being discovered by HR",
+  "nav": {
+    "recommended": "Recommended Jobs",
+    "resumes": "Resume Management",
+    "preferences": "Job Preferences",
+    "salary": "Salary Comparison",
+    "progress": "Application Progress",
+    "overview": "Overview",
+    "profile": "My Profile",
+    "applications": "My Applications",
+    "jobStatus": "Job Status",
+    "balance": "Account Balance",
+    "settings": "Account Settings"
+  },
+  "stats": {
+    "applications": "My Applications",
+    "interviews": "{count} Interview Invites",
+    "balance": "Account Balance",
+    "recharge": "Recharge",
+    "resumes": "My Resumes",
+    "manageResume": "Manage Resume"
+  },
+  "quickAction": {
+    "title": "Start Your Next Opportunity Search",
+    "subtitle": "Browse the latest jobs and discover positions that fit you",
+    "browseJobs": "Browse Jobs",
+    "updateProfile": "Update Profile"
+  },
+  "recentApplications": {
+    "title": "Recent Applications",
+    "viewAll": "View All",
+    "emptyTitle": "No Applications Yet",
+    "emptySubtitle": "Start exploring jobs and take the first step in your job search",
+    "browseJobs": "Browse Jobs",
+    "withdraw": "Withdraw"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "meta": {
+    "title": "个人中心 | 求职平台",
+    "description": "查看您的职位申请、收藏、通知和个人资料"
+  },
+  "welcome": "欢迎回来，{name}",
+  "gameCenter": "游戏中心",
+  "achievements": "我的成就",
+  "quests": "我的任务",
+  "leaderboard": "排行榜",
+  "logout": "退出登录",
+  "profileCompletenessTip": "完善度达到 100% 可以提高被 HR 发现的几率",
+  "nav": {
+    "recommended": "推荐职位",
+    "resumes": "简历管理",
+    "preferences": "求职偏好",
+    "salary": "薪资对比",
+    "progress": "投递进度",
+    "overview": "概览",
+    "profile": "我的简历",
+    "applications": "我的申请",
+    "jobStatus": "求职状态",
+    "balance": "账户余额",
+    "settings": "账号设置"
+  },
+  "stats": {
+    "applications": "我的申请",
+    "interviews": "{count} 个面试邀请",
+    "balance": "账户余额",
+    "recharge": "去充值",
+    "resumes": "我的简历",
+    "manageResume": "管理简历"
+  },
+  "quickAction": {
+    "title": "开始寻找新机会",
+    "subtitle": "浏览最新职位，发现适合您的工作",
+    "browseJobs": "浏览职位",
+    "updateProfile": "完善简历"
+  },
+  "recentApplications": {
+    "title": "最近申请",
+    "viewAll": "查看全部",
+    "emptyTitle": "暂无申请记录",
+    "emptySubtitle": "开始探索职位，迈出求职第一步",
+    "browseJobs": "浏览职位",
+    "withdraw": "撤回"
+  }
+}

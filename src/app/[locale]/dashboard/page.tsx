@@ -24,12 +24,18 @@ import {
 import { LevelCard } from "@/components/game/level-card";
 import { getGameProfile } from "@/lib/game/exp-system";
 
+import { getTranslations } from "next-intl/server";
+
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "个人中心 | 求职平台",
-  description: "查看您的职位申请、收藏、通知和个人资料",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "dashboard" });
+  return {
+    title: t("meta.title"),
+    description: t("meta.description"),
+  };
+}
 
 const statusMap: Record<string, { label: string; color: string; bg: string }> = {
   PENDING: { label: "待处理", color: "text-yellow-700", bg: "bg-yellow-100" },
@@ -44,17 +50,17 @@ async function withdrawApplication(formData: FormData) {
   "use server";
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
-    throw new Error("未登录");
+    throw new Error("Not logged in");
   }
   const id = formData.get("applicationId") as string;
-  if (!id) throw new Error("缺少申请ID");
+  if (!id) throw new Error("Missing application ID");
 
   const app = await prisma.job_applications.findUnique({
     where: { id },
     select: { userId: true },
   });
   if (!app || app.userId !== session.user.id) {
-    throw new Error("无权操作");
+    throw new Error("Unauthorized");
   }
 
   await prisma.job_applications.update({
@@ -65,6 +71,7 @@ async function withdrawApplication(formData: FormData) {
 
 export default async function DashboardPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "dashboard" });
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
@@ -105,17 +112,17 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
   const gameProfile = await getGameProfile(session.user.id);
 
   const navItems = [
-    { icon: Award, label: "推荐职位", href: `/${locale}/dashboard/recommended` },
-    { icon: FileText, label: "简历管理", href: `/${locale}/dashboard/resumes` },
-    { icon: Briefcase, label: "求职偏好", href: `/${locale}/dashboard/preferences` },
-    { icon: TrendingUp, label: "薪资对比", href: `/${locale}/dashboard/salary` },
-    { icon: BarChart3, label: "投递进度", href: `/${locale}/dashboard/job-progress` },
-    { icon: LayoutDashboard, label: "概览", href: `/${locale}/dashboard`, active: true },
-    { icon: FileText, label: "我的简历", href: `/${locale}/dashboard/profile` },
-    { icon: Briefcase, label: "我的申请", href: `/${locale}/dashboard/applications` },
-    { icon: Search, label: "求职状态", href: `/${locale}/dashboard/job-status` },
-    { icon: Wallet, label: "账户余额", href: `/${locale}/user/recharge` },
-    { icon: Settings, label: "账号设置", href: `/${locale}/dashboard/settings` },
+    { icon: Award, label: t("nav.recommended"), href: `/${locale}/dashboard/recommended` },
+    { icon: FileText, label: t("nav.resumes"), href: `/${locale}/dashboard/resumes` },
+    { icon: Briefcase, label: t("nav.preferences"), href: `/${locale}/dashboard/preferences` },
+    { icon: TrendingUp, label: t("nav.salary"), href: `/${locale}/dashboard/salary` },
+    { icon: BarChart3, label: t("nav.progress"), href: `/${locale}/dashboard/job-progress` },
+    { icon: LayoutDashboard, label: t("nav.overview"), href: `/${locale}/dashboard`, active: true },
+    { icon: FileText, label: t("nav.profile"), href: `/${locale}/dashboard/profile` },
+    { icon: Briefcase, label: t("nav.applications"), href: `/${locale}/dashboard/applications` },
+    { icon: Search, label: t("nav.jobStatus"), href: `/${locale}/dashboard/job-status` },
+    { icon: Wallet, label: t("nav.balance"), href: `/${locale}/user/recharge` },
+    { icon: Settings, label: t("nav.settings"), href: `/${locale}/dashboard/settings` },
   ];
 
   return (
@@ -130,7 +137,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
                 {user.name?.charAt(0) || "U"}
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">欢迎回来，{user.name}</h1>
+                <h1 className="text-2xl font-bold text-gray-900">{t("welcome", { name: user.name })}</h1>
                 <p className="text-gray-500">{user.email}</p>
               </div>
             </div>
@@ -171,28 +178,28 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
 
               {/* 游戏化菜单 */}
               <hr className="my-4 border-gray-100" />
-              <div className="px-4 pb-2 text-xs font-medium text-gray-400 uppercase">游戏中心</div>
+              <div className="px-4 pb-2 text-xs font-medium text-gray-400 uppercase">{t("gameCenter")}</div>
               
               <Link
                 href={`/${locale}/dashboard/achievements`}
                 className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all"
               >
                 <Trophy className="w-5 h-5" />
-                我的成就
+                {t("achievements")}
               </Link>
               <Link
                 href={`/${locale}/dashboard/quests`}
                 className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all"
               >
                 <ScrollText className="w-5 h-5" />
-                我的任务
+                {t("quests")}
               </Link>
               <Link
                 href={`/${locale}/dashboard/leaderboard`}
                 className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all"
               >
                 <BarChart3 className="w-5 h-5" />
-                排行榜
+                {t("leaderboard")}
               </Link>
 
               <hr className="my-4 border-gray-100" />
@@ -205,7 +212,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                   </svg>
-                  退出登录
+                  {t("logout")}
                 </button>
               </form>
             </nav>
@@ -218,7 +225,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-500 text-sm">我的申请</p>
+                    <p className="text-gray-500 text-sm">{t("stats.applications")}</p>
                     <p className="text-3xl font-bold text-gray-900 mt-1">{applicationCount}</p>
                   </div>
                   <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
@@ -227,14 +234,14 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
                 </div>
                 <div className="mt-4 flex items-center gap-1 text-sm text-green-600">
                   <TrendingUp className="w-4 h-4" />
-                  <span>{interviewCount} 个面试邀请</span>
+                  <span>{t("stats.interviews", { count: interviewCount })}</span>
                 </div>
               </div>
 
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-500 text-sm">账户余额</p>
+                    <p className="text-gray-500 text-sm">{t("stats.balance")}</p>
                     <p className="text-3xl font-bold text-gray-900 mt-1">¥{(user.balance ?? 0).toFixed(2)}</p>
                   </div>
                   <div className="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center">
@@ -245,14 +252,14 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
                   href="/user/recharge" 
                   className="mt-4 text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
                 >
-                  去充值 <ChevronRight className="w-4 h-4" />
+                  {t("stats.recharge")} <ChevronRight className="w-4 h-4" />
                 </Link>
               </div>
 
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-500 text-sm">我的简历</p>
+                    <p className="text-gray-500 text-sm">{t("stats.resumes")}</p>
                     <p className="text-3xl font-bold text-gray-900 mt-1">{resumeCount}</p>
                   </div>
                   <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center">
@@ -263,7 +270,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
                   href={`/${locale}/dashboard/profile`} 
                   className="mt-4 text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
                 >
-                  管理简历 <ChevronRight className="w-4 h-4" />
+                  {t("stats.manageResume")} <ChevronRight className="w-4 h-4" />
                 </Link>
               </div>
 
@@ -318,8 +325,8 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
             <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-8 text-white">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
-                  <h3 className="text-xl font-bold mb-2">开始寻找新机会</h3>
-                  <p className="text-blue-100">浏览最新职位，发现适合您的工作</p>
+                  <h3 className="text-xl font-bold mb-2">{t("quickAction.title")}</h3>
+                  <p className="text-blue-100">{t("quickAction.subtitle")}</p>
                 </div>
                 <div className="flex flex-wrap gap-3">
                   <Link
@@ -327,14 +334,14 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
                     className="px-6 py-3 bg-white text-blue-600 font-semibold rounded-xl hover:bg-blue-50 transition-all flex items-center gap-2"
                   >
                     <Briefcase className="w-5 h-5" />
-                    浏览职位
+                    {t("quickAction.browseJobs")}
                   </Link>
                   <Link
                     href={`/${locale}/dashboard/profile`}
                     className="px-6 py-3 bg-white/10 text-white font-semibold rounded-xl hover:bg-white/20 transition-all flex items-center gap-2 border border-white/20"
                   >
                     <FileText className="w-5 h-5" />
-                    完善简历
+                    {t("quickAction.updateProfile")}
                   </Link>
                 </div>
               </div>
@@ -343,12 +350,12 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
             {/* Recent Applications */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
               <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-                <h2 className="text-lg font-bold text-gray-900">最近申请</h2>
+                <h2 className="text-lg font-bold text-gray-900">{t("recentApplications.title")}</h2>
                 <Link
                   href={`/${locale}/dashboard/applications`}
                   className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1"
                 >
-                  查看全部 <ChevronRight className="w-4 h-4" />
+                  {t("recentApplications.viewAll")} <ChevronRight className="w-4 h-4" />
                 </Link>
               </div>
 
@@ -358,13 +365,13 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
                     <div className="w-20 h-20 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
                       <Briefcase className="w-10 h-10 text-gray-400" />
                     </div>
-                    <p className="text-gray-900 font-medium mb-2">暂无申请记录</p>
-                    <p className="text-gray-500 mb-6">开始探索职位，迈出求职第一步</p>
+                    <p className="text-gray-900 font-medium mb-2">{t("recentApplications.emptyTitle")}</p>
+                    <p className="text-gray-500 mb-6">{t("recentApplications.emptySubtitle")}</p>
                     <Link
                       href="/jobs"
                       className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all"
                     >
-                      浏览职位
+                      {t("recentApplications.browseJobs")}
                     </Link>
                   </div>
                 ) : (
@@ -411,7 +418,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ loca
                                 type="submit"
                                 className="text-sm text-gray-400 hover:text-red-600 transition-colors"
                               >
-                                撤回
+                                {t("recentApplications.withdraw")}
                               </button>
                             </form>
                           )}
