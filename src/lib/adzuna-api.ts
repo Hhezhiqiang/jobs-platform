@@ -306,7 +306,7 @@ function transformJob(
     country: country.toUpperCase(),
     salaryMin: job.salary_min || null,
     salaryMax: job.salary_max || null,
-    salaryCurrency: 'GBP',
+    salaryCurrency: ['GB', 'UK'].includes(country.toUpperCase()) ? 'GBP' : ['US', 'USA'].includes(country.toUpperCase()) ? 'USD' : 'CNY',
     employmentType:
       job.contract_type === 'part_time'
         ? 'PART_TIME'
