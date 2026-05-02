@@ -13,6 +13,8 @@ import { HomeCheckinWrapper } from "@/components/game/home-checkin-wrapper";
 import { KeywordCloud } from "@/components/aurora/keyword-cloud";
 import { HomeCTA } from "@/components/home-cta";
 import { getTranslations } from "next-intl/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 
 export const revalidate = 60;
 
@@ -21,7 +23,6 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return generateHomeMetadata(locale);
 }
 
-// FAQ Schema (Google Rich Snippets) — 使用翻译
 async function getHomeFAQ(locale: string) {
   const t = await getTranslations({ locale, namespace: "home.faq" });
   return [
@@ -35,10 +36,15 @@ async function getHomeFAQ(locale: string) {
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "home" });
-  const { featuredJobs, latestJobs, hotCompanies, stats } = await getHomePageData();
+  
+  const session = await getServerSession(authOptions);
+  const isLoggedIn = !!session?.user;
+
+  // Fetch ONLY featured jobs.
+  // Note: If getHomePageData returns "latestJobs", we will IGNORE them here.
+  const { featuredJobs, hotCompanies, stats } = await getHomePageData();
   const homeFAQ = await getHomeFAQ(locale);
 
-  // 确保统计数据不为 0（如果为 0 则显示最小值 1）
   const displayStats = {
     jobCount: Math.max(stats.jobCount, 1),
     companyCount: Math.max(stats.companyCount, 1),
@@ -49,11 +55,13 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     <div className="min-h-screen bg-white">
       <HomeCheckinWrapper />
 
+      {/* 1. Hero Section */}
       <HeroSection jobCount={displayStats.jobCount} companyCount={displayStats.companyCount} />
       
+      {/* 2. Stats Section */}
       <StatsSection jobCount={displayStats.jobCount} companyCount={displayStats.companyCount} dailyNewJobs={displayStats.dailyNewJobs} />
 
-      {/* Hot Jobs - 合并后的单一职位模块，解决冲突 */}
+      {/* 3. Hot Jobs Section (The ONLY job section on homepage) */}
       {featuredJobs.length > 0 && (
         <section className="py-12 md:py-20 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4">
@@ -85,18 +93,16 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                 className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-all"
               >
                 {t("viewAllJobs")}
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
               </Link>
             </div>
           </div>
         </section>
       )}
 
+      {/* 4. Features Section */}
       <FeaturesSection />
 
-      {/* Hot Companies - 动态获取 & 修复移动端排版 */}
+      {/* 5. Hot Companies Section */}
       {hotCompanies.length > 0 && (
         <section className="py-12 md:py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4">
@@ -105,7 +111,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <p className="text-gray-600">{t("hotCompaniesSub")}</p>
             </div>
 
-            {/* 移动端单列/双列，桌面端多列 */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               {hotCompanies.slice(0, 8).map((company) => (
                 <Link
@@ -119,7 +124,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                     alt={`${company.name} Logo`}
                     width={48}
                     height={48}
-                    className="w-12 h-12 rounded-lg object-cover"
+                    className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
                     unoptimized
                   />
                   ) : (
@@ -150,18 +155,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </section>
       )}
 
-      <div className="max-w-5xl mx-auto px-4">
-        {/* 广告位已暂时隐藏，待修复后恢复 */}
-      </div>
-
-      {/* Removed Latest Jobs section to avoid conflict with Hot Jobs */}
-
-      {/* Blog Section */}
+      {/* 6. Blog Section */}
       {stats.blogCount > 0 && (
-        <section className="py-20 bg-blue-600">
+        <section className="py-12 md:py-20 bg-blue-600">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold text-white mb-4">{t("blogSection")}</h2>
+            <div className="text-center mb-8 md:mb-12">
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">{t("blogSection")}</h2>
               <p className="text-blue-100 text-lg">{t("blogSectionSub", { count: stats.blogCount })}</p>
             </div>
 
@@ -198,15 +197,15 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </section>
       )}
 
-      {/* Keyword Cloud Section */}
+      {/* 7. Keyword Cloud */}
       {stats.blogCount > 0 && (
         <KeywordCloud locale={locale} />
       )}
 
-      {/* Dynamic CTA Section (Checks Login State) */}
-      <HomeCTA />
+      {/* 8. Dynamic CTA Section (Login Aware) */}
+      <HomeCTA isLoggedIn={isLoggedIn} />
 
-      {/* FAQ Section — SEO + AI Indexing */}
+      {/* 9. FAQ Section */}
       <section className="py-16 bg-gray-50">
         <div className="max-w-4xl mx-auto px-4">
           <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">{t("faq.title")}</h2>
@@ -224,7 +223,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </div>
       </section>
 
-      {/* FAQ Schema — Google Rich Snippets */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
