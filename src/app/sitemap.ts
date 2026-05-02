@@ -11,7 +11,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const zh = `${baseUrl}/zh`;
 
   // ── 1. 静态页面（核心入口）──
-  // 使用 BUILD_TIME 而非 new Date()，避免每次请求时间都变
   const staticPages: MetadataRoute.Sitemap = [
     { url: `${zh}`, priority: 1.0, changeFrequency: "daily", lastModified: BUILD_TIME },
     { url: `${zh}/jobs`, priority: 0.9, changeFrequency: "hourly", lastModified: BUILD_TIME },
@@ -19,6 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${zh}/companies`, priority: 0.85, changeFrequency: "daily", lastModified: BUILD_TIME },
     { url: `${zh}/salary-insights`, priority: 0.8, changeFrequency: "weekly", lastModified: BUILD_TIME },
     { url: `${zh}/career-trail`, priority: 0.75, changeFrequency: "weekly", lastModified: BUILD_TIME },
+    { url: `${zh}/topics`, priority: 0.75, changeFrequency: "daily", lastModified: BUILD_TIME },
     { url: `${zh}/about`, priority: 0.7, changeFrequency: "monthly", lastModified: BUILD_TIME },
     { url: `${zh}/contact`, priority: 0.6, changeFrequency: "monthly", lastModified: BUILD_TIME },
     { url: `${zh}/faq`, priority: 0.6, changeFrequency: "monthly", lastModified: BUILD_TIME },
@@ -28,6 +28,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/en/jobs`, priority: 0.8, changeFrequency: "hourly", lastModified: BUILD_TIME },
     { url: `${baseUrl}/en/blog`, priority: 0.8, changeFrequency: "daily", lastModified: BUILD_TIME },
     { url: `${baseUrl}/en/companies`, priority: 0.75, changeFrequency: "daily", lastModified: BUILD_TIME },
+    { url: `${baseUrl}/en/topics`, priority: 0.65, changeFrequency: "daily", lastModified: BUILD_TIME },
     { url: `${baseUrl}/en/faq`, priority: 0.6, changeFrequency: "monthly", lastModified: BUILD_TIME },
     { url: `${baseUrl}/en/salary-insights`, priority: 0.75, changeFrequency: "weekly", lastModified: BUILD_TIME },
   ];
@@ -158,6 +159,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: "weekly" as const,
   }));
 
+  // ── 7. 专题 PSEO 页面（核心 SEO 聚合页）──
+  const TOPIC_SLUGS = [
+    "java-developer",
+    "frontend-developer",
+    "product-manager",
+    "remote-jobs",
+    "fresh-graduate",
+  ];
+
+  const topicEntries: MetadataRoute.Sitemap = TOPIC_SLUGS.flatMap((slug) => [
+    {
+      url: `${zh}/topics/${slug}`,
+      lastModified: BUILD_TIME,
+      priority: 0.75,
+      changeFrequency: "daily" as const,
+    },
+    {
+      url: `${baseUrl}/en/topics/${slug}`,
+      lastModified: BUILD_TIME,
+      priority: 0.65,
+      changeFrequency: "daily" as const,
+    },
+  ]);
+
   return [
     ...staticPages,
     ...blogEntries,
@@ -165,5 +190,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...companyEntries,
     ...cityEntries,
     ...storyEntries,
+    ...topicEntries,
   ];
 }

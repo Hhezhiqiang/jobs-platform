@@ -213,7 +213,9 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
 
   try {
-  const { slug } = await params;
+  const { slug, locale } = await params;
+  const currentLocale = locale || "zh";
+  const isEn = currentLocale === "en";
 
   // 1. 尝试 CMS 专题页
   const cmsPage = await prisma.pages.findUnique({
@@ -222,14 +224,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   });
 
   if (cmsPage) {
-    const url = `${SITE_URL}/topics/${slug}`;
+    const url = `${SITE_URL}/${currentLocale}/topics/${slug}`;
     return {
       title: cmsPage.metaTitle || `${cmsPage.title} | ${SITE_NAME}`,
       description: cmsPage.metaDescription || cmsPage.title,
       keywords: cmsPage.keywords,
-      openGraph: { title: cmsPage.title, description: cmsPage.metaDescription || "", url, siteName: SITE_NAME, type: "article", locale: "zh_CN" },
+      openGraph: { title: cmsPage.title, description: cmsPage.metaDescription || "", url, siteName: SITE_NAME, type: "article", locale: isEn ? "en_US" : "zh_CN" },
       twitter: { card: "summary_large_image", title: cmsPage.title, description: cmsPage.metaDescription || "" },
-      alternates: { canonical: url },
+      alternates: {
+        canonical: url,
+        languages: {
+          "zh-CN": `${SITE_URL}/zh/topics/${slug}`,
+          "en": `${SITE_URL}/en/topics/${slug}`,
+          "x-default": `${SITE_URL}/zh/topics/${slug}`,
+        },
+      },
     };
   }
 
@@ -238,14 +247,24 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: "页面未找到" };
   }
   const meta = TOPIC_META[slug];
-  const url = `${SITE_URL}/topics/${slug}`;
+  const url = `${SITE_URL}/${currentLocale}/topics/${slug}`;
+  // For English, prepend English title prefix
+  const title = isEn ? `${meta.title.split(" - ")[0]} Jobs - ${SITE_NAME}` : meta.title;
+  const description = isEn ? `Browse ${meta.title.split(" - ")[0]} positions. ${meta.intro.slice(0, 120)}` : meta.description;
   return {
-    title: meta.title,
-    description: meta.description,
+    title,
+    description,
     keywords: meta.keywords,
-    openGraph: { title: meta.title, description: meta.description, url, siteName: SITE_NAME, type: "website", locale: "zh_CN" },
-    twitter: { card: "summary_large_image", title: meta.title, description: meta.description },
-    alternates: { canonical: url },
+    openGraph: { title, description, url, siteName: SITE_NAME, type: "website", locale: isEn ? "en_US" : "zh_CN" },
+    twitter: { card: "summary_large_image", title, description },
+    alternates: {
+      canonical: url,
+      languages: {
+        "zh-CN": `${SITE_URL}/zh/topics/${slug}`,
+        "en": `${SITE_URL}/en/topics/${slug}`,
+        "x-default": `${SITE_URL}/zh/topics/${slug}`,
+      },
+    },
   };
 
   } catch {
