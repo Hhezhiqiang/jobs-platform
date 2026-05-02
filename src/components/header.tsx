@@ -6,7 +6,7 @@ import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
-import { Briefcase, Building2, BookOpen, TrendingUp, Globe, User, ChevronDown, Menu, X, LogOut } from "lucide-react";
+import { Briefcase, BookOpen, TrendingUp, Globe, User, ChevronDown, Menu, X, LogOut } from "lucide-react";
 
 interface HeaderProps {
   transparent?: boolean;
