@@ -24,7 +24,7 @@ function getI18n(locale?: string) {
 
 export function JobCardV2({ job, variant = "default", showFavorite = true, highlightQuery, locale }: JobCardV2Props) {
   const { isEn, t } = getI18n(locale);
-  const salaryText = formatSalary(job.salaryMin, job.salaryMax);
+  const salaryText = formatSalary(job.salaryMin, job.salaryMax, job.salaryCurrency, locale);
   const timeAgo = formatDistanceToNow(job.datePosted);
 
   const typeMap: Record<string, string> = {
