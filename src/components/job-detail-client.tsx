@@ -1,10 +1,10 @@
 "use client";
 
-import { notFound } from "next/navigation";
 import Link from "next/link";
 import { MapPin, Briefcase, Clock, DollarSign, Building2, ArrowLeft, ExternalLink, Share2, Heart } from "lucide-react";
 import { ApplyButton } from "@/components/apply-button";
 import { HeartButton } from "@/components/heart-button";
+import { formatSalary } from "@/lib/utils";
 
 interface JobDetailPageProps {
   job: any;
@@ -14,9 +14,8 @@ interface JobDetailPageProps {
 export default function JobDetailPageClient({ job, locale }: JobDetailPageProps) {
   const isEn = locale === "en";
 
-  const salaryText = job.salaryMin && job.salaryMax 
-    ? `${job.salaryMin}-${job.salaryMax}K` 
-    : isEn ? "Salary Negotiable" : "薪资面议";
+  // 修复：使用 formatSalary 替代硬编码拼接
+  const salaryText = formatSalary(job.salaryMin, job.salaryMax, job.salaryCurrency, locale);
     
   const typeMap: Record<string, string> = {
     FULL_TIME: isEn ? "Full-time" : "全职",
