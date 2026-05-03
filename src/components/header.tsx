@@ -158,7 +158,7 @@ export function Header({ transparent = false }: HeaderProps) {
                       </div>
                       {isCompany && (
                         <Link href={`/${locale}/company/dashboard`} className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50" onClick={() => setUserMenuOpen(false)}>
-                          <Building2 className="w-4 h-4" />
+                          <Briefcase className="w-4 h-4" />
                           {t("header.company")}
                         </Link>
                       )}
