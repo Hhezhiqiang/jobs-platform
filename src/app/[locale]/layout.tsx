@@ -6,6 +6,7 @@ import { safeJsonLdStringify } from "@/lib/utils";
 import { Providers } from "@/components/providers";
 import { TelegramFloatButton } from "@/components/telegram-float-button";
 import { MobileBottomNav } from "@/components/mobile-bottom-nav";
+import { MobileHeader } from "@/components/mobile-header";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Analytics } from "@vercel/analytics/react";
@@ -173,6 +174,9 @@ export default async function RootLayout({
       <body className={`${inter.className} ${notoSansSC.variable} font-sans pb-32 md:pb-0`}>
         <NextIntlClientProvider messages={messages} locale={locale}>
           <Providers>
+            {/* 移动端顶部导航 */}
+            <MobileHeader />
+            {/* 桌面端顶部导航 */}
             <Header />
             {children}
             <PageTracker />
