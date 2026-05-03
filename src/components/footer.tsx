@@ -94,13 +94,13 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-gray-200">
-          {/* Language Switch */}
+          {/* Language Switch - 全局醒目 */}
           <div className="flex justify-center mb-6">
             <Link 
               href={locale === 'zh' ? '/en' : '/zh'} 
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 text-sm text-gray-600 hover:border-blue-500 hover:text-blue-600 transition-all"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
             >
-              <Globe className="w-4 h-4" />
+              <Globe className="w-5 h-5" />
               {locale === 'zh' ? 'Switch to English' : '切换至中文'}
             </Link>
           </div>
