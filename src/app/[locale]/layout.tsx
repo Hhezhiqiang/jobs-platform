@@ -170,7 +170,7 @@ export default async function RootLayout({
         {/* 预加载关键资源 */}
         <link rel="preload" href="/logo.png" as="image" />
       </head>
-      <body className={`${inter.className} ${notoSansSC.variable} font-sans pb-16 md:pb-0`}>
+      <body className={`${inter.className} ${notoSansSC.variable} font-sans pb-24 md:pb-0`}>
         <NextIntlClientProvider messages={messages} locale={locale}>
           <Providers>
             <Header />

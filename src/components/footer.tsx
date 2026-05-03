@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Mail } from "lucide-react";
+import { Globe, Mail, Send } from "lucide-react";
 
 export function Footer() {
   const pathname = usePathname();
@@ -94,6 +94,17 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-gray-200">
+          {/* Language Switch */}
+          <div className="flex justify-center mb-6">
+            <Link 
+              href={locale === 'zh' ? '/en' : '/zh'} 
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-gray-200 text-sm text-gray-600 hover:border-blue-500 hover:text-blue-600 transition-all"
+            >
+              <Globe className="w-4 h-4" />
+              {locale === 'zh' ? 'Switch to English' : '切换至中文'}
+            </Link>
+          </div>
+
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-gray-400">
               {t("copyright", { year: new Date().getFullYear() })}
