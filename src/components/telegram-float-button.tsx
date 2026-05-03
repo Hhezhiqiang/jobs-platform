@@ -8,10 +8,10 @@ export function TelegramFloatButton() {
 
   return (
     <>
-      {/* 悬浮按钮 */}
+      {/* 悬浮按钮 - 移动端隐藏，只在桌面端显示 */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#0088cc] hover:bg-[#0077b3] rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110"
+        className="fixed bottom-24 right-6 z-40 w-14 h-14 bg-[#0088cc] hover:bg-[#0077b3] rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 md:block hidden"
         aria-label="联系客服"
       >
         {isOpen ? (
@@ -21,9 +21,9 @@ export function TelegramFloatButton() {
         )}
       </button>
 
-      {/* 弹窗 */}
+      {/* 弹窗 - 移动端隐藏，只在桌面端显示 */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 z-50 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+        <div className="fixed bottom-40 right-6 z-40 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden md:block hidden">
           {/* 头部 */}
           <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-4">
             <h3 className="text-white font-bold text-lg">联系我们</h3>
