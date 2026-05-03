@@ -5,7 +5,7 @@ import { generateWebsiteSchema } from "@/lib/schema";
 import { safeJsonLdStringify } from "@/lib/utils";
 import { Providers } from "@/components/providers";
 import { TelegramFloatButton } from "@/components/telegram-float-button";
-import { MobileHeader } from "@/components/mobile-header";
+import { MobileBottomNav } from "@/components/mobile-bottom-nav";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Analytics } from "@vercel/analytics/react";
@@ -170,11 +170,9 @@ export default async function RootLayout({
         {/* 预加载关键资源 */}
         <link rel="preload" href="/logo.png" as="image" />
       </head>
-      <body className={`${inter.className} ${notoSansSC.variable} font-sans md:pb-0`}>
+      <body className={`${inter.className} ${notoSansSC.variable} font-sans pb-32 md:pb-0`}>
         <NextIntlClientProvider messages={messages} locale={locale}>
           <Providers>
-            {/* 移动端顶部导航 */}
-            <MobileHeader />
             {/* 桌面端顶部导航 */}
             <Header />
             {children}
@@ -200,6 +198,8 @@ export default async function RootLayout({
             />
             <TelegramFloatButton />
             <Footer />
+            {/* 移动端底部导航 */}
+            <MobileBottomNav />
           </Providers>
         </NextIntlClientProvider>
       </body>
