@@ -561,6 +561,7 @@ model users {
   notificationPush        Boolean?                @default(false)
   resetToken              String?               @unique
   resetTokenExpires       DateTime?
+  job_demands             JobDemand[]
 
   @@index([email])
 }
@@ -834,6 +835,26 @@ model StoryComment {
   @@index([storyId, createdAt])
   @@index([authorId])
   @@map("story_comments")
+}
+
+// 求职需求模型 (反向招聘)
+model JobDemand {
+  id          String   @id @default(cuid())
+  userId      String   // 关联用户 ID
+  user        users    @relation(fields: [userId], references: [id])
+  title       String   // 求职意向标题 (如：资深产品经理求职)
+  salaryMin   Int?     // 期望最低薪资
+  salaryMax   Int?     // 期望最高薪资
+  currency    String   @default("CNY")
+  location    String?  // 期望工作地点
+  tags        String[] // 技能标签 ["React", "Node.js"]
+  bio         String?  // 个人优势介绍
+  status      String   @default("OPEN") // OPEN(求职中) / CLOSED(已入职)
+  createdAt   DateTime @default(now())
+  
+  @@index([userId, status])
+  @@index([status, createdAt(sort: Desc)])
+  @@map("job_demands")
 }
 
 enum StoryType {
