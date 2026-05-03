@@ -181,14 +181,14 @@ export function JobsPageClient({ initialJobs, total, totalPages, currentPage, ci
           </div>
 
           {/* Results count */}
-          <div className="mt-4 text-white/60 text-sm">
+          {/* <div className="mt-4 text-white/60 text-sm">
             找到 <span className="text-white font-semibold">{total}</span> 个职位
             {hasActiveFilters && (
               <button onClick={handleClearFilters} className="ml-2 text-[#a5b4fc] hover:text-white transition-colors">
                 清除筛选
               </button>
             )}
-          </div>
+          </div> */}
         </div>
       </div>
 

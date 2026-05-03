@@ -102,59 +102,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       {/* 4. Features Section */}
       <FeaturesSection />
 
-      {/* 5. Hot Companies Section */}
-      {hotCompanies.length > 0 && (
-        <section className="py-12 md:py-20 bg-white">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="text-center mb-8 md:mb-12">
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">{t("hotCompanies")}</h2>
-              <p className="text-gray-600">{t("hotCompaniesSub")}</p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-              {hotCompanies.slice(0, 8).map((company) => (
-                <Link
-                  key={company.id}
-                  href={`/${locale}/companies/${company.slug}`}
-                  className="group flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all"
-                >
-                  {company.logo ? (
-                  <Image
-                    src={company.logo}
-                    alt={`${company.name} Logo`}
-                    width={48}
-                    height={48}
-                    className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
-                    unoptimized
-                  />
-                  ) : (
-                    <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
-                      {company.name.charAt(0)}
-                    </div>
-                  )}
-                  <div className="min-w-0">
-                    <p className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors truncate">{company.name}</p>
-                    <p className="text-xs text-gray-500 truncate">{company.industry || (locale === "en" ? "Tech" : "互联网")}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-
-            <div className="mt-10 text-center">
-              <Link
-                href={`/${locale}/companies`}
-                className="inline-flex items-center gap-2 text-blue-600 font-medium hover:gap-3 transition-all"
-              >
-                {t("viewMoreCompanies")}
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </Link>
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* 6. Blog Section */}
       {stats.blogCount > 0 && (
         <section className="py-12 md:py-20 bg-blue-600">

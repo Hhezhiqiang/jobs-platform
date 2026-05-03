@@ -40,15 +40,7 @@ export function HeroSection({ jobCount, companyCount }: HeroSectionProps) {
         }} />
       </div>
 
-      <div className="relative z-10 max-w-5xl mx-auto px-4 pt-32 pb-20 md:pt-20 md:pb-20 text-center">
-        {/* Trust badge */}
-        <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/10 backdrop-blur-md rounded-full text-white/90 text-sm mb-8 border border-white/10 shadow-lg">
-          <Sparkles className="w-4 h-4 text-[#a5b4fc]" />
-          <span className="font-medium">{jobCount.toLocaleString()}+ {t("hero.stats.jobs")}</span>
-          <span className="w-1 h-1 bg-white/40 rounded-full" />
-          <span className="text-white/60">{companyCount ? `${companyCount}+` : ''} {t("hero.stats.companies")}</span>
-        </div>
-
+      <div className="relative z-10 max-w-5xl mx-auto px-4 pt-20 pb-20 md:pt-10 md:pb-20 text-center">
         {/* Main heading */}
         <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight tracking-tight">
           {t("hero.title")}

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Briefcase, BookOpen, TrendingUp, User } from "lucide-react";
+import { Briefcase, BookOpen, TrendingUp, User, Search } from "lucide-react";
 
 export function MobileBottomNav() {
   const pathname = usePathname();
@@ -12,6 +12,7 @@ export function MobileBottomNav() {
 
   const navItems = [
     { label: t("nav.jobs"), href: `/${locale}/jobs`, icon: Briefcase },
+    { label: "求职需求", href: `/${locale}/job-demands`, icon: Search },
     { label: t("nav.blog"), href: `/${locale}/blog`, icon: BookOpen },
     { label: t("nav.careerTrail"), href: `/${locale}/career-trail`, icon: TrendingUp },
     { label: t("nav.dashboard"), href: `/${locale}/dashboard`, icon: User },

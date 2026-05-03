@@ -163,8 +163,8 @@ export function AuroraBlogPage({ initialPosts, total, totalPages, currentPage, c
                     {/* Footer */}
                     <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                       <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <span className="font-medium text-gray-900">{post.users?.name || "管理员"}</span>
-                        <span className="w-1 h-1 bg-gray-300 rounded-full" />
+                        {/* <span className="font-medium text-gray-900">{post.users?.name || "匿名"}</span>
+                        <span className="w-1 h-1 bg-gray-300 rounded-full" /> */}
                         <span className="flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           {date}
