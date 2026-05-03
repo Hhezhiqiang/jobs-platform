@@ -46,6 +46,17 @@ export function Footer() {
   return (
     <footer className="bg-gradient-to-b from-gray-50 to-white border-t border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        {/* Top Language Switch - 全局醒目置顶 */}
+        <div className="flex justify-center mb-12">
+          <Link 
+            href={locale === 'zh' ? '/en' : '/zh'} 
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-lg hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg hover:shadow-xl hover:scale-105"
+          >
+            <Globe className="w-6 h-6" />
+            {locale === 'zh' ? 'Switch to English' : '切换至中文'}
+          </Link>
+        </div>
+
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
           {/* Brand Column */}
           <div className="col-span-2 md:col-span-4 lg:col-span-1 mb-8 lg:mb-0">
@@ -94,17 +105,6 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-12 pt-8 border-t border-gray-200">
-          {/* Language Switch - 全局醒目 */}
-          <div className="flex justify-center mb-6">
-            <Link 
-              href={locale === 'zh' ? '/en' : '/zh'} 
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
-            >
-              <Globe className="w-5 h-5" />
-              {locale === 'zh' ? 'Switch to English' : '切换至中文'}
-            </Link>
-          </div>
-
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-gray-400">
               {t("copyright", { year: new Date().getFullYear() })}
