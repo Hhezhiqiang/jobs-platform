@@ -3,13 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Briefcase, BookOpen, TrendingUp, User, Search, Globe } from "lucide-react";
+import { Briefcase, BookOpen, TrendingUp, User, Search } from "lucide-react";
 
 export function MobileBottomNav() {
   const pathname = usePathname();
   const locale = pathname?.split("/")[1] || "zh";
   const t = useTranslations();
-  const isEn = locale === "en";
 
   const navItems = [
     { label: t("nav.jobs"), href: `/${locale}/jobs`, icon: Briefcase },
@@ -24,9 +23,6 @@ export function MobileBottomNav() {
     const hrefWithoutLocale = href.substring(locale.length + 1);
     return pathWithoutLocale === hrefWithoutLocale || pathWithoutLocale.startsWith(hrefWithoutLocale + "/");
   };
-
-  // 语言切换路径
-  const switchLocalePath = `/${isEn ? "zh" : "en"}${pathname?.substring(locale.length + 1) || ""}`;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-gray-200/50 md:hidden">
@@ -52,18 +48,6 @@ export function MobileBottomNav() {
               </Link>
             );
           })}
-          {/* 语言切换按钮 */}
-          <Link
-            href={switchLocalePath}
-            className="flex flex-col items-center justify-center flex-1 py-2 min-w-0 transition-all rounded-lg text-gray-400 hover:text-gray-600"
-          >
-            <div className="p-1.5 rounded-xl transition-all">
-              <Globe className="w-5 h-5" />
-            </div>
-            <span className="text-[10px] mt-0.5 truncate w-full text-center font-medium">
-              {isEn ? "中文" : "EN"}
-            </span>
-          </Link>
         </div>
       </div>
     </nav>
