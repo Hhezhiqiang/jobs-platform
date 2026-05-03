@@ -1,10 +1,24 @@
 import { prisma } from "@/lib/prisma";
 
+// 汇率配置 (相对于 CNY)
+const EXCHANGE_RATES: Record<string, number> = {
+  CNY: 1,
+  USD: 7.2,
+  GBP: 9.2,
+  EUR: 7.8,
+};
+
+function toCNY(amount: number, currency: string | null): number {
+  const rate = EXCHANGE_RATES[currency || "CNY"] || 1;
+  return amount * rate;
+}
+
 interface JobSalary {
   id: string;
   title: string;
   salaryMin: number | null;
   salaryMax: number | null;
+  salaryCurrency: string | null;
   employmentType: string;
   city: string | null;
   datePosted: Date;
@@ -21,7 +35,9 @@ function calculateIndustryStats(jobs: JobSalary[]) {
 
   jobs.forEach((job) => {
     const industry = job.companies?.industry || "其他";
-    const avgSalary = ((job.salaryMin || 0) + (job.salaryMax || 0)) / 2;
+    const avgMin = toCNY(job.salaryMin || 0, job.salaryCurrency);
+    const avgMax = toCNY(job.salaryMax || 0, job.salaryCurrency);
+    const avgSalary = (avgMin + avgMax) / 2;
 
     if (!industryMap.has(industry)) {
       industryMap.set(industry, { salaries: [], count: 0 });
@@ -53,7 +69,9 @@ function calculateCityStats(jobs: JobSalary[]) {
 
   jobs.forEach((job) => {
     const city = job.city || "未知";
-    const avgSalary = ((job.salaryMin || 0) + (job.salaryMax || 0)) / 2;
+    const avgMin = toCNY(job.salaryMin || 0, job.salaryCurrency);
+    const avgMax = toCNY(job.salaryMax || 0, job.salaryCurrency);
+    const avgSalary = (avgMin + avgMax) / 2;
 
     if (!cityMap.has(city)) {
       cityMap.set(city, { salaries: [], count: 0 });
@@ -100,7 +118,9 @@ function calculateTrendStats(jobs: JobSalary[]) {
     if (!monthMap.has(monthKey)) {
       monthMap.set(monthKey, { salaries: [], count: 0 });
     }
-    const avgSalary = ((job.salaryMin || 0) + (job.salaryMax || 0)) / 2;
+    const avgMin = toCNY(job.salaryMin || 0, job.salaryCurrency);
+    const avgMax = toCNY(job.salaryMax || 0, job.salaryCurrency);
+    const avgSalary = (avgMin + avgMax) / 2;
     const data = monthMap.get(monthKey)!;
     data.salaries.push(avgSalary);
     data.count++;
@@ -134,7 +154,9 @@ function calculateJobTypeStats(jobs: JobSalary[]) {
 
   jobs.forEach((job) => {
     const type = typeNames[job.employmentType] || "其他";
-    const avgSalary = ((job.salaryMin || 0) + (job.salaryMax || 0)) / 2;
+    const avgMin = toCNY(job.salaryMin || 0, job.salaryCurrency);
+    const avgMax = toCNY(job.salaryMax || 0, job.salaryCurrency);
+    const avgSalary = (avgMin + avgMax) / 2;
 
     if (!typeMap.has(type)) {
       typeMap.set(type, { salaries: [], count: 0 });
@@ -166,7 +188,7 @@ function calculateOverview(jobs: JobSalary[]) {
   }
 
   const salaries = jobs.map(
-    (j) => ((j.salaryMin || 0) + (j.salaryMax || 0)) / 2
+    (j) => (toCNY(j.salaryMin || 0, j.salaryCurrency) + toCNY(j.salaryMax || 0, j.salaryCurrency)) / 2
   );
   const sorted = [...salaries].sort((a, b) => a - b);
 
@@ -192,6 +214,7 @@ export async function getSalaryInsightsData() {
       title: true,
       salaryMin: true,
       salaryMax: true,
+      salaryCurrency: true,
       employmentType: true,
       city: true,
       datePosted: true,
