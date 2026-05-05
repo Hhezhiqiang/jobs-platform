@@ -339,9 +339,9 @@ model page_views {
   city      String?
   userId    String?
   sessionId String
-  duration  Int?     // 页面停留时长（秒）
-  eventType String?  // page_view / click / search / scroll
-  eventData Json?    // 事件详情 {target, keyword, depth, ...}
+  duration  Int? // 页面停留时长（秒）
+  eventType String? // page_view / click / search / scroll
+  eventData Json? // 事件详情 {target, keyword, depth, ...}
   createdAt DateTime @default(now())
 
   @@index([createdAt])
@@ -559,9 +559,10 @@ model users {
   notificationEmail       Boolean?                @default(true)
   notificationSms         Boolean?                @default(false)
   notificationPush        Boolean?                @default(false)
-  resetToken              String?               @unique
+  resetToken              String?                 @unique
   resetTokenExpires       DateTime?
   job_demands             JobDemand[]
+  JobDemandContact        JobDemandContact[]
 
   @@index([email])
 }
@@ -839,30 +840,30 @@ model StoryComment {
 
 // 求职需求模型 (反向招聘)
 model JobDemand {
-  id          String   @id @default(cuid())
-  userId      String   // 关联用户 ID
-  user        users    @relation(fields: [userId], references: [id])
-  resumeId    String?  // 关联默认简历 ID
-  title       String   // 求职意向标题 (如：资深产品经理求职)
-  salaryMin   Int?     // 期望最低薪资
-  salaryMax   Int?     // 期望最高薪资
-  currency    String   @default("CNY")
-  location    String?  // 期望工作地点
-  tags        String[] // 技能标签 ["React", "Node.js"]
-  bio         String?  // 个人优势介绍
-  status      String   @default("OPEN") // OPEN(求职中) / CLOSED(已入职)
-  isFeatured  Boolean  @default(false) // 是否置顶
-  viewCount   Int      @default(0) // 浏览次数
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  id         String   @id @default(cuid())
+  userId     String // 关联用户 ID
+  user       users    @relation(fields: [userId], references: [id])
+  resumeId   String? // 关联默认简历 ID
+  title      String // 求职意向标题 (如：资深产品经理求职)
+  salaryMin  Int? // 期望最低薪资
+  salaryMax  Int? // 期望最高薪资
+  currency   String   @default("CNY")
+  location   String? // 期望工作地点
+  tags       String[] // 技能标签 ["React", "Node.js"]
+  bio        String? // 个人优势介绍
+  status     String   @default("OPEN") // OPEN(求职中) / CLOSED(已入职)
+  isFeatured Boolean  @default(false) // 是否置顶
+  viewCount  Int      @default(0) // 浏览次数
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // 关联的联系记录
+  contacts JobDemandContact[]
+
   @@index([userId, status])
   @@index([status, createdAt(sort: Desc)])
   @@index([isFeatured, status])
   @@map("job_demands")
-  
-  // 关联的联系记录
-  contacts JobDemandContact[]
 }
 
 // 企业联系求职者记录
@@ -874,10 +875,10 @@ model JobDemandContact {
   status    String   @default("PENDING") // PENDING/READ/REPLIED
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  demand    JobDemand @relation(fields: [demandId], references: [id], onDelete: Cascade)
-  company   users     @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  
+
+  demand  JobDemand @relation(fields: [demandId], references: [id], onDelete: Cascade)
+  company users     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
   @@index([demandId, status])
   @@index([companyId, createdAt])
   @@map("job_demand_contacts")
