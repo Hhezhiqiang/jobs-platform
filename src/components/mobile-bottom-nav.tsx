@@ -9,10 +9,11 @@ export function MobileBottomNav() {
   const pathname = usePathname();
   const locale = pathname?.split("/")[1] || "zh";
   const t = useTranslations();
+  const isEn = locale === "en";
 
   const navItems = [
     { label: t("nav.jobs"), href: `/${locale}/jobs`, icon: Briefcase },
-    { label: "求职需求", href: `/${locale}/job-demands`, icon: Search },
+    { label: isEn ? "Job Demands" : "求职需求", href: `/${locale}/job-demands`, icon: Search },
     { label: t("nav.blog"), href: `/${locale}/blog`, icon: BookOpen },
     { label: t("nav.careerTrail"), href: `/${locale}/career-trail`, icon: TrendingUp },
     { label: t("nav.dashboard"), href: `/${locale}/dashboard`, icon: User },
