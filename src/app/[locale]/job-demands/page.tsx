@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import JobDemandsClient from "./job-demands-client";
+import { prisma } from "@/lib/prisma";
 
-const SITE_NAME = "JobQuip";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -18,12 +18,30 @@ export const revalidate = 60;
 export default async function JobDemandsPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   
+  let demands: any[] = [];
+  
   try {
-    const res = await fetch(`${SITE_URL}/api/job-demands`, { cache: "no-store" });
-    const result = await res.json();
-    
-    return <JobDemandsClient initialDemands={result.data || []} locale={locale} />;
-  } catch {
-    return <JobDemandsClient initialDemands={[]} locale={locale} />;
+    demands = await prisma.jobDemand.findMany({
+      where: { status: "OPEN" },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+      select: {
+        id: true,
+        title: true,
+        salaryMin: true,
+        salaryMax: true,
+        currency: true,
+        location: true,
+        tags: true,
+        bio: true,
+        createdAt: true,
+        user: { select: { name: true, avatar: true } },
+      },
+    });
+  } catch (error) {
+    console.error("Failed to fetch job demands:", error);
+    demands = [];
   }
+    
+  return <JobDemandsClient initialDemands={demands} locale={locale} />;
 }
