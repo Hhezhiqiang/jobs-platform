@@ -860,6 +860,27 @@ model JobDemand {
   @@index([status, createdAt(sort: Desc)])
   @@index([isFeatured, status])
   @@map("job_demands")
+  
+  // 关联的联系记录
+  contacts JobDemandContact[]
+}
+
+// 企业联系求职者记录
+model JobDemandContact {
+  id        String   @id @default(cuid())
+  demandId  String
+  companyId String
+  message   String?
+  status    String   @default("PENDING") // PENDING/READ/REPLIED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  demand    JobDemand @relation(fields: [demandId], references: [id], onDelete: Cascade)
+  company   users     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  
+  @@index([demandId, status])
+  @@index([companyId, createdAt])
+  @@map("job_demand_contacts")
 }
 
 enum StoryType {
@@ -950,6 +971,7 @@ enum NotificationType {
   JOB_ALERT
   INTERVIEW_INVITE
   OFFER_RECEIVED
+  JOB_INTEREST // 企业对求职者感兴趣
 }
 
 enum OrderStatus {
