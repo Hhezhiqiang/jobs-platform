@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Search, Briefcase, MapPin, DollarSign, Plus, Send, X } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 interface JobDemand {
   id: string;
@@ -25,6 +26,7 @@ interface JobDemandsClientProps {
 export default function JobDemandsClient({ initialDemands, locale }: JobDemandsClientProps) {
   const isEn = locale === "en";
   const { data: session } = useSession();
+  const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -64,7 +66,11 @@ export default function JobDemandsClient({ initialDemands, locale }: JobDemandsC
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {initialDemands.map((demand) => (
-              <div key={demand.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-all">
+              <div
+                key={demand.id}
+                onClick={() => router.push(`/${locale}/job-demands/${demand.id}`)}
+                className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-all cursor-pointer"
+              >
                 <div className="flex items-start justify-between mb-4">
                   <h3 className="text-lg font-bold text-gray-900">{demand.title}</h3>
                   {demand.user && (
