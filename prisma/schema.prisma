@@ -842,6 +842,7 @@ model JobDemand {
   id          String   @id @default(cuid())
   userId      String   // 关联用户 ID
   user        users    @relation(fields: [userId], references: [id])
+  resumeId    String?  // 关联默认简历 ID
   title       String   // 求职意向标题 (如：资深产品经理求职)
   salaryMin   Int?     // 期望最低薪资
   salaryMax   Int?     // 期望最高薪资
@@ -850,10 +851,14 @@ model JobDemand {
   tags        String[] // 技能标签 ["React", "Node.js"]
   bio         String?  // 个人优势介绍
   status      String   @default("OPEN") // OPEN(求职中) / CLOSED(已入职)
+  isFeatured  Boolean  @default(false) // 是否置顶
+  viewCount   Int      @default(0) // 浏览次数
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   
   @@index([userId, status])
   @@index([status, createdAt(sort: Desc)])
+  @@index([isFeatured, status])
   @@map("job_demands")
 }
 
