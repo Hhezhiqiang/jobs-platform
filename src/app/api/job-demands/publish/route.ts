@@ -17,7 +17,7 @@ export async function POST(request: Request) {
 
   try {
     // 1. 获取用户的默认简历
-    const resume = await prisma.resume.findFirst({
+    const resume = await prisma.resumes.findFirst({
       where: { userId: session.user.id, isDefault: true },
     });
 
@@ -36,7 +36,6 @@ export async function POST(request: Request) {
     const demand = await prisma.jobDemand.create({
       data: {
         userId: session.user.id,
-        resumeId: resume?.id || null,
         title: autoTitle,
         salaryMin: salaryMin ? parseInt(salaryMin) : null,
         salaryMax: salaryMax ? parseInt(salaryMax) : null,
