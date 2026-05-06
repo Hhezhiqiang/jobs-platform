@@ -7,6 +7,7 @@ import { Breadcrumb } from "@/components/breadcrumb";
 import { JobCardV2 } from "@/components/job-card-v2";
 import { generateJobPostingSchema, generateBreadcrumbSchema } from "@/lib/schema";
 import { safeJsonLdStringify } from "@/lib/utils";
+import { getTranslations } from "next-intl/server";
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "JobQuip招聘平台";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
@@ -178,6 +179,8 @@ export default async function CityTypeJobsPage({ params }: PageProps) {
     { name: `${city}${typeInfo.label}招聘`, url: `${SITE_URL}/${locale}/jobs/city/${encodeURIComponent(city)}/${encodeURIComponent(type)}` },
   ]);
 
+  const isEn = locale === "en";
+
   return (
     <>
       <script
@@ -242,16 +245,16 @@ export default async function CityTypeJobsPage({ params }: PageProps) {
           {jobs.length === 0 ? (
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
               <h3 className="text-xl font-bold text-gray-900 mb-2">
-                暂无{city}{typeInfo.label}职位
+                {isEn ? `No ${city} ${typeInfo.label} Jobs` : `暂无${city}${typeInfo.label}职位`}
               </h3>
               <p className="text-gray-500 mb-6">
-                该城市下暂时没有{typeInfo.label}岗位，看看其他类型或全部职位吧
+                {isEn ? `No ${typeInfo.label} positions in ${city}. Check other types or all jobs.` : `该城市下暂时没有${typeInfo.label}岗位，看看其他类型或全部职位吧`}
               </p>
               <Link
                 href={`/${locale}/jobs/city/${encodeURIComponent(city)}`}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all"
               >
-                查看{city}全部职位
+                {isEn ? `View All ${city} Jobs` : `查看${city}全部职位`}
               </Link>
             </div>
           ) : (

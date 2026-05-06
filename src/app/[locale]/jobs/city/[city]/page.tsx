@@ -212,27 +212,27 @@ export default async function CityJobsPage({ params }: PageProps) {
           {jobs.length === 0 ? (
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
               <h3 className="text-xl font-bold text-gray-900 mb-2">
-                暂无{city}职位
+                {isEn ? `No Jobs in ${city}` : `暂无${city}职位`}
               </h3>
               <p className="text-gray-500 mb-6">
-                该城市下暂时没有符合条件的职位，去看看其他城市或全部职位吧
+                {isEn ? `No matching positions in ${city}. Check other cities or all jobs.` : `该城市下暂时没有符合条件的职位，去看看其他城市或全部职位吧`}
               </p>
               <Link
                 href={`/${locale}/jobs`}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all"
               >
-                查看更多职位
+                {isEn ? "View More Jobs" : "查看更多职位"}
               </Link>
             </div>
           ) : (
             <>
               <div className="flex items-center justify-between mb-6">
                 <p className="text-gray-600">
-                  共{" "}
-                  <span className="font-semibold text-gray-900">
-                    {jobs.length}
-                  </span>{" "}
-                  个{city}职位
+                  {isEn ? (
+                    <><span className="font-semibold text-gray-900">{jobs.length}</span> jobs in {city}</>
+                  ) : (
+                    <>共 <span className="font-semibold text-gray-900">{jobs.length}</span> 个{city}职位</>
+                  )}
                 </p>
               </div>
 

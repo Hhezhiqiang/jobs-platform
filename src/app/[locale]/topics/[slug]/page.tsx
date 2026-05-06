@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import { getTranslations } from "next-intl/server";
 import { Footer } from "@/components/footer";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { JobCardV2 } from "@/components/job-card-v2";
@@ -275,6 +276,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function TopicPage({ params }: PageProps) {
   try {
     const { slug, locale } = await params;
+    const currentLocale = locale || "zh";
+    const isEn = currentLocale === "en";
+    const t = await getTranslations(currentLocale);
 
     // 1. 优先查找 CMS 专题页（由自动发布系统生成）
     const cmsPage = await prisma.pages.findUnique({
@@ -366,7 +370,7 @@ export default async function TopicPage({ params }: PageProps) {
 
             {displayJobs.length > 0 && (
               <div className="mt-8 bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">相关职位推荐</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-4">{isEn ? "Related Jobs" : "相关职位推荐"}</h2>
                 <div className="space-y-4">
                   {displayJobs.map((job) => (
                     <JobCardV2 key={job.id} job={job} variant="compact" locale={locale} />
@@ -411,7 +415,7 @@ export default async function TopicPage({ params }: PageProps) {
         <div className="bg-white border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 py-8">
             <div className="mb-4">
-              <Breadcrumb items={[{ label: "职位列表", href: "/jobs" }, { label: meta.title.split(" - ")[0] }]} />
+              <Breadcrumb items={[{ label: isEn ? "Jobs" : "职位列表", href: `/${locale}/jobs` }, { label: meta.title.split(" - ")[0] }]} />
             </div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">{meta.title.split(" - ")[0]}</h1>
             <p className="text-gray-600 max-w-3xl leading-relaxed">{meta.intro}</p>
@@ -421,17 +425,29 @@ export default async function TopicPage({ params }: PageProps) {
         <main className="max-w-7xl mx-auto px-4 py-8">
           {jobs.length === 0 ? (
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
-              <h3 className="text-xl font-bold text-gray-900 mb-2">暂无相关职位</h3>
-              <p className="text-gray-500 mb-6">该专题下暂时没有符合条件的职位，去看看其他机会吧</p>
-              <Link href="/jobs" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all">
-                查看更多职位
+              <h3 className="text-xl font-bold text-gray-900 mb-2">{isEn ? "No Related Jobs" : "暂无相关职位"}</h3>
+              <p className="text-gray-500 mb-6">{isEn ? "No matching jobs found in this topic. Check out other opportunities." : "该专题下暂时没有符合条件的职位，去看看其他机会吧"}</p>
+              <Link href={`/${locale}/jobs`} className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all">
+                {t('topicsPage.viewMoreJobs')}
               </Link>
             </div>
           ) : (
             <>
               <div className="flex items-center justify-between mb-6">
                 <p className="text-gray-600">
-                  共 <span className="font-semibold text-gray-900">{jobs.length}</span> 个精选职位
+                  {isEn ? (
+                    <>
+                      <span className="font-semibold text-gray-900">{jobs.length}</span> curated positions
+                    </>
+                  ) : (
+                    <>
+                      {isEn ? (
+                    <><span className="font-semibold text-gray-900">{jobs.length}</span> curated positions</>
+                  ) : (
+                    <>共 <span className="font-semibold text-gray-900">{jobs.length}</span> 个精选职位</>
+                  )}
+                    </>
+                  )}
                 </p>
               </div>
               <div className="space-y-4">
@@ -440,8 +456,8 @@ export default async function TopicPage({ params }: PageProps) {
                 ))}
               </div>
               <div className="mt-10 text-center">
-                <Link href="/jobs" className="inline-flex items-center gap-2 px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-all font-medium">
-                  查看更多职位
+                <Link href={`/${locale}/jobs`} className="inline-flex items-center gap-2 px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-all font-medium">
+                  {t('topicsPage.viewMoreJobs')}
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>

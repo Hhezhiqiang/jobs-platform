@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface CheckinStatus {
   isCheckedIn: boolean;
@@ -17,6 +18,7 @@ interface CheckinModalProps {
 }
 
 export function CheckinModal({ isOpen, onClose, onCheckin }: CheckinModalProps) {
+  const t = useTranslations();
   const [status, setStatus] = useState<CheckinStatus | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{
@@ -100,8 +102,8 @@ export function CheckinModal({ isOpen, onClose, onCheckin }: CheckinModalProps) 
             
             <div className="text-center">
               <div className="text-5xl mb-2">📅</div>
-              <h2 className="text-2xl font-bold">每日签到</h2>
-              <p className="text-white/80 text-sm mt-1">连续签到获取更多奖励</p>
+              <h2 className="text-2xl font-bold">{t('checkin.title')}</h2>
+              <p className="text-white/80 text-sm mt-1">{t('checkin.subtitle')}</p>
             </div>
           </div>
 
@@ -116,19 +118,19 @@ export function CheckinModal({ isOpen, onClose, onCheckin }: CheckinModalProps) 
                 >
                   🎉
                 </motion.div>
-                <p className="text-lg font-bold text-gray-900 mb-2">签到成功！</p>
+                <p className="text-lg font-bold text-gray-900 mb-2">{t('checkin.success')}</p>
                 {result.bonusMessage && (
                   <p className="text-amber-600 text-sm mb-3">{result.bonusMessage}</p>
                 )}
                 <div className="flex justify-center gap-4">
                   <div className="bg-green-50 rounded-lg px-4 py-2">
-                    <span className="text-green-600 text-sm">+{result.expReward} EXP</span>
+                    <span className="text-green-600 text-sm">+{result.expReward} {t('checkin.exp')}</span>
                   </div>
                   <div className="bg-amber-50 rounded-lg px-4 py-2">
-                    <span className="text-amber-600 text-sm">+{result.coinReward} 金币</span>
+                    <span className="text-amber-600 text-sm">+{result.coinReward} {t('checkin.coin')}</span>
                   </div>
                 </div>
-                <p className="text-gray-500 text-sm mt-4">连续签到 {result.streak} 天</p>
+                <p className="text-gray-500 text-sm mt-4">{t('checkin.streakLabel')} {result.streak} {t('checkin.streakLabel').includes('天数') ? '天' : ''}</p>
               </div>
             ) : (
               <>
@@ -137,20 +139,20 @@ export function CheckinModal({ isOpen, onClose, onCheckin }: CheckinModalProps) 
                   <div className="text-4xl font-bold text-gray-900">
                     {status?.streak || 0}
                   </div>
-                  <div className="text-gray-500 text-sm">连续签到天数</div>
+                  <div className="text-gray-500 text-sm">{t('checkin.streakLabel')}</div>
                 </div>
 
                 {/* 奖励预览 */}
                 <div className="bg-gray-50 rounded-xl p-4 mb-6">
-                  <div className="text-sm text-gray-600 mb-2">今日奖励</div>
+                  <div className="text-sm text-gray-600 mb-2">{t('checkin.todayReward')}</div>
                   <div className="flex justify-center gap-6">
                     <div className="text-center">
                       <div className="text-2xl">✨</div>
-                      <div className="text-sm text-gray-600">+{status?.todayReward || 10} EXP</div>
+                      <div className="text-sm text-gray-600">+{status?.todayReward || 10} {t('checkin.exp')}</div>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl">🪙</div>
-                      <div className="text-sm text-gray-600">+{status?.todayReward || 10} 金币</div>
+                      <div className="text-sm text-gray-600">+{status?.todayReward || 10} {t('checkin.coin')}</div>
                     </div>
                   </div>
                 </div>
@@ -166,15 +168,15 @@ export function CheckinModal({ isOpen, onClose, onCheckin }: CheckinModalProps) 
                   }`}
                 >
                   {loading
-                    ? "签到中..."
+                    ? t('checkin.checking')
                     : status?.isCheckedIn
-                    ? "今日已签到"
-                    : "立即签到"}
+                    ? t('checkin.checkedIn')
+                    : t('checkin.checkinBtn')}
                 </button>
 
                 {/* 连续奖励说明 */}
                 <div className="mt-6 text-xs text-gray-400 text-center">
-                  <p>连续7天奖励翻倍 · 连续30天超级奖励</p>
+                  <p>{t('checkin.bonusLabel')}</p>
                 </div>
               </>
             )}

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { BookOpen, Clock, Search, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface BlogPost {
   id: string;
@@ -42,7 +43,11 @@ function getGradient(id: string) {
 }
 
 export function AuroraBlogPage({ initialPosts, total, totalPages, currentPage, categories, currentCategory, locale }: BlogPageProps) {
+  const t = useTranslations();
+  const isEn = locale === "en";
   const [searchQuery, setSearchQuery] = useState("");
+
+  const blogCountStr = isEn ? "140+" : "140+";
 
   return (
     <div className="min-h-screen bg-[#f8f7fc]">
@@ -52,9 +57,9 @@ export function AuroraBlogPage({ initialPosts, total, totalPages, currentPage, c
           {/* Breadcrumb */}
           <nav className="mb-6">
             <ol className="flex items-center gap-2 text-sm text-white/60">
-              <li><Link href={`/${locale}`} className="hover:text-white transition-colors">首页</Link></li>
+              <li><Link href={`/${locale}`} className="hover:text-white transition-colors">{t('common.home') ?? (isEn ? 'Home' : '首页')}</Link></li>
               <li>/</li>
-              <li className="text-white">博客</li>
+              <li className="text-white">{t('blog.title')?.split(' ')[1] ?? (isEn ? 'Blog' : '博客')}</li>
             </ol>
           </nav>
 
@@ -62,14 +67,14 @@ export function AuroraBlogPage({ initialPosts, total, totalPages, currentPage, c
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full text-white/90 text-sm mb-6 border border-white/10">
               <Sparkles className="w-4 h-4 text-[#a5b4fc]" />
-              <span>140+ 篇专业文章</span>
+              <span>{t('blogPage.badge', { count: blogCountStr })}</span>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              职场
-              <span className="bg-gradient-to-r from-[#a5b4fc] via-[#22d3ee] to-[#a78bfa] bg-clip-text text-transparent"> 博客</span>
+              {t('blogPage.title')}
+              <span className="bg-gradient-to-r from-[#a5b4fc] via-[#22d3ee] to-[#a78bfa] bg-clip-text text-transparent"> {t('blogPage.titleHighlight')}</span>
             </h1>
             <p className="text-lg text-[#c7d2fe]/80 max-w-2xl mx-auto">
-              薪资报告、面试攻略、行业趋势，助你职场进阶
+              {t('blogPage.subtitle')}
             </p>
           </div>
 
@@ -79,7 +84,7 @@ export function AuroraBlogPage({ initialPosts, total, totalPages, currentPage, c
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
               <input
                 type="search"
-                placeholder="搜索文章..."
+                placeholder={t('blogPage.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-12 pr-4 py-4 text-white bg-white/10 backdrop-blur-xl rounded-xl border border-white/20 placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-[#6366f1]/50 transition-all"
@@ -117,10 +122,10 @@ export function AuroraBlogPage({ initialPosts, total, totalPages, currentPage, c
             <div className="w-16 h-16 bg-[#eef2ff] rounded-full flex items-center justify-center mx-auto mb-4">
               <BookOpen className="w-8 h-8 text-[#6366f1]" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">暂无文章</h3>
-            <p className="text-gray-500 mb-6">尝试调整搜索条件或分类筛选</p>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">{t('blogPage.noArticles')}</h3>
+            <p className="text-gray-500 mb-6">{t('blogPage.noArticlesSub')}</p>
             <Link href={`/${locale}/blog`} className="px-6 py-3 bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] text-white rounded-xl font-medium hover:shadow-lg transition-all">
-              查看全部文章
+              {t('blogPage.viewAll')}
             </Link>
           </div>
         ) : (
@@ -171,7 +176,7 @@ export function AuroraBlogPage({ initialPosts, total, totalPages, currentPage, c
                         </span>
                       </div>
                       <span className="text-[#6366f1] text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-                        阅读
+                        {t('blogPage.read')}
                         <ChevronLeft className="w-4 h-4 rotate-180" />
                       </span>
                     </div>
@@ -188,7 +193,7 @@ export function AuroraBlogPage({ initialPosts, total, totalPages, currentPage, c
             {currentPage > 1 && (
               <Link href={`/${locale}/blog?page=${currentPage - 1}`} className="flex items-center gap-1 px-4 py-2.5 bg-white rounded-xl border border-gray-100 text-gray-600 hover:border-[#6366f1]/30 hover:text-[#6366f1] transition-all">
                 <ChevronLeft className="w-4 h-4" />
-                上一页
+                {t('blogPage.prevPage')}
               </Link>
             )}
             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
@@ -209,7 +214,7 @@ export function AuroraBlogPage({ initialPosts, total, totalPages, currentPage, c
             })}
             {currentPage < totalPages && (
               <Link href={`/${locale}/blog?page=${currentPage + 1}`} className="flex items-center gap-1 px-4 py-2.5 bg-white rounded-xl border border-gray-100 text-gray-600 hover:border-[#6366f1]/30 hover:text-[#6366f1] transition-all">
-                下一页
+                {t('blogPage.nextPage')}
                 <ChevronRight className="w-4 h-4" />
               </Link>
             )}

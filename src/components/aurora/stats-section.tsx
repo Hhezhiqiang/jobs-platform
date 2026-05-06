@@ -1,4 +1,5 @@
 import { TrendingUp, Users, Building2, Clock } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface StatsSectionProps {
   jobCount: number;
@@ -7,24 +8,25 @@ interface StatsSectionProps {
 }
 
 export function AuroraStatsSection({ jobCount, companyCount, dailyNewJobs }: StatsSectionProps) {
+  const t = useTranslations();
   const stats = [
     {
       icon: TrendingUp,
-      label: "在招职位",
+      label: t("statsSection.jobs"),
       value: jobCount.toLocaleString(),
       color: "from-[#6366f1] to-[#8b5cf6]",
       bgColor: "bg-[#eef2ff]",
     },
     {
       icon: Building2,
-      label: "合作企业",
+      label: t("statsSection.companies"),
       value: companyCount.toLocaleString(),
       color: "from-[#06b6d4] to-[#0891b2]",
       bgColor: "bg-[#ecfeff]",
     },
     {
       icon: Clock,
-      label: "今日新增",
+      label: t("statsSection.dailyNew"),
       value: dailyNewJobs.toString(),
       color: "from-[#f59e0b] to-[#d97706]",
       bgColor: "bg-[#fffbeb]",

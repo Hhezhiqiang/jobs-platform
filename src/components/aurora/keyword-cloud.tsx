@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
 interface KeywordCloudProps {
   locale: string;
@@ -7,7 +8,6 @@ interface KeywordCloudProps {
 
 // 关键词到分类的映射
 const KEYWORD_CATEGORY_MAP: Record<string, string> = {
-  // 面试攻略
   '面试攻略': 'interview',
   '面试技巧': 'interview',
   'Tech 面试攻略': 'interview',
@@ -29,81 +29,69 @@ const KEYWORD_CATEGORY_MAP: Record<string, string> = {
   '研究员面试': 'interview',
   '投资岗面试': 'interview',
   '美股面试': 'interview',
-  
-  // 职业发展
   '职业发展': 'career',
   '职业规划与转型': 'career',
   '职业规划': 'career',
   '升职加薪': 'career',
   '35 岁危机': 'career',
   '转行': 'career',
-  
-  // 远程工作
   '远程工作': 'remote',
   'remote-work': 'remote',
   '海外求职': 'remote',
   '灵活工作': 'remote',
-  
-  // 薪资谈判
   '薪资谈判': 'salary',
   '薪资谈判与报告': 'salary',
   '股票期权谈判': 'salary',
   '大厂薪资结构解析': 'salary',
-  
-  // 技能提升
   '技能提升': 'skills',
   '职场软实力': 'skills',
   '沟通表达': 'skills',
   '情绪管理': 'skills',
   '影响力': 'skills',
-  
-  // 行业趋势
   '行业趋势': 'trends',
   'industry-trends': 'trends',
   '欧洲技术移民': 'trends',
   '求职趋势': 'trends',
-  
-  // 简历优化
   '简历优化': 'resume',
   '简历优化技巧': 'resume',
   '简历写作指南': 'resume',
   '应届生简历技巧': 'resume',
   'AI 简历筛选': 'resume',
-  
-  // 求职避坑
   '求职避坑': 'tips',
   '劳动合同避坑指南': 'tips',
   '试用期生存': 'tips',
   '离职陷阱与维权': 'tips',
-  
-  // 内推人脉
   '内推与人脉': 'networking',
   '内推实战': 'networking',
   '校友网络求职': 'networking',
   '猎头合作指南': 'networking',
 };
 
-// 分类配置
-const CATEGORY_CONFIG: Record<string, { label: string; icon: string; color: string; bgColor: string }> = {
-  'interview': { label: '面试攻略', icon: '🎯', color: 'text-blue-600', bgColor: 'bg-blue-50 hover:bg-blue-100' },
-  'career': { label: '职业发展', icon: '🚀', color: 'text-purple-600', bgColor: 'bg-purple-50 hover:bg-purple-100' },
-  'remote': { label: '远程工作', icon: '🌍', color: 'text-green-600', bgColor: 'bg-green-50 hover:bg-green-100' },
-  'salary': { label: '薪资谈判', icon: '💰', color: 'text-amber-600', bgColor: 'bg-amber-50 hover:bg-amber-100' },
-  'skills': { label: '技能提升', icon: '💡', color: 'text-cyan-600', bgColor: 'bg-cyan-50 hover:bg-cyan-100' },
-  'trends': { label: '行业趋势', icon: '📊', color: 'text-rose-600', bgColor: 'bg-rose-50 hover:bg-rose-100' },
-  'resume': { label: '简历优化', icon: '📝', color: 'text-indigo-600', bgColor: 'bg-indigo-50 hover:bg-indigo-100' },
-  'tips': { label: '求职避坑', icon: '⚠️', color: 'text-orange-600', bgColor: 'bg-orange-50 hover:bg-orange-100' },
-  'networking': { label: '内推人脉', icon: '🤝', color: 'text-teal-600', bgColor: 'bg-teal-50 hover:bg-teal-100' },
-};
+type TFunc = (key: string) => string;
+
+type CatConfig = { label: string; icon: string; color: string; bgColor: string };
+
+const CATEGORY_CONFIG = (t: TFunc): Record<string, CatConfig> => ({
+  'interview': { label: t('blog.categories.interview'), icon: '🎯', color: 'text-blue-600', bgColor: 'bg-blue-50 hover:bg-blue-100' },
+  'career': { label: t('blog.categories.career'), icon: '🚀', color: 'text-purple-600', bgColor: 'bg-purple-50 hover:bg-purple-100' },
+  'remote': { label: t('blog.categories.remote') ?? 'Remote', icon: '🌍', color: 'text-green-600', bgColor: 'bg-green-50 hover:bg-green-100' },
+  'salary': { label: t('blog.categories.salary'), icon: '💰', color: 'text-amber-600', bgColor: 'bg-amber-50 hover:bg-amber-100' },
+  'skills': { label: t('blog.categories.skills'), icon: '💡', color: 'text-cyan-600', bgColor: 'bg-cyan-50 hover:bg-cyan-100' },
+  'trends': { label: t('blog.categories.trends'), icon: '📊', color: 'text-rose-600', bgColor: 'bg-rose-50 hover:bg-rose-100' },
+  'resume': { label: t('blog.categories.resume'), icon: '📝', color: 'text-indigo-600', bgColor: 'bg-indigo-50 hover:bg-indigo-100' },
+  'tips': { label: t('blog.categories.tips') ?? 'Tips', icon: '⚠️', color: 'text-orange-600', bgColor: 'bg-orange-50 hover:bg-orange-100' },
+  'networking': { label: t('blog.categories.networking') ?? 'Networking', icon: '🤝', color: 'text-teal-600', bgColor: 'bg-teal-50 hover:bg-teal-100' },
+  'other': { label: 'Other', icon: '📌', color: 'text-gray-600', bgColor: 'bg-gray-50 hover:bg-gray-100' },
+});
 
 export async function KeywordCloud({ locale }: KeywordCloudProps) {
-  // 获取所有博客关键词
+  const t = await getTranslations(locale);
+
   const blogs = await prisma.pages.findMany({
     where: { type: 'BLOG', status: 'PUBLISHED' },
     select: { keywords: true },
   });
 
-  // 统计关键词频率
   const keywordCounts: Record<string, number> = {};
   blogs.forEach(blog => {
     (blog.keywords || []).forEach(kw => {
@@ -113,12 +101,10 @@ export async function KeywordCloud({ locale }: KeywordCloudProps) {
     });
   });
 
-  // 按频率排序
   const sortedKeywords = Object.entries(keywordCounts)
     .sort(([, a], [, b]) => b - a)
-    .slice(0, 50); // 只显示前 50 个
+    .slice(0, 50);
 
-  // 按分类分组
   const groupedKeywords: Record<string, Array<{ keyword: string; count: number }>> = {};
   
   sortedKeywords.forEach(([keyword, count]) => {
@@ -129,54 +115,46 @@ export async function KeywordCloud({ locale }: KeywordCloudProps) {
     groupedKeywords[category].push({ keyword, count });
   });
 
-  // 过滤掉没有关键词的分类
   const validCategories = Object.entries(groupedKeywords)
     .filter(([, keywords]) => keywords.length > 0)
     .sort((a, b) => b[1].length - a[1].length);
 
+  const config = CATEGORY_CONFIG(t);
+
   return (
     <section className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4">
-        {/* 标题 */}
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            🔥 热门关键词
+            {t('keywordCloud.title')}
           </h2>
           <p className="text-gray-600 text-lg">
-            探索求职热门话题，找到你需要的内容
+            {t('keywordCloud.subtitle')}
           </p>
         </div>
 
-        {/* 分类关键词 */}
         <div className="space-y-8">
           {validCategories.map(([category, keywords]) => {
-            const config = CATEGORY_CONFIG[category] || {
-              label: category,
-              icon: '📌',
-              color: 'text-gray-600',
-              bgColor: 'bg-gray-50 hover:bg-gray-100',
-            };
+            const catConfig = config[category] || config['other'];
 
             return (
               <div key={category}>
-                {/* 分类标题 */}
                 <div className="flex items-center gap-3 mb-4">
-                  <span className="text-2xl">{config.icon}</span>
-                  <h3 className={`text-xl font-bold ${config.color}`}>
-                    {config.label}
+                  <span className="text-2xl">{catConfig.icon}</span>
+                  <h3 className={`text-xl font-bold ${catConfig.color}`}>
+                    {catConfig.label}
                   </h3>
                   <span className="text-sm text-gray-500">
-                    {keywords.length} 篇文章
+                    {keywords.length} {t('keywordCloud.articles')}
                   </span>
                 </div>
 
-                {/* 关键词标签 */}
                 <div className="flex flex-wrap gap-2 md:gap-3">
                   {keywords.slice(0, 15).map(({ keyword, count }) => (
                     <Link
                       key={keyword}
                       href={`/${locale}/blog?keyword=${encodeURIComponent(keyword)}`}
-                      className={`px-3 py-1.5 md:px-4 md:py-2 ${config.bgColor} ${config.color} rounded-lg text-xs md:text-sm font-medium transition-all hover:shadow-md whitespace-nowrap`}
+                      className={`px-3 py-1.5 md:px-4 md:py-2 ${catConfig.bgColor} ${catConfig.color} rounded-lg text-xs md:text-sm font-medium transition-all hover:shadow-md whitespace-nowrap`}
                     >
                       #{keyword}
                       {count > 1 && (
@@ -191,7 +169,7 @@ export async function KeywordCloud({ locale }: KeywordCloudProps) {
                       href={`/${locale}/blog?category=${category}`}
                       className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-200 transition-all"
                     >
-                      查看全部 →
+                      {t('keywordCloud.viewAllWithArrow')}
                     </Link>
                   )}
                 </div>
@@ -200,13 +178,12 @@ export async function KeywordCloud({ locale }: KeywordCloudProps) {
           })}
         </div>
 
-        {/* CTA */}
         <div className="mt-12 text-center">
           <Link
             href={`/${locale}/blog`}
             className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-[#6366f1]/25 transition-all"
           >
-            查看全部文章
+            {t('keywordCloud.viewAll')}
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
             </svg>

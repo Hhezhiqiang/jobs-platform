@@ -168,7 +168,9 @@
     "jobs": "Active Jobs",
     "companies": "Partner Companies",
     "resumeRate": "Resume Pass Rate",
-    "dailyNew": "Daily New Jobs"
+    "dailyNew": "New Today",
+    "activeJobs": "Open Positions",
+    "partnerCompanies": "Partner Companies"
   },
   "blog": {
     "title": "📝 Career Blog",
@@ -181,7 +183,10 @@
       "salary": "Salary Negotiation",
       "career": "Career Growth",
       "trends": "Industry Trends",
-      "skills": "Workplace Skills"
+      "skills": "Workplace Skills",
+      "remote": "Remote Work",
+      "tips": "Job Tips",
+      "networking": "Networking"
     },
     "noArticles": "No articles found",
     "noArticlesSub": "Try adjusting your search or category filter",
@@ -247,7 +252,8 @@
       "contract": "Contract",
       "internship": "Internship",
       "freelance": "Freelance"
-    }
+    },
+    "home": "Home"
   },
   "locale": {
     "switch": "Switch language",
@@ -463,5 +469,96 @@
   "breadcrumb": {
     "label": "Breadcrumb",
     "home": "Home"
+  },
+  "checkin": {
+    "title": "Daily Check-in",
+    "subtitle": "Check in daily for more rewards",
+    "success": "Check-in successful!",
+    "streakLabel": "Consecutive Days",
+    "todayReward": "Today's Reward",
+    "checkinBtn": "Check In Now",
+    "checking": "Checking in...",
+    "checkedIn": "Already Checked In",
+    "bonusLabel": "Double rewards for 7 days · Super reward for 30 days",
+    "exp": "EXP",
+    "coin": "Coins"
+  },
+  "keywordCloud": {
+    "title": "🔥 Popular Keywords",
+    "subtitle": "Explore trending career topics and find what you need",
+    "viewAll": "View all articles",
+    "articles": "articles",
+    "viewAllWithArrow": "View all →"
+  },
+  "userSidebar": {
+    "dailyCheckin": "Daily Check-in",
+    "streakReward": "Check in daily for more rewards",
+    "streakDays": "Consecutive Days",
+    "todayReward": "Today's Reward",
+    "bonusDesc": "Double rewards for 7 days · Super reward for 30 days",
+    "findJob": "Discover your next dream job",
+    "profile": "Profile",
+    "accountSettings": "Account Settings",
+    "myApplications": "My Applications",
+    "jobManagement": "Job Management",
+    "myResumes": "My Resumes",
+    "savedJobs": "Saved Jobs",
+    "messages": "Messages",
+    "notifications": "Notifications",
+    "finance": "Finance",
+    "balance": "Balance",
+    "promotion": "Promotion",
+    "promoter": "Promoter Center",
+    "user": "User",
+    "profileCenter": "Dashboard"
+  },
+  "jobCard": {
+    "hot": "Hot",
+    "remote": "Remote",
+    "hoursAgo": "{hours}h ago",
+    "hoursAgoShort": "{h}h ago",
+    "bookmark": "Bookmark",
+    "added": "Added"
+  },
+  "blogPage": {
+    "viewAll": "View all articles",
+    "noArticles": "No articles found",
+    "noArticlesSub": "Try adjusting your search or category filter",
+    "read": "Read",
+    "prevPage": "Previous",
+    "nextPage": "Next",
+    "badge": "{count}+ professional articles",
+    "title": "Career",
+    "titleHighlight": "Blog",
+    "searchPlaceholder": "Search articles...",
+    "subtitle": "Salary reports, interview guides, and industry trends to advance your career"
+  },
+  "relatedBlogs": {
+    "readMore": "Read more →",
+    "title": "Related Articles",
+    "relatedArticles": "Related Articles",
+    "views": "views"
+  },
+  "topicsPage": {
+    "viewMoreJobs": "View more jobs"
+  },
+  "cityPage": {
+    "viewMoreJobs": "View more jobs"
+  },
+  "about": {
+    "activeJobs": "Open Positions",
+    "partnerCompanies": "Partner Companies"
+  },
+  "companyCard": {
+    "openPositions": "open positions"
+  },
+  "companyDetail": {
+    "openPositions": "Open Positions",
+    "noOpenPositions": "No open positions"
+  },
+  "statsSection": {
+    "jobs": "Open Positions",
+    "companies": "Partner Companies",
+    "dailyNew": "New Today"
   }
 }

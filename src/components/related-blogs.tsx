@@ -4,10 +4,12 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { RelatedBlogsProps, BlogPost } from "./types";
+import { useTranslations } from "next-intl";
 
 export function RelatedBlogs({ currentSlug, keywords, limit = 4 }: RelatedBlogsProps) {
   const [relatedBlogs, setRelatedBlogs] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const t = useTranslations();
 
   useEffect(() => {
     async function fetchRelatedBlogs() {
@@ -33,7 +35,7 @@ export function RelatedBlogs({ currentSlug, keywords, limit = 4 }: RelatedBlogsP
   if (loading) {
     return (
       <div className="mt-12">
-        <h3 className="text-xl font-bold text-gray-900 mb-6">相关文章</h3>
+        <h3 className="text-xl font-bold text-gray-900 mb-6">{t('relatedBlogs.relatedArticles')}</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="animate-pulse bg-white rounded-lg shadow overflow-hidden">
@@ -55,7 +57,7 @@ export function RelatedBlogs({ currentSlug, keywords, limit = 4 }: RelatedBlogsP
 
   return (
     <div className="mt-12">
-      <h3 className="text-xl font-bold text-gray-900 mb-6">相关文章推荐</h3>
+      <h3 className="text-xl font-bold text-gray-900 mb-6">{t('relatedBlogs.title')}</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {relatedBlogs.map((blog) => (
           <Link
@@ -87,8 +89,8 @@ export function RelatedBlogs({ currentSlug, keywords, limit = 4 }: RelatedBlogsP
                 </p>
               )}
               <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
-                <span>{blog.viewCount} 阅读</span>
-                <span className="text-blue-600 group-hover:underline">阅读更多 →</span>
+                <span>{blog.viewCount} {t('relatedBlogs.views')}</span>
+                <span className="text-blue-600 group-hover:underline">{t('relatedBlogs.readMore')}</span>
               </div>
             </div>
           </Link>

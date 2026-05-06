@@ -1,6 +1,6 @@
 {
   "site": {
-    "name": "招聘平台",
+    "name": "JobQuip",
     "description": "专业的求职招聘平台，汇聚海量优质Web3、互联网、科技行业职位，为求职者和企业提供高效对接服务，助力职场发展"
   },
   "nav": {
@@ -181,7 +181,10 @@
       "salary": "薪资谈判",
       "career": "职业发展",
       "trends": "行业趋势",
-      "skills": "职场技能"
+      "skills": "职场技能",
+      "remote": "远程工作",
+      "tips": "求职避坑",
+      "networking": "内推人脉"
     },
     "noArticles": "暂无文章",
     "noArticlesSub": "尝试调整搜索条件或分类筛选",
@@ -247,7 +250,8 @@
       "contract": "合同",
       "internship": "实习",
       "freelance": "自由职业"
-    }
+    },
+    "home": "首页"
   },
   "locale": {
     "switch": "切换语言",
@@ -464,5 +468,88 @@
   "breadcrumb": {
     "label": "面包屑导航",
     "home": "首页"
+  },
+  "checkin": {
+    "title": "每日签到",
+    "subtitle": "连续签到获取更多奖励",
+    "success": "签到成功！",
+    "streakLabel": "连续签到天数",
+    "todayReward": "今日奖励",
+    "checkinBtn": "立即签到",
+    "checking": "签到中...",
+    "checkedIn": "今日已签到",
+    "bonusLabel": "连续7天奖励翻倍 · 连续30天超级奖励",
+    "exp": "EXP",
+    "coin": "金币"
+  },
+  "statsSection": {
+    "jobs": "在招职位",
+    "companies": "合作企业",
+    "dailyNew": "今日新增"
+  },
+  "keywordCloud": {
+    "title": "🔥 热门关键词",
+    "subtitle": "探索求职热门话题，找到你需要的内容",
+    "viewAll": "查看全部文章",
+    "articles": "篇文章",
+    "viewAllWithArrow": "查看全部 →"
+  },
+  "blogPage": {
+    "viewAll": "查看全部文章",
+    "noArticles": "暂无文章",
+    "noArticlesSub": "尝试调整搜索条件或分类筛选",
+    "read": "阅读",
+    "prevPage": "上一页",
+    "nextPage": "下一页",
+    "badge": "{count}+ 篇专业文章",
+    "title": "职场博客",
+    "titleHighlight": "博客",
+    "searchPlaceholder": "搜索文章...",
+    "subtitle": "薪资报告、面试攻略、行业趋势，助你职场进阶"
+  },
+  "relatedBlogs": {
+    "readMore": "阅读更多 →",
+    "title": "相关文章推荐",
+    "relatedArticles": "相关文章",
+    "views": "阅读"
+  },
+  "topicsPage": {
+    "viewMoreJobs": "查看更多职位"
+  },
+  "cityPage": {
+    "viewMoreJobs": "查看更多职位"
+  },
+  "userSidebar": {
+    "dailyCheckin": "每日签到",
+    "streakReward": "连续签到获取更多奖励",
+    "streakDays": "连续签到天数",
+    "todayReward": "今日奖励",
+    "bonusDesc": "连续7天奖励翻倍 · 连续30天超级奖励",
+    "findJob": "发现你的下一份理想工作",
+    "profile": "个人资料",
+    "accountSettings": "账号设置",
+    "myApplications": "我的申请",
+    "jobManagement": "求职管理",
+    "myResumes": "我的简历",
+    "savedJobs": "收藏职位",
+    "messages": "消息",
+    "notifications": "消息通知",
+    "finance": "财务",
+    "balance": "账户余额",
+    "promotion": "推广",
+    "promoter": "推广中心",
+    "user": "用户",
+    "profileCenter": "个人中心"
+  },
+  "about": {
+    "activeJobs": "在招职位",
+    "partnerCompanies": "合作企业"
+  },
+  "companyCard": {
+    "openPositions": "个在招职位"
+  },
+  "companyDetail": {
+    "openPositions": "在招职位",
+    "noOpenPositions": "暂无在招职位"
   }
 }
