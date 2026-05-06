@@ -15,7 +15,7 @@ interface Resume {
   createdAt: string;
 }
 
-export default function ResumesPage({ params }: { params: Promise<{ locale: string }> }) {
+export default function ResumesPage({ params }: { params: { locale: string } }) {
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -26,7 +26,7 @@ export default function ResumesPage({ params }: { params: Promise<{ locale: stri
   const router = useRouter();
 
   useEffect(() => {
-    params.then(p => setLocale(p.locale)).catch(() => {});
+    setLocale(params.locale);
     fetchResumes();
   }, []);
 

@@ -9,8 +9,8 @@ export const metadata: Metadata = {
   description: "查看你在JobQuip获得的成就徽章",
 };
 
-export default async function AchievementsPage({ params }: { params: Promise<{ locale: string }> }) {
-  const { locale } = await params;
+export default async function AchievementsPage({ params }: { params: { locale: string } }) {
+  const { locale } = params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     redirect(`/${locale}/auth/login`);

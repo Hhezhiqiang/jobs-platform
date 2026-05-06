@@ -6,7 +6,7 @@ import { Briefcase, MapPin, DollarSign, Star, ChevronRight, Sparkles } from "luc
 import Link from "next/link";
 import { logger } from '@/lib/logger';
 
-export default function RecommendedJobsPage({ params }: { params: Promise<{ locale: string }> }) {
+export default function RecommendedJobsPage({ params }: { params: { locale: string } }) {
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPersonalized, setIsPersonalized] = useState(false);
@@ -14,7 +14,7 @@ export default function RecommendedJobsPage({ params }: { params: Promise<{ loca
   const [locale, setLocale] = useState("zh");
 
   useEffect(() => {
-    params.then(p => setLocale(p.locale)).catch(() => {});
+    setLocale(params.locale);
     fetchRecommended();
   }, []);
 

@@ -15,14 +15,14 @@ const STATUS_MAP: Record<string, { icon: any; label: string; labelEn: string; co
   WITHDRAWN: { icon: XCircle, label: "已撤回", labelEn: "Withdrawn", color: "text-gray-500", bg: "bg-gray-100" },
 };
 
-export default function JobProgressPage({ params }: { params: Promise<{ locale: string }> }) {
+export default function JobProgressPage({ params }: { params: { locale: string } }) {
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
   const [locale, setLocale] = useState("zh");
 
   useEffect(() => {
-    params.then(p => setLocale(p.locale)).catch(() => {});
+    setLocale(params.locale);
     fetchApplications();
   }, []);
 

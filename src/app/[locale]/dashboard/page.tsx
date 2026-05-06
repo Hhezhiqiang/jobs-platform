@@ -65,8 +65,8 @@ async function withdrawApplication(formData: FormData) {
   });
 }
 
-export default async function DashboardPage({ params }: { params: Promise<{ locale: string }> }) {
-  const { locale } = await params;
+export default async function DashboardPage({ params }: { params: { locale: string } }) {
+  const { locale } = params;
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {

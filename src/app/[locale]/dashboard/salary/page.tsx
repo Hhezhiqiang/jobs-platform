@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { DollarSign, BarChart3, TrendingUp, MapPin, Briefcase } from "lucide-react";
 
-export default function SalaryComparePage({ params }: { params: Promise<{ locale: string }> }) {
+export default function SalaryComparePage({ params }: { params: { locale: string } }) {
   const [loading, setLoading] = useState(true);
   
   const [locale, setLocale] = useState("zh");

@@ -8,7 +8,7 @@ import { User, Save, MapPin, Calendar, BookOpen, Briefcase, Award, FileText, Upl
 import Link from "next/link";
 import { logger } from '@/lib/logger';
 
-export default function ProfilePage({ params }: { params: Promise<{ locale: string }> }) {
+export default function ProfilePage({ params }: { params: { locale: string } }) {
   const { data: session, status: sessionStatus } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -29,7 +29,7 @@ export default function ProfilePage({ params }: { params: Promise<{ locale: stri
   const [editingSection, setEditingSection] = useState<string | null>(null);
 
   useEffect(() => {
-    params.then(p => setLocale(p.locale)).catch(() => {});
+    setLocale(params.locale);
     fetchData();
   }, []);
 

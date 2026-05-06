@@ -10,8 +10,8 @@ export const metadata: Metadata = {
   description: "完成每日任务和新手引导",
 };
 
-export default async function QuestsPage({ params }: { params: Promise<{ locale: string }> }) {
-  const { locale } = await params;
+export default async function QuestsPage({ params }: { params: { locale: string } }) {
+  const { locale } = params;
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     redirect(`/${locale}/auth/login`);

@@ -21,7 +21,7 @@ const EXPERIENCE_LEVELS = [
   { value: "EXECUTIVE", label: "专家/管理" },
 ];
 
-export default function PreferencesPage({ params }: { params: Promise<{ locale: string }> }) {
+export default function PreferencesPage({ params }: { params: { locale: string } }) {
   
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -37,7 +37,7 @@ export default function PreferencesPage({ params }: { params: Promise<{ locale: 
   });
 
   useEffect(() => {
-    params.then(p => setLocale(p.locale)).catch(() => {});
+    setLocale(params.locale);
     fetchPreferences();
   }, []);
 
