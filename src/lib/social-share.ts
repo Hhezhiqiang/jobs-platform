@@ -1,4 +1,5 @@
 "use server";
+import { logger } from '@/lib/logger';
 
 // 社交媒体自动分享服务
 // 支持: Twitter, LinkedIn
@@ -25,14 +26,13 @@ export async function shareToTwitter(content: ShareContent): Promise<{ success: 
     // 示例使用Twitter Web Intent (不需要API Key，但用户需要手动点击)
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
     
-    console.log(`[Social Share] Twitter URL: ${twitterUrl}`);
     
     return { 
       success: true, 
       url: twitterUrl 
     };
   } catch (error) {
-    console.error("[Social Share] Twitter error:", error);
+    logger.error("[Social Share] Twitter error:", error);
     return { success: false, error: String(error) };
   }
 }
@@ -44,14 +44,13 @@ export async function shareToLinkedIn(content: ShareContent): Promise<{ success:
   try {
     const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(content.url)}`;
     
-    console.log(`[Social Share] LinkedIn URL: ${linkedInUrl}`);
     
     return { 
       success: true, 
       url: linkedInUrl 
     };
   } catch (error) {
-    console.error("[Social Share] LinkedIn error:", error);
+    logger.error("[Social Share] LinkedIn error:", error);
     return { success: false, error: String(error) };
   }
 }

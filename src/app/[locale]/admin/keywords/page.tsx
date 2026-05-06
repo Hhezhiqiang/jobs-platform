@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import { logger } from '@/lib/logger';
 
 interface KeywordItem {
   id: string;
@@ -82,7 +83,7 @@ export default function AdminKeywordsPage() {
       const data = await res.json();
       setKeywords(data.items || []);
     } catch (err) {
-      console.error("fetchKeywords error:", err);
+      logger.error("fetchKeywords error:", err);
     } finally {
       setLoading(false);
     }
@@ -95,7 +96,7 @@ export default function AdminKeywordsPage() {
       const data = await res.json();
       setPlans(data.items || []);
     } catch (err) {
-      console.error("fetchPlans error:", err);
+      logger.error("fetchPlans error:", err);
     }
   }, []);
 
@@ -110,7 +111,7 @@ export default function AdminKeywordsPage() {
       fetchKeywords();
     } catch (err) {
       setCollecting(false);
-      console.error("triggerCollect error:", err);
+      logger.error("triggerCollect error:", err);
       alert("采集失败，请重试");
     }
   }
@@ -125,7 +126,7 @@ export default function AdminKeywordsPage() {
       if (!res.ok) throw new Error("更新失败");
       fetchKeywords();
     } catch (err) {
-      console.error("updateKeyword error:", err);
+      logger.error("updateKeyword error:", err);
     }
   }
 
@@ -136,7 +137,7 @@ export default function AdminKeywordsPage() {
       if (!res.ok) throw new Error("删除失败");
       fetchKeywords();
     } catch (err) {
-      console.error("deleteKeyword error:", err);
+      logger.error("deleteKeyword error:", err);
     }
   }
 
@@ -157,7 +158,7 @@ export default function AdminKeywordsPage() {
         alert(data.error || "生成失败");
       }
     } catch (err) {
-      console.error("generatePlan error:", err);
+      logger.error("generatePlan error:", err);
       alert("生成方案失败，请重试");
     }
   }
@@ -178,7 +179,7 @@ export default function AdminKeywordsPage() {
         alert(data.error || "发布失败");
       }
     } catch (err) {
-      console.error("publishPlan error:", err);
+      logger.error("publishPlan error:", err);
       alert("发布失败，请重试");
     }
   }
@@ -192,7 +193,7 @@ export default function AdminKeywordsPage() {
       setArchiveModalKeyword(keyword);
       setArchiveModalOpen(true);
     } catch (err) {
-      console.error("fetchArchives error:", err);
+      logger.error("fetchArchives error:", err);
       alert("获取素材失败，请重试");
     }
   }
@@ -211,7 +212,7 @@ export default function AdminKeywordsPage() {
       }
     } catch (err) {
       setCollectingArchivesForId(null);
-      console.error("collectArchivesForKeyword error:", err);
+      logger.error("collectArchivesForKeyword error:", err);
       alert("素材采集失败，请重试");
     }
   }
@@ -448,7 +449,7 @@ export default function AdminKeywordsPage() {
                             if (!res.ok) throw new Error("审批操作失败");
                             fetchPlans();
                           } catch (err) {
-                            console.error("approve plan error:", err);
+                            logger.error("approve plan error:", err);
                           }
                         }}
                         className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
@@ -466,7 +467,7 @@ export default function AdminKeywordsPage() {
                             if (!res.ok) throw new Error("审批操作失败");
                             fetchPlans();
                           } catch (err) {
-                            console.error("reject plan error:", err);
+                            logger.error("reject plan error:", err);
                           }
                         }}
                         className="px-3 py-1.5 bg-gray-200 text-gray-700 text-sm rounded-lg hover:bg-gray-300"

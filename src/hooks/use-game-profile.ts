@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { logger } from '@/lib/logger';
 
 interface GameProfile {
   id: string;
@@ -54,7 +55,7 @@ export function useGameProfile() {
         setProfile(data.profile);
       }
     } catch (err) {
-      console.error("记录登录失败:", err);
+      logger.error("记录登录失败:", err);
     }
   }, []);
 

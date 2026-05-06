@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 interface TrafficReport {
   date: string;
@@ -114,7 +115,6 @@ ${report.topBlogs.map((b, i) => `| ${i + 1} | [${b.title}](/blog/${b.slug}) | ${
  */
 export async function saveReport(report: TrafficReport): Promise<void> {
   const markdown = formatReportAsMarkdown(report);
-  console.log(markdown);
   
   // 可以在这里添加保存到文件或发送邮件的逻辑
 }
@@ -123,11 +123,10 @@ export async function saveReport(report: TrafficReport): Promise<void> {
 if (require.main === module) {
   generateDailyTrafficReport()
     .then(report => {
-      console.log(formatReportAsMarkdown(report));
       process.exit(0);
     })
     .catch(error => {
-      console.error("Error generating report:", error);
+      logger.error("Error generating report:", error);
       process.exit(1);
     });
 }

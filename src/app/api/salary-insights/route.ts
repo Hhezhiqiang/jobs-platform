@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -64,7 +65,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Salary insights API error:", error);
+    logger.error("Salary insights API error:", error);
     return NextResponse.json(
       { success: false, error: "获取薪资数据失败" },
       { status: 500 }

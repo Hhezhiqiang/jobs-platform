@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Briefcase, MapPin, DollarSign, Eye, Clock, CheckCircle, XCircle, Send, ChevronRight } from "lucide-react";
+import { logger } from '@/lib/logger';
 
 const STATUS_MAP: Record<string, { icon: any; label: string; labelEn: string; color: string; bg: string }> = {
   PENDING: { icon: Send, label: "已投递", labelEn: "Applied", color: "text-blue-700", bg: "bg-blue-100" },
@@ -33,7 +34,7 @@ export default function JobProgressPage({ params }: { params: Promise<{ locale: 
         setApplications(data.applications || []);
       }
     } catch (e) {
-      console.error(e);
+      logger.error(e);
     } finally {
       setLoading(false);
     }

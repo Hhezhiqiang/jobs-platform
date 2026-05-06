@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Search, X, Clock, TrendingUp, Sparkles } from "lucide-react";
+import { logger } from '@/lib/logger';
 
 interface SearchBoxProps {
   initialValue?: string;
@@ -85,7 +86,7 @@ export function SearchBox({
         setSuggestions(data.suggestions);
       }
     } catch (error) {
-      console.error("Failed to fetch suggestions:", error);
+      logger.error("Failed to fetch suggestions:", error);
     }
   }, [showSuggestions]);
 
@@ -98,7 +99,7 @@ export function SearchBox({
         setHotSearches(data.hotQueries);
       }
     } catch (error) {
-      console.error("Failed to fetch hot searches:", error);
+      logger.error("Failed to fetch hot searches:", error);
     }
   }, []);
 

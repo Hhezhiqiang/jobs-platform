@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Save, Briefcase, DollarSign, MapPin, Monitor } from "lucide-react";
+import { logger } from '@/lib/logger';
 
 const CULTURE_TAGS = ["扁平管理", "技术驱动", "远程办公", "弹性工作", "大牛带队", "期权激励", "海外机会", "培训预算", "开源文化", "结果导向"];
 const EMPLOYMENT_TYPES = [
@@ -56,7 +57,7 @@ export default function PreferencesPage({ params }: { params: Promise<{ locale: 
         });
       }
     } catch (e) {
-      console.error(e);
+      logger.error(e);
     } finally {
       setLoading(false);
     }

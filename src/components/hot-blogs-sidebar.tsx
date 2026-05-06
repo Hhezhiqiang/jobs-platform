@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { TrendingUp, Eye } from "lucide-react";
+import { logger } from '@/lib/logger';
 
 interface HotBlog {
   id: string;
@@ -26,7 +27,7 @@ export function HotBlogsSidebar() {
           setHotBlogs(data.blogs || []);
         }
       } catch (error) {
-        console.error("Failed to fetch hot blogs:", error);
+        logger.error("Failed to fetch hot blogs:", error);
       } finally {
         setLoading(false);
       }

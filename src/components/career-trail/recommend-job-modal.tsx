@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { X, Search, Loader2, Briefcase, MapPin, DollarSign, Send } from "lucide-react";
 import { toast } from "sonner";
+import { logger } from '@/lib/logger';
 
 interface Job {
   id: string;
@@ -48,7 +49,7 @@ export function RecommendJobModal({
         setJobs(data.jobs || []);
       }
     } catch (error) {
-      console.error("Error fetching jobs:", error);
+      logger.error("Error fetching jobs:", error);
     } finally {
       setLoading(false);
     }

@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { getAuthenticatedPromoter } from "@/lib/promoter-auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   const auth = await getAuthenticatedPromoter();
@@ -53,7 +54,7 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json({ success: true, promoter: updated });
   } catch (error) {
-    console.error("Promoter update error:", error);
+    logger.error("Promoter update error:", error);
     return NextResponse.json({ error: "更新失败" }, { status: 500 });
   }
 }

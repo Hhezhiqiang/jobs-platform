@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Briefcase, MapPin, DollarSign, Star, ChevronRight, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { logger } from '@/lib/logger';
 
 export default function RecommendedJobsPage({ params }: { params: Promise<{ locale: string }> }) {
   const [jobs, setJobs] = useState<any[]>([]);
@@ -26,7 +27,7 @@ export default function RecommendedJobsPage({ params }: { params: Promise<{ loca
         setIsPersonalized(data.isPersonalized);
       }
     } catch (e) {
-      console.error(e);
+      logger.error(e);
     } finally {
       setLoading(false);
     }

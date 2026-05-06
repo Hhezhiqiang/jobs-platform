@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createHash } from "crypto";
+import { logger } from '@/lib/logger';
 
 export const dynamic = "force-dynamic";
 
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Tracking error:", error);
+    logger.error("Tracking error:", error);
     return NextResponse.json({ success: true }, { status: 200 });
   }
 }

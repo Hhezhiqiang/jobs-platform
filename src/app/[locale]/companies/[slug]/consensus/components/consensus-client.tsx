@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { ThumbsUp, ThumbsDown, Plus, MessageSquare, CheckCircle, AlertTriangle, XCircle, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { logger } from '@/lib/logger';
 
 // 标签类型定义
 type ConsensusCategory = "POSITIVE" | "NEUTRAL" | "NEGATIVE";
@@ -109,7 +110,7 @@ export function ConsensusClient({ companyId, initialTags, locale }: ConsensusCli
         setUserVotes((prev) => ({ ...prev, [tagId]: isPositive }));
       }
     } catch (error) {
-      console.error("Vote failed:", error);
+      logger.error("Vote failed:", error);
     }
   };
 
@@ -143,7 +144,7 @@ export function ConsensusClient({ companyId, initialTags, locale }: ConsensusCli
         setUserVotes((prev) => ({ ...prev, [data.tag.id]: true }));
       }
     } catch (error) {
-      console.error("Add tag failed:", error);
+      logger.error("Add tag failed:", error);
     } finally {
       setIsSubmitting(false);
     }

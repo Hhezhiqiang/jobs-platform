@@ -1,4 +1,5 @@
 import { jobs, companies, job_applications } from "@prisma/client";
+import { logger } from '@/lib/logger';
 
 // 推荐职位类型
 export interface RecommendedJob extends jobs {
@@ -41,7 +42,7 @@ export function getUserBehaviorData(): UserBehaviorData {
       return JSON.parse(data);
     }
   } catch (error) {
-    console.error("Failed to parse recommendation data:", error);
+    logger.error("Failed to parse recommendation data:", error);
   }
   
   return { viewedJobs: [], viewedAt: {}, appliedJobs: [], skills: [], lastUpdated: 0 };
@@ -59,7 +60,7 @@ export function saveUserBehaviorData(data: UserBehaviorData): void {
       lastUpdated: Date.now(),
     }));
   } catch (error) {
-    console.error("Failed to save recommendation data:", error);
+    logger.error("Failed to save recommendation data:", error);
   }
 }
 

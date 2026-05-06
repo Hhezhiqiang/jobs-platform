@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Mail, ArrowRight, CheckCircle, AlertCircle } from "lucide-react";
 import { useLocale } from "next-intl";
+import { logger } from '@/lib/logger';
 
 export default function ForgotPasswordClient() {
   const locale = useLocale();
@@ -42,7 +43,7 @@ export default function ForgotPasswordClient() {
 
       setSuccess(true);
     } catch (err) {
-      console.error("Password reset error:", err);
+      logger.error("Password reset error:", err);
       setError("服务暂时不可用，请稍后重试");
     } finally {
       setLoading(false);

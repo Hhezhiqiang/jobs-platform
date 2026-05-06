@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 function checkAdmin(session: any) {
   if (!session || session.user.role !== "ADMIN") {
@@ -90,7 +91,7 @@ export async function PATCH(
 
     return NextResponse.json({ success: true, record });
   } catch (error) {
-    console.error("Admin withdrawal update error:", error);
+    logger.error("Admin withdrawal update error:", error);
     return NextResponse.json({ error: "更新失败" }, { status: 500 });
   }
 }

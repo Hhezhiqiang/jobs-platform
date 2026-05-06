@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { formatSalary } from "@/lib/utils";
+import { logger } from '@/lib/logger';
 
 interface Application {
   id: string;
@@ -79,7 +80,7 @@ export default function ApplicationsPage() {
         setMessage({ type: "error", text: data.error || "获取申请列表失败" });
       }
     } catch (error) {
-      console.error("Failed to fetch applications:", error);
+      logger.error("Failed to fetch applications:", error);
       setMessage({ type: "error", text: "获取申请列表失败" });
     } finally {
       setLoading(false);

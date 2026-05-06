@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { logger } from '@/lib/logger';
 
 export const dynamic = "force-dynamic";
 
@@ -61,7 +62,7 @@ export async function GET() {
       lastActiveAt: jobStatus.lastActiveAt.toISOString(),
     });
   } catch (error) {
-    console.error("Get job status error:", error);
+    logger.error("Get job status error:", error);
     return NextResponse.json({ error: "获取求职状态失败" }, { status: 500 });
   }
 }
@@ -130,7 +131,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Update job status error:", error);
+    logger.error("Update job status error:", error);
     return NextResponse.json({ error: "更新求职状态失败" }, { status: 500 });
   }
 }

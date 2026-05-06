@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { logger } from '@/lib/logger';
 
 export const dynamic = "force-dynamic";
 
@@ -98,7 +99,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ applications });
   } catch (error) {
-    console.error("Get applications error:", error);
+    logger.error("Get applications error:", error);
     return NextResponse.json({ error: "获取申请列表失败" }, { status: 500 });
   }
 }

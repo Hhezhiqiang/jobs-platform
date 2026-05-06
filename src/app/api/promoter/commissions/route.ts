@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { getAuthenticatedPromoter } from "@/lib/promoter-auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 export async function GET(request: Request) {
   const auth = await getAuthenticatedPromoter();
@@ -50,7 +51,7 @@ export async function GET(request: Request) {
       },
     });
   } catch (error) {
-    console.error("Promoter commissions error:", error);
+    logger.error("Promoter commissions error:", error);
     return NextResponse.json({ error: "获取失败" }, { status: 500 });
   }
 }

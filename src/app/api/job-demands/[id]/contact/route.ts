@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -74,7 +75,7 @@ export async function POST(request: Request, { params }: RouteParams) {
       message: "联系成功！求职者将收到通知" 
     });
   } catch (error: any) {
-    console.error("Contact job seeker error:", error);
+    logger.error("Contact job seeker error:", error);
     return NextResponse.json({ error: "联系失败" }, { status: 500 });
   }
 }
@@ -116,7 +117,7 @@ export async function GET(request: Request, { params }: RouteParams) {
 
     return NextResponse.json({ success: true, data: contacts });
   } catch (error: any) {
-    console.error("Get contacts error:", error);
+    logger.error("Get contacts error:", error);
     return NextResponse.json({ error: "获取数据失败" }, { status: 500 });
   }
 }

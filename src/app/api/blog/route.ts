@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 export const dynamic = "force-dynamic";
 
@@ -54,7 +55,7 @@ export async function GET(request: Request) {
       totalPages: Math.ceil(total / limit),
     });
   } catch (error: any) {
-    console.error("Get blog posts error:", error);
+    logger.error("Get blog posts error:", error);
     return NextResponse.json({ error: "获取博客列表失败" }, { status: 500 });
   }
 }

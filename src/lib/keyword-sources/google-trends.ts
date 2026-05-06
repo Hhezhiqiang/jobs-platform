@@ -1,5 +1,6 @@
 import googleTrends from "google-trends-api";
 import type { KeywordSourceAdapter, RawKeywordItem } from "./index";
+import { logger } from '@/lib/logger';
 
 const SEED_TERMS = ["jobs", "hiring", "software engineer", "data scientist", "product manager", "remote jobs"];
 const GEO = "US";
@@ -34,7 +35,7 @@ export const googleTrendsAdapter: KeywordSourceAdapter = {
           });
         }
       } catch (err) {
-        console.error(`[google-trends] failed for term "${term}":`, (err as Error).message);
+        logger.error(`[google-trends] failed for term "${term}":`, (err as Error).message);
       }
     }
 
@@ -54,7 +55,7 @@ export const googleTrendsAdapter: KeywordSourceAdapter = {
         });
       }
     } catch (err) {
-      console.error("[google-trends] daily trends failed:", (err as Error).message);
+      logger.error("[google-trends] daily trends failed:", (err as Error).message);
     }
 
     return items;

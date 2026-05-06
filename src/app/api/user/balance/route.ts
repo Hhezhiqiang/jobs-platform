@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   try {
@@ -36,7 +37,7 @@ export async function GET() {
       })),
     });
   } catch (error) {
-    console.error("Get balance error:", error);
+    logger.error("Get balance error:", error);
     return NextResponse.json({ error: "获取余额失败" }, { status: 500 });
   }
 }

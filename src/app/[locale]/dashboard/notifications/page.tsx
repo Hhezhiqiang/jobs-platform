@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useLocale } from "next-intl";
 import { Bell, Check, Trash2, Clock, FileText, Briefcase, Gift, AlertCircle, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { logger } from '@/lib/logger';
 
 interface Notification {
   id: string;
@@ -61,7 +62,7 @@ export default function NotificationsPage() {
         setUnreadCount(data.unreadCount);
       }
     } catch (error) {
-      console.error("Failed to fetch notifications:", error);
+      logger.error("Failed to fetch notifications:", error);
     } finally {
       setLoading(false);
     }
@@ -86,7 +87,7 @@ export default function NotificationsPage() {
         setUnreadCount((prev) => Math.max(0, prev - 1));
       }
     } catch (error) {
-      console.error("Failed to mark as read:", error);
+      logger.error("Failed to mark as read:", error);
     }
   };
 
@@ -103,7 +104,7 @@ export default function NotificationsPage() {
         setUnreadCount(0);
       }
     } catch (error) {
-      console.error("Failed to mark all as read:", error);
+      logger.error("Failed to mark all as read:", error);
     }
   };
 
@@ -121,7 +122,7 @@ export default function NotificationsPage() {
         }
       }
     } catch (error) {
-      console.error("Failed to delete notification:", error);
+      logger.error("Failed to delete notification:", error);
     }
   };
 

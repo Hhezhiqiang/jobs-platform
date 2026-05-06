@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 // 获取热门搜索词
 export async function GET(request: NextRequest) {
@@ -37,7 +38,7 @@ export async function GET(request: NextRequest) {
       })),
     });
   } catch (error) {
-    console.error("Hot queries error:", error);
+    logger.error("Hot queries error:", error);
     return NextResponse.json({ hotQueries: [] });
   }
 }

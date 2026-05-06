@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { getAuthenticatedPromoter } from "@/lib/promoter-auth";
 import { prisma } from "@/lib/prisma";
 import { generateUniquePromoCode } from "@/lib/promoter";
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   const auth = await getAuthenticatedPromoter();
@@ -21,7 +22,7 @@ export async function GET() {
 
     return NextResponse.json({ success: true, links });
   } catch (error) {
-    console.error("Promoter links error:", error);
+    logger.error("Promoter links error:", error);
     return NextResponse.json({ error: "获取失败" }, { status: 500 });
   }
 }
@@ -64,7 +65,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, link: { ...link, fullUrl } });
   } catch (error) {
-    console.error("Promoter link create error:", error);
+    logger.error("Promoter link create error:", error);
     return NextResponse.json({ error: "创建失败" }, { status: 500 });
   }
 }

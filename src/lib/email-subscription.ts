@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { logger } from '@/lib/logger';
 
 const emailSchema = z.string().email("请输入有效的邮箱地址");
 
@@ -14,14 +15,13 @@ export async function subscribeEmail(email: string): Promise<{ success: boolean;
     // 注意: 需要在prisma schema中添加subscribers模型才能启用完整功能
     // 目前仅记录日志，实际存储需要数据库支持
 
-    console.log(`[Subscribe] New subscriber: ${email}`);
     
     return { success: true, message: "订阅成功！您将收到最新文章通知" };
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { success: false, message: "请输入有效的邮箱地址" };
     }
-    console.error("[Subscribe] Error:", error);
+    logger.error("[Subscribe] Error:", error);
     return { success: false, message: "订阅失败，请稍后重试" };
   }
 }
@@ -36,11 +36,10 @@ export async function unsubscribeEmail(email: string): Promise<{ success: boolea
     //   data: { active: false },
     // });
 
-    console.log(`[Subscribe] Unsubscribed: ${email}`);
     
     return { success: true, message: "已取消订阅" };
   } catch (error) {
-    console.error("[Unsubscribe] Error:", error);
+    logger.error("[Unsubscribe] Error:", error);
     return { success: false, message: "操作失败，请稍后重试" };
   }
 }
@@ -67,7 +66,6 @@ export async function notifySubscribers(blogId: string): Promise<void> {
 
   if (!blog) return;
 
-  console.log(`[Notify] Would notify subscribers about: ${blog.title}`);
   
   // 这里可以集成邮件服务 (Resend, SendGrid, etc.)
   // for (const subscriber of subscribers) {

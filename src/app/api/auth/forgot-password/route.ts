@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
+import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,11 +30,10 @@ export async function POST(request: NextRequest) {
 
     // TODO: 发送邮件（需要配置邮件服务）
     // 暂时只返回成功，实际应该发送邮件包含重置链接
-    console.log(`密码重置令牌: ${token} (用户: ${email})`);
 
     return NextResponse.json({ message: "如果邮箱已注册，重置邮件已发送" });
   } catch (error) {
-    console.error("Forgot password error:", error);
+    logger.error("Forgot password error:", error);
     return NextResponse.json({ error: "服务器错误" }, { status: 500 });
   }
 }

@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { calculateMatchScore, getRecommendationWeight } from "@/lib/recommendations";
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
 import { jobs, companies } from "@prisma/client";
+import { logger } from '@/lib/logger';
 export const dynamic = "force-dynamic";
 
 interface JobWithCompany extends jobs {
@@ -160,7 +161,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(response);
 
   } catch (error) {
-    console.error("Recommendations API error:", error);
+    logger.error("Recommendations API error:", error);
     return NextResponse.json(
       { error: "获取推荐职位失败", jobs: [], total: 0, isPersonalized: false },
       { status: 500 }
@@ -201,7 +202,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true });
 
   } catch (error) {
-    console.error("Track recommendation error:", error);
+    logger.error("Track recommendation error:", error);
     return NextResponse.json({ error: "记录失败" }, { status: 500 });
   }
 }

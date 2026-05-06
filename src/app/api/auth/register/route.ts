@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
 import { bindUserReferral, getPromoRef } from "@/lib/promoter";
+import { logger } from '@/lib/logger';
 
 // 简单 CAPTCHA 验证（可选，若提供则验证）
 async function verifyCaptcha(token: string | undefined): Promise<boolean> {
@@ -123,7 +124,7 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
-    console.error("Registration error:", error);
+    logger.error("Registration error:", error);
     return NextResponse.json(
       { error: "注册失败，请稍后重试" },
       { status: 500 }

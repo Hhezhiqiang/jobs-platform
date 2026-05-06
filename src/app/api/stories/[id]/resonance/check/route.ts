@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import { logger } from '@/lib/logger';
 
 // GET /api/stories/[id]/resonance/check - Check if user has resonated
 export async function GET(
@@ -27,7 +28,7 @@ export async function GET(
 
     return NextResponse.json({ hasResonated: !!resonance });
   } catch (error) {
-    console.error("Error checking resonance:", error);
+    logger.error("Error checking resonance:", error);
     return NextResponse.json(
       { error: "Failed to check resonance" },
       { status: 500 }

@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { addExp } from "@/lib/game/exp-system";
+import { logger } from '@/lib/logger';
 
 /**
  * 获取任务进度（支持实时更新）
@@ -73,7 +74,7 @@ export async function GET(request: Request) {
       tasks,
     });
   } catch (error) {
-    console.error("获取任务进度失败:", error);
+    logger.error("获取任务进度失败:", error);
     return NextResponse.json(
       { error: "获取任务进度失败" },
       { status: 500 }
@@ -175,7 +176,7 @@ export async function POST(request: Request) {
         : null,
     });
   } catch (error) {
-    console.error("更新任务进度失败:", error);
+    logger.error("更新任务进度失败:", error);
     return NextResponse.json(
       { error: "更新任务进度失败" },
       { status: 500 }

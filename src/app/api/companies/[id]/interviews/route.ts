@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
+import { logger } from '@/lib/logger';
 
 export const dynamic = "force-dynamic";
 
@@ -157,7 +158,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error("获取公司面试经验失败:", error);
+    logger.error("获取公司面试经验失败:", error);
     return NextResponse.json(
       { error: "获取面试经验失败" },
       { status: 500 }

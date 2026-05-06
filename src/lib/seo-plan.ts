@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { aiChat, aiChatJSON, isAIConfigured } from "@/lib/ai-client";
 import type { ClassificationResult } from "./keyword-monitor";
+import { logger } from '@/lib/logger';
 
 export interface SEOPlanPayload {
   pageType: "BLOG" | "TOPIC" | "FAQ";
@@ -99,7 +100,7 @@ ${jobContext ? `${jobContext}\n` : ""}
       );
     } catch (_err: unknown) {
       const error = _err as Error;
-      console.error("[seo-plan] AI call failed, using fallback:", error.message);
+      logger.error("[seo-plan] AI call failed, using fallback:", error.message);
       parsed = JSON.parse(fallbackSEOPayload(keyword, category));
     }
   } else {

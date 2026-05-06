@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 const CLEANUP_SECRET = process.env.CLEANUP_SECRET;
 
@@ -101,7 +102,7 @@ export async function POST(req: NextRequest) {
       results,
     });
   } catch (error: unknown) {
-    console.error("Cleanup error:", error);
+    logger.error("Cleanup error:", error);
     return NextResponse.json(
       {
         error: "Cleanup failed",

@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 export async function GET(
   request: NextRequest,
@@ -29,7 +30,7 @@ export async function GET(
 
     return NextResponse.json(item);
   } catch (error) {
-    console.error("[api/admin/keywords/id] GET error:", error);
+    logger.error("[api/admin/keywords/id] GET error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -60,7 +61,7 @@ export async function PATCH(
 
     return NextResponse.json(updated);
   } catch (error) {
-    console.error("[api/admin/keywords/id] PATCH error:", error);
+    logger.error("[api/admin/keywords/id] PATCH error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -79,7 +80,7 @@ export async function DELETE(
     await prisma.keyword_monitors.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("[api/admin/keywords/id] DELETE error:", error);
+    logger.error("[api/admin/keywords/id] DELETE error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

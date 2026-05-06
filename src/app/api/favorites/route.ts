@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 export const dynamic = "force-dynamic";
 
 // 获取用户收藏列表
@@ -44,7 +45,7 @@ export async function GET(request: NextRequest) {
       totalPages: Math.ceil(total / limit),
     });
   } catch (error) {
-    console.error("获取收藏列表失败:", error);
+    logger.error("获取收藏列表失败:", error);
     return NextResponse.json({ error: "获取失败" }, { status: 500 });
   }
 }
@@ -103,7 +104,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(favorite, { status: 201 });
   } catch (error) {
-    console.error("添加收藏失败:", error);
+    logger.error("添加收藏失败:", error);
     return NextResponse.json({ error: "添加失败" }, { status: 500 });
   }
 }
@@ -146,7 +147,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ message: "取消收藏成功" });
   } catch (error) {
-    console.error("取消收藏失败:", error);
+    logger.error("取消收藏失败:", error);
     return NextResponse.json({ error: "取消失败" }, { status: 500 });
   }
 }

@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
+import { logger } from '@/lib/logger';
 
 // 搜索类型
 export type SearchType = "jobs" | "companies" | "stories" | "interviews" | "all";
@@ -58,7 +59,7 @@ export async function GET(request: NextRequest) {
       });
     } catch (e) {
       // 忽略统计错误，不影响搜索功能
-      console.error("Failed to record search query:", e);
+      logger.error("Failed to record search query:", e);
     }
   }
 
@@ -230,7 +231,7 @@ export async function GET(request: NextRequest) {
       searchType,
     });
   } catch (error) {
-    console.error("Search error:", error);
+    logger.error("Search error:", error);
     return NextResponse.json(
       { error: "搜索失败，请稍后重试" },
       { status: 500 }

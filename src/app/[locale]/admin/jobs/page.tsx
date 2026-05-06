@@ -6,6 +6,7 @@ import Link from "next/link";
 import { MapPin, X, ExternalLink, Building, DollarSign, Calendar } from "lucide-react";
 import { DataTable, AdminBadge, AdminPagination, type Column } from "@/components/admin";
 import { formatSalary } from "@/lib/utils";
+import { logger } from '@/lib/logger';
 
 type Job = {
   id: string;
@@ -95,7 +96,7 @@ export default function AdminJobsPage({ params }: { params: { locale: string } }
         setSelectedJob(data.job);
       }
     } catch (error) {
-      console.error('Failed to fetch job details:', error);
+      logger.error('Failed to fetch job details:', error);
     }
   };
 

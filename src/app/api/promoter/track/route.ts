@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 // GET /api/promoter/track?code=ABC123&redirect=/jobs
 // 记录点击并跳转到落地页
@@ -39,7 +40,7 @@ export async function GET(request: NextRequest) {
     const url = `${redirect}${separator}ref=${code}`;
     return NextResponse.redirect(new URL(url, request.url), 302);
   } catch (error) {
-    console.error("[promoter/track] error:", error);
+    logger.error("[promoter/track] error:", error);
     return NextResponse.redirect(new URL(redirect, request.url), 302);
   }
 }

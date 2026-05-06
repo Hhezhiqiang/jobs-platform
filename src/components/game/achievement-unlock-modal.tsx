@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Trophy, Star, Sparkles } from "lucide-react";
+import { logger } from '@/lib/logger';
 
 interface Achievement {
   id: string;
@@ -269,7 +270,7 @@ export function useAchievementUnlock() {
         }
       }
     } catch (error) {
-      console.error("检查成就失败:", error);
+      logger.error("检查成就失败:", error);
     }
   }, []);
 

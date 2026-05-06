@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { getAuthenticatedPromoter } from "@/lib/promoter-auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 const MIN_WITHDRAWAL = 10;
 
@@ -39,7 +40,7 @@ export async function GET() {
       })),
     });
   } catch (error) {
-    console.error("Withdrawals get error:", error);
+    logger.error("Withdrawals get error:", error);
     return NextResponse.json({ error: "获取失败" }, { status: 500 });
   }
 }
@@ -107,7 +108,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true, withdrawalId: record.id });
   } catch (error: any) {
-    console.error("Withdrawal request error:", error);
+    logger.error("Withdrawal request error:", error);
     if (error.message === "可提现余额不足") {
       return NextResponse.json({ error: "可提现余额不足" }, { status: 400 });
     }

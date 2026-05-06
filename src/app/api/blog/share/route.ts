@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { shareToTwitter, shareToLinkedIn, generateShareContent } from "@/lib/social-share";
+import { logger } from '@/lib/logger';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("[API] Blog share error:", error);
+    logger.error("[API] Blog share error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

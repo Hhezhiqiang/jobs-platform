@@ -6,6 +6,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createInvoice } from "@/lib/plisio";
 import crypto from "crypto";
+import { logger } from '@/lib/logger';
 
 const ALLOWED_AMOUNTS = [10, 30, 50, 100];
 
@@ -51,7 +52,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (invoice.status !== "success" || !invoice.data) {
-      console.error("Plisio invoice creation failed:", invoice);
+      logger.error("Plisio invoice creation failed:", invoice);
       return NextResponse.json(
         { error: "创建支付订单失败", details: invoice.error },
         { status: 500 }
@@ -84,7 +85,7 @@ export async function POST(request: NextRequest) {
       message: "支付订单已创建",
     });
   } catch (error) {
-    console.error("Plisio create order error:", error);
+    logger.error("Plisio create order error:", error);
     return NextResponse.json(
       { error: "创建支付订单失败", details: String(error) },
       { status: 500 }

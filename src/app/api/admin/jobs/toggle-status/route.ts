@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { logger } from '@/lib/logger';
 export const dynamic = "force-dynamic";
 
 // 切换职位状态（上架/下架）
@@ -50,7 +51,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.redirect(new URL("/admin/jobs", request.url));
   } catch (error) {
-    console.error("切换职位状态失败:", error);
+    logger.error("切换职位状态失败:", error);
     return NextResponse.json({ error: "操作失败" }, { status: 500 });
   }
 }

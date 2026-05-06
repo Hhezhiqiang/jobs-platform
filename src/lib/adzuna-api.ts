@@ -1,6 +1,7 @@
 import { prisma } from './prisma';
 import { parseJobDescriptionsBatch, needsAIParsing } from './parse-job-description';
 import { getRegionTags } from './global-job-tags';
+import { logger } from '@/lib/logger';
 
 // ─── 类型定义 ────────────────────────────────────────────────
 
@@ -153,7 +154,6 @@ function retry<T>(fn: () => Promise<T>, maxRetries: number = SYNC_CONFIG.maxRetr
     } catch (err) {
       if (n >= maxRetries) throw err;
       const delay = SYNC_CONFIG.retryBaseDelay * Math.pow(2, n);
-      console.warn(`[adzuna] 重试 ${n + 1}/${maxRetries} 在 ${delay}ms 后:`, (err as Error).message);
       await sleep(delay);
       return attempt(n + 1);
     }
@@ -182,7 +182,7 @@ async function fetchAdzunaPage(
   const appKey = process.env.ADZUNA_APP_KEY;
 
   if (!appId || !appKey) {
-    console.error('[adzuna] API credentials not configured');
+    logger.error('[adzuna] API credentials not configured');
     return null;
   }
 
@@ -364,7 +364,7 @@ async function batchInsertJobs(
         message: `已写入 ${inserted + skipped} 条 (新增 ${inserted}, 跳过 ${skipped})`,
       });
     } catch (error: unknown) {
-      console.error(`[adzuna] 批量插入失败 (batch ${i}):`, (error as Error).message);
+      logger.error(`[adzuna] 批量插入失败 (batch ${i}):`, (error as Error).message);
       failed += batch.length;
     }
   }
@@ -402,12 +402,12 @@ export async function fetchAdzunaBulkJobs(options?: FetchAdzunaBulkOptions): Pro
   const authorId = process.env.ADZUNA_AUTHOR_ID || '';
 
   if (!appId || !appKey) {
-    console.error('[adzuna] API credentials not configured');
+    logger.error('[adzuna] API credentials not configured');
     return { total: 0, fetched: 0, inserted: 0, skipped: 0, failed: 0, aiCalls: 0 };
   }
 
   if (!companyId || !authorId) {
-    console.error('[adzuna] 未配置公司/作者 ID');
+    logger.error('[adzuna] 未配置公司/作者 ID');
     return { total: 0, fetched: 0, inserted: 0, skipped: 0, failed: 0, aiCalls: 0 };
   }
 
@@ -439,7 +439,7 @@ export async function fetchAdzunaBulkJobs(options?: FetchAdzunaBulkOptions): Pro
             allJobs.push(...jobs);
             totalApiCalls++;
           } catch (error: unknown) {
-            console.error(`[adzuna] 抓取失败 ${keyword} @ ${loc}:`, (error as Error).message);
+            logger.error(`[adzuna] 抓取失败 ${keyword} @ ${loc}:`, (error as Error).message);
           }
         })();
         fetchPromises.push(p);
@@ -470,7 +470,6 @@ export async function fetchAdzunaBulkJobs(options?: FetchAdzunaBulkOptions): Pro
   });
 
   if (fetchedCount === 0) {
-    console.log('[adzuna] 未获取到任何职位');
     return { total: 0, fetched: 0, inserted: 0, skipped: 0, failed: 0, aiCalls: totalApiCalls };
   }
 
@@ -572,7 +571,7 @@ export async function fetchAdzunaBulkJobs(options?: FetchAdzunaBulkOptions): Pro
     message: `同步完成: 新增 ${inserted} 条, 跳过 ${skipped} 条, 失败 ${failed} 条`,
   });
 
-  console.log(
+  logger.info(
     `[adzuna] 同步完成: 抓取 ${fetchedCount} 个, 新增 ${inserted} 个, 跳过 ${skipped} 个, 失败 ${failed} 个, AI 调用 ~${aiCallCount} 次`,
   );
 
@@ -600,7 +599,7 @@ export async function fetchAdzunaJobs(
   const authorId = process.env.ADZUNA_AUTHOR_ID || '';
 
   if (!appId || !appKey || !companyId || !authorId) {
-    console.error('[adzuna] 配置不完整');
+    logger.error('[adzuna] 配置不完整');
     return 0;
   }
 
@@ -646,6 +645,5 @@ export async function fetchAdzunaJobs(
   }
 
   const { inserted, skipped } = await batchInsertJobs(jobDataList);
-  console.log(`[adzuna] 单页抓取: 新增 ${inserted}, 跳过 ${skipped}`);
   return inserted + skipped;
 }

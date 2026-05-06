@@ -8,6 +8,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { HeartButton } from "@/components/heart-button";
 import { formatDistanceToNow, formatSalary } from "@/lib/utils";
+import { logger } from '@/lib/logger';
 
 interface FavoriteWithJob {
   id: string;
@@ -64,7 +65,7 @@ export default function FavoritesPage() {
           setTotal(data.total);
         }
       } catch (error) {
-        console.error("获取收藏列表失败:", error);
+        logger.error("获取收藏列表失败:", error);
       } finally {
         setIsLoading(false);
       }

@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { addExp, updateTaskProgress } from "@/lib/game/exp-system";
+import { logger } from '@/lib/logger';
 export const dynamic = "force-dynamic";
 
 // 更新用户详细资料（工作经历、教育背景、技能等）
@@ -72,7 +73,7 @@ export async function PUT(request: NextRequest) {
       profile,
     });
   } catch (error) {
-    console.error("Update detailed profile error:", error);
+    logger.error("Update detailed profile error:", error);
     return NextResponse.json({ error: "更新失败" }, { status: 500 });
   }
 }
@@ -137,7 +138,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ message: "密码修改成功" });
   } catch (error) {
-    console.error("Change password error:", error);
+    logger.error("Change password error:", error);
     return NextResponse.json({ error: "修改密码失败" }, { status: 500 });
   }
 }

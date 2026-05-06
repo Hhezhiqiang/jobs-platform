@@ -11,6 +11,7 @@ import { SearchHistory } from "@/components/search-history";
 import { HotSearches } from "@/components/hot-searches";
 import { HighlightedText } from "@/components/highlighted-text";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { logger } from '@/lib/logger';
 
 interface Job {
   id: string;
@@ -103,7 +104,7 @@ export function SearchPageClient({
         setTotalPages(Math.ceil(jobTotal / limit));
       }
     } catch (error) {
-      console.error("Search error:", error);
+      logger.error("Search error:", error);
     } finally {
       setLoading(false);
     }
@@ -117,7 +118,7 @@ export function SearchPageClient({
         setCities(data.cities.filter(Boolean));
       }
     } catch (error) {
-      console.error("Failed to fetch cities:", error);
+      logger.error("Failed to fetch cities:", error);
     }
   }, []);
 

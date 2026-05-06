@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { logger } from '@/lib/logger';
 
 /**
  * HTML 转义用户输入，防止 XSS
@@ -71,7 +72,6 @@ export async function sendEmail({ to, subject, html, text }: SendEmailParams) {
     if (!transporter) {
       if (process.env.NODE_ENV === "development") {
          
-        console.warn("Email not configured, skipping email send");
       }
       return { success: false, error: "Email not configured" };
     }
@@ -88,11 +88,10 @@ export async function sendEmail({ to, subject, html, text }: SendEmailParams) {
 
     if (process.env.NODE_ENV === "development") {
        
-      console.log("Email sent:", info.messageId);
     }
     return { success: true, messageId: info.messageId };
   } catch (error) {
-    console.error("Send email error:", error);
+    logger.error("Send email error:", error);
     return { success: false, error };
   }
 }

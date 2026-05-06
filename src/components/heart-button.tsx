@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
+import { logger } from '@/lib/logger';
 
 interface HeartButtonProps {
   jobId: string;
@@ -43,7 +44,7 @@ export function HeartButton({
         const data = await response.json();
         setIsFavorited(data.isFavorited);
       } catch (error) {
-        console.error("Failed to check favorite status:", error);
+        logger.error("Failed to check favorite status:", error);
       }
     };
 
@@ -73,7 +74,7 @@ export function HeartButton({
           setIsFavorited(false);
           onToggle?.(false);
         } else {
-          console.error("Failed to remove favorite");
+          logger.error("Failed to remove favorite");
         }
       } else {
         const response = await fetch("/api/favorites", {
@@ -88,11 +89,11 @@ export function HeartButton({
           setIsFavorited(true);
           onToggle?.(true);
         } else {
-          console.error("Failed to add favorite");
+          logger.error("Failed to add favorite");
         }
       }
     } catch (error) {
-      console.error("Toggle favorite error:", error);
+      logger.error("Toggle favorite error:", error);
     } finally {
       setIsLoading(false);
     }

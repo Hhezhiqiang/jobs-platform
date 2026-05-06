@@ -6,6 +6,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import ApplyModal from "./apply-modal";
 import { ensureHttpProtocol } from "@/lib/utils";
+import { logger } from '@/lib/logger';
 
 interface ApplyButtonProps {
   jobId: string;
@@ -43,7 +44,7 @@ export function ApplyButton({
         body: JSON.stringify({ type: "APPLY_JOB", jobId }),
       });
     } catch (error) {
-      console.error("Failed to track application:", error);
+      logger.error("Failed to track application:", error);
     }
   };
 

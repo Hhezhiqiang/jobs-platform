@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { addExp, updateTaskProgress } from "@/lib/game/exp-system";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { ExpType } from "@prisma/client";
+import { logger } from '@/lib/logger';
 
 export async function POST(request: Request) {
   try {
@@ -52,7 +53,7 @@ export async function POST(request: Request) {
       ...result,
     });
   } catch (error) {
-    console.error("追踪行为失败:", error);
+    logger.error("追踪行为失败:", error);
     return NextResponse.json(
       { error: "追踪行为失败" },
       { status: 500 }

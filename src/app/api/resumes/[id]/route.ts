@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { unlink } from "fs/promises";
 import { join, resolve } from "path";
 import { realpath } from "fs/promises";
+import { logger } from '@/lib/logger';
 export const dynamic = "force-dynamic";
 
 // 获取单个简历
@@ -34,7 +35,7 @@ export async function GET(
 
     return NextResponse.json({ resume });
   } catch (error) {
-    console.error("获取简历失败:", error);
+    logger.error("获取简历失败:", error);
     return NextResponse.json({ error: "获取失败" }, { status: 500 });
   }
 }
@@ -77,7 +78,7 @@ export async function DELETE(
       }
       await unlink(resolvedPath);
     } catch (err) {
-      console.error("删除文件失败:", err);
+      logger.error("删除文件失败:", err);
       // 继续删除数据库记录，即使文件删除失败
     }
 
@@ -103,7 +104,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("删除简历失败:", error);
+    logger.error("删除简历失败:", error);
     return NextResponse.json({ error: "删除失败" }, { status: 500 });
   }
 }
@@ -156,7 +157,7 @@ export async function PATCH(
 
     return NextResponse.json({ success: true, resumes: updatedResume });
   } catch (error) {
-    console.error("更新简历失败:", error);
+    logger.error("更新简历失败:", error);
     return NextResponse.json({ error: "更新失败" }, { status: 500 });
   }
 }

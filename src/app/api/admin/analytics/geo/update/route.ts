@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { batchUpdateGeoLocations, getGeoStats } from "@/lib/geo-location";
+import { logger } from '@/lib/logger';
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,7 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json(stats);
   } catch (error) {
-    console.error("Geo stats API error:", error);
+    logger.error("Geo stats API error:", error);
     return NextResponse.json(
       { error: "Failed to fetch geo stats" },
       { status: 500 }
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest) {
       message: `成功更新 ${updated} 条记录的地理位置信息`,
     });
   } catch (error) {
-    console.error("Batch geo update API error:", error);
+    logger.error("Batch geo update API error:", error);
     return NextResponse.json(
       { error: "Failed to update geo locations" },
       { status: 500 }

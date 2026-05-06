@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { logger } from '@/lib/logger';
 
 const VIEW_STORAGE_KEY = "blog_view_tracker";
 const VIEW_TTL_HOURS = 24;
@@ -55,7 +56,7 @@ export function ViewCounter({ slug, initialCount }: ViewCounterProps) {
           markTracked(slug);
         }
       } catch (error) {
-        console.error("Track view error:", error);
+        logger.error("Track view error:", error);
       }
     };
 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 // GET /api/admin/jobs/[id] - 获取单个职位详情
 export async function GET(
@@ -57,7 +58,7 @@ export async function GET(
       },
     });
   } catch (error: any) {
-    console.error('Get job details error:', error);
+    logger.error('Get job details error:', error);
     return NextResponse.json(
       { error: error.message },
       { status: 500 }

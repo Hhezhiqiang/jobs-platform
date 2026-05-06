@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { FileText, Upload, Trash2, Star, Edit } from "lucide-react";
+import { logger } from '@/lib/logger';
 
 interface Resume {
   id: string;
@@ -37,7 +38,7 @@ export default function ResumesPage({ params }: { params: Promise<{ locale: stri
         setResumes(data.resumes || []);
       }
     } catch (e) {
-      console.error(e);
+      logger.error(e);
     } finally {
       setLoading(false);
     }

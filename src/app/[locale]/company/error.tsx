@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, RefreshCcw, Home } from "lucide-react";
+import { logger } from '@/lib/logger';
 
 export default function CompanyError({
   error,
@@ -14,7 +15,7 @@ export default function CompanyError({
   const router = useRouter();
 
   useEffect(() => {
-    console.error("Company error:", error);
+    logger.error("Company error:", error);
   }, [error]);
 
   return (

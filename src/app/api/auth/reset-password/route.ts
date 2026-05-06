@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,7 +28,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ message: "密码重置成功" });
   } catch (error) {
-    console.error("Reset password error:", error);
+    logger.error("Reset password error:", error);
     return NextResponse.json({ error: "服务器错误" }, { status: 500 });
   }
 }

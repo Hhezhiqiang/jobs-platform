@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 export const dynamic = "force-dynamic";
 
@@ -108,7 +109,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, count: ids.length });
   } catch (error) {
-    console.error("Bulk update applications error:", error);
+    logger.error("Bulk update applications error:", error);
     return NextResponse.json({ error: "批量更新失败" }, { status: 500 });
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { logger } from '@/lib/logger';
 import {
   Globe,
   MapPin,
@@ -167,7 +168,7 @@ export function GeoAnalyticsClient() {
       const result = await response.json();
       setData(result);
     } catch (err) {
-      console.error("Geo data fetch error:", err);
+      logger.error("Geo data fetch error:", err);
       setError(err instanceof Error ? err.message : "加载失败");
     } finally {
       setLoading(false);

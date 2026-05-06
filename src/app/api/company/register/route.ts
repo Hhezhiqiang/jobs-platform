@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { logger } from '@/lib/logger';
 export const dynamic = "force-dynamic";
 
 function generateSlug(name: string): string {
@@ -100,7 +101,7 @@ export async function POST(request: NextRequest) {
       autoLogin: true,
     });
   } catch (error: any) {
-    console.error("Company register error:", error);
+    logger.error("Company register error:", error);
     return NextResponse.json({ error: error.message || "注册失败，请稍后重试" }, { status: 500 });
   }
 }

@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { mapPlisioStatus } from "@/lib/plisio";
+import { logger } from '@/lib/logger';
 
 /**
  * Plisio Webhook 回调处理
@@ -11,7 +12,6 @@ import { mapPlisioStatus } from "@/lib/plisio";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    console.log("[Plisio Webhook] Received:", body);
 
     const {
       invoice_id,
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     `;
 
     if (orders.length === 0) {
-      console.error("[Plisio Webhook] Order not found:", invoice_id);
+      logger.error("[Plisio Webhook] Order not found:", invoice_id);
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
         )
       `;
 
-      console.log("[Plisio Webhook] Payment completed:", {
+      logger.info("[Plisio Webhook] Payment completed:", {
         userId: order.user_id,
         amount: order.amount,
         newBalance,
@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("[Plisio Webhook] Error:", error);
+    logger.error("[Plisio Webhook] Error:", error);
     return NextResponse.json(
       { error: "Webhook processing failed" },
       { status: 500 }
@@ -125,7 +125,6 @@ export async function GET(request: NextRequest) {
   const status = searchParams.get("status");
   const invoiceId = searchParams.get("invoice_id");
 
-  console.log("[Plisio Webhook GET]:", { status, invoiceId });
 
   // 重定向到结果页面
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://jobquip.com";

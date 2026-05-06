@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -17,7 +18,7 @@ export async function POST(request: Request, { params }: RouteParams) {
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error("Increment view count error:", error);
+    logger.error("Increment view count error:", error);
     return NextResponse.json({ error: "更新失败" }, { status: 500 });
   }
 }
@@ -48,7 +49,7 @@ export async function GET(request: Request, { params }: RouteParams) {
 
     return NextResponse.json({ success: true, data: demand });
   } catch (error: any) {
-    console.error("Get job demand error:", error);
+    logger.error("Get job demand error:", error);
     return NextResponse.json({ error: "获取数据失败" }, { status: 500 });
   }
 }
@@ -90,7 +91,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
 
     return NextResponse.json({ success: true, data: demand });
   } catch (error: any) {
-    console.error("Update job demand error:", error);
+    logger.error("Update job demand error:", error);
     return NextResponse.json({ error: "更新失败" }, { status: 500 });
   }
 }
@@ -121,7 +122,7 @@ export async function DELETE(request: Request, { params }: RouteParams) {
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error("Delete job demand error:", error);
+    logger.error("Delete job demand error:", error);
     return NextResponse.json({ error: "删除失败" }, { status: 500 });
   }
 }

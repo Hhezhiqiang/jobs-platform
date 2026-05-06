@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -29,7 +30,7 @@ export async function GET(
 
     return NextResponse.json({ tags: processedTags });
   } catch (error) {
-    console.error("Get consensus tags error:", error);
+    logger.error("Get consensus tags error:", error);
     return NextResponse.json(
       { error: "获取标签列表失败" },
       { status: 500 }

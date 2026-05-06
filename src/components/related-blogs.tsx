@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { RelatedBlogsProps, BlogPost } from "./types";
 import { useTranslations } from "next-intl";
+import { logger } from '@/lib/logger';
 
 export function RelatedBlogs({ currentSlug, keywords, limit = 4 }: RelatedBlogsProps) {
   const [relatedBlogs, setRelatedBlogs] = useState<BlogPost[]>([]);
@@ -23,7 +24,7 @@ export function RelatedBlogs({ currentSlug, keywords, limit = 4 }: RelatedBlogsP
           setRelatedBlogs(data.blogs || []);
         }
       } catch (error) {
-        console.error("Failed to fetch related blogs:", error);
+        logger.error("Failed to fetch related blogs:", error);
       } finally {
         setLoading(false);
       }

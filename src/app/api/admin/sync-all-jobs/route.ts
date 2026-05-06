@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { syncAllJobs } from '@/lib/job-api-aggregator';
 import { fetchAdzunaJobs } from '@/lib/adzuna-api';
+import { logger } from '@/lib/logger';
 
 // POST /api/admin/sync-all-jobs
 export async function POST(req: Request) {
@@ -46,7 +47,7 @@ export async function POST(req: Request) {
       message: `成功同步 ${count} 个职位`
     });
   } catch (error: any) {
-    console.error('Sync jobs error:', error);
+    logger.error('Sync jobs error:', error);
     return NextResponse.json(
       { error: error.message },
       { status: 500 }

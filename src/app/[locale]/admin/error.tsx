@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { logger } from '@/lib/logger';
 
 export default function AdminError({
   error,
@@ -15,12 +16,12 @@ export default function AdminError({
 
   useEffect(() => {
     // 开发环境打印完整错误到控制台
-    console.error("Admin page error:", error);
-    console.error("Error digest:", error.digest);
-    console.error("Error message:", error.message);
-    console.error("Error stack:", error.stack);
+    logger.error("Admin page error:", error);
+    logger.error("Error digest:", error.digest);
+    logger.error("Error message:", error.message);
+    logger.error("Error stack:", error.stack);
     if (error.cause) {
-      console.error("Error cause:", error.cause);
+      logger.error("Error cause:", error.cause);
     }
   }, [error]);
 

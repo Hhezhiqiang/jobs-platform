@@ -13,6 +13,7 @@ import {
   Loader2,
 } from "lucide-react";
 import Image from "next/image";
+import { logger } from '@/lib/logger';
 
 type LeaderboardType = "weekly" | "monthly" | "alltime";
 
@@ -50,7 +51,7 @@ export function LeaderboardPage() {
         setCurrentUserRank(data.currentUserRank);
       }
     } catch (error) {
-      console.error("获取排行榜失败:", error);
+      logger.error("获取排行榜失败:", error);
     } finally {
       setLoading(false);
     }

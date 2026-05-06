@@ -4,6 +4,7 @@ import { generateJobsListMetadata } from "@/lib/metadata";
 import { JobsPageClient } from "@/components/aurora/jobs-page-client";
 import { Metadata } from "next";
 import { Prisma } from "@prisma/client";
+import { logger } from '@/lib/logger';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -119,7 +120,7 @@ export default async function JobsPage({ params, searchParams }: PageProps) {
     total = totalData;
     cities = citiesData;
   } catch (error) {
-    console.error("Database error:", error);
+    logger.error("Database error:", error);
     dbError = true;
   }
 

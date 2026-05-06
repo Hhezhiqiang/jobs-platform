@@ -12,6 +12,7 @@
 import { prisma } from "@/lib/prisma";
 import { validateAndCleanKeywords, cleanBlogContent } from "@/lib/blog-content-validator";
 import { aiChat, isAIConfigured } from "@/lib/ai-client";
+import { logger } from '@/lib/logger';
 
 const KIMI_MODEL = process.env.KIMI_MODEL || "moonshot-v1-32k";
 
@@ -206,7 +207,6 @@ async function callAI(prompt: string): Promise<string> {
       }
     } catch (e) {
       lastError = e as Error;
-      console.warn(`[auto-blog] 温度 ${temp} 失败:`, (e as Error).message);
     }
   }
 
@@ -411,7 +411,6 @@ export async function generateBlogDraft(
     // 🔒 强制校验关键词（杜绝截断词、泛词）
     const kwValidation = validateAndCleanKeywords(rawKeywords, title);
     if (kwValidation.issues.length > 0) {
-      console.warn(`[auto-blog] 关键词校验问题:`, kwValidation.issues);
     }
     const keywords = kwValidation.cleanedKeywords;
 
@@ -469,7 +468,7 @@ export async function runAutoBlogPipeline(newMonitorIds: string[]): Promise<{
   });
 
   if (!adminUser) {
-    console.error("[auto-blog] No admin user found");
+    logger.error("[auto-blog] No admin user found");
     return { processed: 0, drafted: 0, errors: 1, details: [] };
   }
 
@@ -494,7 +493,6 @@ export async function runAutoBlogPipeline(newMonitorIds: string[]): Promise<{
         qualityScore: res.qualityScore,
         qualityIssues: res.qualityIssues,
       });
-      console.log(`[auto-blog] Draft created: ${res.title} (quality: ${res.qualityScore})`);
     } else {
       result.errors++;
       const monitor = await prisma.keyword_monitors.findUnique({ where: { id: monitorId } });
@@ -503,7 +501,7 @@ export async function runAutoBlogPipeline(newMonitorIds: string[]): Promise<{
         success: false,
         error: res.error,
       });
-      console.error(`[auto-blog] Failed for ${monitorId}: ${res.error}`);
+      logger.error(`[auto-blog] Failed for ${monitorId}: ${res.error}`);
     }
 
     // 限流

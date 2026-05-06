@@ -3,6 +3,7 @@ import { fetchAdzunaJobs } from '@/lib/adzuna-api';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { checkRateLimit, getClientIP } from '@/lib/rate-limit';
+import { logger } from '@/lib/logger';
 
 // GET /api/jobs/adzuna/test
 export async function GET(req: Request) {
@@ -25,7 +26,6 @@ export async function GET(req: Request) {
   const location = searchParams.get('location') || 'Beijing';
 
   try {
-    console.log(`Testing Adzuna API: ${keyword} in ${location}`);
     const count = await fetchAdzunaJobs(keyword, location, 1);
     
     return NextResponse.json({
@@ -36,7 +36,7 @@ export async function GET(req: Request) {
       message: `成功同步 ${count} 个职位`
     });
   } catch (error: any) {
-    console.error('Adzuna test error:', error);
+    logger.error('Adzuna test error:', error);
     return NextResponse.json(
       { error: error.message },
       { status: 500 }

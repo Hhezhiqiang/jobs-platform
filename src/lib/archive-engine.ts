@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { aiChat, isAIConfigured } from "@/lib/ai-client";
 import axios from "axios";
+import { logger } from '@/lib/logger';
 
 export interface ArchiveResult {
   inserted: number;
@@ -41,7 +42,7 @@ export async function collectArchives(monitorId: string): Promise<ArchiveResult>
         inserted++;
       }
     } catch (err) {
-      console.error(`[archive-engine] ${source.name} failed:`, (err as Error).message);
+      logger.error(`[archive-engine] ${source.name} failed:`, (err as Error).message);
       errors++;
     }
   }
@@ -85,7 +86,7 @@ async function fetchPerplexity(keyword: string): Promise<RawArchive[]> {
       },
     ];
   } catch (err) {
-    console.error(`[archive-engine] ai-chat failed:`, (err as Error).message);
+    logger.error(`[archive-engine] ai-chat failed:`, (err as Error).message);
     return [];
   }
 }
@@ -124,7 +125,7 @@ async function fetchZhihuSearch(keyword: string): Promise<RawArchive[]> {
 
     return archives;
   } catch (err) {
-    console.error("[archive-engine] zhihu search failed:", (err as Error).message);
+    logger.error("[archive-engine] zhihu search failed:", (err as Error).message);
     return [];
   }
 }
@@ -159,7 +160,7 @@ async function fetchRedditSearch(keyword: string): Promise<RawArchive[]> {
       relevanceScore: 0.7,
     }));
   } catch (err) {
-    console.error("[archive-engine] reddit search failed:", (err as Error).message);
+    logger.error("[archive-engine] reddit search failed:", (err as Error).message);
     return [];
   }
 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 // GET /api/stories/[id] - 获取故事详情
 export async function GET(
@@ -101,7 +102,7 @@ export async function GET(
       canInvite,
     });
   } catch (error) {
-    console.error("获取故事详情失败:", error);
+    logger.error("获取故事详情失败:", error);
     return NextResponse.json(
       { error: "获取故事详情失败" },
       { status: 500 }
@@ -194,7 +195,7 @@ export async function PATCH(
       story: updatedStory,
     });
   } catch (error) {
-    console.error("更新故事失败:", error);
+    logger.error("更新故事失败:", error);
     return NextResponse.json(
       { error: "更新故事失败" },
       { status: 500 }
@@ -244,7 +245,7 @@ export async function DELETE(
       message: "故事已删除",
     });
   } catch (error) {
-    console.error("删除故事失败:", error);
+    logger.error("删除故事失败:", error);
     return NextResponse.json(
       { error: "删除故事失败" },
       { status: 500 }

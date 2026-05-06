@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { logger } from '@/lib/logger';
 
 export default function Error({
   error,
@@ -12,7 +13,7 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error("Career Trail page error:", error);
+    logger.error("Career Trail page error:", error);
   }, [error]);
 
   const pathname = usePathname();

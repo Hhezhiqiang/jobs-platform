@@ -6,6 +6,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { logger } from '@/lib/logger';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -53,7 +54,7 @@ async function updateWithdrawal(formData: FormData) {
 
     await prisma.withdrawal_records.update({ where: { id }, data: updateData });
   } catch (error) {
-    console.error("updateWithdrawal error:", error);
+    logger.error("updateWithdrawal error:", error);
     throw error;
   }
 }

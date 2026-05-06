@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
 import { settleCommissions } from "@/lib/promoter";
+import { logger } from '@/lib/logger';
 
 export async function GET(request: Request) {
   // 校验 Cron Secret，防止外部直接调用
@@ -19,7 +20,7 @@ export async function GET(request: Request) {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    console.error("Commission settlement cron error:", error);
+    logger.error("Commission settlement cron error:", error);
     return NextResponse.json(
       { error: "Settlement failed", details: (error as Error).message },
       { status: 500 },

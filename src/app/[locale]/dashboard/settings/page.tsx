@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { logger } from '@/lib/logger';
 
 export default function SettingsPage() {
   const locale = useLocale();
@@ -99,7 +100,7 @@ export default function SettingsPage() {
         body: JSON.stringify(settings),
       });
     } catch (error) {
-      console.error("保存通知设置失败:", error);
+      logger.error("保存通知设置失败:", error);
     }
 
     localStorage.setItem(

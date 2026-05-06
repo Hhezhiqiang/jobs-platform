@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { logger } from '@/lib/logger';
 
 /**
  * 修复薪资货币符号 API
@@ -60,7 +61,7 @@ export async function GET(request: Request) {
       message: `Fixed ${ukIds.length} UK jobs to GBP, ${usIds.length} US jobs to USD. Cache cleared.`,
     });
   } catch (error: any) {
-    console.error("Fix salary error:", error);
+    logger.error("Fix salary error:", error);
     return NextResponse.json(
       { success: false, error: error.message },
       { status: 500 }

@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 function checkAdmin(session: any) {
   if (!session || session.user.role !== "ADMIN") {
@@ -80,7 +81,7 @@ export async function GET(request: Request) {
       },
     });
   } catch (error) {
-    console.error("Admin CPS report error:", error);
+    logger.error("Admin CPS report error:", error);
     return NextResponse.json({ error: "获取失败" }, { status: 500 });
   }
 }

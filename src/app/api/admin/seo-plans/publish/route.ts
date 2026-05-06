@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { publishSEOPlan } from "@/lib/publish-plan";
+import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest) {
     const result = await publishSEOPlan(planId, session.user.id);
     return NextResponse.json(result);
   } catch (error) {
-    console.error("[api/admin/seo-plans/publish] error:", error);
+    logger.error("[api/admin/seo-plans/publish] error:", error);
     return NextResponse.json(
       { error: "Internal server error", message: (error as Error).message },
       { status: 500 }

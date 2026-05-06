@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 function checkAdmin(session: any) {
   if (!session || session.user.role !== "ADMIN") {
@@ -41,7 +42,7 @@ export async function PATCH(
 
     return NextResponse.json({ success: true, link });
   } catch (error) {
-    console.error("Admin promoter link update error:", error);
+    logger.error("Admin promoter link update error:", error);
     return NextResponse.json({ error: "更新失败" }, { status: 500 });
   }
 }

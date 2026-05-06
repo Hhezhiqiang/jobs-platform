@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 export const dynamic = "force-dynamic";
 
 // 获取企业列表（仅管理员）
@@ -52,7 +53,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ companies });
   } catch (error) {
-    console.error("Get admin companies error:", error);
+    logger.error("Get admin companies error:", error);
     return NextResponse.json({ error: "获取企业列表失败" }, { status: 500 });
   }
 }
@@ -152,7 +153,7 @@ export async function PATCH(request: NextRequest) {
       company,
     });
   } catch (error) {
-    console.error("Review company error:", error);
+    logger.error("Review company error:", error);
     return NextResponse.json({ error: "审核失败" }, { status: 500 });
   }
 }

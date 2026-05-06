@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { logger } from '@/lib/logger';
 
 interface CultureMatchResult {
   score: number;
@@ -218,7 +219,7 @@ export function useCultureMatch(): UseCultureMatchReturn {
           companyTags: data.companyTags || [],
         };
       } catch (err) {
-        console.error("获取职位文化匹配度失败:", err);
+        logger.error("获取职位文化匹配度失败:", err);
         return null;
       }
     },

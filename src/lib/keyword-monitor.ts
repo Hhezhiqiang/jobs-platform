@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { normalizeKeyword, type RawKeywordItem } from "./keyword-sources";
 import { jobMarketAdapter } from "./keyword-sources/job-market";
 import { localHotTopicsAdapter } from "./keyword-sources/local-hot-topics";
+import { logger } from '@/lib/logger';
 
 const ADAPTERS = [
   jobMarketAdapter,      // 基于站内数据，最可靠
@@ -36,11 +37,10 @@ async function fetchWithTimeout<T>(
     });
     const data = await Promise.race([adapter.fetch(), timeoutPromise]);
     const elapsed = Date.now() - startTime;
-    console.log(`[keyword-monitor] ✓ ${adapter.name} 完成 (${elapsed}ms)`);
     return { success: true, data, name: adapter.name };
   } catch (err) {
     const elapsed = Date.now() - startTime;
-    console.error(`[keyword-monitor] ✗ ${adapter.name} 失败 (${elapsed}ms): ${(err as Error).message}`);
+    logger.error(`[keyword-monitor] ✗ ${adapter.name} 失败 (${elapsed}ms): ${(err as Error).message}`);
     return { success: false, error: (err as Error).message, name: adapter.name };
   }
 }
@@ -53,7 +53,6 @@ export async function collectKeywords(): Promise<{
   stats: { adapter: string; count: number; status: string }[];
 }> {
   const startTime = Date.now();
-  console.log(`[keyword-monitor] 启动 ${ADAPTERS.length} 个适配器采集...`);
 
   const results = await Promise.all(
     ADAPTERS.map(adapter => fetchWithTimeout(adapter, 15000))
@@ -129,13 +128,12 @@ export async function collectKeywords(): Promise<{
         duplicates++;
       } else {
         errors++;
-        console.error(`[keyword-monitor] Error processing ${norm}:`, err.message);
+        logger.error(`[keyword-monitor] Error processing ${norm}:`, err.message);
       }
     }
   }
 
   const elapsed = Date.now() - startTime;
-  console.log(`[keyword-monitor] 完成: 新增${inserted}, 重复${duplicates}, 错误${errors} (${elapsed}ms)`);
   return { inserted, duplicates, errors, newIds, stats: adapterStats };
 }
 

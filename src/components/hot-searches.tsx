@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { TrendingUp } from "lucide-react";
+import { logger } from '@/lib/logger';
 
 interface HotSearchesProps {
   onSelect: (term: string) => void;
@@ -29,7 +30,7 @@ export function HotSearches({ onSelect, limit = 8 }: HotSearchesProps) {
         setHotQueries(data.hotQueries);
       }
     } catch (error) {
-      console.error("Failed to fetch hot searches:", error);
+      logger.error("Failed to fetch hot searches:", error);
     } finally {
       setLoading(false);
     }

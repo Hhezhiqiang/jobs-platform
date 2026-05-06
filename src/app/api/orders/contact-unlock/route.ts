@@ -6,6 +6,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { createCommission } from "@/lib/promoter";
 import { TransactionType } from "@prisma/client";
+import { logger } from '@/lib/logger';
 
 // 查看联系方式的固定定价（人民币 CNY）
 const CONTACT_UNLOCK_PRICE = 5;
@@ -106,7 +107,7 @@ export async function POST(request: Request) {
     try {
       await createCommission(result.order.id, userId, price);
     } catch (err) {
-      console.error("Commission creation failed (non-blocking):", err);
+      logger.error("Commission creation failed (non-blocking):", err);
     }
 
     return NextResponse.json({
@@ -116,7 +117,7 @@ export async function POST(request: Request) {
       message: "解锁成功",
     });
   } catch (error) {
-    console.error("Contact unlock order error:", error);
+    logger.error("Contact unlock order error:", error);
     return NextResponse.json({ error: "解锁失败，请稍后重试" }, { status: 500 });
   }
 }

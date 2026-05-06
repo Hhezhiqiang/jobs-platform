@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Share2, Link2, Check } from "lucide-react";
+import { logger } from '@/lib/logger';
 
 interface ShareButtonsProps {
   title: string;
@@ -42,7 +43,6 @@ export function ShareButtons({ title, url, description }: ShareButtonsProps) {
       try {
         await navigator.share(shareData);
       } catch (error) {
-        console.log("Share cancelled");
       }
     }
   };
@@ -72,7 +72,7 @@ export function ShareButtons({ title, url, description }: ShareButtonsProps) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
-      console.error("Failed to copy:", error);
+      logger.error("Failed to copy:", error);
     }
   };
 

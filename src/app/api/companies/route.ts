@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
+import { logger } from '@/lib/logger';
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +30,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     if (process.env.NODE_ENV === "development") {
        
-      console.error("Get companies error:", error);
+      logger.error("Get companies error:", error);
     }
     return NextResponse.json({ error: "获取失败" }, { status: 500 });
   }
@@ -108,7 +109,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ company }, { status: 201 });
   } catch (error) {
-    console.error("Create company error:", error);
+    logger.error("Create company error:", error);
     return NextResponse.json({ error: "创建失败" }, { status: 500 });
   }
 }

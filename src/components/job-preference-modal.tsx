@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { X, SlidersHorizontal, Sparkles } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { logger } from '@/lib/logger';
 
 // 文化标签选项（双语）
 export const CULTURE_TAGS = [
@@ -51,7 +52,7 @@ export function getStoredPreferences(): JobPreferences {
       return { ...DEFAULT_PREFERENCES, ...parsed };
     }
   } catch (e) {
-    console.error("Error reading preferences:", e);
+    logger.error("Error reading preferences:", e);
   }
   return DEFAULT_PREFERENCES;
 }
@@ -63,7 +64,7 @@ export function savePreferences(preferences: JobPreferences): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences));
   } catch (e) {
-    console.error("Error saving preferences:", e);
+    logger.error("Error saving preferences:", e);
   }
 }
 

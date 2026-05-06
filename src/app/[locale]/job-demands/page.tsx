@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import JobDemandsClient from "./job-demands-client";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 
@@ -39,7 +40,7 @@ export default async function JobDemandsPage({ params }: { params: Promise<{ loc
       },
     });
   } catch (error) {
-    console.error("Failed to fetch job demands:", error);
+    logger.error("Failed to fetch job demands:", error);
     demands = [];
   }
     

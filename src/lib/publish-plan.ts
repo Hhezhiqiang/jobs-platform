@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { translateBlogContent, translateJobContent } from "@/lib/auto-translator";
 import { validateAndCleanKeywords, cleanBlogContent } from "@/lib/blog-content-validator";
+import { logger } from '@/lib/logger';
 
 export interface PublishPlanResult {
   success: boolean;
@@ -61,7 +62,6 @@ export async function publishSEOPlan(
   const rawKeywords = plan.keywords || [];
   const kwValidation = validateAndCleanKeywords(rawKeywords, plan.title);
   if (kwValidation.issues.length > 0) {
-    console.warn(`[publish-plan] 关键词校验问题:`, kwValidation.issues);
   }
   const keywords = kwValidation.cleanedKeywords;
 
@@ -103,9 +103,8 @@ export async function publishSEOPlan(
         where: { id: page.id },
         data: { titleEn, excerptEn, contentEn },
       });
-      console.log(`[translate] Blog #${page.id} translated to English`);
     } catch (err) {
-      console.error(`[translate] Failed to translate blog #${page.id}:`, err);
+      logger.error(`[translate] Failed to translate blog #${page.id}:`, err);
     }
   }
 

@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { successNextResponse, ApiError } from "@/lib/api-response";
+import { logger } from '@/lib/logger';
 
 export const dynamic = "force-dynamic";
 
@@ -125,7 +126,7 @@ export async function GET(request: NextRequest) {
       recentJobs,
     });
   } catch (error) {
-    console.error("Get company dashboard error:", error);
+    logger.error("Get company dashboard error:", error);
     return NextResponse.json(
       { error: "获取 Dashboard 数据失败" },
       { status: 500 }

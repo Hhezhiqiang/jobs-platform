@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { useLevelUp } from "@/components/game/level-up-modal";
+import { logger } from '@/lib/logger';
 
 interface ExpResult {
   success: boolean;
@@ -65,7 +66,7 @@ export function useGameTracking() {
 
         return result;
       } catch (error) {
-        console.error("追踪失败:", error);
+        logger.error("追踪失败:", error);
         return null;
       } finally {
         setLoading(false);

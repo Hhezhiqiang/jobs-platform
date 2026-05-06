@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import { logger } from '@/lib/logger';
 
 interface LeaderboardEntry {
   rank: number;
@@ -182,7 +183,7 @@ export async function GET(request: Request) {
       updatedAt: new Date().toISOString(),
     });
   } catch (error) {
-    console.error("获取排行榜失败:", error);
+    logger.error("获取排行榜失败:", error);
     return NextResponse.json(
       { error: "获取排行榜失败" },
       { status: 500 }

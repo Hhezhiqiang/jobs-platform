@@ -1,4 +1,5 @@
 import { prisma } from "./prisma";
+import { logger } from '@/lib/logger';
 import { CommissionStatus, PromoterStatus, Prisma } from "@prisma/client";
 
 const PROMO_COOKIE_NAME = "__promo_ref";
@@ -170,7 +171,7 @@ export async function settleCommissions(maxRetries = 3): Promise<number> {
       if (attempt < maxRetries) {
         // 指数退避: 2s, 4s, 8s
         const delay = Math.pow(2, attempt) * 2000;
-        console.warn(
+        logger.error(
           `[settleCommissions] 重试 ${attempt + 1}/${maxRetries} 在 ${delay}ms 后`,
           error,
         );

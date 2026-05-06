@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { AlertTriangle, RefreshCcw, Home } from "lucide-react";
+import { logger } from '@/lib/logger';
 
 export default function DashboardError({
   error,
@@ -18,7 +19,7 @@ export default function DashboardError({
   const locale = pathname?.split("/")[1] || "zh";
 
   useEffect(() => {
-    console.error("Dashboard error:", error);
+    logger.error("Dashboard error:", error);
   }, [error]);
 
   return (

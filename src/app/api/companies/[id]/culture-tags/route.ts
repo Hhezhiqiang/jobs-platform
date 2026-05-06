@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +42,7 @@ export async function GET(
       })),
     });
   } catch (error) {
-    console.error("获取公司文化标签失败:", error);
+    logger.error("获取公司文化标签失败:", error);
     return NextResponse.json({ error: "获取失败" }, { status: 500 });
   }
 }
@@ -195,7 +196,7 @@ export async function POST(
       );
     }
   } catch (error) {
-    console.error("添加文化标签失败:", error);
+    logger.error("添加文化标签失败:", error);
     return NextResponse.json({ error: "操作失败" }, { status: 500 });
   }
 }
@@ -242,7 +243,7 @@ export async function DELETE(
 
     return NextResponse.json({ message: "标签已删除" });
   } catch (error) {
-    console.error("删除文化标签失败:", error);
+    logger.error("删除文化标签失败:", error);
     return NextResponse.json({ error: "删除失败" }, { status: 500 });
   }
 }

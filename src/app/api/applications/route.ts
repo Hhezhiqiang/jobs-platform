@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
+import { logger } from '@/lib/logger';
 export const dynamic = "force-dynamic";
 
 // 获取当前用户的职位申请列表
@@ -41,7 +42,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ applications: validApplications });
   } catch (error) {
-    console.error("Get applications error:", error);
+    logger.error("Get applications error:", error);
     return NextResponse.json({ error: "获取申请列表失败" }, { status: 500 });
   }
 }
@@ -133,7 +134,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ message: "申请成功", application }, { status: 201 });
   } catch (error) {
-    console.error("Create application error:", error);
+    logger.error("Create application error:", error);
     return NextResponse.json({ error: "申请失败" }, { status: 500 });
   }
 }
@@ -173,7 +174,7 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ message: "操作成功", application: updatedApplication });
   } catch (error) {
-    console.error("Update application error:", error);
+    logger.error("Update application error:", error);
     return NextResponse.json({ error: "操作失败" }, { status: 500 });
   }
 }
@@ -206,7 +207,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ message: "删除成功" });
   } catch (error) {
-    console.error("Delete application error:", error);
+    logger.error("Delete application error:", error);
     return NextResponse.json({ error: "删除失败" }, { status: 500 });
   }
 }

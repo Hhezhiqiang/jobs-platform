@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { fetchAdzunaJobs, fetchAdzunaBulkJobs, type ProgressCallback } from '@/lib/adzuna-api';
+import { logger } from '@/lib/logger';
 
 // POST /api/admin/sync-adzuna
 export async function POST(req: Request) {
@@ -86,7 +87,7 @@ export async function POST(req: Request) {
       message: `同步完成: 新增 ${result.inserted} 个, 跳过 ${result.skipped} 个`,
     });
   } catch (error: unknown) {
-    console.error('Sync Adzuna error:', error);
+    logger.error('Sync Adzuna error:', error);
     return NextResponse.json(
       { error: (error as Error).message },
       { status: 500 },

@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Heart, Share2, Bookmark, Check } from "lucide-react";
+import { logger } from '@/lib/logger';
 
 interface StoryInteractionProps {
   storyId: string;
@@ -44,7 +45,7 @@ export function StoryInteraction({ storyId, initialResonanceCount, title }: Stor
           setIsBookmarked(bookmarkData.isBookmarked);
         }
       } catch (error) {
-        console.error("检查故事状态失败:", error);
+        logger.error("检查故事状态失败:", error);
       }
     };
 
@@ -76,7 +77,7 @@ export function StoryInteraction({ storyId, initialResonanceCount, title }: Stor
         setResonanceCount(data.resonanceCount);
       }
     } catch (error) {
-      console.error("共鸣操作失败:", error);
+      logger.error("共鸣操作失败:", error);
     } finally {
       setIsLoading(false);
       setTimeout(() => setIsAnimating(false), 300);
@@ -94,7 +95,6 @@ export function StoryInteraction({ storyId, initialResonanceCount, title }: Stor
           url,
         });
       } catch (error) {
-        console.log("分享取消");
       }
     } else {
       // Copy to clipboard as fallback
@@ -103,7 +103,7 @@ export function StoryInteraction({ storyId, initialResonanceCount, title }: Stor
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       } catch (error) {
-        console.error("复制失败:", error);
+        logger.error("复制失败:", error);
       }
     }
   };
@@ -125,7 +125,7 @@ export function StoryInteraction({ storyId, initialResonanceCount, title }: Stor
         setIsBookmarked(data.isBookmarked);
       }
     } catch (error) {
-      console.error("收藏操作失败:", error);
+      logger.error("收藏操作失败:", error);
     }
   };
 

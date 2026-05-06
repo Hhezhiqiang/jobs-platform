@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { getAnalyticsOverview } from "@/lib/analytics";
+import { logger } from '@/lib/logger';
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +34,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error("Analytics API error:", error);
+    logger.error("Analytics API error:", error);
     return NextResponse.json(
       { error: "Failed to fetch analytics data" },
       { status: 500 }

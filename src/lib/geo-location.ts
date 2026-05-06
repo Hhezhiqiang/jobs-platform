@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 // IP地理位置缓存（内存缓存，避免重复查询）
 const geoCache = new Map<string, { country: string; city: string; timestamp: number }>();
@@ -52,7 +53,6 @@ async function fetchGeoLocation(ip: string): Promise<GeoLocation | null> {
 
     // ip-api 返回格式：成功时 status="success"，失败时 status="fail"
     if (data.status === "fail") {
-      console.warn(`[Geo] Lookup failed for ${ip}: ${data.message}`);
       // 如果是配额超限，暂时返回 Unknown，避免无限重试
       if (data.message?.includes("over quota")) {
         return { country: "Unknown", city: "Unknown" };
@@ -70,7 +70,7 @@ async function fetchGeoLocation(ip: string): Promise<GeoLocation | null> {
 
     return result;
   } catch (error) {
-    console.error(`[Geo] Network error for ${ip}:`, error);
+    logger.error(`[Geo] Network error for ${ip}:`, error);
     return null;
   }
 }
@@ -89,7 +89,7 @@ export async function updatePageViewGeoLocation(viewId: string, ip: string): Pro
       },
     });
   } catch (error) {
-    console.error("Failed to update page view geo location:", error);
+    logger.error("Failed to update page view geo location:", error);
   }
 }
 
@@ -128,7 +128,7 @@ export async function batchUpdateGeoLocations(limit: number = 100): Promise<numb
 
     return updated;
   } catch (error) {
-    console.error("Batch geo update error:", error);
+    logger.error("Batch geo update error:", error);
     return 0;
   }
 }

@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { logger } from '@/lib/logger';
 
 export const dynamic = "force-dynamic";
 
@@ -136,7 +137,7 @@ export async function POST(request: NextRequest) {
         },
       });
     } catch (notifyError) {
-      console.error("Send notification error:", notifyError);
+      logger.error("Send notification error:", notifyError);
       // 通知发送失败不影响推荐功能
     }
 
@@ -151,7 +152,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Recommend job error:", error);
+    logger.error("Recommend job error:", error);
     return NextResponse.json({ error: "推荐职位失败" }, { status: 500 });
   }
 }
@@ -211,7 +212,7 @@ export async function GET(request: NextRequest) {
       })),
     });
   } catch (error) {
-    console.error("Get job seekers error:", error);
+    logger.error("Get job seekers error:", error);
     return NextResponse.json({ error: "获取求职者列表失败" }, { status: 500 });
   }
 }

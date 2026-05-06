@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { translateJobContent } from "@/lib/auto-translator";
 import { Prisma } from "@prisma/client";
+import { logger } from '@/lib/logger';
 
 // 计算匹配度
 function calculateMatchScore(companyTags: string[], userTags: string[]): number {
@@ -132,7 +133,7 @@ export async function GET(request: NextRequest) {
       cultureFitCount,
     });
   } catch (error) {
-    console.error("Jobs API error:", error);
+    logger.error("Jobs API error:", error);
     return NextResponse.json(
       { error: "Failed to fetch jobs" },
       { status: 500 }
@@ -191,14 +192,13 @@ export async function POST(request: NextRequest) {
           benefitsEn: translated.benefitsEn,
         },
       });
-      console.log(`[translate] Admin job #${job.id} translated to English`);
     } catch (err) {
-      console.error(`[translate] Failed to translate admin job #${job.id}:`, err);
+      logger.error(`[translate] Failed to translate admin job #${job.id}:`, err);
     }
 
     return NextResponse.json({ success: true, job });
   } catch (error: any) {
-    console.error("Create job error:", error);
+    logger.error("Create job error:", error);
     return NextResponse.json({ error: error.message || "发布失败" }, { status: 500 });
   }
 }

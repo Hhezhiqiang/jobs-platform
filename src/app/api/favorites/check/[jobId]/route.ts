@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 export const dynamic = "force-dynamic";
 
 // 检查职位是否已收藏
@@ -30,7 +31,7 @@ export async function GET(
 
     return NextResponse.json({ isFavorited: !!favorite });
   } catch (error) {
-    console.error("检查收藏状态失败:", error);
+    logger.error("检查收藏状态失败:", error);
     return NextResponse.json({ isFavorited: false });
   }
 }

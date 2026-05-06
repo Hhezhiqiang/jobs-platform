@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { CHECKIN_REWARDS } from "./config";
 import { addExp } from "./exp-system";
+import { logger } from '@/lib/logger';
 
 export interface CheckinResult {
   success: boolean;
@@ -125,7 +126,7 @@ export async function doCheckin(userId: string): Promise<CheckinResult> {
       message: bonusMessage || `签到成功！+${expReward} 经验 +${coinReward} 金币`,
     };
   } catch (error) {
-    console.error("签到失败:", error);
+    logger.error("签到失败:", error);
     return {
       success: false,
       isCheckedIn: false,

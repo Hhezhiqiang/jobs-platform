@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { collectArchives } from "./archive-engine";
 import { generateSEOPlan } from "./seo-plan";
 import { publishSEOPlan } from "./publish-plan";
+import { logger } from '@/lib/logger';
 
 const AUTO_PUBLISH_ENABLED = process.env.AUTO_PUBLISH_ENABLED === "true";
 
@@ -31,7 +32,7 @@ export async function runAutoPipeline(newMonitorIds: string[]): Promise<AutoPipe
   });
 
   if (!adminUser) {
-    console.error("[auto-pipeline] No admin user found, cannot auto-publish.");
+    logger.error("[auto-pipeline] No admin user found, cannot auto-publish.");
     return { processed: 0, published: 0, errors: 1, details: [] };
   }
 
@@ -103,12 +104,11 @@ export async function runAutoPipeline(newMonitorIds: string[]): Promise<AutoPipe
       result.published++;
 
       if (process.env.NODE_ENV === "development") {
-        console.log(`[auto-pipeline] Published ${monitor.keyword} → ${publishResult.url}`);
       }
     } catch (err) {
       detail.error = (err as Error).message;
       result.errors++;
-      console.error(`[auto-pipeline] Failed at ${detail.stage} for ${monitor.keyword}:`, detail.error);
+      logger.error(`[auto-pipeline] Failed at ${detail.stage} for ${monitor.keyword}:`, detail.error);
     }
 
     result.processed++;

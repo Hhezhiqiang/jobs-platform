@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 export const dynamic = "force-dynamic";
 
 // 获取当前用户的通知列表
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
       unreadCount,
     });
   } catch (error) {
-    console.error("Get notifications error:", error);
+    logger.error("Get notifications error:", error);
     return NextResponse.json({ error: "获取通知列表失败" }, { status: 500 });
   }
 }
@@ -106,7 +107,7 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ message: "通知已标记为已读" });
   } catch (error) {
-    console.error("Update notification error:", error);
+    logger.error("Update notification error:", error);
     return NextResponse.json({ error: "操作失败" }, { status: 500 });
   }
 }
@@ -145,7 +146,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ message: "通知已删除" });
   } catch (error) {
-    console.error("Delete notification error:", error);
+    logger.error("Delete notification error:", error);
     return NextResponse.json({ error: "删除失败" }, { status: 500 });
   }
 }

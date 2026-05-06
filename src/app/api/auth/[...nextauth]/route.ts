@@ -4,6 +4,7 @@ import NextAuth from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
 import { NextRequest, NextResponse } from "next/server";
+import { logger } from '@/lib/logger';
 
 const nextAuthHandler = NextAuth(authOptions);
 
@@ -25,7 +26,7 @@ async function handler(req: NextRequest, context: Record<string, unknown>) {
   } catch (error) {
     if (process.env.NODE_ENV === "development") {
        
-      console.error("Auth handler error:", error);
+      logger.error("Auth handler error:", error);
     }
     return NextResponse.json(
       { error: "认证服务暂时不可用，请稍后重试" },

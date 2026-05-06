@@ -8,6 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Send, MessageCircle } from "lucide-react";
 import { formatDistanceToNow } from "@/lib/utils";
+import { logger } from '@/lib/logger';
 
 interface Comment {
   id: string;
@@ -45,7 +46,7 @@ export function CommentsSection({ storyId }: CommentsSectionProps) {
           setComments(data.comments || []);
         }
       } catch (error) {
-        console.error("获取评论失败:", error);
+        logger.error("获取评论失败:", error);
       } finally {
         setIsLoading(false);
       }
@@ -80,7 +81,7 @@ export function CommentsSection({ storyId }: CommentsSectionProps) {
         setNewComment("");
       }
     } catch (error) {
-      console.error("提交评论失败:", error);
+      logger.error("提交评论失败:", error);
     } finally {
       setIsSubmitting(false);
     }

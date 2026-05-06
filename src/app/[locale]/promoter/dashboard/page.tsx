@@ -3,6 +3,7 @@ import { useLocale } from "next-intl";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { logger } from '@/lib/logger';
 import {
   LineChart,
   Line,
@@ -60,7 +61,7 @@ export default function PromoterDashboardPage() {
         router.push(`/${locale}/promoter/login`);
       }
     } catch (e) {
-      console.error(e);
+      logger.error(e);
       router.push(`/${locale}/promoter/login`);
     } finally {
       setLoading(false);

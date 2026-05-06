@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { Metadata } from "next";
 import { Building2, ArrowLeft, Filter, TrendingUp, Users, Target } from "lucide-react";
 import { InterviewExperienceCard } from "@/components/interview/interview-experience-card";
+import { logger } from '@/lib/logger';
 
 interface PageProps {
   params: Promise<{ slug: string; locale: string }>;
@@ -132,7 +133,7 @@ async function getCompanyInterviewData(slug: string, page: number = 1) {
       },
     };
   } catch (error) {
-    console.error("获取面试数据失败:", error);
+    logger.error("获取面试数据失败:", error);
     return null;
   }
 }

@@ -22,7 +22,6 @@ export async function POST(request: Request) {
     const body = await request.json().catch(() => ({}));
     if (process.env.NODE_ENV === "development") {
        
-      console.log("Payment webhook received:", body);
     }
     return NextResponse.json({ received: true });
   } catch {

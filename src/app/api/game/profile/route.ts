@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { getGameProfile, trackLogin } from "@/lib/game/exp-system";
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   try {
@@ -18,7 +19,7 @@ export async function GET() {
       profile,
     });
   } catch (error) {
-    console.error("获取游戏档案失败:", error);
+    logger.error("获取游戏档案失败:", error);
     return NextResponse.json(
       { error: "获取游戏档案失败" },
       { status: 500 }
@@ -43,7 +44,7 @@ export async function POST() {
       profile,
     });
   } catch (error) {
-    console.error("更新登录状态失败:", error);
+    logger.error("更新登录状态失败:", error);
     return NextResponse.json(
       { error: "更新登录状态失败" },
       { status: 500 }

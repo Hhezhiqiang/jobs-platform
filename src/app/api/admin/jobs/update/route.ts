@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { EmploymentType, ExperienceLevel, JobStatus } from "@prisma/client";
+import { logger } from '@/lib/logger';
 export const dynamic = "force-dynamic";
 
 // 更新职位
@@ -95,7 +96,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.redirect(new URL("/admin/jobs", request.url));
   } catch (error) {
-    console.error("更新职位失败:", error);
+    logger.error("更新职位失败:", error);
     return NextResponse.json({ error: "更新失败" }, { status: 500 });
   }
 }

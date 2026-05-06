@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -49,7 +50,7 @@ export async function POST(
       tag: newTag,
     });
   } catch (error) {
-    console.error("Add consensus tag error:", error);
+    logger.error("Add consensus tag error:", error);
     return NextResponse.json(
       { error: "添加标签失败" },
       { status: 500 }

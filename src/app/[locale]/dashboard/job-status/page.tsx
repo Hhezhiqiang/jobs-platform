@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
 import Link from "next/link";
+import { logger } from '@/lib/logger';
 import { 
   Briefcase, 
   Search, 
@@ -136,7 +137,7 @@ export default function JobStatusPage() {
         recommendCount: data.recommendCount || 0,
       });
     } catch (err) {
-      console.error("Error fetching job status:", err);
+      logger.error("Error fetching job status:", err);
       setError("加载求职状态失败，请刷新重试");
     } finally {
       setLoading(false);

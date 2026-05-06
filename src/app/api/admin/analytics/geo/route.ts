@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { subDays, startOfDay, endOfDay } from "date-fns";
+import { logger } from '@/lib/logger';
 
 export const dynamic = "force-dynamic";
 
@@ -133,7 +134,7 @@ export async function GET(request: NextRequest) {
       topCitiesByCountry,
     });
   } catch (error: any) {
-    console.error("[geo-analytics] Error:", error);
+    logger.error("[geo-analytics] Error:", error);
     return NextResponse.json(
       { error: "Failed to fetch geo analytics", message: error.message },
       { status: 500 }

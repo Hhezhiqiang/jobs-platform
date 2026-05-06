@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 export const dynamic = "force-dynamic";
 
 // 检查权限
@@ -71,7 +72,7 @@ export async function GET(
 
     return NextResponse.json({ job });
   } catch (error) {
-    console.error("Get job error:", error);
+    logger.error("Get job error:", error);
     return NextResponse.json({ error: "获取职位失败" }, { status: 500 });
   }
 }
@@ -148,7 +149,7 @@ export async function PATCH(
 
     return NextResponse.json({ message: "更新成功", job });
   } catch (error) {
-    console.error("Update job error:", error);
+    logger.error("Update job error:", error);
     return NextResponse.json({ error: "更新失败" }, { status: 500 });
   }
 }
@@ -182,7 +183,7 @@ export async function DELETE(
 
     return NextResponse.json({ message: "删除成功" });
   } catch (error) {
-    console.error("Delete job error:", error);
+    logger.error("Delete job error:", error);
     return NextResponse.json({ error: "删除失败" }, { status: 500 });
   }
 }

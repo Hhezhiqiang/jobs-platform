@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Bell, Check, Trash2, Clock, FileText, Briefcase, Gift, AlertCircle } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { logger } from '@/lib/logger';
 
 interface Notification {
   id: string;
@@ -75,7 +76,7 @@ export function NotificationBell() {
       }
     } catch (error) {
       if ((error as Error).name !== "AbortError") {
-        console.error("Failed to fetch notifications:", error);
+        logger.error("Failed to fetch notifications:", error);
       }
     } finally {
       setLoading(false);
@@ -100,7 +101,7 @@ export function NotificationBell() {
         setUnreadCount((prev) => Math.max(0, prev - 1));
       }
     } catch (error) {
-      console.error("Failed to mark as read:", error);
+      logger.error("Failed to mark as read:", error);
     }
   };
 
@@ -119,7 +120,7 @@ export function NotificationBell() {
         setUnreadCount(0);
       }
     } catch (error) {
-      console.error("Failed to mark all as read:", error);
+      logger.error("Failed to mark all as read:", error);
     }
   };
 
@@ -139,7 +140,7 @@ export function NotificationBell() {
         }
       }
     } catch (error) {
-      console.error("Failed to delete notification:", error);
+      logger.error("Failed to delete notification:", error);
     }
   };
 

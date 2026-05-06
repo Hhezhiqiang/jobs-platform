@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 export const dynamic = "force-dynamic";
 
 // 获取当前用户资料
@@ -43,7 +44,7 @@ export async function GET() {
       resumes: user.resumes,
     });
   } catch (error) {
-    console.error("Get profile error:", error);
+    logger.error("Get profile error:", error);
     return NextResponse.json({ error: "获取资料失败" }, { status: 500 });
   }
 }
@@ -81,7 +82,7 @@ export async function PATCH(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Update profile error:", error);
+    logger.error("Update profile error:", error);
     return NextResponse.json({ error: "更新失败" }, { status: 500 });
   }
 }

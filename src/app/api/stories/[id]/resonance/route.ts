@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { addExp } from "@/lib/game/exp-system";
+import { logger } from '@/lib/logger';
 
 // POST: 用户共鸣故事
 export async function POST(
@@ -78,7 +79,7 @@ export async function POST(
       resonanceCount: updatedStory.resonanceCount,
     });
   } catch (error) {
-    console.error("[Resonance POST Error]", error);
+    logger.error("[Resonance POST Error]", error);
     
     // 处理Prisma的唯一约束冲突错误
     if (error instanceof Error && error.message.includes("Unique constraint")) {

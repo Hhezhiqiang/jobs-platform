@@ -155,7 +155,7 @@ export async function addExp(
     const isLevelUp = levelInfo.level > oldLevel;
     
     // 异步检查成就解锁（不阻塞返回）
-    checkAndUnlockAchievements(userId).catch(console.error);
+    checkAndUnlockAchievements(userId).catch(logger.error);
 
     return {
       success: true,
@@ -171,7 +171,7 @@ export async function addExp(
         : `+${config.exp} 经验值`,
     };
   } catch (error) {
-    console.error("添加经验值失败:", error);
+    logger.error("添加经验值失败:", error);
     return {
       success: false,
       addedExp: 0,
@@ -390,6 +390,7 @@ export async function updateTaskProgress(
 
 // 成就检查逻辑已移至 achievement-system.ts
 // import { checkAndUnlockAchievements } from "./achievement-system";
+import { logger } from '@/lib/logger';
 
 /**
  * 检查成就是否满足条件

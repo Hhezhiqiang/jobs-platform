@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 export const dynamic = "force-dynamic";
 
@@ -49,7 +50,7 @@ export async function GET(request: NextRequest) {
       companies,
     });
   } catch (error) {
-    console.error("搜索公司失败:", error);
+    logger.error("搜索公司失败:", error);
     return NextResponse.json(
       { error: "搜索公司失败" },
       { status: 500 }

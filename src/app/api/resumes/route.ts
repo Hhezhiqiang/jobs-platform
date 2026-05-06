@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +23,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ resumes });
   } catch (error) {
-    console.error("获取简历列表失败:", error);
+    logger.error("获取简历列表失败:", error);
     return NextResponse.json({ error: "获取失败，请稍后重试" }, { status: 500 });
   }
 }

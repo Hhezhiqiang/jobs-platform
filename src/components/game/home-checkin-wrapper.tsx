@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { CheckinModal } from "@/components/game/checkin-modal";
 import { ExpToast } from "@/components/game/exp-toast";
+import { logger } from '@/lib/logger';
 
 interface CheckinResult {
   expReward: number;
@@ -31,7 +32,7 @@ export function HomeCheckinWrapper() {
           }
         }
       } catch (error) {
-        console.error("检查签到状态失败:", error);
+        logger.error("检查签到状态失败:", error);
       }
     };
 

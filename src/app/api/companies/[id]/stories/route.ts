@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 // GET /api/companies/[id]/stories - 获取@该公司的故事列表
 export async function GET(
@@ -118,7 +119,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error("Get company stories error:", error);
+    logger.error("Get company stories error:", error);
     return NextResponse.json(
       { error: "获取故事列表失败" },
       { status: 500 }

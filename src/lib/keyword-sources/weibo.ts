@@ -1,4 +1,5 @@
 import type { KeywordSourceAdapter, RawKeywordItem } from "./index";
+import { logger } from '@/lib/logger';
 
 // 热词组合生成器
 function generateHotKeywords(): RawKeywordItem[] {
@@ -83,7 +84,7 @@ export const weiboAdapter: KeywordSourceAdapter = {
 
       return items;
     } catch (err) {
-      console.error("[weibo-adapter] error:", (err as Error).message);
+      logger.error("[weibo-adapter] error:", (err as Error).message);
       return generateHotKeywords();
     }
   },

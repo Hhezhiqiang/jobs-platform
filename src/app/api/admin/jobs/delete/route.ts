@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { logger } from '@/lib/logger';
 export const dynamic = "force-dynamic";
 
 // 删除职位
@@ -46,7 +47,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.redirect(new URL("/admin/jobs", request.url));
   } catch (error) {
-    console.error("删除职位失败:", error);
+    logger.error("删除职位失败:", error);
     return NextResponse.json({ error: "删除失败" }, { status: 500 });
   }
 }

@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 export const dynamic = "force-dynamic";
 
 // 获取企业详情
@@ -58,7 +59,7 @@ export async function GET(
 
     return NextResponse.json({ company });
   } catch (error) {
-    console.error("Get company error:", error);
+    logger.error("Get company error:", error);
     return NextResponse.json({ error: "获取企业信息失败" }, { status: 500 });
   }
 }
@@ -120,7 +121,7 @@ export async function PATCH(
 
     return NextResponse.json({ message: "更新成功", company });
   } catch (error) {
-    console.error("Update company error:", error);
+    logger.error("Update company error:", error);
     return NextResponse.json({ error: "更新失败" }, { status: 500 });
   }
 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 // POST /api/stories/[id]/invite - 邀请故事作者投递职位
 export async function POST(
@@ -92,7 +93,7 @@ export async function POST(
         },
       });
     } catch (notifyError) {
-      console.error("发送通知失败:", notifyError);
+      logger.error("发送通知失败:", notifyError);
     }
 
     return NextResponse.json({
@@ -106,7 +107,7 @@ export async function POST(
       },
     });
   } catch (error) {
-    console.error("发送内推邀请失败:", error);
+    logger.error("发送内推邀请失败:", error);
     return NextResponse.json(
       { error: "发送失败，请稍后重试" },
       { status: 500 }

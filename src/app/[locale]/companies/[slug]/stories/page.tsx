@@ -4,6 +4,7 @@ import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { Building2, ArrowLeft, Send, CheckCircle, Clock, Eye, Heart, Filter } from "lucide-react";
 import { StoryInviteButton } from "@/components/story-invite-button";
+import { logger } from '@/lib/logger';
 
 interface PageProps {
   params: Promise<{ slug: string; locale: string }>;
@@ -50,7 +51,7 @@ async function getCompanyStories(companySlug: string, statusFilter?: string) {
       stories,
     };
   } catch (error) {
-    console.error("获取故事数据失败:", error);
+    logger.error("获取故事数据失败:", error);
     return null;
   }
 }

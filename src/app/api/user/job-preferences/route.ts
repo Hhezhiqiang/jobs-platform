@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 export const dynamic = "force-dynamic";
 
@@ -48,7 +49,7 @@ export async function GET() {
       updatedAt: preferences.updatedAt,
     });
   } catch (error) {
-    console.error("获取求职偏好失败:", error);
+    logger.error("获取求职偏好失败:", error);
     return NextResponse.json({ error: "获取求职偏好失败" }, { status: 500 });
   }
 }
@@ -185,7 +186,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("更新求职偏好失败:", error);
+    logger.error("更新求职偏好失败:", error);
     return NextResponse.json({ error: "更新求职偏好失败" }, { status: 500 });
   }
 }

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle, Shield } from "lucide-react";
 import { useLocale } from "next-intl";
 import { SkipLink } from "@/components/skip-link";
+import { logger } from '@/lib/logger';
 
 function AdminLoginForm() {
   const router = useRouter();
@@ -51,7 +52,7 @@ function AdminLoginForm() {
         router.refresh();
       }
     } catch (err) {
-      console.error("Login error:", err);
+      logger.error("Login error:", err);
       setError("登录服务暂时不可用，请稍后重试");
       setLoading(false);
     }

@@ -6,6 +6,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { clawbackCommission } from "@/lib/promoter";
+import { logger } from '@/lib/logger';
 
 function checkAdmin(session: any) {
   if (!session || session.user.role !== "ADMIN") {
@@ -52,7 +53,7 @@ export async function GET(request: Request) {
       pagination: { total, page, totalPages: Math.ceil(total / limit) },
     });
   } catch (error) {
-    console.error("Admin commissions error:", error);
+    logger.error("Admin commissions error:", error);
     return NextResponse.json({ error: "获取失败" }, { status: 500 });
   }
 }
@@ -74,7 +75,7 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Admin commission clawback error:", error);
+    logger.error("Admin commission clawback error:", error);
     return NextResponse.json({ error: "追回失败" }, { status: 500 });
   }
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +30,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ blogs });
   } catch (error) {
-    console.error("Failed to fetch hot blogs:", error);
+    logger.error("Failed to fetch hot blogs:", error);
     return NextResponse.json(
       { error: "Failed to fetch hot blogs" },
       { status: 500 }

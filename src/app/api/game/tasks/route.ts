@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   try {
@@ -38,7 +39,7 @@ export async function GET() {
       tasks,
     });
   } catch (error) {
-    console.error("获取任务列表失败:", error);
+    logger.error("获取任务列表失败:", error);
     return NextResponse.json(
       { error: "获取任务列表失败" },
       { status: 500 }

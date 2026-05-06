@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { getAuthenticatedPromoter } from "@/lib/promoter-auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   const auth = await getAuthenticatedPromoter();
@@ -109,7 +110,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error("Promoter dashboard error:", error);
+    logger.error("Promoter dashboard error:", error);
     return NextResponse.json({ error: "获取失败" }, { status: 500 });
   }
 }

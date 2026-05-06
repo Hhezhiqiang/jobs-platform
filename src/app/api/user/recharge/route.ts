@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import { logger } from '@/lib/logger';
 
 const ALLOWED_AMOUNTS = [10, 30, 50, 100];
 
@@ -35,7 +36,7 @@ export async function POST(request: Request) {
       message: "支付接口待接入，请联系管理员完成充值",
     });
   } catch (error) {
-    console.error("Recharge error:", error);
+    logger.error("Recharge error:", error);
     return NextResponse.json({ error: "发起充值失败" }, { status: 500 });
   }
 }

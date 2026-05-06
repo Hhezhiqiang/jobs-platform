@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useCallback } from "react";
+import { logger } from '@/lib/logger';
 
 interface JobViewTrackerProps {
   jobId: string;
@@ -36,7 +37,7 @@ export function GameJobViewTracker({ jobId }: JobViewTrackerProps) {
         }),
       });
     } catch (error) {
-      console.error("追踪职位浏览失败:", error);
+      logger.error("追踪职位浏览失败:", error);
     }
   }, [jobId]);
 
@@ -70,7 +71,7 @@ export function useJobApplyTracker() {
         }),
       });
     } catch (error) {
-      console.error("追踪职位申请失败:", error);
+      logger.error("追踪职位申请失败:", error);
     }
   }, []);
 
@@ -104,7 +105,7 @@ export function useArticleReadTracker() {
         }),
       });
     } catch (error) {
-      console.error("追踪文章阅读失败:", error);
+      logger.error("追踪文章阅读失败:", error);
     }
   }, []);
 
@@ -125,7 +126,7 @@ export function useProfileCompleteTracker() {
         }),
       });
     } catch (error) {
-      console.error("追踪完善资料失败:", error);
+      logger.error("追踪完善资料失败:", error);
     }
   }, []);
 

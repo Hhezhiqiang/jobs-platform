@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { useLocale } from "next-intl";
 import { User, Save, MapPin, Calendar, BookOpen, Briefcase, Award, FileText, Upload, Edit2 } from "lucide-react";
 import Link from "next/link";
+import { logger } from '@/lib/logger';
 
 export default function ProfilePage({ params }: { params: Promise<{ locale: string }> }) {
   const { data: session, status: sessionStatus } = useSession();
@@ -62,7 +63,7 @@ export default function ProfilePage({ params }: { params: Promise<{ locale: stri
         });
       }
     } catch (e) {
-      console.error(e);
+      logger.error(e);
     } finally {
       setLoading(false);
     }
@@ -89,7 +90,7 @@ export default function ProfilePage({ params }: { params: Promise<{ locale: stri
         fetchData();
       }
     } catch (e) {
-      console.error(e);
+      logger.error(e);
     } finally {
       setSaving(false);
     }

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { logger } from '@/lib/logger';
 
 interface CheckinStatus {
   isCheckedIn: boolean;
@@ -43,7 +44,7 @@ export function CheckinModal({ isOpen, onClose, onCheckin }: CheckinModalProps) 
         setStatus(data.status);
       }
     } catch (error) {
-      console.error("获取签到状态失败:", error);
+      logger.error("获取签到状态失败:", error);
     }
   };
 
@@ -67,7 +68,7 @@ export function CheckinModal({ isOpen, onClose, onCheckin }: CheckinModalProps) 
       // 刷新状态
       fetchStatus();
     } catch (error) {
-      console.error("签到失败:", error);
+      logger.error("签到失败:", error);
     } finally {
       setLoading(false);
     }

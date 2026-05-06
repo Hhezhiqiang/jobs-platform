@@ -1,5 +1,6 @@
 import axios from "axios";
 import type { KeywordSourceAdapter, RawKeywordItem } from "./index";
+import { logger } from '@/lib/logger';
 
 const SUBREDDITS = ["jobs", "cscareerquestions", "productmanagement", "data science"];
 
@@ -31,7 +32,7 @@ export const redditAdapter: KeywordSourceAdapter = {
           });
         }
       } catch (err) {
-        console.error(`[reddit] failed for r/${sub}:`, (err as Error).message);
+        logger.error(`[reddit] failed for r/${sub}:`, (err as Error).message);
       }
     }
 

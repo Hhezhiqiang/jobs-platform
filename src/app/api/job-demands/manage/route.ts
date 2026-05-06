@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +26,7 @@ export async function GET() {
 
     return NextResponse.json({ success: true, data: demands });
   } catch (error: any) {
-    console.error("Get user job demands error:", error);
+    logger.error("Get user job demands error:", error);
     return NextResponse.json({ error: "获取数据失败" }, { status: 500 });
   }
 }
@@ -72,7 +73,7 @@ export async function PUT(request: Request) {
 
     return NextResponse.json({ success: true, data: demand });
   } catch (error: any) {
-    console.error("Update job demand error:", error);
+    logger.error("Update job demand error:", error);
     return NextResponse.json({ error: "更新失败" }, { status: 500 });
   }
 }
@@ -108,7 +109,7 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({ success: true, message: "删除成功" });
   } catch (error: any) {
-    console.error("Delete job demand error:", error);
+    logger.error("Delete job demand error:", error);
     return NextResponse.json({ error: "删除失败" }, { status: 500 });
   }
 }

@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { getPrisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -42,7 +43,7 @@ export async function GET(request: NextRequest) {
       totalPages: Math.ceil(total / limit),
     });
   } catch (error: any) {
-    console.error("[api/admin/jobs] error:", error);
+    logger.error("[api/admin/jobs] error:", error);
     return NextResponse.json(
       { error: error.message || "获取职位列表失败" },
       { status: 500 }

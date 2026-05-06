@@ -128,7 +128,6 @@ async function withRetry<T>(fn: () => Promise<T>, maxRetries = 3): Promise<T> {
       if (attempt < maxRetries) {
         // 指数退避: 1s, 2s, 4s
         const delay = Math.pow(2, attempt) * 1000;
-        console.warn(`[ai-client] 重试 ${attempt + 1}/${maxRetries} 在 ${delay}ms 后`, error);
         await new Promise((r) => setTimeout(r, delay));
       }
     }

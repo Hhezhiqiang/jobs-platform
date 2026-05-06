@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
+import { logger } from '@/lib/logger';
 
 // 获取搜索建议
 export async function GET(request: NextRequest) {
@@ -82,7 +83,7 @@ export async function GET(request: NextRequest) {
       suggestions: Array.from(suggestions).slice(0, limit),
     });
   } catch (error) {
-    console.error("Suggestions error:", error);
+    logger.error("Suggestions error:", error);
     return NextResponse.json({ suggestions: [] });
   }
 }

@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { PromoterStatus } from "@prisma/client";
+import { logger } from '@/lib/logger';
 
 function checkAdmin(session: any) {
   if (!session || session.user.role !== "ADMIN") {
@@ -57,7 +58,7 @@ export async function GET(request: Request) {
       pagination: { total, page, totalPages: Math.ceil(total / limit) },
     });
   } catch (error) {
-    console.error("Admin promoters list error:", error);
+    logger.error("Admin promoters list error:", error);
     return NextResponse.json({ error: "获取失败" }, { status: 500 });
   }
 }

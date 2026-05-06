@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { logger } from '@/lib/logger';
 
 interface Task {
   id: string;
@@ -78,7 +79,7 @@ export function useTaskProgress(): UseTaskProgressResult {
 
       return data;
     } catch (err) {
-      console.error("更新任务进度失败:", err);
+      logger.error("更新任务进度失败:", err);
       throw err;
     }
   }, [fetchTasks]);
@@ -111,7 +112,7 @@ export function useSingleTaskProgress(taskCode: string) {
         setTask(data.task);
       }
     } catch (error) {
-      console.error("获取任务进度失败:", error);
+      logger.error("获取任务进度失败:", error);
     } finally {
       setLoading(false);
     }

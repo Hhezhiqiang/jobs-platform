@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { doCheckin, getCheckinStatus, getCheckinHistory } from "@/lib/game/checkin-system";
+import { logger } from '@/lib/logger';
 
 export async function GET(request: Request) {
   try {
@@ -23,7 +24,7 @@ export async function GET(request: Request) {
     const status = await getCheckinStatus(session.user.id);
     return NextResponse.json({ success: true, status });
   } catch (error) {
-    console.error("获取签到状态失败:", error);
+    logger.error("获取签到状态失败:", error);
     return NextResponse.json(
       { error: "获取签到状态失败" },
       { status: 500 }
@@ -41,7 +42,7 @@ export async function POST() {
     const result = await doCheckin(session.user.id);
     return NextResponse.json(result);
   } catch (error) {
-    console.error("签到失败:", error);
+    logger.error("签到失败:", error);
     return NextResponse.json(
       { error: "签到失败" },
       { status: 500 }

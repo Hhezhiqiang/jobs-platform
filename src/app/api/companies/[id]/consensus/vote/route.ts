@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -46,7 +47,7 @@ export async function POST(
       tag: updatedTag,
     });
   } catch (error) {
-    console.error("Vote error:", error);
+    logger.error("Vote error:", error);
     return NextResponse.json(
       { error: "投票失败" },
       { status: 500 }

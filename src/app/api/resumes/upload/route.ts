@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
 import { mkdir, writeFile } from "fs/promises";
 import { join } from "path";
+import { logger } from '@/lib/logger';
 export const dynamic = "force-dynamic";
 
 const ALLOWED_EXTENSIONS = ["pdf", "doc", "docx", "txt", "md"];
@@ -80,7 +81,7 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error: any) {
-    console.error("上传简历失败:", error);
+    logger.error("上传简历失败:", error);
     return NextResponse.json({ error: error.message || "上传失败，请稍后重试" }, { status: 500 });
   }
 }

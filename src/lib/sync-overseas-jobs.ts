@@ -3,6 +3,7 @@
  * 支持国家：gb, us, sg, de, fr, au, in 等
  */
 import { fetchAdzunaJobs } from '@/lib/adzuna-api';
+import { logger } from '@/lib/logger';
 
 const COUNTRIES = [
   { code: 'gb', name: '英国', cities: ['London', 'Manchester', 'Birmingham'] },
@@ -24,12 +25,10 @@ const KEYWORDS = [
 ];
 
 async function syncOverseasJobs() {
-  console.log('🌍 开始抓取海外职位...');
   
   let total = 0;
   
   for (const country of COUNTRIES) {
-    console.log(`\n📍 抓取 ${country.name} (${country.code})...`);
     
     for (const keyword of KEYWORDS) {
       for (const city of country.cities) {
@@ -37,18 +36,16 @@ async function syncOverseasJobs() {
           const count = await fetchAdzunaJobs(keyword, city, 1, country.code);
           total += count;
           
-          console.log(`  ✅ ${keyword} in ${city}: ${count} 个`);
           
           // 频率控制
           await sleep(1500);
         } catch (error: any) {
-          console.error(`  ❌ ${keyword} in ${city}:`, error.message);
+          logger.error(`  ❌ ${keyword} in ${city}:`, error.message);
         }
       }
     }
   }
   
-  console.log(`\n✅ 海外职位抓取完成！总计新增 ${total} 个职位`);
   return total;
 }
 
@@ -61,7 +58,7 @@ if (require.main === module) {
   syncOverseasJobs()
     .then(() => process.exit(0))
     .catch(error => {
-      console.error(error);
+      logger.error(error);
       process.exit(1);
     });
 }

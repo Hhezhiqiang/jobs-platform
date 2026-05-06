@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { logger } from '@/lib/logger';
 
 interface ArticleReadTrackerProps {
   articleId: string;
@@ -38,7 +39,7 @@ export function ArticleReadTracker({ articleId }: ArticleReadTrackerProps) {
           localStorage.setItem(readKey, now.toString());
         }
       } catch (error) {
-        console.error("追踪文章阅读失败:", error);
+        logger.error("追踪文章阅读失败:", error);
       }
     }, 10000);
 

@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 export async function POST(request: Request) {
   try {
@@ -80,7 +81,7 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
-    console.error("Salary calculator API error:", error);
+    logger.error("Salary calculator API error:", error);
     return NextResponse.json(
       { success: false, error: "计算薪资失败" },
       { status: 500 }

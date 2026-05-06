@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 export const dynamic = "force-dynamic";
 
 // 检查权限
@@ -101,7 +102,7 @@ export async function GET(
 
     return NextResponse.json({ application });
   } catch (error) {
-    console.error("Get application error:", error);
+    logger.error("Get application error:", error);
     return NextResponse.json({ error: "获取申请详情失败" }, { status: 500 });
   }
 }
@@ -203,7 +204,7 @@ export async function PATCH(
       application,
     });
   } catch (error) {
-    console.error("Update application error:", error);
+    logger.error("Update application error:", error);
     return NextResponse.json({ error: "更新失败" }, { status: 500 });
   }
 }
@@ -278,7 +279,7 @@ export async function POST(
 
     return NextResponse.json({ message: "回复已发送" });
   } catch (error) {
-    console.error("Send response error:", error);
+    logger.error("Send response error:", error);
     return NextResponse.json({ error: "发送失败" }, { status: 500 });
   }
 }

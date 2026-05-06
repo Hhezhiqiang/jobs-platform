@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
+import { logger } from '@/lib/logger';
 
 interface GameProfile {
   id: string;
@@ -39,7 +40,7 @@ export function LevelCard() {
         setProfile(data.profile);
       }
     } catch (error) {
-      console.error("获取游戏档案失败:", error);
+      logger.error("获取游戏档案失败:", error);
     } finally {
       setLoading(false);
     }

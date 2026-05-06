@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Search, X, Building2 } from "lucide-react";
+import { logger } from '@/lib/logger';
 
 interface WriteStoryPageProps {
   params: { locale: string };
@@ -88,7 +89,7 @@ export default function WriteStoryPage({ params }: WriteStoryPageProps) {
         setCompanies(data.companies || []);
       }
     } catch (err) {
-      console.error("搜索公司失败:", err);
+      logger.error("搜索公司失败:", err);
     } finally {
       setIsSearching(false);
     }

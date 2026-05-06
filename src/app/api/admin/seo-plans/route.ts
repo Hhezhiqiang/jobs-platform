@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
   try {
@@ -32,7 +33,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ items, limit, offset });
   } catch (error) {
-    console.error("[api/admin/seo-plans] GET error:", error);
+    logger.error("[api/admin/seo-plans] GET error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -60,7 +61,7 @@ export async function PATCH(request: NextRequest) {
     const updated = await prisma.seo_plans.update({ where: { id }, data });
     return NextResponse.json(updated);
   } catch (error) {
-    console.error("[api/admin/seo-plans] PATCH error:", error);
+    logger.error("[api/admin/seo-plans] PATCH error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

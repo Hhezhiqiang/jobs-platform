@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { logger } from '@/lib/logger';
 
 export default function JobDetailError({
   error,
@@ -12,7 +13,7 @@ export default function JobDetailError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error("Job detail error:", error);
+    logger.error("Job detail error:", error);
   }, [error]);
 
   const pathname = usePathname();

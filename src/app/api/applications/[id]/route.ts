@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { createApplicationStatusNotification } from "@/lib/notifications";
 import { checkApplicationPermission } from "@/lib/permissions";
 import { Prisma } from "@prisma/client";
+import { logger } from '@/lib/logger';
 export const dynamic = "force-dynamic";
 
 // 更新申请状态（招聘方使用）
@@ -114,7 +115,7 @@ export async function PATCH(
       application: updatedApplication,
     });
   } catch (error) {
-    console.error("Update application status error:", error);
+    logger.error("Update application status error:", error);
     return NextResponse.json({ error: "更新失败" }, { status: 500 });
   }
 }

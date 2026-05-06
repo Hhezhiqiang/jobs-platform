@@ -1,6 +1,7 @@
 import { prisma } from "./prisma";
 import { NotificationType } from "@prisma/client";
 import { sendNotificationEmail } from "./email";
+import { logger } from '@/lib/logger';
 
 // 定义元数据值的类型
 export type NotificationMetadataValue = string | number | boolean | null | undefined;
@@ -62,14 +63,14 @@ export async function createNotification({
           content,
           actionUrl,
         }).catch((error: Error) => {
-          console.error("Failed to send notification email:", error);
+          logger.error("Failed to send notification email:", error);
         });
       }
     }
 
     return notification;
   } catch (error) {
-    console.error("Create notification error:", error);
+    logger.error("Create notification error:", error);
     throw error;
   }
 }
@@ -95,7 +96,7 @@ export async function createNotifications(
 
     return result;
   } catch (error) {
-    console.error("Create notifications error:", error);
+    logger.error("Create notifications error:", error);
     throw error;
   }
 }
@@ -209,7 +210,7 @@ export async function getUnreadNotificationCount(userId: string) {
     });
     return count;
   } catch (error) {
-    console.error("Get unread notification count error:", error);
+    logger.error("Get unread notification count error:", error);
     return 0;
   }
 }

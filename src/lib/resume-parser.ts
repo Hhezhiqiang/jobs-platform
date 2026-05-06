@@ -1,3 +1,4 @@
+import { logger } from '@/lib/logger';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const pdfParse = require("pdf-parse");
 
@@ -32,7 +33,7 @@ export async function parseResume(
       text = "";
     }
   } catch (error) {
-    console.error("解析文件失败:", error);
+    logger.error("解析文件失败:", error);
     text = "";
   }
 

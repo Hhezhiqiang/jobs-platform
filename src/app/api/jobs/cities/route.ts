@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   try {
@@ -26,7 +27,7 @@ export async function GET() {
       cities: cities.map((c) => c.city).filter(Boolean),
     });
   } catch (error) {
-    console.error("Failed to fetch cities:", error);
+    logger.error("Failed to fetch cities:", error);
     return NextResponse.json(
       { error: "获取城市列表失败" },
       { status: 500 }

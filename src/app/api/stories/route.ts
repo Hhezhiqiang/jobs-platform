@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import { logger } from '@/lib/logger';
 
 // 前端类型与数据库类型的映射
 export type StoryTypeUI = "ALL" | "TRANSFORMATION" | "INTERVIEW" | "INSIGHT" | "SKILL";
@@ -146,7 +147,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("获取故事列表失败:", error);
+    logger.error("获取故事列表失败:", error);
     return NextResponse.json(
       { error: "获取故事列表失败" },
       { status: 500 }
@@ -256,7 +257,7 @@ export async function POST(request: NextRequest) {
       story: formattedStory,
     });
   } catch (error) {
-    console.error("创建故事失败:", error);
+    logger.error("创建故事失败:", error);
     return NextResponse.json(
       { error: "创建故事失败" },
       { status: 500 }

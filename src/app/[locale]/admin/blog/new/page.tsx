@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { PageType, PageStatus } from "@prisma/client";
 import Link from "next/link";
 import { validateAndCleanKeywords, cleanBlogContent } from "@/lib/blog-content-validator";
+import { logger } from '@/lib/logger';
 
 export default async function NewBlogPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -58,7 +59,7 @@ export default async function NewBlogPage({ params }: { params: Promise<{ locale
         },
       });
     } catch (error) {
-      console.error("创建博客失败:", error);
+      logger.error("创建博客失败:", error);
     }
 
     redirect(`/${locale}/admin/blog`);

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 export const dynamic = "force-dynamic";
 
@@ -66,7 +67,7 @@ export async function GET(
       pageSize,
     });
   } catch (error) {
-    console.error("[Comments GET Error]", error);
+    logger.error("[Comments GET Error]", error);
     return NextResponse.json({ error: "获取评论列表失败" }, { status: 500 });
   }
 }
@@ -139,7 +140,7 @@ export async function POST(
 
     return NextResponse.json(comment, { status: 201 });
   } catch (error) {
-    console.error("[Comments POST Error]", error);
+    logger.error("[Comments POST Error]", error);
     return NextResponse.json({ error: "发表评论失败" }, { status: 500 });
   }
 }

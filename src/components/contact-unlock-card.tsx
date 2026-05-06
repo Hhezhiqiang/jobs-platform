@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Lock, Mail, Phone, Loader2, Wallet } from "lucide-react";
+import { logger } from '@/lib/logger';
 
 interface ContactUnlockCardProps {
   jobId: string;
@@ -38,7 +39,7 @@ export function ContactUnlockCard({
           setBalance(data.balance);
         }
       })
-      .catch(console.error)
+      .catch(logger.error)
       .finally(() => setBalanceLoading(false));
   }, [isLoggedIn]);
 

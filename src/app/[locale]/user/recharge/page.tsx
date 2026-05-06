@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { useLocale } from "next-intl";
 import { Footer } from "@/components/footer";
 import { Wallet, Coins, Loader2, CheckCircle2, Bitcoin, CreditCard, ExternalLink, ArrowLeft } from "lucide-react";
+import { logger } from '@/lib/logger';
 
 interface RechargeOption {
   amount: number;
@@ -64,7 +65,7 @@ export default function RechargePage() {
         setTransactions((data.transactions || []).filter((t: any) => t.type === "RECHARGE"));
       }
     } catch (err) {
-      console.error("Failed to fetch balance:", err);
+      logger.error("Failed to fetch balance:", err);
     }
   };
 

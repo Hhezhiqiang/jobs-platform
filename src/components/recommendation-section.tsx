@@ -9,6 +9,7 @@ import { jobs, companies } from "@prisma/client";
 import { getUserBehaviorData } from "@/lib/recommendations";
 import { Sparkles, Loader2, RefreshCw, User } from "lucide-react";
 import { formatSalary } from "@/lib/utils";
+import { logger } from '@/lib/logger';
 
 type JobWithCompany = jobs & { companies: companies };
 
@@ -123,7 +124,7 @@ export function RecommendationSection({
       const data: RecommendationData = await response.json();
       setRecommendations(data);
     } catch (err) {
-      console.error("Failed to fetch recommendations:", err);
+      logger.error("Failed to fetch recommendations:", err);
       setError(i18n.loadError);
     } finally {
       setIsLoading(false);

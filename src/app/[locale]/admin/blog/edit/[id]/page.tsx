@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { PageStatus } from "@prisma/client";
 import Link from "next/link";
 import { validateAndCleanKeywords, cleanBlogContent } from "@/lib/blog-content-validator";
+import { logger } from '@/lib/logger';
 
 interface Props {
   params: Promise<{ id: string; locale: string }>;
@@ -84,7 +85,7 @@ export default async function EditBlogPage({ params }: Props) {
         },
       });
     } catch (error) {
-      console.error("更新博客失败:", error);
+      logger.error("更新博客失败:", error);
     }
 
     redirect(`/${locale}/admin/blog`);

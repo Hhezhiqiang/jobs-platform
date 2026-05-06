@@ -4,6 +4,7 @@
  */
 
 import { aiChatJSON } from "@/lib/ai-client";
+import { logger } from '@/lib/logger';
 
 interface ParsedJobDescription {
   description: string;  // 岗位职责
@@ -108,7 +109,7 @@ async function parseSingle(rawDescription: string): Promise<ParsedJobDescription
     descriptionCache.set(key, result);
     return result;
   } catch (error: unknown) {
-    console.error("AI 解析失败:", (error as Error).message);
+    logger.error("AI 解析失败:", (error as Error).message);
     const fallback: ParsedJobDescription = {
       description: rawDescription.substring(0, 500),
       requirements: "",
@@ -164,7 +165,6 @@ export async function parseJobDescriptionsBatch(
     return results;
   }
 
-  console.log(`[AI 批量解析] 需要解析 ${uniqueDescriptions.size} 条独立描述，覆盖 ${descriptions.length} 个职位`);
 
   const entries = Array.from(uniqueDescriptions.entries());
 

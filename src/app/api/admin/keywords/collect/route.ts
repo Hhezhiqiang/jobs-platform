@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { collectKeywords } from "@/lib/keyword-monitor";
 import { runAutoPipeline } from "@/lib/auto-publisher";
 import { runAutoBlogPipeline } from "@/lib/auto-blog-generator";
+import { logger } from '@/lib/logger';
 
 const CRON_LOCK_KEY = "cron_lock_keyword_collect";
 const LOCK_TTL_MINUTES = 10;
@@ -41,7 +42,7 @@ async function releaseCronLock(): Promise<void> {
       data: { updatedAt: stale },
     });
   } catch (err) {
-    console.error("Failed to release cron lock:", err);
+    logger.error("Failed to release cron lock:", err);
   }
 }
 
@@ -70,9 +71,7 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      console.log("[keyword-collect] Starting collection...");
       const result = await collectKeywords();
-      console.log(`[keyword-collect] Result: ${JSON.stringify(result)}`);
 
       // 运行自动发布流水线
       let autoResult: any = { processed: 0, published: 0, errors: 0, details: [] };
@@ -80,7 +79,7 @@ export async function POST(request: NextRequest) {
         try {
           autoResult = await runAutoPipeline(result.newIds);
         } catch (err: any) {
-          console.error("Auto pipeline error:", err.message);
+          logger.error("Auto pipeline error:", err.message);
         }
       }
 
@@ -90,7 +89,7 @@ export async function POST(request: NextRequest) {
         try {
           blogResult = await runAutoBlogPipeline(result.newIds);
         } catch (err: any) {
-          console.error("Auto blog pipeline error:", err.message);
+          logger.error("Auto blog pipeline error:", err.message);
         }
       }
 
@@ -104,7 +103,7 @@ export async function POST(request: NextRequest) {
       await releaseCronLock();
     }
   } catch (error: any) {
-    console.error("[keyword-collect] Fatal error:", error);
+    logger.error("[keyword-collect] Fatal error:", error);
     return NextResponse.json(
       { error: "Internal server error", message: error.message },
       { status: 500 }

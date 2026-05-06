@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { logger } from '@/lib/logger';
 
 export const dynamic = "force-dynamic";
 
@@ -29,7 +30,7 @@ export async function GET(
 
     return NextResponse.json({ isBookmarked: !!bookmark });
   } catch (error) {
-    console.error("Check bookmark error:", error);
+    logger.error("Check bookmark error:", error);
     return NextResponse.json({ isBookmarked: false }, { status: 200 });
   }
 }
@@ -77,7 +78,7 @@ export async function POST(
       return NextResponse.json({ isBookmarked: true });
     }
   } catch (error) {
-    console.error("Toggle bookmark error:", error);
+    logger.error("Toggle bookmark error:", error);
     return NextResponse.json({ error: "收藏操作失败" }, { status: 500 });
   }
 }

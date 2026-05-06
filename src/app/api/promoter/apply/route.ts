@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isValidTrc20Address } from "@/lib/promoter";
+import { logger } from '@/lib/logger';
 
 export async function POST(request: Request) {
   try {
@@ -46,7 +47,7 @@ export async function POST(request: Request) {
       defaultRate: promoter.defaultRate,
     });
   } catch (error) {
-    console.error("Promoter apply error:", error);
+    logger.error("Promoter apply error:", error);
     return NextResponse.json({ error: "申请失败" }, { status: 500 });
   }
 }

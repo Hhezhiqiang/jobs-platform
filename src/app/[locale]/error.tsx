@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { logger } from '@/lib/logger';
 
 export default function Error({
   error,
@@ -14,7 +15,7 @@ export default function Error({
   
   useEffect(() => {
     if (process.env.NODE_ENV === "development") {
-      console.error(error);
+      logger.error(error);
     }
   }, [error]);
 
