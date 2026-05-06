@@ -20,6 +20,7 @@ interface AdzunaJob {
   contract_type?: string;
   created: string;
   category?: { label: string; tag: string };
+  _country?: string; // 附加字段：抓取时的国家码
 }
 
 interface AdzunaResponse {
@@ -118,25 +119,41 @@ const SYNC_CONFIG = {
     'android developer',
   ],
 
-  locations: [
-    'London',
-    'Manchester',
-    'Birmingham',
-    'Bristol',
-    'Leeds',
-    'Edinburgh',
-    'Glasgow',
-    'Liverpool',
-    'Cambridge',
-    'Oxford',
-    'Reading',
-    'Newcastle',
-    'Sheffield',
-    'Nottingham',
-    'Southampton',
-  ],
+  locations: {
+    // 英国
+    'gb': [
+      'London', 'Manchester', 'Birmingham', 'Bristol', 'Leeds',
+      'Edinburgh', 'Glasgow', 'Liverpool', 'Cambridge', 'Oxford',
+      'Reading', 'Newcastle', 'Sheffield', 'Nottingham', 'Southampton',
+    ],
+    // 美国
+    'us': [
+      'New York', 'San Francisco', 'Seattle', 'Austin', 'Boston',
+      'Chicago', 'Los Angeles', 'Denver', 'Atlanta', 'Miami',
+    ],
+    // 新加坡
+    'sg': [
+      'Singapore',
+    ],
+    // 阿联酋
+    'ae': [
+      'Dubai', 'Abu Dhabi',
+    ],
+    // 德国
+    'de': [
+      'Berlin', 'Munich', 'Hamburg', 'Frankfurt', 'Cologne',
+    ],
+    // 加拿大
+    'ca': [
+      'Toronto', 'Vancouver', 'Montreal', 'Ottawa', 'Calgary',
+    ],
+    // 澳大利亚
+    'au': [
+      'Sydney', 'Melbourne', 'Brisbane', 'Perth', 'Adelaide',
+    ],
+  },
 
-  countries: ['gb'],
+  countries: ['gb', 'us', 'sg', 'ae', 'de', 'ca', 'au'],
 };
 
 // ─── 工具函数 ────────────────────────────────────────────────
@@ -178,7 +195,52 @@ function deduplicateJobs(jobs: AdzunaJob[]): AdzunaJob[] {
   });
 }
 
-// ─── Adzuna API 调用（带限流和重试） ─────────────────────────
+// ─── 公司名模糊匹配 ───────────────────────────────────────────
+
+// 公司名称标准化：移除后缀、转小写
+function normalizeCompanyName(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/\b(inc|ltd|llc|corp|co|company|limited|group|plc|gmbh|ag|sa|pty)\b\.?/g, '')
+    .replace(/[^\w\s]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// 按公司名称匹配现有公司（返回 companyId 或 null）
+async function matchCompanyByName(
+  adzunaCompanyName: string,
+  country: string,
+): Promise<string | null> {
+  if (!adzunaCompanyName || adzunaCompanyName === 'Adzuna Jobs') return null;
+
+  const normalized = normalizeCompanyName(adzunaCompanyName);
+
+  // 1. 精确匹配标准化名称
+  const companies = await prisma.companies.findMany({
+    select: { id: true, name: true, nameEn: true },
+  });
+
+  // 先按完全匹配（忽略大小写）
+  const exactMatch = companies.find(
+    (c) =>
+      normalizeCompanyName(c.name) === normalized ||
+      (c.nameEn && normalizeCompanyName(c.nameEn) === normalized) ||
+      c.name.toLowerCase() === adzunaCompanyName.toLowerCase(),
+  );
+  if (exactMatch) return exactMatch.id;
+
+  // 2. 包含匹配（Adzuna 公司名包含现有公司名，或反过来）
+  const partialMatch = companies.find(
+    (c) =>
+      c.name.toLowerCase().includes(normalized) ||
+      normalized.includes(c.name.toLowerCase()) ||
+      (c.nameEn && (c.nameEn.toLowerCase().includes(normalized) || normalized.includes(c.nameEn.toLowerCase()))),
+  );
+  if (partialMatch) return partialMatch.id;
+
+  return null;
+}
 
 async function fetchAdzunaPage(
   keyword: string,
@@ -323,19 +385,38 @@ function transformJob(
     // ignore
   }
 
-  // 薪资标准化：Adzuna 返回的是年薪（GBP），统一转为月薪 K 单位
+  // 薪资标准化：Adzuna 返回的是年薪（GBP/USD 等），统一转为月薪 K 单位
   let salaryMin = job.salary_min || null;
   let salaryMax = job.salary_max || null;
   let salaryCurrency = 'CNY';
+  const countryUpper = country.toUpperCase();
   if (salaryMin || salaryMax) {
-    const countryUpper = country.toUpperCase();
     if (['GB', 'UK'].includes(countryUpper)) {
       salaryCurrency = 'GBP';
-      // Adzuna 返回年薪，转为月薪
       salaryMin = salaryMin ? Math.round(salaryMin / 12) : null;
       salaryMax = salaryMax ? Math.round(salaryMax / 12) : null;
     } else if (['US', 'USA'].includes(countryUpper)) {
       salaryCurrency = 'USD';
+      salaryMin = salaryMin ? Math.round(salaryMin / 12) : null;
+      salaryMax = salaryMax ? Math.round(salaryMax / 12) : null;
+    } else if (['SG', 'SGP'].includes(countryUpper)) {
+      salaryCurrency = 'SGD';
+      salaryMin = salaryMin ? Math.round(salaryMin / 12) : null;
+      salaryMax = salaryMax ? Math.round(salaryMax / 12) : null;
+    } else if (['AE', 'ARE'].includes(countryUpper)) {
+      salaryCurrency = 'AED';
+      salaryMin = salaryMin ? Math.round(salaryMin / 12) : null;
+      salaryMax = salaryMax ? Math.round(salaryMax / 12) : null;
+    } else if (['DE', 'DEU'].includes(countryUpper)) {
+      salaryCurrency = 'EUR';
+      salaryMin = salaryMin ? Math.round(salaryMin / 12) : null;
+      salaryMax = salaryMax ? Math.round(salaryMax / 12) : null;
+    } else if (['CA', 'CAN'].includes(countryUpper)) {
+      salaryCurrency = 'CAD';
+      salaryMin = salaryMin ? Math.round(salaryMin / 12) : null;
+      salaryMax = salaryMax ? Math.round(salaryMax / 12) : null;
+    } else if (['AU', 'AUS'].includes(countryUpper)) {
+      salaryCurrency = 'AUD';
       salaryMin = salaryMin ? Math.round(salaryMin / 12) : null;
       salaryMax = salaryMax ? Math.round(salaryMax / 12) : null;
     }
@@ -439,7 +520,6 @@ export async function fetchAdzunaBulkJobs(options?: FetchAdzunaBulkOptions): Pro
   aiCalls: number;
 }> {
   const keywords = options?.keywords ?? SYNC_CONFIG.keywords;
-  const locations = options?.locations ?? SYNC_CONFIG.locations;
   const countries = options?.countries ?? SYNC_CONFIG.countries;
   const maxPages = Math.min(options?.pages ?? SYNC_CONFIG.defaultPages, SYNC_CONFIG.maxPages);
   const onProgress = options?.onProgress;
@@ -459,11 +539,23 @@ export async function fetchAdzunaBulkJobs(options?: FetchAdzunaBulkOptions): Pro
     return { total: 0, fetched: 0, inserted: 0, skipped: 0, failed: 0, aiCalls: 0 };
   }
 
+  // 按国家匹配地点列表
+  const configLocations = SYNC_CONFIG.locations as Record<string, string[]>;
+  const countryLocations: Record<string, string[]> = {};
+  let totalLocs = 0;
+  for (const country of countries) {
+    const locs = options?.locations && options.locations.length > 0
+      ? options.locations
+      : (configLocations[country] || []);
+    countryLocations[country] = locs;
+    totalLocs += locs.length;
+  }
+
   const apiSemaphore = new Semaphore(SYNC_CONFIG.apiMaxConcurrent);
   const allJobs: AdzunaJob[] = [];
   let totalApiCalls = 0;
 
-  // ── Phase 1: 并发抓取所有关键词 × 地点 ──
+  // ── Phase 1: 并发抓取所有国家 × 关键词 × 地点 ──
   onProgress?.({
     phase: 'fetching',
     fetched: 0,
@@ -473,17 +565,20 @@ export async function fetchAdzunaBulkJobs(options?: FetchAdzunaBulkOptions): Pro
     failed: 0,
     aiCalls: 0,
     totalPages: 0,
-    message: `开始抓取: ${keywords.length} 关键词 × ${locations.length} 地点 × ${maxPages} 页`,
+    message: `开始抓取: ${countries.length} 国家 × ${keywords.length} 关键词 × ${totalLocs} 地点 × ${maxPages} 页`,
   });
 
   const fetchPromises: Promise<void>[] = [];
 
   for (const country of countries) {
     for (const keyword of keywords) {
-      for (const loc of locations) {
+      const locs = countryLocations[country] || [];
+      for (const loc of locs) {
         const p = (async () => {
           try {
             const jobs = await fetchMultiPage(keyword, loc, country, maxPages, apiSemaphore, onProgress);
+            // 附加国家码到每个职位
+            for (const j of jobs) j._country = country;
             allJobs.push(...jobs);
             totalApiCalls++;
           } catch (error: unknown) {
@@ -524,7 +619,7 @@ export async function fetchAdzunaBulkJobs(options?: FetchAdzunaBulkOptions): Pro
   // ── Phase 2: 转换数据，筛选需要 AI 解析的职位 ──
   const transformedJobs = fetchedJobs.map((job) => ({
     job,
-    data: transformJob(job, job.location?.display_name || '', countries[0] || 'gb', companyId, authorId),
+    data: transformJob(job, job.location?.display_name || '', job._country || countries[0] || 'gb', companyId, authorId),
   }));
 
   // 筛选需要 AI 解析的职位（先用 HTML 清理后的文本判断）
@@ -591,6 +686,35 @@ export async function fetchAdzunaBulkJobs(options?: FetchAdzunaBulkOptions): Pro
       totalPages: 0,
       message: `AI 解析完成: ${needAI.length} 个职位 (~${aiCallCount} 次调用)`,
     });
+  }
+
+  // ── Phase 3.5: 公司名模糊匹配 ──
+  onProgress?.({
+    phase: 'parsing',
+    fetched: fetchedCount,
+    parsed: needAI.length,
+    inserted: 0,
+    skipped: 0,
+    failed: 0,
+    aiCalls: aiCallCount,
+    totalPages: 0,
+    message: `正在匹配公司名称...`,
+  });
+
+  let matchedCompanyCount = 0;
+  for (const t of transformedJobs) {
+    const adzunaName = t.job.company?.display_name;
+    if (adzunaName && adzunaName !== 'Adzuna Jobs') {
+      const matchedId = await matchCompanyByName(adzunaName, t.job._country || 'gb');
+      if (matchedId) {
+        t.data.companyId = matchedId;
+        matchedCompanyCount++;
+      }
+    }
+  }
+
+  if (matchedCompanyCount > 0) {
+    logger.info(`[adzuna] 公司名称匹配: ${matchedCompanyCount}/${transformedJobs.length} 个职位匹配到现有公司`);
   }
 
   // ── Phase 4: 批量插入 ──
