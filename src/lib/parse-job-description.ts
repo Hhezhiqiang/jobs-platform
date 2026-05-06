@@ -4,6 +4,7 @@
  */
 
 import { aiChatJSON } from "@/lib/ai-client";
+import { stripHtml } from "@/lib/html-strip";
 import { logger } from '@/lib/logger';
 
 interface ParsedJobDescription {
@@ -75,6 +76,9 @@ async function parseSingle(rawDescription: string): Promise<ParsedJobDescription
   const cached = descriptionCache.get(key);
   if (cached) return cached;
 
+  // 清理 HTML 后再发送
+  const cleanedDescription = stripHtml(rawDescription);
+
   try {
     const parsed = await aiChatJSON<ParsedJobDescription>(
       [
@@ -90,7 +94,7 @@ async function parseSingle(rawDescription: string): Promise<ParsedJobDescription
         },
         {
           role: "user",
-          content: `请解析以下职位描述：\n\n${rawDescription.substring(0, 3000)}`,
+          content: `请解析以下职位描述：\n\n${cleanedDescription.substring(0, 3000)}`,
         },
       ],
       {
@@ -102,7 +106,7 @@ async function parseSingle(rawDescription: string): Promise<ParsedJobDescription
     );
 
     const result: ParsedJobDescription = {
-      description: parsed.description || rawDescription.substring(0, 500),
+      description: parsed.description || cleanedDescription.substring(0, 500),
       requirements: parsed.requirements || "",
       benefits: parsed.benefits || "",
     };
@@ -111,7 +115,7 @@ async function parseSingle(rawDescription: string): Promise<ParsedJobDescription
   } catch (error: unknown) {
     logger.error("AI 解析失败:", (error as Error).message);
     const fallback: ParsedJobDescription = {
-      description: rawDescription.substring(0, 500),
+      description: cleanedDescription.substring(0, 500),
       requirements: "",
       benefits: "",
     };

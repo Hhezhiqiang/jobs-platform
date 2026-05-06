@@ -1,6 +1,8 @@
 import { prisma } from './prisma';
 import { parseJobDescriptionsBatch, needsAIParsing } from './parse-job-description';
 import { getRegionTags } from './global-job-tags';
+import { classifyJob } from './job-category-mapper';
+import { stripHtml, truncateText } from './html-strip';
 import { logger } from '@/lib/logger';
 
 // ─── 类型定义 ────────────────────────────────────────────────
@@ -147,6 +149,13 @@ function extractCity(displayName: string): string {
   return displayName.split(',')[0]?.trim() || displayName;
 }
 
+function inferExperienceLevel(title: string): 'SENIOR' | 'MID' | 'JUNIOR' | 'LEAD' {
+  const lower = title.toLowerCase();
+  if (/junior|jr\.|entry|graduate|intern|associate/.test(lower)) return 'JUNIOR';
+  if (/senior|sr\.|lead|principal|staff|head|director/.test(lower)) return 'SENIOR';
+  return 'MID';
+}
+
 function retry<T>(fn: () => Promise<T>, maxRetries: number = SYNC_CONFIG.maxRetries): Promise<T> {
   return (async function attempt(n: number): Promise<T> {
     try {
@@ -275,13 +284,32 @@ function transformJob(
   const city = extractCity(fullLocation);
   const globalTags = getRegionTags(country, fullLocation);
 
+  // Adzuna 分类映射
   if (job.category?.tag) {
     globalTags.push(job.category.tag);
   }
 
+  // 技术方向分类（前端/后端/数据/产品/...）
+  const techDirection = classifyJob(job.category?.tag, job.title, job.description);
+  if (techDirection) {
+    globalTags.push(`direction-${techDirection}`);
+  }
+
+  // 职位层级推断（从标题提取）
+  const titleLower = job.title.toLowerCase();
+  if (/senior|lead|principal|staff|head/.test(titleLower)) {
+    globalTags.push('senior');
+  } else if (/junior|entry|graduate|intern/.test(titleLower)) {
+    globalTags.push('junior');
+  } else {
+    globalTags.push('mid');
+  }
+
   // 从描述中提取直接申请 URL
+  // 先清理 HTML 标签，避免影响 URL 提取
+  const cleanDescription = stripHtml(job.description);
   let directApplyUrl = job.redirect_url;
-  const urlMatch = job.description.match(/(https?:\/\/[^\s<>"']+)/i);
+  const urlMatch = cleanDescription.match(/(https?:\/\/[^\s<>"']+)/i);
   if (urlMatch && urlMatch[1] && !urlMatch[1].includes('adzuna.com')) {
     directApplyUrl = urlMatch[1];
   }
@@ -295,6 +323,24 @@ function transformJob(
     // ignore
   }
 
+  // 薪资标准化：Adzuna 返回的是年薪（GBP），统一转为月薪 K 单位
+  let salaryMin = job.salary_min || null;
+  let salaryMax = job.salary_max || null;
+  let salaryCurrency = 'CNY';
+  if (salaryMin || salaryMax) {
+    const countryUpper = country.toUpperCase();
+    if (['GB', 'UK'].includes(countryUpper)) {
+      salaryCurrency = 'GBP';
+      // Adzuna 返回年薪，转为月薪
+      salaryMin = salaryMin ? Math.round(salaryMin / 12) : null;
+      salaryMax = salaryMax ? Math.round(salaryMax / 12) : null;
+    } else if (['US', 'USA'].includes(countryUpper)) {
+      salaryCurrency = 'USD';
+      salaryMin = salaryMin ? Math.round(salaryMin / 12) : null;
+      salaryMax = salaryMax ? Math.round(salaryMax / 12) : null;
+    }
+  }
+
   return {
     slug: `adzuna-${job.id}`,
     title: job.title,
@@ -304,9 +350,9 @@ function transformJob(
     location: fullLocation,
     city,
     country: country.toUpperCase(),
-    salaryMin: job.salary_min || null,
-    salaryMax: job.salary_max || null,
-    salaryCurrency: ['GB', 'UK'].includes(country.toUpperCase()) ? 'GBP' : ['US', 'USA'].includes(country.toUpperCase()) ? 'USD' : 'CNY',
+    salaryMin,
+    salaryMax,
+    salaryCurrency,
     employmentType:
       job.contract_type === 'part_time'
         ? 'PART_TIME'
@@ -317,6 +363,8 @@ function transformJob(
             : job.contract_type === 'freelance'
               ? 'FREELANCE'
               : 'FULL_TIME',
+    // 从标题推断经验级别
+    experience: inferExperienceLevel(job.title),
     applyUrl: directApplyUrl,
     status: 'ACTIVE' as const,
     companyId,
@@ -479,13 +527,18 @@ export async function fetchAdzunaBulkJobs(options?: FetchAdzunaBulkOptions): Pro
     data: transformJob(job, job.location?.display_name || '', countries[0] || 'gb', companyId, authorId),
   }));
 
-  // 筛选需要 AI 解析的职位
-  const needAI = transformedJobs.filter((t) => needsAIParsing(t.job.description));
-  const noNeedAI = transformedJobs.filter((t) => !needsAIParsing(t.job.description));
+  // 筛选需要 AI 解析的职位（先用 HTML 清理后的文本判断）
+  const cleanedDescriptions = transformedJobs.map((t) => ({
+    ...t,
+    cleanedDescription: stripHtml(t.job.description),
+  }));
 
-  // 不需要 AI 的职位直接使用原文
+  const needAI = cleanedDescriptions.filter((t) => needsAIParsing(t.cleanedDescription));
+  const noNeedAI = cleanedDescriptions.filter((t) => !needsAIParsing(t.cleanedDescription));
+
+  // 不需要 AI 的职位直接使用清理后的原文
   for (const t of noNeedAI) {
-    t.data.description = t.job.description.substring(0, 500);
+    t.data.description = truncateText(t.cleanedDescription, 500);
     t.data.requirements = '';
     t.data.benefits = '';
   }
@@ -508,7 +561,7 @@ export async function fetchAdzunaBulkJobs(options?: FetchAdzunaBulkOptions): Pro
 
     const aiInputs = needAI.map((t) => ({
       id: t.job.id,
-      description: t.job.description,
+      description: t.cleanedDescription,
     }));
 
     const parsedMap = await parseJobDescriptionsBatch(aiInputs, SYNC_CONFIG.aiConcurrency);
@@ -523,7 +576,7 @@ export async function fetchAdzunaBulkJobs(options?: FetchAdzunaBulkOptions): Pro
         t.data.requirements = parsed.requirements;
         t.data.benefits = parsed.benefits;
       } else {
-        t.data.description = t.job.description.substring(0, 500);
+        t.data.description = truncateText(t.cleanedDescription, 500);
       }
     }
 
@@ -613,34 +666,38 @@ export async function fetchAdzunaJobs(
     transformJob(job, location || '', country, companyId, authorId),
   );
 
-  // 对需要 AI 解析的处理
-  const needAI = jobDataList.filter((_, i) => needsAIParsing(data.results[i].description));
+  // 对需要 AI 解析的处理（先清理 HTML）
+  const cleanedResults = data.results.map((job) => ({
+    ...job,
+    cleanedDescription: stripHtml(job.description),
+  }));
+
+  const needAI = cleanedResults.filter((_, i) => needsAIParsing(cleanedResults[i].cleanedDescription));
 
   if (needAI.length > 0) {
-    const aiInputs = data.results
-      .filter((job) => needsAIParsing(job.description))
-      .map((job) => ({ id: job.id, description: job.description }));
+    const aiInputs = needAI
+      .map((job) => ({ id: job.id, description: job.cleanedDescription }));
 
     const parsedMap = await parseJobDescriptionsBatch(aiInputs, 5);
 
-    for (let i = 0; i < data.results.length; i++) {
-      const job = data.results[i];
-      if (needsAIParsing(job.description)) {
+    for (let i = 0; i < cleanedResults.length; i++) {
+      const job = cleanedResults[i];
+      if (needsAIParsing(job.cleanedDescription)) {
         const parsed = parsedMap.get(job.id);
         if (parsed) {
           jobDataList[i].description = parsed.description;
           jobDataList[i].requirements = parsed.requirements;
           jobDataList[i].benefits = parsed.benefits;
         } else {
-          jobDataList[i].description = job.description.substring(0, 500);
+          jobDataList[i].description = truncateText(job.cleanedDescription, 500);
         }
       } else {
-        jobDataList[i].description = job.description.substring(0, 500);
+        jobDataList[i].description = truncateText(job.cleanedDescription, 500);
       }
     }
   } else {
-    for (let i = 0; i < data.results.length; i++) {
-      jobDataList[i].description = data.results[i].description.substring(0, 500);
+    for (let i = 0; i < cleanedResults.length; i++) {
+      jobDataList[i].description = truncateText(cleanedResults[i].cleanedDescription, 500);
     }
   }
 
