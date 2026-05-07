@@ -47,7 +47,7 @@ export function AuroraBlogPage({ initialPosts, total, totalPages, currentPage, c
   const isEn = locale === "en";
   const [searchQuery, setSearchQuery] = useState("");
 
-  const blogCountStr = isEn ? "140+" : "140+";
+  const blogCountStr = "140";
 
   return (
     <div className="min-h-screen bg-[#f8f7fc]">
