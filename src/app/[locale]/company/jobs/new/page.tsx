@@ -138,7 +138,7 @@ export default function NewJobPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    {t("experience")} *
+                    {t("experienceLevel")} *
                   </label>
                   <select
                     value={formData.experience}
@@ -224,7 +224,7 @@ export default function NewJobPage() {
 
             {/* 薪资待遇 */}
             <div className="border-t pt-8">
-              <h2 className="text-lg font-semibold mb-4">{t("salarySection")}</h2>
+              <h2 className="text-lg font-semibold mb-4">{t("salary")}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
