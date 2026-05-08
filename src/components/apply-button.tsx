@@ -68,14 +68,14 @@ export function ApplyButton({
   );
 }
 
-export function ShareButton({ jobTitle, companyName }: { jobTitle: string; companyName: string }) {
+export function ShareButton({ jobSlug, jobTitle, companyName }: { jobSlug: string; jobTitle: string; companyName: string }) {
   const pathname = usePathname();
   const locale = pathname?.split("/")[1] || "zh";
   const isEn = locale === "en";
   const [copied, setCopied] = useState(false);
 
   const handleShare = async () => {
-    const url = `${window.location.origin}${pathname}`;
+    const shareUrl = `${window.location.origin}/${locale}/jobs/${jobSlug}`;
     const text = isEn
       ? `${jobTitle} at ${companyName} - Check out this job on JobQuip!`
       : `${companyName} - ${jobTitle} | 查看职位详情`;
@@ -83,7 +83,7 @@ export function ShareButton({ jobTitle, companyName }: { jobTitle: string; compa
     // 优先使用 Web Share API
     if (navigator.share) {
       try {
-        await navigator.share({ title: text, text, url });
+        await navigator.share({ title: text, text, url: shareUrl });
         return;
       } catch {
         // 用户取消或失败，降级到复制链接
@@ -92,13 +92,13 @@ export function ShareButton({ jobTitle, companyName }: { jobTitle: string; compa
 
     // 降级：复制链接到剪贴板
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(shareUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
       // 最后的降级方案：选中 URL 提示用户手动复制
       const temp = document.createElement("textarea");
-      temp.value = url;
+      temp.value = shareUrl;
       document.body.appendChild(temp);
       temp.select();
       document.execCommand("copy");

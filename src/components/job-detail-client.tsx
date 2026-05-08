@@ -100,7 +100,7 @@ export default function JobDetailPageClient({ job, locale }: JobDetailPageProps)
 
               <div className="mt-4 flex gap-3">
                 <HeartButton jobId={job.id} size="md" />
-                <ShareButton jobTitle={job.title} companyName={job.companies?.name || ""} />
+                <ShareButton jobSlug={job.slug} jobTitle={job.title} companyName={job.companies?.name || ""} />
               </div>
               
               <div className="mt-6 pt-6 border-t border-gray-100 space-y-3 text-sm text-gray-500">
