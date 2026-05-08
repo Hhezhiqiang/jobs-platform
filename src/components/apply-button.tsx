@@ -71,7 +71,10 @@ export function ApplyButton({
     );
   }
 
-  if (applyUrl) {
+  // 如果 applyUrl 指向本站，不作为外部链接处理
+  const isExternalUrl = applyUrl && !applyUrl.includes('jobquip.com') && !applyUrl.includes('localhost');
+
+  if (isExternalUrl) {
     return (
       <>
         <a
