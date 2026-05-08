@@ -55,7 +55,7 @@ export function PWAInstaller() {
   if (isInstalled || !isInstallable) return null;
 
   return (
-    <div className="fixed bottom-20 left-4 right-4 md:left-auto md:right-6 md:w-80 z-50 animate-slide-in">
+    <div className="fixed bottom-20 left-4 right-4 md:left-auto md:right-6 md:w-80 z-[60] animate-slide-in">
       <div className="aurora-card rounded-2xl p-4 shadow-lg">
         <div className="flex items-start gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#6366f1] to-[#8b5cf6] flex items-center justify-center flex-shrink-0">
