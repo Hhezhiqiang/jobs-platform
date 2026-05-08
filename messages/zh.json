@@ -16,7 +16,7 @@
     "salary": "薪资洞察",
     "search": "搜索",
     "login": "登录",
-    "register": "注册",
+    "register": "免费注册",
     "dashboard": "个人中心",
     "logout": "退出"
   },
@@ -59,8 +59,7 @@
     "subtitle": "汇聚Web3、互联网、科技行业高薪职位，让职业发展更有价值",
     "searchPlaceholder": "搜索职位、公司或关键词...",
     "searchButton": "搜索职位",
-    "register": "免费注册",
-    "registerSub": "发现更多机会",
+    "register": "免费注册，发现更多机会",
     "login": "已有账号？登录",
     "popularSearchesLabel": "热门搜索",
     "selectCity": "选择城市",
@@ -115,10 +114,10 @@
     },
     "readMore": "阅读更多文章",
     "cta": {
-      "title": "准备好开启新的职业旅程了吗？",
-      "subtitle": "立即注册，发现更多优质职位机会",
-      "register": "免费注册",
-      "browseJobs": "浏览职位"
+      "title": "免费注册，解锁更多求职功能",
+      "subtitle": "收藏职位 · 查看企业联系方式 · 追踪申请进度 · 智能职位推荐",
+      "register": "立即免费注册",
+      "browseJobs": "先看看职位"
     },
     "faq": {
       "title": "常见问题",

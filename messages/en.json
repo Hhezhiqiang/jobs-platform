@@ -59,7 +59,7 @@
     "subtitle": "Bringing together high-paying positions in Web3, internet, and tech industries to make your career growth more valuable",
     "searchPlaceholder": "Search jobs, companies, or keywords...",
     "searchButton": "Search Jobs",
-    "register": "Sign Up — It's Free",
+    "register": "Sign up free",
     "registerSub": "Discover more opportunities",
     "login": "Already have an account? Log in",
     "popularSearchesLabel": "Popular Searches",
@@ -115,10 +115,10 @@
     },
     "readMore": "Read More Articles",
     "cta": {
-      "title": "Ready to Start Your Next Career Journey?",
-      "subtitle": "Sign up now to discover more quality job opportunities",
-      "register": "Sign Up for Free",
-      "browseJobs": "Browse Jobs"
+      "title": "Sign up free, unlock more job-seeking features",
+      "subtitle": "Save jobs · View company contacts · Track applications · Smart job recommendations",
+      "register": "Sign up free now",
+      "browseJobs": "Browse jobs first"
     },
     "faq": {
       "title": "FAQ",

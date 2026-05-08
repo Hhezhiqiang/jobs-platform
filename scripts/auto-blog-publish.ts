@@ -2,14 +2,11 @@
  * Auto Blog Publisher - GitHub Actions 入口脚本
  * 
  * 流程：
- * 1. 查找待处理的关键字监控（高价值、未发布）
- * 2. 运行自动发布流水线（博客 + 专题页）
- * 3. 如有新内容发布，写入 .new_blog_created / .new_blog_title / .new_blog_url 供 GitHub Actions 使用
- * 
- * 环境变量：
- *   DATABASE_URL   - 数据库连接
- *   KIMI_API_KEY   - AI API 密钥
- *   AUTO_PUBLISH_ENABLED - 是否启用自动发布（"true"）
+ * 1. 查找 NEW 状态的高价值关键字监控
+ * 2. 运行专题页发布流水线 + 博客自动生成流水线
+ * 3. 自动发布草稿
+ * 4. 更新 monitors 状态为 PUBLISHED
+ * 5. 写入 GitHub Actions 输出文件
  */
 
 import { PrismaClient } from "@prisma/client";
@@ -18,7 +15,6 @@ import { runAutoBlogPipeline } from "../src/lib/auto-blog-generator";
 import { logger } from "../src/lib/logger";
 
 const prisma = new PrismaClient();
-
 const AUTO_PUBLISH_ENABLED = process.env.AUTO_PUBLISH_ENABLED === "true";
 
 async function main() {
@@ -37,7 +33,7 @@ async function main() {
   const pendingMonitors = await prisma.keyword_monitors.findMany({
     where: {
       status: "NEW",
-      trendScore: { gte: 60 },
+      trendScore: { gte: 40 },
     },
     orderBy: { trendScore: "desc" },
     take: 5,
@@ -60,17 +56,32 @@ async function main() {
   const blogResult = await runAutoBlogPipeline(monitorIds);
   console.log(`[auto-blog-publish] Blog pipeline: ${blogResult.drafted} drafted, ${blogResult.errors} errors`);
 
+  // 更新 monitors 状态为 PUBLISHED
+  if (pendingMonitors.length > 0) {
+    await prisma.keyword_monitors.updateMany({
+      where: { id: { in: monitorIds } },
+      data: { status: "PUBLISHED" },
+    });
+    console.log(`[auto-blog-publish] Updated ${monitorIds.length} monitors to PUBLISHED`);
+  }
+
+  // 自动发布所有草稿
+  const drafts = await prisma.pages.updateMany({
+    where: { type: { in: ["BLOG", "PAGE"] }, status: "DRAFT" },
+    data: { status: "PUBLISHED" },
+  });
+  if (drafts.count > 0) {
+    console.log(`[auto-blog-publish] Published ${drafts.count} drafts`);
+  }
+
   const totalPublished = topicResult.published + blogResult.drafted;
 
   if (totalPublished > 0) {
-    // 有新内容发布，写入 GitHub Actions 输出文件
     const fs = await import("fs");
-
-    // 获取最新发布的 URL
     const latestPage = await prisma.pages.findFirst({
       where: {
         status: "PUBLISHED",
-        createdAt: { gte: new Date(Date.now() - 60000 * 10) }, // 最近 10 分钟
+        createdAt: { gte: new Date(Date.now() - 60000 * 10) },
       },
       orderBy: { createdAt: "desc" },
     });
@@ -89,6 +100,11 @@ async function main() {
   } else {
     console.log("[auto-blog-publish] No new content to publish.");
   }
+
+  // 汇总
+  const totalBlogs = await prisma.pages.count({ where: { type: "BLOG", status: "PUBLISHED" } });
+  const totalTopics = await prisma.pages.count({ where: { type: "PAGE", status: "PUBLISHED" } });
+  console.log(`[auto-blog-publish] Total published: ${totalBlogs} blogs + ${totalTopics} topics = ${totalBlogs + totalTopics}`);
 }
 
 main()
