@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { MapPin, Briefcase, Clock, DollarSign, Building2, ArrowLeft, ExternalLink, Share2, Heart } from "lucide-react";
-import { ApplyButton } from "@/components/apply-button";
+import { MapPin, Briefcase, Clock, DollarSign, Building2, ArrowLeft, ExternalLink, Heart } from "lucide-react";
+import { ApplyButton, ShareButton } from "@/components/apply-button";
 import { HeartButton } from "@/components/heart-button";
 import { formatSalary } from "@/lib/utils";
 
@@ -96,15 +96,11 @@ export default function JobDetailPageClient({ job, locale }: JobDetailPageProps)
                 jobId={job.id}
                 jobTitle={job.title}
                 companyName={job.companies?.name || ""}
-                applyUrl={job.applyUrl}
               />
 
               <div className="mt-4 flex gap-3">
                 <HeartButton jobId={job.id} size="md" />
-                <button className="flex-1 py-2.5 border border-gray-200 rounded-xl text-gray-600 hover:border-[#6366f1]/30 hover:text-[#6366f1] transition-all flex items-center justify-center gap-2">
-                  <Share2 className="w-4 h-4" />
-                  {isEn ? "Share" : "分享"}
-                </button>
+                <ShareButton jobTitle={job.title} companyName={job.companies?.name || ""} />
               </div>
               
               <div className="mt-6 pt-6 border-t border-gray-100 space-y-3 text-sm text-gray-500">

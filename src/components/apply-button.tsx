@@ -3,30 +3,24 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
-import { useTranslations } from "next-intl";
 import ApplyModal from "./apply-modal";
-import { ensureHttpProtocol } from "@/lib/utils";
-import { logger } from '@/lib/logger';
 
 interface ApplyButtonProps {
   jobId: string;
   jobTitle: string;
   companyName: string;
-  applyUrl?: string;
 }
 
 export function ApplyButton({
   jobId,
   jobTitle,
   companyName,
-  applyUrl,
 }: ApplyButtonProps) {
-  const { data: session } = useSession();
   const router = useRouter();
   const pathname = usePathname();
   const locale = pathname?.split("/")[1] || "zh";
   const isEn = locale === "en";
-  const t = useTranslations("applyButton");
+
   const [showModal, setShowModal] = useState(false);
   const [applied, setApplied] = useState(false);
 
@@ -34,18 +28,9 @@ export function ApplyButton({
     setShowModal(true);
   };
 
-  const handleSuccess = async () => {
+  const handleSuccess = () => {
     setApplied(true);
     setShowModal(false);
-    try {
-      await fetch("/api/game/track", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: "APPLY_JOB", jobId }),
-      });
-    } catch (error) {
-      logger.error("Failed to track application:", error);
-    }
   };
 
   if (applied) {
@@ -55,59 +40,9 @@ export function ApplyButton({
           ✅ {isEn ? "Applied" : "已申请"}
         </div>
         <p className="text-sm text-gray-500 mt-2">
-          {session
-            ? (isEn ? "You can check status in Dashboard - My Applications" : "您可以在「个人中心 - 我的申请」中查看申请状态")
-            : (isEn ? "Create an account to track your applications" : "注册账号后可以追踪申请进度")}
+          {isEn ? "You can check status in Dashboard - My Applications" : "您可以在「个人中心 - 我的申请」中查看申请状态"}
         </p>
-        {!session && (
-          <button
-            onClick={() => router.push(`/${locale}/auth/register`)}
-            className="mt-3 text-sm text-blue-600 hover:text-blue-800 underline"
-          >
-            {isEn ? "Register Now →" : "立即注册 →"}
-          </button>
-        )}
       </div>
-    );
-  }
-
-  // 如果 applyUrl 指向本站，不作为外部链接处理
-  const isExternalUrl = applyUrl && !applyUrl.includes('jobquip.com') && !applyUrl.includes('localhost');
-
-  if (isExternalUrl) {
-    return (
-      <>
-        <a
-          href={ensureHttpProtocol(applyUrl)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full block bg-blue-600 text-white text-center py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-        >
-          {isEn ? "Apply on External Site ↗" : "前往申请 ↗"}
-        </a>
-
-        <div className="mt-4 pt-4 border-t border-gray-100">
-          <p className="text-sm text-gray-500 text-center mb-3">
-            {isEn ? "Or apply through our platform" : "或者通过本平台申请"}
-          </p>
-          <button
-            onClick={() => setShowModal(true)}
-            className="w-full bg-white border-2 border-blue-600 text-blue-600 text-center py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
-          >
-            {isEn ? "Apply via Platform" : "通过平台申请"}
-          </button>
-        </div>
-
-        {showModal && (
-          <ApplyModal
-            jobId={jobId}
-            jobTitle={jobTitle}
-            companyName={companyName}
-            onClose={() => setShowModal(false)}
-            onSuccess={handleSuccess}
-          />
-        )}
-      </>
     );
   }
 
@@ -130,6 +65,63 @@ export function ApplyButton({
         />
       )}
     </>
+  );
+}
+
+export function ShareButton({ jobTitle, companyName }: { jobTitle: string; companyName: string }) {
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] || "zh";
+  const isEn = locale === "en";
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = async () => {
+    const url = `${window.location.origin}${pathname}`;
+    const text = isEn
+      ? `${jobTitle} at ${companyName} - Check out this job on JobQuip!`
+      : `${companyName} - ${jobTitle} | 查看职位详情`;
+
+    // 优先使用 Web Share API
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: text, text, url });
+        return;
+      } catch {
+        // 用户取消或失败，降级到复制链接
+      }
+    }
+
+    // 降级：复制链接到剪贴板
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // 最后的降级方案：选中 URL 提示用户手动复制
+      const temp = document.createElement("textarea");
+      temp.value = url;
+      document.body.appendChild(temp);
+      temp.select();
+      document.execCommand("copy");
+      document.body.removeChild(temp);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleShare}
+      className="flex-1 py-2.5 border border-gray-200 rounded-xl text-gray-600 hover:border-[#6366f1]/30 hover:text-[#6366f1] transition-all flex items-center justify-center gap-2"
+    >
+      {copied
+        ? (isEn ? "Copied!" : "已复制")
+        : (<>
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            </svg>
+            {isEn ? "Share" : "分享"}
+          </>)}
+    </button>
   );
 }
 
