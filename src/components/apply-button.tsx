@@ -3,68 +3,39 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
-import ApplyModal from "./apply-modal";
 
 interface ApplyButtonProps {
-  jobId: string;
+  jobSlug: string;
   jobTitle: string;
   companyName: string;
 }
 
 export function ApplyButton({
-  jobId,
+  jobSlug,
   jobTitle,
   companyName,
 }: ApplyButtonProps) {
+  const { data: session, status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
   const locale = pathname?.split("/")[1] || "zh";
   const isEn = locale === "en";
 
-  const [showModal, setShowModal] = useState(false);
-  const [applied, setApplied] = useState(false);
-
   const handleApply = () => {
-    setShowModal(true);
+    if (status === "authenticated") {
+      router.push(`/${locale}/jobs/${jobSlug}/apply`);
+    } else {
+      router.push(`/${locale}/auth/register?callbackUrl=${encodeURIComponent(`/${locale}/jobs/${jobSlug}/apply`)}`);
+    }
   };
-
-  const handleSuccess = () => {
-    setApplied(true);
-    setShowModal(false);
-  };
-
-  if (applied) {
-    return (
-      <div className="flex-1 text-center">
-        <div className="bg-green-100 text-green-800 py-4 rounded-lg font-semibold">
-          ✅ {isEn ? "Applied" : "已申请"}
-        </div>
-        <p className="text-sm text-gray-500 mt-2">
-          {isEn ? "You can check status in Dashboard - My Applications" : "您可以在「个人中心 - 我的申请」中查看申请状态"}
-        </p>
-      </div>
-    );
-  }
 
   return (
-    <>
-      <button
-        onClick={handleApply}
-        className="w-full bg-blue-600 text-white text-center py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-      >
-        {isEn ? "Apply Now" : "立即申请"}
-      </button>
-
-      {showModal && (
-        <ApplyModal
-          jobId={jobId}
-          jobTitle={jobTitle}
-          companyName={companyName}
-          onClose={() => setShowModal(false)}
-          onSuccess={handleSuccess}
-        />
-      )}
-    </>
+    <button
+      onClick={handleApply}
+      className="w-full bg-blue-600 text-white text-center py-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+    >
+      {isEn ? "Apply Now" : "立即申请"}
+    </button>
   );
 }
 

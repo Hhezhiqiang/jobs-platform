@@ -93,7 +93,7 @@ export default function JobDetailPageClient({ job, locale }: JobDetailPageProps)
               <h3 className="text-lg font-bold text-gray-900 mb-4">{isEn ? "Apply Now" : "立即申请"}</h3>
               
               <ApplyButton
-                jobId={job.id}
+                jobSlug={job.slug}
                 jobTitle={job.title}
                 companyName={job.companies?.name || ""}
               />
