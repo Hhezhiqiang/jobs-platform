@@ -85,7 +85,7 @@ const CATEGORY_CONFIG = (t: TFunc): Record<string, CatConfig> => ({
 });
 
 export async function KeywordCloud({ locale }: KeywordCloudProps) {
-  const t = await getTranslations(locale);
+  const t = await getTranslations({ locale });
 
   const blogs = await prisma.pages.findMany({
     where: { type: 'BLOG', status: 'PUBLISHED' },
