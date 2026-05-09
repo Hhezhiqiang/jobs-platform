@@ -94,29 +94,34 @@ const SYNC_CONFIG = {
   maxRetries: 3,
   retryBaseDelay: 1000,
 
-  // 扩展关键词和地点
+  // 扩展关键词和地点 - 优化版：每天只抓核心关键词，控制 API 请求量
+  // 核心关键词（10 个，覆盖最高频搜索）
+  coreKeywords: [
+    'software engineer',
+    'frontend developer',
+    'backend developer',
+    'full stack developer',
+    'data scientist',
+    'devops engineer',
+    'product manager',
+    'cloud engineer',
+    'security engineer',
+    'machine learning engineer',
+  ],
+  // 扩展关键词（用于轮换）
   keywords: [
     'software engineer',
     'software developer',
     'full stack developer',
-    'fullstack developer',
     'frontend developer',
-    'front end developer',
     'backend developer',
     'devops engineer',
     'data scientist',
     'data engineer',
-    'machine learning engineer',
-    'ml engineer',
     'product manager',
-    'technical lead',
-    'engineering manager',
     'cloud engineer',
-    'site reliability engineer',
     'security engineer',
     'mobile developer',
-    'ios developer',
-    'android developer',
   ],
 
   locations: {
@@ -248,6 +253,8 @@ async function fetchAdzunaPage(
   page: number,
   country: string,
   semaphore: Semaphore,
+  createdFrom?: string,
+  createdTo?: string,
 ): Promise<AdzunaResponse | null> {
   const appId = process.env.ADZUNA_APP_ID;
   const appKey = process.env.ADZUNA_APP_KEY;
@@ -268,6 +275,8 @@ async function fetchAdzunaPage(
       url.searchParams.set('results_per_page', '50');
       if (keyword) url.searchParams.set('what', keyword);
       if (location) url.searchParams.set('where', location);
+      if (createdFrom) url.searchParams.set('created_from', createdFrom);
+      if (createdTo) url.searchParams.set('created_to', createdTo);
 
       const response = await fetch(url.toString(), {
         headers: { Accept: 'application/json' },
@@ -276,7 +285,9 @@ async function fetchAdzunaPage(
 
       if (!response.ok) {
         const body = await response.text();
-        // 404 或无结果不算错误
+        if (response.status === 429) {
+          logger.error('[adzuna] Rate limit exceeded, please contact support');
+        }
         if (response.status === 404) return { count: 0, results: [], __CLASS__: 'AdzunaJob' } as AdzunaResponse;
         throw new Error(`Adzuna API error ${response.status}: ${body}`);
       }
@@ -300,12 +311,14 @@ async function fetchMultiPage(
   maxPages: number,
   semaphore: Semaphore,
   onProgress?: ProgressCallback,
+  createdFrom?: string,
+  createdTo?: string,
 ): Promise<AdzunaJob[]> {
   const allJobs: AdzunaJob[] = [];
   let totalPages = 0;
 
   for (let page = 1; page <= maxPages; page++) {
-    const data = await fetchAdzunaPage(keyword, location, page, country, semaphore);
+    const data = await fetchAdzunaPage(keyword, location, page, country, semaphore, createdFrom, createdTo);
     if (!data || data.results.length === 0) break;
 
     totalPages = page;
