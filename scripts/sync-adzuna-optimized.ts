@@ -4,6 +4,7 @@
  * - 使用核心关键词（10 个）
  * - 增量同步（最近 24 小时新增）
  * - 请求量控制在 40-60 次/天
+ * - AI 解析并发度 2，避免触发 Kimi API 限流
  */
 
 import { PrismaClient } from "@prisma/client";
@@ -96,18 +97,39 @@ async function main() {
 
   console.log(`[sync-adzuna-optimized] Sync result: ${result.inserted} new, ${result.skipped} skipped, ${result.failed} failed`);
 
-  // 发布新博客内容
+  // 发布新博客内容（限制数量，避免 AI 限流）
   const monitors = await prisma.keyword_monitors.findMany({
     where: { status: "NEW", trendScore: { gte: 60 } },
-    take: 5,
+    take: 3, // 每天只处理 3 个新关键词
   });
 
   if (monitors.length > 0) {
     const monitorIds = monitors.map(m => m.id);
+    console.log(`[sync-adzuna-optimized] Processing ${monitorIds.length} new monitors for content generation...`);
+    
     const topicResult = await runAutoPipeline(monitorIds);
+    console.log(`[sync-adzuna-optimized] Topic pipeline: ${topicResult.published} published, ${topicResult.errors} errors`);
+    
+    // 延迟一下，避免 AI API 限流
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    
     const blogResult = await runAutoBlogPipeline(monitorIds);
-    console.log(`[sync-adzuna-optimized] Content: ${topicResult.published} topics, ${blogResult.drafted} blogs`);
+    console.log(`[sync-adzuna-optimized] Blog pipeline: ${blogResult.drafted} drafted, ${blogResult.errors} errors`);
   }
+
+  // 自动发布草稿
+  const drafts = await prisma.pages.updateMany({
+    where: { type: { in: ["BLOG", "PAGE"] }, status: "DRAFT" },
+    data: { status: "PUBLISHED" },
+  });
+  if (drafts.count > 0) {
+    console.log(`[sync-adzuna-optimized] Published ${drafts.count} drafts`);
+  }
+
+  // 汇总
+  const totalBlogs = await prisma.pages.count({ where: { type: "BLOG", status: "PUBLISHED" } });
+  const totalTopics = await prisma.pages.count({ where: { type: "PAGE", status: "PUBLISHED" } });
+  console.log(`[sync-adzuna-optimized] Total published: ${totalBlogs} blogs + ${totalTopics} topics = ${totalBlogs + totalTopics}`);
 
   console.log("[sync-adzuna-optimized] Done!");
 }

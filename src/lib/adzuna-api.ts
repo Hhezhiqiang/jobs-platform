@@ -81,7 +81,7 @@ const SYNC_CONFIG = {
   apiDelayMs: 500, // 请求间最小间隔
 
   // AI 解析并发度
-  aiConcurrency: 5,
+  aiConcurrency: 2, // Kimi 限制：RPM 20，并发 3
 
   // 默认抓取页数
   defaultPages: 3,
