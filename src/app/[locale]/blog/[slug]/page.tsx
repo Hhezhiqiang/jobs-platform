@@ -422,19 +422,18 @@ export default async function BlogDetailPage({ params }: PageProps) {
               )}
 
               {/* 注册引导 CTA */}
-              <div className="aurora-card rounded-2xl p-6 bg-gradient-to-br from-[#6366f1] to-[#8b5cf6] text-white">
-                <h3 className="text-lg font-bold mb-2">{isEn ? "Start Your Career Journey" : "开启你的职业旅程"}</h3>
-                <p className="text-white/80 text-sm mb-4">
-                  {isEn
-                    ? "Sign up free to save jobs, track applications, and get personalized recommendations."
-                    : "免费注册，收藏职位、追踪申请进度、获取智能职位推荐。"}
-                </p>
-                <Link
-                  href={`/${locale}/auth/register?callbackUrl=${encodeURIComponent(`/${locale}/blog/${post.slug}`)}`}
-                  className="block w-full py-3 bg-white text-[#6366f1] text-center rounded-xl font-semibold hover:bg-gray-50 transition-all"
-                >
-                  {isEn ? "Sign Up Free →" : "免费注册 →"}
-                </Link>
+              <div className="aurora-card rounded-2xl p-6">
+                <div className="text-center py-4">
+                  <Link
+                    href={`/${locale}/auth/register?callbackUrl=${encodeURIComponent(`/${locale}/blog/${post.slug}`)}`}
+                    className="text-lg font-semibold text-[#6366f1] hover:text-[#4f46e5] transition-colors inline-flex items-center gap-1"
+                  >
+                    {isEn ? "Free Registration" : "免费注册"}
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
