@@ -141,10 +141,15 @@ export async function parseJobDescriptionWithAI(
  */
 export async function parseJobDescriptionsBatch(
   descriptions: { id: string; description: string }[],
-  concurrency: number = 5,
+  concurrency: number = 2,
 ): Promise<Map<string, ParsedJobDescription>> {
-  const semaphore = new Semaphore(concurrency);
   const results = new Map<string, ParsedJobDescription>();
+
+  // Kimi API 限流：RPM 20
+  // 顺序处理，每个请求间隔 4 秒（约 15 次/分钟，低于 20 限制）
+  const REQUEST_INTERVAL_MS = 4000;
+  // 每次同步最多处理 15 个唯一描述，避免超时
+  const MAX_AI_CALLS_PER_BATCH = 15;
 
   // 先去重：相同描述只调用一次 AI
   const uniqueDescriptions = new Map<string, string>(); // cacheKey -> rawDescription
@@ -169,11 +174,13 @@ export async function parseJobDescriptionsBatch(
     return results;
   }
 
-
+  // 顺序处理，控制速率
   const entries = Array.from(uniqueDescriptions.entries());
+  const limitedEntries = entries.slice(0, MAX_AI_CALLS_PER_BATCH);
 
-  const promises = entries.map(async ([key, rawDesc]) => {
-    await semaphore.acquire();
+  for (let i = 0; i < limitedEntries.length; i++) {
+    const [key, rawDesc] = limitedEntries[i];
+    
     try {
       const parsed = await parseSingle(rawDesc);
       // 将结果复制给所有共享该描述的职位
@@ -181,12 +188,29 @@ export async function parseJobDescriptionsBatch(
       for (const id of ids) {
         results.set(id, parsed);
       }
-    } finally {
-      semaphore.release();
+    } catch (error) {
+      // 解析失败不影响其他职位
+      const ids = keyToIds.get(key)!;
+      for (const id of ids) {
+        results.set(id, { description: rawDesc.substring(0, 500), requirements: "", benefits: "" });
+      }
     }
-  });
+    
+    // 速率限制：每个请求间隔 4 秒
+    if (i < limitedEntries.length - 1) {
+      await new Promise(resolve => setTimeout(resolve, REQUEST_INTERVAL_MS));
+    }
+  }
 
-  await Promise.allSettled(promises);
+  // 对于超过限制的条目，使用原始描述
+  for (let i = MAX_AI_CALLS_PER_BATCH; i < entries.length; i++) {
+    const [key, rawDesc] = entries[i];
+    const ids = keyToIds.get(key)!;
+    for (const id of ids) {
+      results.set(id, { description: rawDesc.substring(0, 500), requirements: "", benefits: "" });
+    }
+  }
+
   return results;
 }
 
