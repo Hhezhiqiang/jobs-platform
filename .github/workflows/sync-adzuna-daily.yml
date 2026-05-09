@@ -1,0 +1,51 @@
+name: Daily Adzuna Job Sync
+
+on:
+  schedule:
+    # 每天 UTC 时间 02:00 运行（北京时间 10:00）
+    - cron: '0 2 * * *'
+  workflow_dispatch:  # 支持手动触发
+
+jobs:
+  sync-adzuna:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      ADZUNA_APP_ID: ${{ secrets.ADZUNA_APP_ID }}
+      ADZUNA_APP_KEY: ${{ secrets.ADZUNA_APP_KEY }}
+      ADZUNA_COMPANY_ID: ${{ secrets.ADZUNA_COMPANY_ID }}
+      ADZUNA_AUTHOR_ID: ${{ secrets.ADZUNA_AUTHOR_ID }}
+      KIMI_API_KEY: ${{ secrets.KIMI_API_KEY }}
+      AUTO_PUBLISH_ENABLED: "true"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Run optimized sync
+        run: npx tsx scripts/sync-adzuna-optimized.ts
+        env:
+          NODE_ENV: production
+
+      - name: Sync summary
+        if: always()
+        run: |
+          echo "=== Sync Summary ==="
+          echo "Completed at: $(date -u)"
+          echo "Countries synced: (see logs)"
+          echo "Keywords used: 10 core keywords"
+          echo "Estimated API calls: 40-60/day"
