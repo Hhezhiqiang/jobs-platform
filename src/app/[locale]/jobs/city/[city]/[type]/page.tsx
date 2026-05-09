@@ -145,12 +145,16 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { city, type, locale } = await params;
+  const { city: rawCity, type: rawType, locale } = await params;
+  const city = decodeURIComponent(rawCity);
+  const type = decodeURIComponent(rawType);
   return generateTypeMetadata(city, type, locale);
 }
 
 export default async function CityTypeJobsPage({ params }: PageProps) {
-  const { city, type, locale } = await params;
+  const { city: rawCity, type: rawType, locale } = await params;
+  const city = decodeURIComponent(rawCity);
+  const type = decodeURIComponent(rawType);
 
   const typeInfo = JOB_TYPES[type];
   if (!typeInfo) {

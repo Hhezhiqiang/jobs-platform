@@ -420,6 +420,22 @@ export default async function BlogDetailPage({ params }: PageProps) {
                   </div>
                 </div>
               )}
+
+              {/* 注册引导 CTA */}
+              <div className="aurora-card rounded-2xl p-6 bg-gradient-to-br from-[#6366f1] to-[#8b5cf6] text-white">
+                <h3 className="text-lg font-bold mb-2">{isEn ? "Start Your Career Journey" : "开启你的职业旅程"}</h3>
+                <p className="text-white/80 text-sm mb-4">
+                  {isEn
+                    ? "Sign up free to save jobs, track applications, and get personalized recommendations."
+                    : "免费注册，收藏职位、追踪申请进度、获取智能职位推荐。"}
+                </p>
+                <Link
+                  href={`/${locale}/auth/register?callbackUrl=${encodeURIComponent(`/${locale}/blog/${post.slug}`)}`}
+                  className="block w-full py-3 bg-white text-[#6366f1] text-center rounded-xl font-semibold hover:bg-gray-50 transition-all"
+                >
+                  {isEn ? "Sign Up Free →" : "免费注册 →"}
+                </Link>
+              </div>
             </div>
           </div>
         </main>

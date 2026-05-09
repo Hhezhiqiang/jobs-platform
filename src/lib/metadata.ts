@@ -180,8 +180,8 @@ export function generateJobsListMetadata(params?: { city?: string; type?: string
     : (isEn ? `${cityText}${typeText}Jobs - Latest Listings` : `${cityText}${typeText}招聘信息 - 最新职位列表`);
 
   const description = queryText
-    ? (isEn ? `Search for "${queryText}" jobs and view the latest openings.` : `搜索"${queryText}"相关职位，查看最新的${queryText}招聘信息。`)
-    : (isEn ? `Browse the latest ${cityText}${typeText}job listings.` : `查看${cityText}${typeText}最新招聘信息。`);
+    ? (isEn ? `Search for "${queryText}" jobs on JobQuip. Browse Web3, tech, and internet industry positions with competitive salaries across major cities.` : `搜索"${queryText}"相关职位，JobQuip汇聚Web3、互联网、科技行业高薪职位，覆盖北京、上海、深圳、杭州等一线城市的最新招聘信息。`)
+    : (isEn ? `Browse the latest ${cityText}${typeText}job listings on JobQuip. Explore Web3, tech, and internet industry positions with competitive salaries and apply directly.` : `查看${cityText}${typeText}最新招聘信息，JobQuip汇聚Web3、互联网、科技行业高薪职位，涵盖前端、后端、产品经理、数据分析等热门岗位，支持一键投递和申请进度追踪。`);
 
   let canonicalUrl = `${SITE_URL}/${locale}/jobs`;
   if (params?.searchParams) {
