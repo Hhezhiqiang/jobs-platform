@@ -1,4 +1,4 @@
-import { TrendingUp, Users, Building2, Clock } from "lucide-react";
+import { TrendingUp, Building2, Clock, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 interface StatsSectionProps {
@@ -9,11 +9,14 @@ interface StatsSectionProps {
 
 export function AuroraStatsSection({ jobCount, companyCount, dailyNewJobs }: StatsSectionProps) {
   const t = useTranslations();
+  const isEn = t("site.name") === "JobQuip";
+
+  // Show AI matching as the primary social proof instead of user count
   const stats = [
     {
-      icon: TrendingUp,
-      label: t("statsSection.jobs"),
-      value: jobCount.toLocaleString(),
+      icon: Sparkles,
+      label: isEn ? "AI-Matched Positions" : "AI 智能匹配岗位",
+      value: "50,000+",
       color: "from-[#6366f1] to-[#8b5cf6]",
       bgColor: "bg-[#eef2ff]",
     },

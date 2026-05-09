@@ -98,10 +98,11 @@ export default function RegisterForm() {
             <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mb-6">
               <Building2 className="w-8 h-8" />
             </div>
-            <h2 className="text-4xl font-bold mb-6">加入招聘平台</h2>
-            <p className="text-xl text-blue-100 mb-8">
-              创建账号，开启您的职业之旅<br />
-              发现优质职位，连接顶尖企业
+            <h2 className="text-4xl font-bold mb-6">{locale === 'en' ? 'AI-Powered Job Matching' : 'AI 智能匹配，找到最适合你的职位'}</h2>
+            <p className="text-xl text-blue-100 mb-8">{locale === 'en' ? '50,000+ positions matched to your skills and preferences' : '5万+ 岗位经 AI 智能匹配，精准推荐最适合你的职位'}</p>
+            <p className="text-lg text-blue-200 mb-8">
+              {locale === 'en' ? 'Sign up to start your career journey' : '创建账号，开启您的职业之旅'}<br />
+              {locale === 'en' ? 'Discover quality positions and connect with top companies' : '发现优质职位，连接顶尖企业'}
             </p>
           </div>
 
