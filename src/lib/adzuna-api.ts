@@ -127,14 +127,11 @@ const SYNC_CONFIG = {
   locations: {
     // 英国
     'gb': [
-      'London', 'Manchester', 'Birmingham', 'Bristol', 'Leeds',
-      'Edinburgh', 'Glasgow', 'Liverpool', 'Cambridge', 'Oxford',
-      'Reading', 'Newcastle', 'Sheffield', 'Nottingham', 'Southampton',
+      'London',
     ],
     // 美国
     'us': [
-      'New York', 'San Francisco', 'Seattle', 'Austin', 'Boston',
-      'Chicago', 'Los Angeles', 'Denver', 'Atlanta', 'Miami',
+      'New York', 'San Francisco',
     ],
     // 新加坡
     'sg': [
@@ -142,19 +139,19 @@ const SYNC_CONFIG = {
     ],
     // 阿联酋
     'ae': [
-      'Dubai', 'Abu Dhabi',
+      'Dubai',
     ],
     // 德国
     'de': [
-      'Berlin', 'Munich', 'Hamburg', 'Frankfurt', 'Cologne',
+      'Berlin',
     ],
     // 加拿大
     'ca': [
-      'Toronto', 'Vancouver', 'Montreal', 'Ottawa', 'Calgary',
+      'Toronto',
     ],
     // 澳大利亚
     'au': [
-      'Sydney', 'Melbourne', 'Brisbane', 'Perth', 'Adelaide',
+      'Sydney',
     ],
   },
 

@@ -75,7 +75,7 @@ async function main() {
 
   // 计算预计请求量
   const locationsPerCountry = {
-    gb: 5, us: 5, sg: 1, au: 3, de: 3, ca: 3, ae: 2,
+    gb: 1, us: 2, sg: 1, au: 1, de: 1, ca: 1, ae: 1,
   };
   let estimatedRequests = 0;
   for (const country of countries) {
