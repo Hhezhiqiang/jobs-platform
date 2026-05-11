@@ -403,32 +403,32 @@ function transformJob(
   if (salaryMin || salaryMax) {
     if (['GB', 'UK'].includes(countryUpper)) {
       salaryCurrency = 'GBP';
-      salaryMin = salaryMin ? Math.round(salaryMin / 12) : null;
-      salaryMax = salaryMax ? Math.round(salaryMax / 12) : null;
+      salaryMin = salaryMin ? Math.round(salaryMin / 12 / 1000) : null;
+      salaryMax = salaryMax ? Math.round(salaryMax / 12 / 1000) : null;
     } else if (['US', 'USA'].includes(countryUpper)) {
       salaryCurrency = 'USD';
-      salaryMin = salaryMin ? Math.round(salaryMin / 12) : null;
-      salaryMax = salaryMax ? Math.round(salaryMax / 12) : null;
+      salaryMin = salaryMin ? Math.round(salaryMin / 12 / 1000) : null;
+      salaryMax = salaryMax ? Math.round(salaryMax / 12 / 1000) : null;
     } else if (['SG', 'SGP'].includes(countryUpper)) {
       salaryCurrency = 'SGD';
-      salaryMin = salaryMin ? Math.round(salaryMin / 12) : null;
-      salaryMax = salaryMax ? Math.round(salaryMax / 12) : null;
+      salaryMin = salaryMin ? Math.round(salaryMin / 12 / 1000) : null;
+      salaryMax = salaryMax ? Math.round(salaryMax / 12 / 1000) : null;
     } else if (['AE', 'ARE'].includes(countryUpper)) {
       salaryCurrency = 'AED';
-      salaryMin = salaryMin ? Math.round(salaryMin / 12) : null;
-      salaryMax = salaryMax ? Math.round(salaryMax / 12) : null;
+      salaryMin = salaryMin ? Math.round(salaryMin / 12 / 1000) : null;
+      salaryMax = salaryMax ? Math.round(salaryMax / 12 / 1000) : null;
     } else if (['DE', 'DEU'].includes(countryUpper)) {
       salaryCurrency = 'EUR';
-      salaryMin = salaryMin ? Math.round(salaryMin / 12) : null;
-      salaryMax = salaryMax ? Math.round(salaryMax / 12) : null;
+      salaryMin = salaryMin ? Math.round(salaryMin / 12 / 1000) : null;
+      salaryMax = salaryMax ? Math.round(salaryMax / 12 / 1000) : null;
     } else if (['CA', 'CAN'].includes(countryUpper)) {
       salaryCurrency = 'CAD';
-      salaryMin = salaryMin ? Math.round(salaryMin / 12) : null;
-      salaryMax = salaryMax ? Math.round(salaryMax / 12) : null;
+      salaryMin = salaryMin ? Math.round(salaryMin / 12 / 1000) : null;
+      salaryMax = salaryMax ? Math.round(salaryMax / 12 / 1000) : null;
     } else if (['AU', 'AUS'].includes(countryUpper)) {
       salaryCurrency = 'AUD';
-      salaryMin = salaryMin ? Math.round(salaryMin / 12) : null;
-      salaryMax = salaryMax ? Math.round(salaryMax / 12) : null;
+      salaryMin = salaryMin ? Math.round(salaryMin / 12 / 1000) : null;
+      salaryMax = salaryMax ? Math.round(salaryMax / 12 / 1000) : null;
     }
   }
 
