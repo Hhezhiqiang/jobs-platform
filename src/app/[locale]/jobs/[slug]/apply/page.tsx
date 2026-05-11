@@ -40,8 +40,9 @@ export default function ApplyPage({ params }: { params: Promise<{ slug: string; 
     }
     if (status !== "authenticated") return;
 
-    params.then(async ({ slug }) => {
+    const loadJob = async () => {
       try {
+        const { slug } = await params;
         const jobsRes = await fetch(`/api/jobs?limit=100`);
         const jobsData = await jobsRes.json();
         const foundJob = jobsData.jobs?.find((j: any) => j.slug === slug);
@@ -78,7 +79,9 @@ export default function ApplyPage({ params }: { params: Promise<{ slug: string; 
       } finally {
         setLoading(false);
       }
-    });
+    };
+
+    loadJob();
   }, [status, params, locale, router, pathname, isEn]);
 
   const handleSubmit = async (e: React.FormEvent) => {
