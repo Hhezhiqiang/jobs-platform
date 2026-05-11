@@ -77,8 +77,8 @@ class Semaphore {
 
 const SYNC_CONFIG = {
   // Adzuna API 限流：每秒最多 2 次请求（安全值）
-  apiMaxConcurrent: 1,
-  apiDelayMs: 1500, // 请求间最小间隔
+  apiMaxConcurrent: 2,
+  apiDelayMs: 1000, // 请求间最小间隔
 
   // AI 解析并发度
   aiConcurrency: 2, // Kimi 限制：RPM 20，并发 3
