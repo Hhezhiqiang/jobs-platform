@@ -8,19 +8,18 @@ interface PageProps {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug, locale } = await params;
-  const isEn = locale === "en";
+  const { slug } = await params;
   
   const story = await prisma.pages.findUnique({
     where: { slug, type: 'CAREER_TRAIL' },
     select: { title: true, excerpt: true }
   });
   
-  if (!story) return { title: isEn ? "Not Found" : "未找到" };
+  if (!story) notFound();
   
   return {
-    title: isEn ? `${story.title} - JobQuip` : `${story.title} - JobQuip`,
-    description: story.excerpt,
+    title: `${story.title} - JobQuip`,
+    description: story.excerpt || story.title,
   };
 }
 
@@ -44,7 +43,7 @@ export default async function CareerStoryPage({ params }: PageProps) {
       {/* 顶部横幅 */}
       <div className="bg-gradient-to-br from-indigo-600 to-purple-700 py-16">
         <div className="max-w-4xl mx-auto px-4">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">{story.title}</h1>
+          <h1 className="text-3xl md:text-5xl font-bold text-white mb-6 leading-tight">{story.title}</h1>
           <div className="flex items-center gap-4 text-indigo-100">
             {story.users?.avatar ? (
               <img src={story.users.avatar} alt={story.users.name || ''} className="w-12 h-12 rounded-full border-2 border-white" />
@@ -66,7 +65,7 @@ export default async function CareerStoryPage({ params }: PageProps) {
       {/* 内容区域 */}
       <div className="max-w-4xl mx-auto px-4 py-12">
         <article className="bg-white rounded-2xl shadow-sm p-8 md:p-12">
-          <div className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-indigo-600 prose-strong:text-gray-900">
+          <div className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-headings:font-bold prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-h2:border-b prose-h2:border-gray-100 prose-h2:pb-2 prose-p:text-gray-700 prose-p:leading-relaxed prose-p:my-4 prose-strong:text-gray-900 prose-strong:font-semibold prose-li:text-gray-700 prose-li:leading-relaxed prose-ul:my-4 prose-ol:my-4">
             <ReactMarkdown>{story.content || ''}</ReactMarkdown>
           </div>
         </article>
@@ -81,6 +80,13 @@ export default async function CareerStoryPage({ params }: PageProps) {
             ))}
           </div>
         )}
+        
+        {/* 返回按钮 */}
+        <div className="mt-8">
+          <a href={`/${locale}/career-trail`} className="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-800 font-medium">
+            ← {isEn ? "Back to Career Trails" : "返回职迹列表"}
+          </a>
+        </div>
       </div>
     </div>
   );
