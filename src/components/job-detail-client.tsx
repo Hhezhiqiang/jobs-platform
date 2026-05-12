@@ -57,7 +57,7 @@ export default function JobDetailPageClient({ job, locale }: JobDetailPageProps)
       </div>
 
       {/* Main Content */}
-      <main className="max-w-5xl mx-auto px-4 py-8">
+      <main className="max-w-5xl mx-auto px-4 py-8 pb-32 md:pb-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left: Job Details */}
           <div className="lg:col-span-2 space-y-6">
@@ -65,7 +65,7 @@ export default function JobDetailPageClient({ job, locale }: JobDetailPageProps)
             {job.description && (
               <div className="aurora-card rounded-2xl p-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-4">{isEn ? "Description" : "职位描述"}</h2>
-                <div className="prose max-w-none whitespace-pre-wrap text-gray-700">{job.description}</div>
+                <div className="prose max-w-none text-gray-700 whitespace-pre-wrap break-words">{job.description}</div>
               </div>
             )}
 

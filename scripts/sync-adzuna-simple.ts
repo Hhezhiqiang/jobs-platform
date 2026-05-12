@@ -76,7 +76,7 @@ async function main() {
             data: {
               slug: `adzuna-${job.id}`,
               title: job.title,
-              description: truncateText(cleanDesc, 500),
+              description: cleanDesc,
               requirements: '',
               benefits: '',
               employmentType: 'FULL_TIME',

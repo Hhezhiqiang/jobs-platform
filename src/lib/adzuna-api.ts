@@ -643,7 +643,7 @@ export async function fetchAdzunaBulkJobs(options?: FetchAdzunaBulkOptions): Pro
 
   // 不需要 AI 的职位直接使用清理后的原文
   for (const t of noNeedAI) {
-    t.data.description = truncateText(t.cleanedDescription, 500);
+    t.data.description = t.cleanedDescription;
     t.data.requirements = '';
     t.data.benefits = '';
   }
@@ -681,7 +681,7 @@ export async function fetchAdzunaBulkJobs(options?: FetchAdzunaBulkOptions): Pro
         t.data.requirements = parsed.requirements;
         t.data.benefits = parsed.benefits;
       } else {
-        t.data.description = truncateText(t.cleanedDescription, 500);
+        t.data.description = t.cleanedDescription;
       }
     }
 
