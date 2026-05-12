@@ -992,6 +992,7 @@ enum PageType {
   BLOG
   FAQ
   GUIDE
+  CAREER_TRAIL
 }
 
 enum PromoterStatus {

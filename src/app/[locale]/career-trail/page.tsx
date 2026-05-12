@@ -27,10 +27,10 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
   const currentPage = parseInt(page || "1", 10);
   const limit = 12;
 
-  // 查询职迹故事（从 pages 表查询 BLOG 类型）
+  // 查询职迹故事（从 pages 表查询 CAREER_TRAIL 类型）
   const [stories, total] = await Promise.all([
     prisma.pages.findMany({
-      where: { type: 'BLOG', status: 'PUBLISHED' },
+      where: { type: 'CAREER_TRAIL', status: 'PUBLISHED' },
       include: {
         users: {
           select: { id: true, name: true, avatar: true },
@@ -40,7 +40,7 @@ export default async function CareerTrailPage({ params, searchParams }: PageProp
       skip: (currentPage - 1) * limit,
       take: limit,
     }),
-    prisma.pages.count({ where: { type: 'BLOG', status: 'PUBLISHED' } }),
+    prisma.pages.count({ where: { type: 'CAREER_TRAIL', status: 'PUBLISHED' } }),
   ]);
 
   const totalPages = Math.ceil(total / limit);

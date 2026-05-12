@@ -29,7 +29,7 @@ export default async function CareerStoryPage({ params }: PageProps) {
   const isEn = locale === "en";
   
   const story = await prisma.pages.findUnique({
-    where: { slug, type: 'BLOG' },
+    where: { slug, type: 'CAREER_TRAIL' },
     include: {
       users: {
         select: { id: true, name: true, avatar: true },

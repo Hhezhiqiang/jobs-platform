@@ -140,7 +140,7 @@ async function main() {
           title: trail.title,
           content: trail.content,
           excerpt: trail.excerpt,
-          type: 'BLOG',
+          type: 'CAREER_TRAIL',
           status: 'PUBLISHED',
           keywords: trail.tags,
           authorId: author.id,
@@ -159,8 +159,8 @@ async function main() {
   
   console.log(`\nDone! Created: ${created}, Skipped: ${skipped}`);
   
-  const total = await prisma.pages.count({ where: { type: 'BLOG' } });
-  console.log(`Total blogs in DB: ${total}`);
+  const total = await prisma.pages.count({ where: { type: 'CAREER_TRAIL' } });
+  console.log(`Total career trails in DB: ${total}`);
 }
 
 main().catch(e => { console.error('Fatal:', e); process.exit(1); })
