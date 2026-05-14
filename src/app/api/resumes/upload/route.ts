@@ -3,8 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit, getClientIP } from "@/lib/rate-limit";
-import { mkdir, writeFile } from "fs/promises";
-import { join } from "path";
+import { put } from "@vercel/blob";
 import { logger } from '@/lib/logger';
 export const dynamic = "force-dynamic";
 
@@ -41,16 +40,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "文件大小不能超过 10MB" }, { status: 400 });
     }
 
-    // 保存文件到 public/uploads/resumes/
-    const uploadDir = join(process.cwd(), "public", "uploads", "resumes");
-    await mkdir(uploadDir, { recursive: true });
-
+    // 上传到 Vercel Blob
     const fileId = `${session.user.id}-${Date.now()}.${ext}`;
-    const filePath = join(uploadDir, fileId);
-    const fileBuffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(filePath, fileBuffer);
+    const blob = await put(`resumes/${fileId}`, file, {
+      access: "public",
+    });
 
-    const fileUrl = `/uploads/resumes/${fileId}`;
+    const fileUrl = blob.url;
 
     const existingResumes = await prisma.resumes.count({
       where: { userId: session.user.id },
