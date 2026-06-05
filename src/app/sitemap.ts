@@ -43,10 +43,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const isTestSlug = (slug: string) => {
     if (!slug || slug.length < 3) return true;
-    if (/\d{10,}/.test(slug)) return true;
-    if (/^test[-_]/i.test(slug)) return true;
-    if (/^[a-z0-9]$/i.test(slug)) return true;
-    if (/^-m[a-z]{5,}$/i.test(slug)) return true;
+    // 只过滤明显是测试/hash的slug，不误杀正常博客
+    if (/^[a-f0-9]{32,}$/i.test(slug)) return true; // 纯hash
+    if (/^test[-_]/i.test(slug)) return true;       // test- 开头
     return false;
   };
 

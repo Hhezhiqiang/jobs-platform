@@ -83,7 +83,7 @@ export async function generateMetadata({
       ],
       apple: "/apple-touch-icon.png",
     },
-    manifest: "/manifest.webmanifest",
+    manifest: "https://jobquip.com/manifest.webmanifest",
     robots: {
       index: true,
       follow: true,
