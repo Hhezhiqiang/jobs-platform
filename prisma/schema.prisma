@@ -995,6 +995,7 @@ enum PageType {
   FAQ
   GUIDE
   CAREER_TRAIL
+  CIRCLE
 }
 
 enum PromoterStatus {
