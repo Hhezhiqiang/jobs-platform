@@ -11,7 +11,7 @@ export async function POST(request: Request, { params }: RouteParams) {
   try {
     const { id } = await params;
     
-    await prisma.jobDemand.update({
+    await prisma.job_demands.update({
       where: { id },
       data: { viewCount: { increment: 1 } },
     });
@@ -28,10 +28,10 @@ export async function GET(request: Request, { params }: RouteParams) {
   try {
     const { id } = await params;
     
-    const demand = await prisma.jobDemand.findUnique({
+    const demand = await prisma.job_demands.findUnique({
       where: { id },
       include: { 
-        user: {
+        users: {
           select: {
             id: true,
             name: true,
@@ -66,7 +66,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
     const body = await request.json();
 
     // 验证所有权
-    const existing = await prisma.jobDemand.findUnique({
+    const existing = await prisma.job_demands.findUnique({
       where: { id },
       select: { userId: true },
     });
@@ -75,7 +75,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "无权操作" }, { status: 403 });
     }
 
-    const demand = await prisma.jobDemand.update({
+    const demand = await prisma.job_demands.update({
       where: { id },
       data: {
         title: body.title,
@@ -107,7 +107,7 @@ export async function DELETE(request: Request, { params }: RouteParams) {
     const { id } = await params;
 
     // 验证所有权
-    const existing = await prisma.jobDemand.findUnique({
+    const existing = await prisma.job_demands.findUnique({
       where: { id },
       select: { userId: true },
     });
@@ -116,7 +116,7 @@ export async function DELETE(request: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "无权操作" }, { status: 403 });
     }
 
-    await prisma.jobDemand.delete({
+    await prisma.job_demands.delete({
       where: { id },
     });
 

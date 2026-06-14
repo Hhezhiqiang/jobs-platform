@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
       "unknown";
 
     await prisma.page_views.create({
-      data: {
+      data: { id: crypto.randomUUID(),
         path: path || req.nextUrl.pathname,
         userAgent: req.headers.get("user-agent") || null,
         ip: ip !== "unknown" ? ip : null,

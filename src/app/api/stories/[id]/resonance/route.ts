@@ -22,7 +22,7 @@ export async function POST(
     const userId = session.user.id;
 
     // 检查故事是否存在
-    const story = await prisma.careerStory.findUnique({
+    const story = await prisma.career_stories.findUnique({
       where: { id: storyId },
     });
 
@@ -31,7 +31,7 @@ export async function POST(
     }
 
     // 检查用户是否已经共鸣过（利用@@unique约束）
-    const existingResonance = await prisma.storyResonance.findUnique({
+    const existingResonance = await prisma.story_resonances.findUnique({
       where: {
         storyId_userId: {
           storyId,
@@ -50,7 +50,7 @@ export async function POST(
     // 使用Prisma事务确保原子性操作
     const [resonance, updatedStory] = await prisma.$transaction(async (tx) => {
       // 创建共鸣记录
-      const newResonance = await tx.storyResonance.create({
+      const newResonance = await tx.story_resonances.create({
         data: {
           storyId,
           userId,
@@ -58,7 +58,7 @@ export async function POST(
       });
 
       // 更新故事的共鸣计数
-      const updated = await tx.careerStory.update({
+      const updated = await tx.career_stories.update({
         where: { id: storyId },
         data: {
           resonanceCount: {

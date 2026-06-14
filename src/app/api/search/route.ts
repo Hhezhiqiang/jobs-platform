@@ -176,7 +176,7 @@ export async function GET(request: NextRequest) {
 
     // 搜索面试经验（职业故事中的INTERVIEW类型）
     if (searchType === "all" || searchType === "interviews") {
-      const interviewWhere: Prisma.CareerStoryWhereInput = {
+      const interviewWhere: Prisma.career_storiesWhereInput = {
         type: "EXPERIENCE",
       };
 
@@ -188,10 +188,10 @@ export async function GET(request: NextRequest) {
       }
 
       const [interviews, interviewTotal] = await Promise.all([
-        prisma.careerStory.findMany({
+        prisma.career_stories.findMany({
           where: interviewWhere,
           include: {
-            author: {
+            users: {
               select: {
                 id: true,
                 name: true,
@@ -206,7 +206,7 @@ export async function GET(request: NextRequest) {
           take: searchType === "all" ? 5 : limit,
           skip: searchType === "all" ? 0 : skip,
         }),
-        prisma.careerStory.count({ where: interviewWhere }),
+        prisma.career_stories.count({ where: interviewWhere }),
       ]);
 
       // 解析面试经验内容

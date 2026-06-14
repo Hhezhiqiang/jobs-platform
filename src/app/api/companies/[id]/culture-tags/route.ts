@@ -28,7 +28,7 @@ export async function GET(
     }
 
     // 获取文化标签（按投票数排序）
-    const tags = await prisma.companyCultureTag.findMany({
+    const tags = await prisma.company_culture_tags.findMany({
       where: { companyId },
       orderBy: [{ voteCount: "desc" }, { updatedAt: "desc" }],
     });
@@ -107,7 +107,7 @@ export async function POST(
     if (action === "remove") {
       // 删除标签（仅允许公司管理员或添加者删除）
       // 简化版本：任何人都可以删除（实际应添加权限控制）
-      const existingTag = await prisma.companyCultureTag.findFirst({
+      const existingTag = await prisma.company_culture_tags.findFirst({
         where: {
           companyId,
           tagName: {
@@ -123,9 +123,9 @@ export async function POST(
 
       // 如果投票数大于1，减少票数；否则删除
       if (existingTag.voteCount > 1) {
-        const updated = await prisma.companyCultureTag.update({
+        const updated = await prisma.company_culture_tags.update({
           where: { id: existingTag.id },
-          data: { voteCount: { decrement: 1 } },
+          data: { id: crypto.randomUUID(), updatedAt: new Date(), voteCount: { decrement: 1 } },
         });
         return NextResponse.json({
           message: "已减少标签认同",
@@ -136,7 +136,7 @@ export async function POST(
           },
         });
       } else {
-        await prisma.companyCultureTag.delete({
+        await prisma.company_culture_tags.delete({
           where: { id: existingTag.id },
         });
         return NextResponse.json({
@@ -150,7 +150,7 @@ export async function POST(
     }
 
     // 添加/投票标签
-    const existingTag = await prisma.companyCultureTag.findFirst({
+    const existingTag = await prisma.company_culture_tags.findFirst({
       where: {
         companyId,
         tagName: {
@@ -162,9 +162,9 @@ export async function POST(
 
     if (existingTag) {
       // 标签已存在，增加投票数
-      const updated = await prisma.companyCultureTag.update({
+      const updated = await prisma.company_culture_tags.update({
         where: { id: existingTag.id },
-        data: { voteCount: { increment: 1 } },
+        data: { id: crypto.randomUUID(), updatedAt: new Date(), voteCount: { increment: 1 } },
       });
       return NextResponse.json({
         message: "已认同该标签",
@@ -176,8 +176,8 @@ export async function POST(
       });
     } else {
       // 创建新标签
-      const newTag = await prisma.companyCultureTag.create({
-        data: {
+      const newTag = await prisma.company_culture_tags.create({
+        data: { id: crypto.randomUUID(), updatedAt: new Date(),
           companyId,
           tagName: normalizedTagName,
           voteCount: 1,
@@ -237,7 +237,7 @@ export async function DELETE(
     }
 
     // 删除标签
-    await prisma.companyCultureTag.delete({
+    await prisma.company_culture_tags.delete({
       where: { id: tagId },
     });
 

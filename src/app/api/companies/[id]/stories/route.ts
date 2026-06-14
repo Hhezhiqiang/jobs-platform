@@ -60,23 +60,23 @@ export async function GET(
     };
 
     // 获取总数
-    const total = await prisma.careerStory.count({ where });
+    const total = await prisma.career_stories.count({ where });
 
     // 获取故事列表
-    const stories = await prisma.careerStory.findMany({
+    const stories = await prisma.career_stories.findMany({
       where,
       orderBy: { createdAt: "desc" },
       skip,
       take: limit,
       include: {
-        author: {
+        users: {
           select: {
             id: true,
             name: true,
             avatar: true,
           },
         },
-        company: {
+        companies: {
           select: {
             id: true,
             name: true,
@@ -86,7 +86,7 @@ export async function GET(
         },
         _count: {
           select: {
-            resonances: true,
+            story_resonances: true,
           },
         },
       },
@@ -101,9 +101,9 @@ export async function GET(
       viewCount: story.viewCount,
       resonanceCount: story.resonanceCount,
       createdAt: story.createdAt.toISOString(),
-      author: story.author,
-      company: story.company,
-      resonanceTotal: story._count.resonances,
+      author: story.users,
+      company: story.companies,
+      resonanceTotal: story._count.story_resonances,
     }));
 
     return NextResponse.json({

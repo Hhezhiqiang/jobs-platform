@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
     }
 
     const favorite = await prisma.favorites.create({
-      data: {
+      data: { id: crypto.randomUUID(),
         userId: session.user.id,
         jobId,
       },

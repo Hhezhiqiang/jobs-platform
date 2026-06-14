@@ -83,7 +83,7 @@ export async function generateMetadata({
       ],
       apple: "/apple-touch-icon.png",
     },
-    manifest: "https://jobquip.com/manifest.webmanifest",
+    manifest: "/manifest.webmanifest",
     robots: {
       index: true,
       follow: true,
@@ -180,7 +180,6 @@ export default async function RootLayout({
             <Header />
             {children}
             <PageTracker />
-            <Analytics />
             <GoogleAnalytics />
             <script
               dangerouslySetInnerHTML={{

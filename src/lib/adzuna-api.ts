@@ -95,7 +95,7 @@ const SYNC_CONFIG = {
   retryBaseDelay: 1000,
 
   // 扩展关键词和地点 - 优化版：每天只抓核心关键词，控制 API 请求量
-  // 核心关键词（10 个，覆盖最高频搜索）
+  // 核心关键词（15 个，覆盖最高频搜索）
   coreKeywords: [
     'software engineer',
     'frontend developer',
@@ -107,8 +107,13 @@ const SYNC_CONFIG = {
     'cloud engineer',
     'security engineer',
     'machine learning engineer',
+    'blockchain developer',
+    'AI engineer',
+    'web3 developer',
+    'cybersecurity',
+    'solutions architect',
   ],
-  // 扩展关键词（用于轮换）
+  // 扩展关键词（用于轮换，覆盖全技术栈）
   keywords: [
     'software engineer',
     'software developer',
@@ -122,16 +127,35 @@ const SYNC_CONFIG = {
     'cloud engineer',
     'security engineer',
     'mobile developer',
+    'blockchain developer',
+    'AI engineer',
+    'web3 developer',
+    'cybersecurity',
+    'solutions architect',
+    'site reliability engineer',
+    'platform engineer',
+    'QA engineer',
+    'UX designer',
+    'technical project manager',
+    'network engineer',
+    'database administrator',
+    'embedded engineer',
+    'game developer',
+    'AR VR developer',
+    'quantitative developer',
+    'IT support',
+    'system administrator',
   ],
 
   locations: {
     // 英国
     'gb': [
-      'London',
+      'London', 'Manchester', 'Birmingham', 'Edinburgh', 'Bristol',
     ],
     // 美国
     'us': [
-      'New York', 'San Francisco',
+      'New York', 'San Francisco', 'Seattle', 'Austin', 'Boston',
+      'Los Angeles', 'Chicago', 'Denver', 'Miami', 'Remote',
     ],
     // 新加坡
     'sg': [
@@ -139,23 +163,79 @@ const SYNC_CONFIG = {
     ],
     // 阿联酋
     'ae': [
-      'Dubai',
+      'Dubai', 'Abu Dhabi',
     ],
     // 德国
     'de': [
-      'Berlin',
+      'Berlin', 'Munich', 'Frankfurt', 'Hamburg',
     ],
     // 加拿大
     'ca': [
-      'Toronto',
+      'Toronto', 'Vancouver', 'Montreal', 'Ottawa',
     ],
     // 澳大利亚
     'au': [
-      'Sydney',
+      'Sydney', 'Melbourne', 'Brisbane', 'Perth',
+    ],
+    // 日本
+    'jp': [
+      'Tokyo', 'Osaka',
+    ],
+    // 法国
+    'fr': [
+      'Paris', 'Lyon',
+    ],
+    // 印度
+    'in': [
+      'Bangalore', 'Mumbai', 'Hyderabad', 'Delhi',
+    ],
+    // 荷兰
+    'nl': [
+      'Amsterdam', 'Rotterdam',
+    ],
+    // 巴西
+    'br': [
+      'São Paulo', 'Rio de Janeiro',
+    ],
+    // 瑞士
+    'ch': [
+      'Zurich', 'Geneva',
+    ],
+    // 瑞典
+    'se': [
+      'Stockholm',
+    ],
+    // 爱尔兰
+    'ie': [
+      'Dublin',
+    ],
+    // 意大利
+    'it': [
+      'Milan', 'Rome',
+    ],
+    // 西班牙
+    'es': [
+      'Madrid', 'Barcelona',
+    ],
+    // 波兰
+    'pl': [
+      'Warsaw', 'Krakow',
+    ],
+    // 韩国
+    'kr': [
+      'Seoul',
+    ],
+    // 香港
+    'hk': [
+      'Hong Kong',
     ],
   },
 
-  countries: ['gb', 'us', 'sg', 'ae', 'de', 'ca', 'au'],
+  countries: [
+    'gb', 'us', 'sg', 'ae', 'de', 'ca', 'au',
+    'jp', 'fr', 'in', 'nl', 'br', 'ch', 'se',
+    'ie', 'it', 'es', 'pl', 'kr', 'hk',
+  ],
 };
 
 // ─── 工具函数 ────────────────────────────────────────────────
@@ -429,11 +509,63 @@ function transformJob(
       salaryCurrency = 'AUD';
       salaryMin = salaryMin ? Math.round(salaryMin / 12 / 1000) : null;
       salaryMax = salaryMax ? Math.round(salaryMax / 12 / 1000) : null;
+    } else if (['JP', 'JPN'].includes(countryUpper)) {
+      salaryCurrency = 'JPY';
+      salaryMin = salaryMin ? Math.round(salaryMin / 12 / 1000) : null;
+      salaryMax = salaryMax ? Math.round(salaryMax / 12 / 1000) : null;
+    } else if (['FR', 'FRA'].includes(countryUpper)) {
+      salaryCurrency = 'EUR';
+      salaryMin = salaryMin ? Math.round(salaryMin / 12 / 1000) : null;
+      salaryMax = salaryMax ? Math.round(salaryMax / 12 / 1000) : null;
+    } else if (['IN', 'IND'].includes(countryUpper)) {
+      salaryCurrency = 'INR';
+      salaryMin = salaryMin ? Math.round(salaryMin / 12 / 1000) : null;
+      salaryMax = salaryMax ? Math.round(salaryMax / 12 / 1000) : null;
+    } else if (['NL', 'NLD'].includes(countryUpper)) {
+      salaryCurrency = 'EUR';
+      salaryMin = salaryMin ? Math.round(salaryMin / 12 / 1000) : null;
+      salaryMax = salaryMax ? Math.round(salaryMax / 12 / 1000) : null;
+    } else if (['BR', 'BRA'].includes(countryUpper)) {
+      salaryCurrency = 'BRL';
+      salaryMin = salaryMin ? Math.round(salaryMin / 12 / 1000) : null;
+      salaryMax = salaryMax ? Math.round(salaryMax / 12 / 1000) : null;
+    } else if (['CH', 'CHE'].includes(countryUpper)) {
+      salaryCurrency = 'CHF';
+      salaryMin = salaryMin ? Math.round(salaryMin / 12 / 1000) : null;
+      salaryMax = salaryMax ? Math.round(salaryMax / 12 / 1000) : null;
+    } else if (['SE', 'SWE'].includes(countryUpper)) {
+      salaryCurrency = 'SEK';
+      salaryMin = salaryMin ? Math.round(salaryMin / 12 / 1000) : null;
+      salaryMax = salaryMax ? Math.round(salaryMax / 12 / 1000) : null;
+    } else if (['IE', 'IRL'].includes(countryUpper)) {
+      salaryCurrency = 'EUR';
+      salaryMin = salaryMin ? Math.round(salaryMin / 12 / 1000) : null;
+      salaryMax = salaryMax ? Math.round(salaryMax / 12 / 1000) : null;
+    } else if (['IT', 'ITA'].includes(countryUpper)) {
+      salaryCurrency = 'EUR';
+      salaryMin = salaryMin ? Math.round(salaryMin / 12 / 1000) : null;
+      salaryMax = salaryMax ? Math.round(salaryMax / 12 / 1000) : null;
+    } else if (['ES', 'ESP'].includes(countryUpper)) {
+      salaryCurrency = 'EUR';
+      salaryMin = salaryMin ? Math.round(salaryMin / 12 / 1000) : null;
+      salaryMax = salaryMax ? Math.round(salaryMax / 12 / 1000) : null;
+    } else if (['PL', 'POL'].includes(countryUpper)) {
+      salaryCurrency = 'PLN';
+      salaryMin = salaryMin ? Math.round(salaryMin / 12 / 1000) : null;
+      salaryMax = salaryMax ? Math.round(salaryMax / 12 / 1000) : null;
+    } else if (['KR', 'KOR'].includes(countryUpper)) {
+      salaryCurrency = 'KRW';
+      salaryMin = salaryMin ? Math.round(salaryMin / 12 / 1000) : null;
+      salaryMax = salaryMax ? Math.round(salaryMax / 12 / 1000) : null;
+    } else if (['HK', 'HKG'].includes(countryUpper)) {
+      salaryCurrency = 'HKD';
+      salaryMin = salaryMin ? Math.round(salaryMin / 12 / 1000) : null;
+      salaryMax = salaryMax ? Math.round(salaryMax / 12 / 1000) : null;
     }
   }
 
   return {
-    slug: `adzuna-${job.id}`,
+    slug: `adzuna-${country.toLowerCase()}-${job.id}`,
     title: job.title,
     description: '', // placeholder，后续用 AI 结果或原文填充
     requirements: '',

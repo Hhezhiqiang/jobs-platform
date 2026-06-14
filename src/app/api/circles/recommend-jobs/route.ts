@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 检查求职者的求职状态
-    const seekerStatus = await prisma.jobSeekingStatus.findUnique({
+    const seekerStatus = await prisma.job_seeking_status.findUnique({
       where: { userId: seekerId },
     });
 
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 检查是否已经推荐过该职位给该用户
-    const existingRecommendation = await prisma.jobRecommendation.findFirst({
+    const existingRecommendation = await prisma.job_recommendations.findFirst({
       where: {
         senderId: recommenderId,
         receiverId: seekerId,
@@ -101,18 +101,20 @@ export async function POST(request: NextRequest) {
     }
 
     // 创建推荐记录
-    const recommendation = await prisma.jobRecommendation.create({
+    const recommendation = await prisma.job_recommendations.create({
       data: {
+        id: crypto.randomUUID(),
         senderId: recommenderId,
         receiverId: seekerId,
         jobId,
         message: message || null,
         status: "PENDING",
+        updatedAt: new Date(),
       },
     });
 
     // 更新求职者的推荐计数
-    await prisma.jobSeekingStatus.update({
+    await prisma.job_seeking_status.update({
       where: { userId: seekerId },
       data: {
         recommendCount: { increment: 1 },
@@ -123,6 +125,7 @@ export async function POST(request: NextRequest) {
     try {
       await prisma.notifications.create({
         data: {
+          id: crypto.randomUUID(),
           userId: seekerId,
           type: "JOB_ALERT",
           title: "有新的职位推荐",
@@ -172,7 +175,7 @@ export async function GET(request: NextRequest) {
 
     // 获取当前用户可见的正在求职的用户
     // 这里简化处理：返回所有公开的求职状态用户 + 当前用户关注的人 + 同圈子的人
-    const jobSeekers = await prisma.jobSeekingStatus.findMany({
+    const jobSeekers = await prisma.job_seeking_status.findMany({
       where: {
         status: { in: ["OPEN", "PASSIVE"] },
         userId: { not: session.user.id }, // 排除自己
@@ -186,7 +189,7 @@ export async function GET(request: NextRequest) {
         ],
       },
       include: {
-        user: {
+        users: {
           select: {
             id: true,
             name: true,
@@ -200,9 +203,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       seekers: jobSeekers.map((seeker) => ({
-        id: seeker.user.id,
-        name: seeker.user.name,
-        avatar: seeker.user.avatar,
+        id: seeker.users.id,
+        name: seeker.users.name,
+        avatar: seeker.users.avatar,
         status: seeker.status,
         expectTags: seeker.expectTags,
         expectSalary: seeker.expectSalary,
@@ -232,35 +235,50 @@ async function checkRecommendPermission(
   // FOLLOWERS: 检查是否存在关注关系
   if (privacy === "FOLLOWERS") {
     // 检查是否有故事共鸣关系作为替代指标
-    const resonance = await prisma.storyResonance.findFirst({
-      where: {
-        story: { authorId: seekerId },
-        userId: recommenderId,
-      },
+    const userStories = await prisma.career_stories.findMany({
+      where: { authorId: seekerId },
+      select: { id: true },
     });
+    const storyIds = userStories.map(s => s.id);
+    
+    const resonance = storyIds.length > 0 
+      ? await prisma.story_resonances.findFirst({
+          where: {
+            storyId: { in: storyIds },
+            userId: recommenderId,
+          },
+        })
+      : null;
     // 有互动则允许推荐
     return !!resonance;
   }
 
   // CIRCLES: 检查是否在同个圈子（通过是否有共同互动记录判断）
   if (privacy === "CIRCLES") {
-    // 检查是否有过共鸣或评论互动
-    const hasInteraction = await prisma.storyResonance.findFirst({
+    const userStories = await prisma.career_stories.findMany({
+      where: { authorId: { in: [seekerId, recommenderId] } },
+      select: { id: true, authorId: true },
+    });
+    const seekerStoryIds = userStories.filter(s => s.authorId === seekerId).map(s => s.id);
+    const recommenderStoryIds = userStories.filter(s => s.authorId === recommenderId).map(s => s.id);
+    
+    // 检查是否有过共鸣互动
+    const hasResonance = await prisma.story_resonances.findFirst({
       where: {
         OR: [
-          { story: { authorId: seekerId }, userId: recommenderId },
-          { story: { authorId: recommenderId }, userId: seekerId },
+          { storyId: { in: seekerStoryIds }, userId: recommenderId },
+          { storyId: { in: recommenderStoryIds }, userId: seekerId },
         ],
       },
     });
-    if (hasInteraction) return true;
+    if (hasResonance) return true;
 
     // 检查是否有评论互动
-    const hasComment = await prisma.storyComment.findFirst({
+    const hasComment = await prisma.story_comments.findFirst({
       where: {
         OR: [
-          { story: { authorId: seekerId }, authorId: recommenderId },
-          { story: { authorId: recommenderId }, authorId: seekerId },
+          { storyId: { in: seekerStoryIds }, authorId: recommenderId },
+          { storyId: { in: recommenderStoryIds }, authorId: seekerId },
         ],
       },
     });

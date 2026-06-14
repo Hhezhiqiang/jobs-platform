@@ -63,10 +63,10 @@ export async function GET(
     // 在实际应用中，可能需要添加companyId关联或更复杂的匹配逻辑
 
     // 获取面试经验总数
-    const total = await prisma.careerStory.count({ where });
+    const total = await prisma.career_stories.count({ where });
 
     // 获取面试经验列表
-    const interviews = await prisma.careerStory.findMany({
+    const interviews = await prisma.career_stories.findMany({
       where,
       orderBy: [
         { resonanceCount: "desc" },
@@ -75,7 +75,7 @@ export async function GET(
       skip,
       take: limit,
       include: {
-        author: {
+        users: {
           select: {
             id: true,
             name: true,
@@ -100,9 +100,9 @@ export async function GET(
         createdAt: story.createdAt.toISOString(),
         updatedAt: story.updatedAt.toISOString(),
         author: {
-          id: story.author.id,
-          name: story.author.name,
-          avatar: story.author.avatar,
+          id: story.users.id,
+          name: story.users.name,
+          avatar: story.users.avatar,
         },
         // 解析的结构化信息
         department: parsedData.department,

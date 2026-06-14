@@ -14,17 +14,17 @@ export async function GET(
     const session = await getServerSession(authOptions);
     const userId = session?.user?.id;
     
-    const story = await prisma.careerStory.findUnique({
+    const story = await prisma.career_stories.findUnique({
       where: { id },
       include: {
-        author: {
+        users: {
           select: {
             id: true,
             name: true,
             avatar: true,
           },
         },
-        company: {
+        companies: {
           select: {
             id: true,
             name: true,
@@ -44,7 +44,7 @@ export async function GET(
         },
         _count: {
           select: {
-            resonances: true,
+            story_resonances: true,
           },
         },
       },
@@ -58,7 +58,7 @@ export async function GET(
     }
     
     // 增加浏览量
-    await prisma.careerStory.update({
+    await prisma.career_stories.update({
       where: { id },
       data: { viewCount: { increment: 1 } },
     });
@@ -66,7 +66,7 @@ export async function GET(
     // 检查当前用户是否已共鸣
     let hasResonated = false;
     if (userId) {
-      const resonance = await prisma.storyResonance.findUnique({
+      const resonance = await prisma.story_resonances.findUnique({
         where: {
           storyId_userId: {
             storyId: id,
@@ -123,7 +123,7 @@ export async function PATCH(
       return NextResponse.json({ error: "未登录" }, { status: 401 });
     }
     
-    const story = await prisma.careerStory.findUnique({
+    const story = await prisma.career_stories.findUnique({
       where: { id },
       select: { authorId: true },
     });
@@ -162,7 +162,7 @@ export async function PATCH(
       }
     }
 
-    const updatedStory = await prisma.careerStory.update({
+    const updatedStory = await prisma.career_stories.update({
       where: { id },
       data: {
         ...(title && { title: title.trim() }),
@@ -172,14 +172,14 @@ export async function PATCH(
         ...(companyId !== undefined && { companyId: companyId || null }),
       },
       include: {
-        author: {
+        users: {
           select: {
             id: true,
             name: true,
             avatar: true,
           },
         },
-        company: {
+        companies: {
           select: {
             id: true,
             name: true,
@@ -216,7 +216,7 @@ export async function DELETE(
       return NextResponse.json({ error: "未登录" }, { status: 401 });
     }
     
-    const story = await prisma.careerStory.findUnique({
+    const story = await prisma.career_stories.findUnique({
       where: { id },
       select: { authorId: true },
     });
@@ -236,7 +236,7 @@ export async function DELETE(
       );
     }
     
-    await prisma.careerStory.delete({
+    await prisma.career_stories.delete({
       where: { id },
     });
     

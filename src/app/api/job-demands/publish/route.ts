@@ -34,8 +34,8 @@ export async function POST(request: Request) {
     const autoBio = resume ? (resume as any).content || user?.user_profiles?.bio : user?.user_profiles?.bio;
 
     // 4. 创建求职需求
-    const demand = await prisma.jobDemand.create({
-      data: {
+    const demand = await prisma.job_demands.create({
+      data: { id: crypto.randomUUID(), updatedAt: new Date(),
         userId: session.user.id,
         title: autoTitle,
         salaryMin: salaryMin ? parseInt(salaryMin) : null,
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
         bio: autoBio || null,
         status: "OPEN",
       },
-      include: { user: true },
+      include: { users: true },
     });
 
     return NextResponse.json({ 
@@ -68,10 +68,10 @@ export async function GET() {
   }
 
   try {
-    const demands = await prisma.jobDemand.findMany({
+    const demands = await prisma.job_demands.findMany({
       where: { userId: session.user.id },
       orderBy: { createdAt: "desc" },
-      include: { user: true },
+      include: { users: true },
     });
 
     return NextResponse.json({ success: true, data: demands });

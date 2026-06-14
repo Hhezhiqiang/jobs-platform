@@ -11,7 +11,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; id: string }> }): Promise<Metadata> {
   const { id } = await params;
-  const demand = await prisma.jobDemand.findUnique({ where: { id } });
+  const demand = await prisma.job_demands.findUnique({ where: { id } });
   if (!demand) return { title: "Not Found" };
   return { title: `${demand.title} - 求职需求` };
 }
@@ -22,9 +22,9 @@ export default async function JobDemandDetail({ params }: { params: Promise<{ lo
   const { locale, id } = await params;
   const isEn = locale === "en";
 
-  const demand = await prisma.jobDemand.findUnique({
+  const demand = await prisma.job_demands.findUnique({
     where: { id },
-    include: { user: true },
+    include: { users: true },
   });
 
   if (!demand) notFound();
@@ -45,7 +45,7 @@ export default async function JobDemandDetail({ params }: { params: Promise<{ lo
           <div className="flex items-center gap-3 text-white/70 text-sm">
             <span className="flex items-center gap-1.5">
               <User className="w-4 h-4" />
-              发布者：{demand.user?.name || (isEn ? "Anonymous" : "匿名用户")}
+              发布者：{demand.users?.name || (isEn ? "Anonymous" : "匿名用户")}
             </span>
             <span className="w-1 h-1 bg-white/40 rounded-full" />
             <span className="flex items-center gap-1.5">

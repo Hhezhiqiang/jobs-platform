@@ -18,7 +18,7 @@ export interface CheckinResult {
  */
 export async function doCheckin(userId: string): Promise<CheckinResult> {
   try {
-    const profile = await prisma.userGameProfile.findUnique({
+    const profile = await prisma.user_game_profiles.findUnique({
       where: { userId },
     });
 
@@ -37,7 +37,7 @@ export async function doCheckin(userId: string): Promise<CheckinResult> {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const existingCheckin = await prisma.dailyCheckin.findUnique({
+    const existingCheckin = await prisma.daily_checkins.findUnique({
       where: {
         profileId_checkinDate: {
           profileId: profile.id,
@@ -61,7 +61,7 @@ export async function doCheckin(userId: string): Promise<CheckinResult> {
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
 
-    const yesterdayCheckin = await prisma.dailyCheckin.findUnique({
+    const yesterdayCheckin = await prisma.daily_checkins.findUnique({
       where: {
         profileId_checkinDate: {
           profileId: profile.id,
@@ -94,7 +94,7 @@ export async function doCheckin(userId: string): Promise<CheckinResult> {
     // 执行签到
     await prisma.$transaction([
       // 创建签到记录
-      prisma.dailyCheckin.create({
+      prisma.daily_checkins.create({
         data: {
           profileId: profile.id,
           checkinDate: today,
@@ -104,7 +104,7 @@ export async function doCheckin(userId: string): Promise<CheckinResult> {
         },
       }),
       // 更新用户档案
-      prisma.userGameProfile.update({
+      prisma.user_game_profiles.update({
         where: { userId },
         data: {
           loginStreak: newStreak,
@@ -142,7 +142,7 @@ export async function doCheckin(userId: string): Promise<CheckinResult> {
  * 检查今日签到状态
  */
 export async function getCheckinStatus(userId: string) {
-  const profile = await prisma.userGameProfile.findUnique({
+  const profile = await prisma.user_game_profiles.findUnique({
     where: { userId },
     select: { id: true, loginStreak: true },
   });
@@ -158,7 +158,7 @@ export async function getCheckinStatus(userId: string) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const todayCheckin = await prisma.dailyCheckin.findUnique({
+  const todayCheckin = await prisma.daily_checkins.findUnique({
     where: {
       profileId_checkinDate: {
         profileId: profile.id,
@@ -190,7 +190,7 @@ export async function getCheckinStatus(userId: string) {
  * 获取签到历史
  */
 export async function getCheckinHistory(userId: string, days: number = 30) {
-  const profile = await prisma.userGameProfile.findUnique({
+  const profile = await prisma.user_game_profiles.findUnique({
     where: { userId },
     select: { id: true },
   });
@@ -201,7 +201,7 @@ export async function getCheckinHistory(userId: string, days: number = 30) {
   startDate.setDate(startDate.getDate() - days);
   startDate.setHours(0, 0, 0, 0);
 
-  const checkins = await prisma.dailyCheckin.findMany({
+  const checkins = await prisma.daily_checkins.findMany({
     where: {
       profileId: profile.id,
       checkinDate: { gte: startDate },
@@ -221,7 +221,7 @@ export async function getCheckinHistory(userId: string, days: number = 30) {
  * 获取签到日历数据 (用于UI展示)
  */
 export async function getCheckinCalendar(userId: string, year: number, month: number) {
-  const profile = await prisma.userGameProfile.findUnique({
+  const profile = await prisma.user_game_profiles.findUnique({
     where: { userId },
     select: { id: true },
   });
@@ -231,7 +231,7 @@ export async function getCheckinCalendar(userId: string, year: number, month: nu
   const startOfMonth = new Date(year, month - 1, 1);
   const endOfMonth = new Date(year, month, 0);
 
-  const checkins = await prisma.dailyCheckin.findMany({
+  const checkins = await prisma.daily_checkins.findMany({
     where: {
       profileId: profile.id,
       checkinDate: {

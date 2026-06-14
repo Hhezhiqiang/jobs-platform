@@ -28,7 +28,7 @@ export async function createNotification({
 }: CreateNotificationParams) {
   try {
     const notification = await prisma.notifications.create({
-      data: {
+      data: { id: crypto.randomUUID(),
         userId,
         type,
         title,
@@ -144,7 +144,7 @@ export async function createApplicationStatusNotification(
     type: statusInfo.type,
     title: statusInfo.title,
     content: statusInfo.content,
-    metadata: {
+    metadata: { id: crypto.randomUUID(),
       applicationId,
       jobTitle,
       companyName,
@@ -188,7 +188,7 @@ export async function createJobAlertNotification(
     type: "JOB_ALERT",
     title: "新职位推荐",
     content: `发现新职位："${jobTitle}"（${companyName}），快来看看是否符合您的期望`,
-    metadata: {
+    metadata: { id: crypto.randomUUID(),
       jobId,
       jobTitle,
       companyName,

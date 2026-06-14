@@ -17,15 +17,15 @@ export default async function QuestsPage({ params }: { params: { locale: string 
     redirect(`/${locale}/auth/login`);
   }
 
-  const profile = await prisma.userGameProfile.findUnique({
+  const profile = await prisma.user_game_profiles.findUnique({
     where: { userId: session.user.id },
     include: {
-      taskProgress: {
+      task_progress: {
         include: {
-          task: true,
+          task_definitions: true,
         },
         orderBy: {
-          task: {
+          task_definitions: {
             sortOrder: "asc",
           },
         },
@@ -37,11 +37,11 @@ export default async function QuestsPage({ params }: { params: { locale: string 
     redirect(`/${locale}/dashboard`);
   }
 
-  const guideTasks = profile.taskProgress.filter(
-    (t) => t.task.category === "GUIDE"
+  const guideTasks = profile.task_progress.filter(
+    (t) => t.task_definitions.category === "GUIDE"
   );
-  const dailyTasks = profile.taskProgress.filter(
-    (t) => t.task.category === "DAILY"
+  const dailyTasks = profile.task_progress.filter(
+    (t) => t.task_definitions.category === "DAILY"
   );
 
   const getStatusIcon = (status: string) => {
@@ -92,9 +92,9 @@ export default async function QuestsPage({ params }: { params: { locale: string 
               {getStatusIcon(task.status)}
 
               <div className="flex-1">
-                <h3 className="font-medium text-gray-900">{task.task.name}</h3>
+                <h3 className="font-medium text-gray-900">{task.task_definitions.name}</h3>
                 <p className="text-sm text-gray-500 mt-1">
-                  {task.task.description}
+                  {task.task_definitions.description}
                 </p>
 
                 {task.status === "IN_PROGRESS" && (
@@ -130,8 +130,8 @@ export default async function QuestsPage({ params }: { params: { locale: string 
                   {getStatusText(task.status)}
                 </span>
                 <div className="flex gap-2 mt-2 text-xs">
-                  <span className="text-blue-600">+{task.task.expReward} EXP</span>
-                  <span className="text-amber-600">+{task.task.coinReward} 金币</span>
+                  <span className="text-blue-600">+{task.task_definitions.expReward} EXP</span>
+                  <span className="text-amber-600">+{task.task_definitions.coinReward} 金币</span>
                 </div>
               </div>
             </div>
@@ -158,9 +158,9 @@ export default async function QuestsPage({ params }: { params: { locale: string 
                 {getStatusIcon(task.status)}
 
                 <div className="flex-1">
-                  <h3 className="font-medium text-gray-900">{task.task.name}</h3>
+                  <h3 className="font-medium text-gray-900">{task.task_definitions.name}</h3>
                   <p className="text-sm text-gray-500 mt-1">
-                    {task.task.description}
+                    {task.task_definitions.description}
                   </p>
 
                   {task.status === "IN_PROGRESS" && (
@@ -199,8 +199,8 @@ export default async function QuestsPage({ params }: { params: { locale: string 
                     {getStatusText(task.status)}
                   </span>
                   <div className="flex gap-2 mt-2 text-xs">
-                    <span className="text-blue-600">+{task.task.expReward} EXP</span>
-                    <span className="text-amber-600">+{task.task.coinReward} 金币</span>
+                    <span className="text-blue-600">+{task.task_definitions.expReward} EXP</span>
+                    <span className="text-amber-600">+{task.task_definitions.coinReward} 金币</span>
                   </div>
                 </div>
               </div>

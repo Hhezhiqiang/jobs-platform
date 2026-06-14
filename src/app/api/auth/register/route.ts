@@ -91,20 +91,24 @@ export async function POST(request: Request) {
     // 创建用户
     const user = await prisma.users.create({
       data: {
+        id: crypto.randomUUID(),
         name,
         email,
         password: hashedPassword,
         phone,
         role: "USER",
         status: "ACTIVE",
+        updatedAt: new Date(),
       },
     });
 
     // 创建用户资料
     await prisma.user_profiles.create({
       data: {
+        id: crypto.randomUUID(),
         userId: user.id,
         skills: [],
+        updatedAt: new Date(),
       },
     });
 

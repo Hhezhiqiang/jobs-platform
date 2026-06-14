@@ -15,7 +15,7 @@ export async function GET(
     const { id: storyId } = params;
 
     // 检查故事是否存在
-    const story = await prisma.careerStory.findUnique({
+    const story = await prisma.career_stories.findUnique({
       where: { id: storyId },
     });
 
@@ -35,10 +35,10 @@ export async function GET(
     let total = 0;
 
     try {
-      comments = await prisma.storyComment.findMany({
+      comments = await prisma.story_comments.findMany({
         where: { storyId },
         include: {
-          author: {
+          users: {
             select: {
               id: true,
               name: true,
@@ -51,7 +51,7 @@ export async function GET(
         take: pageSize,
       });
 
-      total = await prisma.storyComment.count({
+      total = await prisma.story_comments.count({
         where: { storyId },
       });
     } catch {
@@ -89,7 +89,7 @@ export async function POST(
     const userId = session.user.id;
 
     // 检查故事是否存在
-    const story = await prisma.careerStory.findUnique({
+    const story = await prisma.career_stories.findUnique({
       where: { id: storyId },
     });
 
@@ -114,14 +114,14 @@ export async function POST(
     let comment: CommentWithAuthor;
 
     try {
-      comment = await prisma.storyComment.create({
-        data: {
+      comment = await prisma.story_comments.create({
+        data: { id: crypto.randomUUID(), updatedAt: new Date(),
           storyId,
           authorId: userId,
           content: content.trim(),
         },
         include: {
-          author: {
+          users: {
             select: {
               id: true,
               name: true,
@@ -153,7 +153,7 @@ interface CommentWithAuthor {
   content: string;
   createdAt: Date;
   updatedAt: Date;
-  author: {
+  users: {
     id: string;
     name: string;
     avatar: string | null;

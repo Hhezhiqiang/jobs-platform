@@ -62,6 +62,7 @@ export async function POST(request: NextRequest) {
 
     const job = await prisma.jobs.create({
       data: {
+        id: crypto.randomUUID(),
         title: body.title,
         slug,
         description: body.description || "",
@@ -80,6 +81,7 @@ export async function POST(request: NextRequest) {
         authorId: session.user.id,
         status: body.status || "ACTIVE",
         datePosted: new Date(),
+        updatedAt: new Date(),
       },
     });
 

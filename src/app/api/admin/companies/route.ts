@@ -136,6 +136,7 @@ export async function PATCH(request: NextRequest) {
     for (const member of company.company_members) {
       await prisma.notifications.create({
         data: {
+          id: crypto.randomUUID(),
           userId: member.users.id,
           type: "SYSTEM",
           title: notificationTitle,

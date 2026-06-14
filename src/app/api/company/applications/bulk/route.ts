@@ -94,12 +94,12 @@ export async function POST(request: NextRequest) {
       try {
         if (!app.userId) continue; // Skip guest applications
         await prisma.notifications.create({
-          data: {
+          data: { id: crypto.randomUUID(),
             userId: app.userId,
             type: "APPLICATION_UPDATE",
             title: "申请状态更新",
             content: `您在「${app.jobs.title}」职位的申请状态已更新为：${getStatusText(status)}`,
-            metadata: { applicationId: app.id, jobId: app.jobId, status },
+            metadata: { id: crypto.randomUUID(), applicationId: app.id, jobId: app.jobId, status },
           },
         });
       } catch {

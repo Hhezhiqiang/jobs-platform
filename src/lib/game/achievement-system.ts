@@ -12,22 +12,22 @@ interface AchievementCondition {
  * 检查并解锁成就
  */
 export async function checkAndUnlockAchievements(userId: string) {
-  const profile = await prisma.userGameProfile.findUnique({
+  const profile = await prisma.user_game_profiles.findUnique({
     where: { userId },
     include: {
-      achievements: {
-        include: { achievement: true },
+      user_achievements: {
+        include: { achievements: true },
       },
     },
   });
 
   if (!profile) return;
 
-  const unlockedCodes = new Set(profile.achievements.map(a => a.achievement.code));
+  const unlockedCodes = new Set(profile.user_achievements.map(a => a.achievements.code));
   const newUnlocks = [];
 
   // 获取所有成就定义
-  const allAchievements = await prisma.achievement.findMany();
+  const allAchievements = await prisma.achievements.findMany();
 
   for (const achievement of allAchievements) {
     // 跳过已解锁的
@@ -39,7 +39,7 @@ export async function checkAndUnlockAchievements(userId: string) {
 
     if (shouldUnlock) {
       // 解锁成就
-      await prisma.userAchievement.create({
+      await prisma.user_achievements.create({
         data: {
           profileId: profile.id,
           achievementId: achievement.id,
@@ -84,7 +84,7 @@ async function checkAchievementCondition(
 
     case "LOGIN_STREAK_7": {
       // 连续登录7天
-      const gameProfile = await prisma.userGameProfile.findUnique({
+      const gameProfile = await prisma.user_game_profiles.findUnique({
         where: { userId },
       });
       return (gameProfile?.loginStreak || 0) >= 7;
@@ -92,7 +92,7 @@ async function checkAchievementCondition(
 
     case "LOGIN_STREAK_30": {
       // 连续登录30天
-      const gp = await prisma.userGameProfile.findUnique({
+      const gp = await prisma.user_game_profiles.findUnique({
         where: { userId },
       });
       return (gp?.loginStreak || 0) >= 30;
@@ -101,24 +101,24 @@ async function checkAchievementCondition(
     // === 浏览成就 ===
     case "FIRST_VIEW": {
       // 首次浏览职位
-      const firstView = await prisma.expLog.findFirst({
-        where: { profile: { userId }, type: "VIEW_JOB" },
+      const firstView = await prisma.exp_logs.findFirst({
+        where: { user_game_profiles: { userId }, type: "VIEW_JOB" },
       });
       return !!firstView;
     }
 
     case "VIEW_JOBS_10": {
       // 浏览10个职位
-      const viewCount10 = await prisma.expLog.count({
-        where: { profile: { userId }, type: "VIEW_JOB" },
+      const viewCount10 = await prisma.exp_logs.count({
+        where: { user_game_profiles: { userId }, type: "VIEW_JOB" },
       });
       return viewCount10 >= 10;
     }
 
     case "VIEW_JOBS_100": {
       // 浏览100个职位
-      const viewCount100 = await prisma.expLog.count({
-        where: { profile: { userId }, type: "VIEW_JOB" },
+      const viewCount100 = await prisma.exp_logs.count({
+        where: { user_game_profiles: { userId }, type: "VIEW_JOB" },
       });
       return viewCount100 >= 100;
     }
@@ -185,16 +185,16 @@ async function checkAchievementCondition(
     // === 社区成就 ===
     case "READ_ARTICLES_10": {
       // 阅读10篇文章
-      const readCount10 = await prisma.expLog.count({
-        where: { profile: { userId }, type: "READ_ARTICLE" },
+      const readCount10 = await prisma.exp_logs.count({
+        where: { user_game_profiles: { userId }, type: "READ_ARTICLE" },
       });
       return readCount10 >= 10;
     }
 
     case "READ_ARTICLES_50": {
       // 阅读50篇文章
-      const readCount50 = await prisma.expLog.count({
-        where: { profile: { userId }, type: "READ_ARTICLE" },
+      const readCount50 = await prisma.exp_logs.count({
+        where: { user_game_profiles: { userId }, type: "READ_ARTICLE" },
       });
       return readCount50 >= 50;
     }

@@ -22,7 +22,7 @@ export default async function JobDemandsPage({ params }: { params: Promise<{ loc
   let demands: any[] = [];
   
   try {
-    demands = await prisma.jobDemand.findMany({
+    demands = await prisma.job_demands.findMany({
       where: { status: "OPEN" },
       orderBy: { createdAt: "desc" },
       take: 20,
@@ -36,7 +36,7 @@ export default async function JobDemandsPage({ params }: { params: Promise<{ loc
         tags: true,
         bio: true,
         createdAt: true,
-        user: { select: { name: true, avatar: true } },
+        users: { select: { name: true, avatar: true } },
       },
     });
   } catch (error) {

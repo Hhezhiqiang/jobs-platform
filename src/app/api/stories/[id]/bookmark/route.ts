@@ -19,7 +19,7 @@ export async function GET(
       return NextResponse.json({ isBookmarked: false }, { status: 200 });
     }
 
-    const bookmark = await prisma.storyBookmark.findUnique({
+    const bookmark = await prisma.story_bookmarks.findUnique({
       where: {
         storyId_userId: {
           storyId: params.id,
@@ -52,7 +52,7 @@ export async function POST(
     const userId = session.user.id;
 
     // 检查故事是否存在
-    const story = await prisma.careerStory.findUnique({
+    const story = await prisma.career_stories.findUnique({
       where: { id: storyId },
     });
     if (!story) {
@@ -60,20 +60,20 @@ export async function POST(
     }
 
     // 切换收藏状态
-    const existing = await prisma.storyBookmark.findUnique({
+    const existing = await prisma.story_bookmarks.findUnique({
       where: { storyId_userId: { storyId, userId } },
     });
 
     if (existing) {
       // 取消收藏
-      await prisma.storyBookmark.delete({
+      await prisma.story_bookmarks.delete({
         where: { storyId_userId: { storyId, userId } },
       });
       return NextResponse.json({ isBookmarked: false });
     } else {
       // 添加收藏
-      await prisma.storyBookmark.create({
-        data: { storyId, userId },
+      await prisma.story_bookmarks.create({
+        data: { id: crypto.randomUUID(), storyId, userId },
       });
       return NextResponse.json({ isBookmarked: true });
     }

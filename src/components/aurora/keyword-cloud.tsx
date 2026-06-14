@@ -93,9 +93,17 @@ export async function KeywordCloud({ locale }: KeywordCloudProps) {
   });
 
   const keywordCounts: Record<string, number> = {};
+  
+  // 定义职位特征词，用于过滤混入的职位名称
+  const jobPatterns = /招聘|Engineer|Developer|Manager|Lead|Staff|Senior|Junior|Architect|总监|经理|师 | 专员 | 助理/i;
+
   blogs.forEach(blog => {
     (blog.keywords || []).forEach(kw => {
-      if (kw && kw.length >= 2 && kw.length < 20 && kw !== 'PRIMARY' && kw !== 'TRAFFIC') {
+      // 过滤规则：
+      // 1. 长度 2-10 个字符
+      // 2. 排除 PRIMARY/TRAFFIC
+      // 3. 排除包含职位特征词的（防止职位标题混入）
+      if (kw && kw.length >= 2 && kw.length <= 10 && kw !== 'PRIMARY' && kw !== 'TRAFFIC' && !jobPatterns.test(kw)) {
         keywordCounts[kw] = (keywordCounts[kw] || 0) + 1;
       }
     });

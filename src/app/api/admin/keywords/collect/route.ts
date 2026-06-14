@@ -25,7 +25,7 @@ async function acquireCronLock(): Promise<boolean> {
     if (updated.count > 0) return true;
 
     await prisma.seo_settings.create({
-      data: { key: CRON_LOCK_KEY, value: now.toISOString(), description: "cron lock" },
+      data: { id: crypto.randomUUID(), key: CRON_LOCK_KEY, value: now.toISOString(), description: "cron lock", updatedAt: new Date() },
     });
     return true;
   } catch (err: any) {

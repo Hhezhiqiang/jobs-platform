@@ -12,12 +12,12 @@ export async function GET() {
       return NextResponse.json({ error: "未登录" }, { status: 401 });
     }
 
-    const profile = await prisma.userGameProfile.findUnique({
+    const profile = await prisma.user_game_profiles.findUnique({
       where: { userId: session.user.id },
       include: {
-        taskProgress: {
+        task_progress: {
           include: {
-            task: true,
+            task_definitions: true,
           },
         },
       },
@@ -29,9 +29,9 @@ export async function GET() {
 
     // 分类任务
     const tasks = {
-      guide: profile.taskProgress.filter(t => t.task.category === "GUIDE"),
-      daily: profile.taskProgress.filter(t => t.task.category === "DAILY"),
-      achievement: profile.taskProgress.filter(t => t.task.category === "ACHIEVEMENT"),
+      guide: profile.task_progress.filter(t => t.task_definitions.category === "GUIDE"),
+      daily: profile.task_progress.filter(t => t.task_definitions.category === "DAILY"),
+      achievement: profile.task_progress.filter(t => t.task_definitions.category === "ACHIEVEMENT"),
     };
 
     return NextResponse.json({

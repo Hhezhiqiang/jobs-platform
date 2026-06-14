@@ -28,7 +28,7 @@ export async function POST(
     }
 
     // 查找标签
-    const tag = await prisma.companyCultureTag.findFirst({
+    const tag = await prisma.company_culture_tags.findFirst({
       where: { id: tagId, companyId },
     });
 
@@ -37,7 +37,7 @@ export async function POST(
     }
 
     // 增加voteCount
-    const updatedTag = await prisma.companyCultureTag.update({
+    const updatedTag = await prisma.company_culture_tags.update({
       where: { id: tagId },
       data: { voteCount: { increment: 1 } },
     });

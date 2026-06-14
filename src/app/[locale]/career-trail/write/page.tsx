@@ -157,7 +157,7 @@ export default function WriteStoryPage({ params }: WriteStoryPageProps) {
       const data = await response.json();
       
       if (data.success) {
-        router.push(`/${locale}/career-trail/${data.story.id}`);
+        router.push(`/${locale}/career-trail/${data.stories.id}`);
       } else {
         setError(data.error || "发布失败");
       }

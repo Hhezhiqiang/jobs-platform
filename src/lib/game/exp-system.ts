@@ -61,9 +61,9 @@ export async function addExp(
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       
-      const todayExp = await prisma.expLog.aggregate({
+      const todayExp = await prisma.exp_logs.aggregate({
         where: {
-          profile: { userId },
+          user_game_profiles: { userId },
           type: type as any,
           createdAt: { gte: today },
         },
@@ -83,9 +83,9 @@ export async function addExp(
 
     // 检查冷却时间
     if (config.cooldown && config.cooldown > 0) {
-      const lastExp = await prisma.expLog.findFirst({
+      const lastExp = await prisma.exp_logs.findFirst({
         where: {
-          profile: { userId },
+          user_game_profiles: { userId },
           type: type as any,
         },
         orderBy: { createdAt: "desc" },
@@ -105,13 +105,13 @@ export async function addExp(
     }
 
     // 获取用户当前游戏档案
-    let profile = await prisma.userGameProfile.findUnique({
+    let profile = await prisma.user_game_profiles.findUnique({
       where: { userId },
     });
 
     // 如果没有档案，创建一个
     if (!profile) {
-      profile = await prisma.userGameProfile.create({
+      profile = await prisma.user_game_profiles.create({
         data: {
           userId,
           level: 1,
@@ -130,7 +130,7 @@ export async function addExp(
     
     await prisma.$transaction([
       // 更新档案
-      prisma.userGameProfile.update({
+      prisma.user_game_profiles.update({
         where: { userId },
         data: {
           exp: newTotalExp,
@@ -140,7 +140,7 @@ export async function addExp(
         },
       }),
       // 记录经验日志
-      prisma.expLog.create({
+      prisma.exp_logs.create({
         data: {
           profileId: profile.id,
           amount: config.exp,
@@ -185,12 +185,12 @@ export async function addExp(
  * 获取用户游戏档案
  */
 export async function getGameProfile(userId: string) {
-  const profile = await prisma.userGameProfile.findUnique({
+  const profile = await prisma.user_game_profiles.findUnique({
     where: { userId },
     include: {
       _count: {
         select: {
-          achievements: true,
+          user_achievements: true,
         },
       },
     },
@@ -218,7 +218,7 @@ export async function getGameProfile(userId: string) {
  * 创建用户游戏档案
  */
 export async function createGameProfile(userId: string) {
-  const profile = await prisma.userGameProfile.create({
+  const profile = await prisma.user_game_profiles.create({
     data: {
       userId,
       level: 1,
@@ -230,7 +230,7 @@ export async function createGameProfile(userId: string) {
     include: {
       _count: {
         select: {
-          achievements: true,
+          user_achievements: true,
         },
       },
     },
@@ -256,7 +256,7 @@ export async function createGameProfile(userId: string) {
  */
 export async function initializeTasks(profileId: string) {
   // 检查是否已初始化
-  const existingCount = await prisma.taskProgress.count({
+  const existingCount = await prisma.task_progress.count({
     where: { profileId },
   });
 
@@ -267,10 +267,11 @@ export async function initializeTasks(profileId: string) {
     t.category === "GUIDE" // 只创建引导任务
   );
 
-  await prisma.taskProgress.createMany({
+  await prisma.task_progress.createMany({
     data: activeTasks.map(task => {
       const condition = task.condition as AchievementCondition;
       return {
+        id: crypto.randomUUID(),
         profileId,
         taskId: task.code, // 使用code作为ID
         status: "PENDING" as const,
@@ -289,7 +290,7 @@ export async function createDailyTasks(profileId: string) {
   today.setHours(0, 0, 0, 0);
 
   // 获取每日任务定义
-  const dailyTaskDefs = await prisma.taskDefinition.findMany({
+  const dailyTaskDefs = await prisma.task_definitions.findMany({
     where: {
       category: "DAILY",
     },
@@ -297,7 +298,7 @@ export async function createDailyTasks(profileId: string) {
 
   // 检查每个每日任务今天是否已创建
   for (const taskDef of dailyTaskDefs) {
-    const existingTask = await prisma.taskProgress.findFirst({
+    const existingTask = await prisma.task_progress.findFirst({
       where: {
         profileId,
         taskId: taskDef.id,
@@ -314,8 +315,9 @@ export async function createDailyTasks(profileId: string) {
     const condition = taskDef.condition as AchievementCondition;
 
     // 创建今日每日任务
-    await prisma.taskProgress.create({
+    await prisma.task_progress.create({
       data: {
+        id: crypto.randomUUID(),
         profileId,
         taskId: taskDef.id,
         status: "PENDING",
@@ -330,7 +332,7 @@ export async function createDailyTasks(profileId: string) {
  * 用于每日首次登录时调用
  */
 export async function resetDailyTasks(userId: string) {
-  const profile = await prisma.userGameProfile.findUnique({
+  const profile = await prisma.user_game_profiles.findUnique({
     where: { userId },
   });
 
@@ -347,20 +349,20 @@ export async function updateTaskProgress(
   taskCode: string,
   progressDelta: number = 1
 ) {
-  const profile = await prisma.userGameProfile.findUnique({
+  const profile = await prisma.user_game_profiles.findUnique({
     where: { userId },
   });
 
   if (!profile) return;
 
-  const taskProgress = await prisma.taskProgress.findUnique({
+  const taskProgress = await prisma.task_progress.findUnique({
     where: {
       profileId_taskId: {
         profileId: profile.id,
         taskId: taskCode,
       },
     },
-    include: { task: true },
+    include: { task_definitions: true },
   });
 
   if (!taskProgress || taskProgress.status === "COMPLETED") return;
@@ -371,7 +373,7 @@ export async function updateTaskProgress(
   );
   const isCompleted = newProgress >= taskProgress.target;
 
-  await prisma.taskProgress.update({
+  await prisma.task_progress.update({
     where: { id: taskProgress.id },
     data: {
       progress: newProgress,
@@ -381,8 +383,8 @@ export async function updateTaskProgress(
   });
 
   // 如果完成任务，给予奖励
-  if (isCompleted && taskProgress.task) {
-    await addExp(userId, "COMPLETE_TASK", `完成任务: ${taskProgress.task.name}`);
+  if (isCompleted && taskProgress.task_definitions) {
+    await addExp(userId, "COMPLETE_TASK", `完成任务: ${taskProgress.task_definitions.name}`);
   }
 }
 
@@ -422,7 +424,7 @@ export async function updateUserStats(
   userId: string,
   statsUpdate: Partial<UserStats>
 ) {
-  const profile = await prisma.userGameProfile.findUnique({
+  const profile = await prisma.user_game_profiles.findUnique({
     where: { userId },
   });
 
@@ -431,7 +433,7 @@ export async function updateUserStats(
   // 获取当前统计
   const currentStats = profile.stats as UserStats | null;
   
-  await prisma.userGameProfile.update({
+  await prisma.user_game_profiles.update({
     where: { userId },
     data: {
       stats: {
@@ -472,7 +474,7 @@ export async function trackJobApply(userId: string, jobId: string) {
  * 记录登录
  */
 export async function trackLogin(userId: string) {
-  const profile = await prisma.userGameProfile.findUnique({
+  const profile = await prisma.user_game_profiles.findUnique({
     where: { userId },
   });
 
@@ -502,7 +504,7 @@ export async function trackLogin(userId: string) {
     newStreak = 1;
   }
 
-  await prisma.userGameProfile.update({
+  await prisma.user_game_profiles.update({
     where: { userId },
     data: {
       lastLoginAt: new Date(),

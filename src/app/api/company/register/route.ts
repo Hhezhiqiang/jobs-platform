@@ -35,6 +35,7 @@ export async function POST(request: NextRequest) {
       const result = await prisma.$transaction(async (tx) => {
         const company = await tx.companies.create({
           data: {
+            id: crypto.randomUUID(),
             name, slug,
             creditCode: "REG-" + Date.now(),
             description: "",
@@ -42,10 +43,11 @@ export async function POST(request: NextRequest) {
             size: size || "",
             location: location || "",
             verificationStatus: "APPROVED",
+            updatedAt: new Date(),
           },
         });
         await tx.company_members.create({
-          data: { companyId: company.id, userId: session.user.id, role: "ADMIN" },
+          data: { id: crypto.randomUUID(), companyId: company.id, userId: session.user.id, role: "ADMIN", updatedAt: new Date() },
         });
         return company;
       });
@@ -71,14 +73,17 @@ export async function POST(request: NextRequest) {
     const result = await prisma.$transaction(async (tx) => {
       const user = await tx.users.create({
         data: {
+          id: crypto.randomUUID(),
           email,
           name: name,
           password: hashedPassword,
           role: "COMPANY",
+          updatedAt: new Date(),
         },
       });
       const company = await tx.companies.create({
         data: {
+          id: crypto.randomUUID(),
           name, slug,
           creditCode: "REG-" + Date.now(),
           description: "",
@@ -86,10 +91,11 @@ export async function POST(request: NextRequest) {
           size: size || "",
           location: location || "",
           verificationStatus: "APPROVED",
+          updatedAt: new Date(),
         },
       });
       await tx.company_members.create({
-        data: { companyId: company.id, userId: user.id, role: "ADMIN" },
+        data: { id: crypto.randomUUID(), companyId: company.id, userId: user.id, role: "ADMIN", updatedAt: new Date() },
       });
       return { user, company };
     });

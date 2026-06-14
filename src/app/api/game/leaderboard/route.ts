@@ -41,32 +41,32 @@ export async function GET(request: Request) {
     let leaderboard: LeaderboardEntry[] = [];
 
     if (type === "alltime") {
-      const profiles = await prisma.userGameProfile.findMany({
+      const profiles = await prisma.user_game_profiles.findMany({
         orderBy: [{ level: "desc" }, { exp: "desc" }],
         take: limit,
         include: {
-          user: {
+          users: {
             select: { id: true, name: true, avatar: true },
           },
           _count: {
-            select: { achievements: true },
+            select: { user_achievements: true },
           },
         },
       });
 
       leaderboard = profiles.map((profile, index) => ({
         rank: index + 1,
-        userId: profile.user.id,
-        name: profile.user.name || "匿名用户",
-        avatar: profile.user.avatar,
+        userId: profile.users.id,
+        name: profile.users.name || "匿名用户",
+        avatar: profile.users.avatar,
         level: profile.level,
         title: profile.title,
         exp: profile.exp,
-        achievements: profile._count.achievements,
-        isCurrentUser: profile.user.id === session?.user?.id,
+        achievements: profile._count.user_achievements,
+        isCurrentUser: profile.users.id === session?.user?.id,
       }));
     } else {
-      const expLogs = await prisma.expLog.groupBy({
+      const expLogs = await prisma.exp_logs.groupBy({
         by: ["profileId"],
         where: whereClause,
         _sum: { amount: true },
@@ -75,14 +75,14 @@ export async function GET(request: Request) {
       });
 
       const profileIds = expLogs.map((log) => log.profileId);
-      const profiles = await prisma.userGameProfile.findMany({
+      const profiles = await prisma.user_game_profiles.findMany({
         where: { id: { in: profileIds } },
         include: {
-          user: {
+          users: {
             select: { id: true, name: true, avatar: true },
           },
           _count: {
-            select: { achievements: true },
+            select: { user_achievements: true },
           },
         },
       });
@@ -91,14 +91,14 @@ export async function GET(request: Request) {
         const profile = profiles.find((p) => p.id === log.profileId);
         return {
           rank: index + 1,
-          userId: profile?.user.id || "",
-          name: profile?.user.name || "匿名用户",
-          avatar: profile?.user.avatar || null,
+          userId: profile?.users.id || "",
+          name: profile?.users.name || "匿名用户",
+          avatar: profile?.users.avatar || null,
           level: profile?.level || 1,
           title: profile?.title || "求职新人",
           exp: log._sum.amount || 0,
-          achievements: profile?._count.achievements || 0,
-          isCurrentUser: profile?.user.id === session?.user?.id,
+          achievements: profile?._count.user_achievements || 0,
+          isCurrentUser: profile?.users.id === session?.user?.id,
         };
       });
     }
@@ -109,21 +109,21 @@ export async function GET(request: Request) {
       const isInLeaderboard = leaderboard.some((entry) => entry.isCurrentUser);
 
       if (!isInLeaderboard) {
-        const userProfile = await prisma.userGameProfile.findUnique({
+        const userProfile = await prisma.user_game_profiles.findUnique({
           where: { userId: session.user.id },
           include: {
-            user: {
+            users: {
               select: { id: true, name: true, avatar: true },
             },
             _count: {
-              select: { achievements: true },
+              select: { user_achievements: true },
             },
           },
         });
 
         if (userProfile) {
           if (type === "alltime") {
-            const rank = await prisma.userGameProfile.count({
+            const rank = await prisma.user_game_profiles.count({
               where: {
                 OR: [
                   { level: { gt: userProfile.level } },
@@ -134,17 +134,17 @@ export async function GET(request: Request) {
 
             currentUserRank = {
               rank: rank + 1,
-              userId: userProfile.user.id,
-              name: userProfile.user.name || "匿名用户",
-              avatar: userProfile.user.avatar,
+              userId: userProfile.users.id,
+              name: userProfile.users.name || "匿名用户",
+              avatar: userProfile.users.avatar,
               level: userProfile.level,
               title: userProfile.title,
               exp: userProfile.exp,
-              achievements: userProfile._count.achievements,
+              achievements: userProfile._count.user_achievements,
               isCurrentUser: true,
             };
           } else {
-            const periodExp = await prisma.expLog.aggregate({
+            const periodExp = await prisma.exp_logs.aggregate({
               where: {
                 profileId: userProfile.id,
                 ...whereClause,
@@ -152,7 +152,7 @@ export async function GET(request: Request) {
               _sum: { amount: true },
             });
 
-            const rank = await prisma.expLog.groupBy({
+            const rank = await prisma.exp_logs.groupBy({
               by: ["profileId"],
               where: whereClause,
               _sum: { amount: true },
@@ -161,13 +161,13 @@ export async function GET(request: Request) {
 
             currentUserRank = {
               rank: rank.length + 1,
-              userId: userProfile.user.id,
-              name: userProfile.user.name || "匿名用户",
-              avatar: userProfile.user.avatar,
+              userId: userProfile.users.id,
+              name: userProfile.users.name || "匿名用户",
+              avatar: userProfile.users.avatar,
               level: userProfile.level,
               title: userProfile.title,
               exp: periodExp._sum.amount || 0,
-              achievements: userProfile._count.achievements,
+              achievements: userProfile._count.user_achievements,
               isCurrentUser: true,
             };
           }

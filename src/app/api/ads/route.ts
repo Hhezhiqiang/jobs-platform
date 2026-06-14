@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     }
 
     const ad = await prisma.ads.create({
-      data: {
+      data: { id: crypto.randomUUID(), updatedAt: new Date(),
         title: body.title,
         type: body.type || "IMAGE",
         imageUrl: body.imageUrl || null,
@@ -70,7 +70,7 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
     const ad = await prisma.ads.update({
       where: { id: body.id },
-      data: {
+      data: { id: crypto.randomUUID(), updatedAt: new Date(),
         title: body.title,
         type: body.type,
         imageUrl: body.imageUrl,

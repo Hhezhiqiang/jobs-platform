@@ -12,12 +12,12 @@ export async function GET() {
       return NextResponse.json({ error: "未登录" }, { status: 401 });
     }
 
-    const profile = await prisma.userGameProfile.findUnique({
+    const profile = await prisma.user_game_profiles.findUnique({
       where: { userId: session.user.id },
       include: {
-        achievements: {
+        user_achievements: {
           include: {
-            achievement: true,
+            achievements: true,
           },
         },
       },
@@ -28,23 +28,23 @@ export async function GET() {
     }
 
     // 获取所有成就定义
-    const allAchievements = await prisma.achievement.findMany({
+    const allAchievements = await prisma.achievements.findMany({
       orderBy: { sortOrder: "asc" },
     });
 
     // 构建响应数据
-    const unlockedIds = new Set(profile.achievements.map(a => a.achievementId));
+    const unlockedIds = new Set(profile.user_achievements.map(a => a.achievementId));
     
     const achievements = allAchievements.map(achievement => ({
       ...achievement,
       unlocked: unlockedIds.has(achievement.id),
-      unlockedAt: profile.achievements.find(a => a.achievementId === achievement.id)?.unlockedAt,
+      unlockedAt: profile.user_achievements.find(a => a.achievementId === achievement.id)?.unlockedAt,
     }));
 
     return NextResponse.json({
       success: true,
       achievements,
-      unlockedCount: profile.achievements.length,
+      unlockedCount: profile.user_achievements.length,
       totalCount: allAchievements.length,
     });
   } catch (error) {

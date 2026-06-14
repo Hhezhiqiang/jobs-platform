@@ -17,7 +17,7 @@ export async function GET(
 
     const { id } = await params;
 
-    const resonance = await prisma.storyResonance.findUnique({
+    const resonance = await prisma.story_resonances.findUnique({
       where: {
         storyId_userId: {
           storyId: id,

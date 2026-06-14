@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
     } | null = null;
 
     if (usePreferences && userId) {
-      userPreferences = await prisma.userJobPreferences.findUnique({
+      userPreferences = await prisma.user_job_preferences.findUnique({
         where: { userId },
       });
     }
@@ -297,7 +297,7 @@ async function fetchCompanyTags(
   }
 
   // 获取所有相关公司的标签数据
-  const tags = await prisma.companyCultureTag.findMany({
+  const tags = await prisma.company_culture_tags.findMany({
     where: {
       companyId: { in: companyIds },
     },

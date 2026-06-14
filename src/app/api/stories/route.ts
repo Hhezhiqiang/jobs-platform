@@ -49,7 +49,7 @@ export interface Story {
   title: string;
   content: string;
   type: StoryTypeUI;
-  author: {
+  users: {
     id: string;
     name: string;
     avatar: string | null;
@@ -92,23 +92,23 @@ export async function GET(request: NextRequest) {
     }
 
     // 获取总数
-    const total = await prisma.careerStory.count({ where });
+    const total = await prisma.career_stories.count({ where });
 
     // 获取故事列表
-    const stories = await prisma.careerStory.findMany({
+    const stories = await prisma.career_stories.findMany({
       where,
       orderBy: { createdAt: "desc" },
       skip,
       take: limit,
       include: {
-        author: {
+        users: {
           select: {
             id: true,
             name: true,
             avatar: true,
           },
         },
-        company: {
+        companies: {
           select: {
             id: true,
             name: true,
@@ -125,15 +125,15 @@ export async function GET(request: NextRequest) {
       title: story.title,
       content: story.content,
       type: getUIType(story.type),
-      author: {
-        id: story.author.id,
-        name: story.author.name,
-        avatar: story.author.avatar,
+      users: {
+        id: story.users.id,
+        name: story.users.name,
+        avatar: story.users.avatar,
       },
       resonanceCount: story.resonanceCount,
       commentCount: 0,
       createdAt: story.createdAt.toISOString(),
-      company: story.company,
+      company: story.companies,
     }));
 
     return NextResponse.json({
@@ -207,8 +207,8 @@ export async function POST(request: NextRequest) {
     }
 
     // 创建故事
-    const story = await prisma.careerStory.create({
-      data: {
+    const story = await prisma.career_stories.create({
+      data: { id: crypto.randomUUID(), updatedAt: new Date(),
         title: title.trim(),
         content: content.trim(),
         type,
@@ -217,14 +217,14 @@ export async function POST(request: NextRequest) {
         companyId: companyId || null,
       },
       include: {
-        author: {
+        users: {
           select: {
             id: true,
             name: true,
             avatar: true,
           },
         },
-        company: {
+        companies: {
           select: {
             id: true,
             name: true,
@@ -241,15 +241,15 @@ export async function POST(request: NextRequest) {
       title: story.title,
       content: story.content,
       type: getUIType(story.type),
-      author: {
-        id: story.author.id,
-        name: story.author.name,
-        avatar: story.author.avatar,
+      users: {
+        id: story.users.id,
+        name: story.users.name,
+        avatar: story.users.avatar,
       },
       resonanceCount: story.resonanceCount,
       commentCount: 0,
       createdAt: story.createdAt.toISOString(),
-      company: story.company,
+      company: story.companies,
     };
 
     return NextResponse.json({

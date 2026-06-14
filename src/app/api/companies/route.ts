@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
     }
 
     const company = await prisma.companies.create({
-      data: {
+      data: { id: crypto.randomUUID(), updatedAt: new Date(),
         name: body.name,
         slug: body.slug,
         website: body.website || null,
@@ -100,8 +100,10 @@ export async function POST(request: NextRequest) {
         metaDescription: body.metaDescription || null,
         company_members: {
           create: {
+            id: crypto.randomUUID(),
             userId: session.user.id,
             role: "ADMIN",
+            updatedAt: new Date(),
           },
         },
       },

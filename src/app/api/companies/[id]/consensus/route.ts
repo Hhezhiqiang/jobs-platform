@@ -14,7 +14,7 @@ export async function GET(
   try {
     const { id: companyId } = await context.params;
 
-    const tags = await prisma.companyCultureTag.findMany({
+    const tags = await prisma.company_culture_tags.findMany({
       where: { companyId },
       orderBy: [
         { voteCount: "desc" },

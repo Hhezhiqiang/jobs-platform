@@ -144,7 +144,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
 
   // ── 6. 职业叙事/面经页 ──
-  const stories = await prisma.careerStory.findMany({
+  const stories = await prisma.career_stories.findMany({
     where: {},
     select: { id: true, updatedAt: true },
     orderBy: { updatedAt: "desc" },

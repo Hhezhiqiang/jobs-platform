@@ -33,7 +33,7 @@ async function getCompanyData(slug: string) {
 // 获取共识标签数据
 async function getConsensusData(companyId: string) {
   try {
-    const tags = await prisma.companyCultureTag.findMany({
+    const tags = await prisma.company_culture_tags.findMany({
       where: { companyId },
       orderBy: [
         { voteCount: "desc" },

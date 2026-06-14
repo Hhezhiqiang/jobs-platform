@@ -18,7 +18,7 @@ export async function GET() {
       return NextResponse.json({ error: "未登录" }, { status: 401 });
     }
 
-    const preferences = await prisma.userJobPreferences.findUnique({
+    const preferences = await prisma.user_job_preferences.findUnique({
       where: { userId: session.user.id },
     });
 
@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 创建或更新求职偏好
-    const preferences = await prisma.userJobPreferences.upsert({
+    const preferences = await prisma.user_job_preferences.upsert({
       where: { userId: session.user.id },
       create: {
         userId: session.user.id,

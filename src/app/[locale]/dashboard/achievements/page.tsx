@@ -16,12 +16,12 @@ export default async function AchievementsPage({ params }: { params: { locale: s
     redirect(`/${locale}/auth/login`);
   }
 
-  const profile = await prisma.userGameProfile.findUnique({
+  const profile = await prisma.user_game_profiles.findUnique({
     where: { userId: session.user.id },
     include: {
-      achievements: {
+      user_achievements: {
         include: {
-          achievement: true,
+          achievements: true,
         },
       },
     },
@@ -31,19 +31,19 @@ export default async function AchievementsPage({ params }: { params: { locale: s
     redirect(`/${locale}/dashboard`);
   }
 
-  const allAchievements = await prisma.achievement.findMany({
+  const allAchievements = await prisma.achievements.findMany({
     orderBy: { sortOrder: "asc" },
   });
 
-  const unlockedIds = new Set(profile.achievements.map(a => a.achievementId));
+  const unlockedIds = new Set(profile.user_achievements.map(a => a.achievementId));
   
   const achievements = allAchievements.map(achievement => ({
     ...achievement,
     unlocked: unlockedIds.has(achievement.id),
-    unlockedAt: profile.achievements.find(a => a.achievementId === achievement.id)?.unlockedAt,
+    unlockedAt: profile.user_achievements.find(a => a.achievementId === achievement.id)?.unlockedAt,
   }));
 
-  const unlockedCount = profile.achievements.length;
+  const unlockedCount = profile.user_achievements.length;
   const totalCount = allAchievements.length;
   const progressPercent = Math.round((unlockedCount / totalCount) * 100);
 

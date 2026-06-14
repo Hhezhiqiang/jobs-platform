@@ -21,9 +21,9 @@ export async function POST(request: Request, { params }: RouteParams) {
     const { message } = body;
 
     // 验证求职需求存在
-    const demand = await prisma.jobDemand.findUnique({
+    const demand = await prisma.job_demands.findUnique({
       where: { id },
-      include: { user: true },
+      include: { users: true },
     });
 
     if (!demand) {
@@ -36,15 +36,17 @@ export async function POST(request: Request, { params }: RouteParams) {
     }
 
     // 创建联系记录
-    const contact = await prisma.jobDemandContact.create({
+    const contact = await prisma.job_demand_contacts.create({
       data: {
+        id: crypto.randomUUID(),
         demandId: id,
         companyId: session.user.id,
         message: message || null,
         status: "PENDING",
+        updatedAt: new Date(),
       },
       include: {
-        company: {
+        users: {
           select: {
             id: true,
             name: true,
@@ -57,6 +59,7 @@ export async function POST(request: Request, { params }: RouteParams) {
     // 创建通知
     await prisma.notifications.create({
       data: {
+        id: crypto.randomUUID(),
         userId: demand.userId,
         type: "JOB_INTEREST",
         title: "有企业对您感兴趣",
@@ -91,7 +94,7 @@ export async function GET(request: Request, { params }: RouteParams) {
     const { id } = await params;
 
     // 验证求职需求所有权
-    const demand = await prisma.jobDemand.findUnique({
+    const demand = await prisma.job_demands.findUnique({
       where: { id },
       select: { userId: true },
     });
@@ -100,10 +103,10 @@ export async function GET(request: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "无权查看" }, { status: 403 });
     }
 
-    const contacts = await prisma.jobDemandContact.findMany({
+    const contacts = await prisma.job_demand_contacts.findMany({
       where: { demandId: id },
       include: {
-        company: {
+        users: {
           select: {
             id: true,
             name: true,

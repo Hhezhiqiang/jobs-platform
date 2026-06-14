@@ -66,7 +66,7 @@ async function getCompanyInterviewData(slug: string, page: number = 1) {
     const limit = 12;
     const skip = (page - 1) * limit;
 
-    const interviews = await prisma.careerStory.findMany({
+    const interviews = await prisma.career_stories.findMany({
       where: {
         type: "EXPERIENCE",
         companyId: company.id,
@@ -78,7 +78,7 @@ async function getCompanyInterviewData(slug: string, page: number = 1) {
       skip,
       take: limit,
       include: {
-        author: {
+        users: {
           select: {
             id: true,
             name: true,
@@ -88,7 +88,7 @@ async function getCompanyInterviewData(slug: string, page: number = 1) {
       },
     });
 
-    const total = await prisma.careerStory.count({
+    const total = await prisma.career_stories.count({
       where: { type: "EXPERIENCE", companyId: company.id },
     });
 
@@ -102,7 +102,7 @@ async function getCompanyInterviewData(slug: string, page: number = 1) {
     });
 
     // 统计分析（仅当前公司数据）
-    const allInterviews = await prisma.careerStory.findMany({
+    const allInterviews = await prisma.career_stories.findMany({
       where: { type: "EXPERIENCE", companyId: company.id },
       select: {
         content: true,

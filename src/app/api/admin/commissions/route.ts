@@ -89,6 +89,7 @@ async function clawbackCommissionById(commissionId: string) {
   await prisma.$transaction(async (tx) => {
     await tx.commission_adjustments.create({
       data: {
+        id: crypto.randomUUID(),
         commissionRecordId: commission.id,
         promoterId: commission.promoterId,
         amount: commission.commissionAmount,

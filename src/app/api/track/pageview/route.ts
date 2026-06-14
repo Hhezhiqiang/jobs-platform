@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
 
     // 5. 写入数据库
     await prisma.page_views.create({
-      data: {
+      data: { id: crypto.randomUUID(),
         path: path || "/",
         userAgent: userAgent.substring(0, 500),
         ip: ip.substring(0, 45),

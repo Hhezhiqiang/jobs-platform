@@ -23,17 +23,17 @@ export async function POST(
     const userId = session.user.id;
 
     // 获取故事详情
-    const story = await prisma.careerStory.findUnique({
+    const story = await prisma.career_stories.findUnique({
       where: { id },
       include: {
-        author: {
+        users: {
           select: {
             id: true,
             name: true,
             email: true,
           },
         },
-        company: {
+        companies: {
           select: {
             id: true,
             name: true,
@@ -82,11 +82,11 @@ export async function POST(
           userId: story.authorId,
           type: "JOB_ALERT",
           title: "收到职位邀请",
-          content: `${session.user.name || "某公司HR"} 邀请你投递「${story.company?.name || "该公司"}」的职位`,
+          content: `${session.user.name || "某公司HR"} 邀请你投递「${story.companies?.name || "该公司"}」的职位`,
           metadata: {
             storyId: story.id,
             companyId: story.companyId,
-            companyName: story.company?.name,
+            companyName: story.companies?.name,
             message: message || null,
             invitedBy: userId,
           },
@@ -102,8 +102,8 @@ export async function POST(
       story: {
         id: story.id,
         title: story.title,
-        author: story.author,
-        company: story.company,
+        author: story.users,
+        company: story.companies,
       },
     });
   } catch (error) {

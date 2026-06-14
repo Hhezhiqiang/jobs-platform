@@ -28,7 +28,7 @@ export async function POST(
     }
 
     // 检查标签是否已存在
-    const existingTag = await prisma.companyCultureTag.findFirst({
+    const existingTag = await prisma.company_culture_tags.findFirst({
       where: { companyId, tagName: tagName.trim() },
     });
 
@@ -37,8 +37,8 @@ export async function POST(
     }
 
     // 创建新标签
-    const newTag = await prisma.companyCultureTag.create({
-      data: {
+    const newTag = await prisma.company_culture_tags.create({
+      data: { id: crypto.randomUUID(), updatedAt: new Date(),
         companyId,
         tagName: tagName.trim(),
         voteCount: 1,

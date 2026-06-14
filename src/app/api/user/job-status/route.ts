@@ -29,7 +29,7 @@ export async function GET() {
       return NextResponse.json({ error: "未登录" }, { status: 401 });
     }
 
-    const jobStatus = await prisma.jobSeekingStatus.findUnique({
+    const jobStatus = await prisma.job_seeking_status.findUnique({
       where: { userId: session.user.id },
     });
 
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
     const finalPrivacy = status === "CLOSED" ? "PRIVATE" : (privacy || "CIRCLES");
 
     // 使用 upsert 创建或更新
-    const updatedStatus = await prisma.jobSeekingStatus.upsert({
+    const updatedStatus = await prisma.job_seeking_status.upsert({
       where: { userId: session.user.id },
       create: {
         userId: session.user.id,

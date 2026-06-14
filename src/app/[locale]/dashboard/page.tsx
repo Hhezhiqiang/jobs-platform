@@ -80,7 +80,7 @@ export default async function DashboardPage({ params }: { params: { locale: stri
     }),
     prisma.job_applications.count({ where: { userId: session.user.id } }),
     prisma.resumes.count({ where: { userId: session.user.id } }),
-    prisma.jobDemand.count({ where: { userId: session.user.id } }),
+    prisma.job_demands.count({ where: { userId: session.user.id } }),
   ]);
 
   if (!user) {

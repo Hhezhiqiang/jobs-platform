@@ -21,8 +21,8 @@ export async function POST(request: Request) {
   }
 
   try {
-    const demand = await prisma.jobDemand.create({
-      data: {
+    const demand = await prisma.job_demands.create({
+      data: { id: crypto.randomUUID(), updatedAt: new Date(),
         userId: session.user.id,
         title,
         salaryMin: salaryMin || null,
@@ -48,7 +48,7 @@ export async function GET(request: Request) {
 
   try {
     const [demands, total] = await Promise.all([
-      prisma.jobDemand.findMany({
+      prisma.job_demands.findMany({
         where: { status: "OPEN" },
         orderBy: { createdAt: "desc" },
         skip: (page - 1) * limit,
@@ -63,10 +63,10 @@ export async function GET(request: Request) {
           tags: true,
           bio: true,
           createdAt: true,
-          user: { select: { name: true, avatar: true } },
+          users: { select: { name: true, avatar: true } },
         },
       }),
-      prisma.jobDemand.count({ where: { status: "OPEN" } }),
+      prisma.job_demands.count({ where: { status: "OPEN" } }),
     ]);
 
     return NextResponse.json({ success: true, data: demands, total, page });

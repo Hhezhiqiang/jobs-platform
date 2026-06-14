@@ -32,11 +32,11 @@ async function getCompanyStories(companySlug: string, statusFilter?: string) {
     };
 
     // 获取故事列表
-    const stories = await prisma.careerStory.findMany({
+    const stories = await prisma.career_stories.findMany({
       where,
       orderBy: { createdAt: "desc" },
       include: {
-        author: {
+        users: {
           select: {
             id: true,
             name: true,
@@ -202,21 +202,21 @@ export default async function CompanyStoriesPage({ params, searchParams }: PageP
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    {story.author.avatar ? (
+                    {story.users.avatar ? (
                       <Image
-                        src={story.author.avatar}
-                        alt={story.author.name}
+                        src={story.users.avatar}
+                        alt={story.users.name}
                         width={40}
                         height={40}
                         className="w-10 h-10 rounded-full"
                       />
                     ) : (
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold">
-                        {story.author.name.charAt(0)}
+                        {story.users.name.charAt(0)}
                       </div>
                     )}
                     <div>
-                      <div className="font-medium text-gray-900">{story.author.name}</div>
+                      <div className="font-medium text-gray-900">{story.users.name}</div>
                       <div className="text-sm text-gray-500">
                         {new Date(story.createdAt).toLocaleDateString("zh-CN")}
                       </div>

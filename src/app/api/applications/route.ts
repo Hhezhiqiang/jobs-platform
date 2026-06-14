@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
       }
 
       const application = await prisma.job_applications.create({
-        data: {
+        data: { id: crypto.randomUUID(),
           jobId,
           guestEmail: email.trim(),
           guestName: name?.trim() || null,
@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
     }
 
     const application = await prisma.job_applications.create({
-      data: {
+      data: { id: crypto.randomUUID(),
         jobId,
         userId: session.user.id,
         guestEmail: session.user.email || null,
@@ -169,7 +169,7 @@ export async function PATCH(request: NextRequest) {
 
     const updatedApplication = await prisma.job_applications.update({
       where: { id: applicationId },
-      data: { status, ...(status === "WITHDRAWN" && { withdrewAt: new Date() }) },
+      data: { id: crypto.randomUUID(), status, ...(status === "WITHDRAWN" && { withdrewAt: new Date() }) },
     });
 
     return NextResponse.json({ message: "操作成功", application: updatedApplication });

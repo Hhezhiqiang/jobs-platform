@@ -14,12 +14,12 @@ export async function GET() {
   }
 
   try {
-    const demands = await prisma.jobDemand.findMany({
+    const demands = await prisma.job_demands.findMany({
       where: { userId: session.user.id },
       orderBy: { createdAt: "desc" },
       include: {
         _count: {
-          select: { contacts: true },
+          select: { job_demand_contacts: true },
         },
       },
     });
@@ -48,7 +48,7 @@ export async function PUT(request: Request) {
     }
 
     // 验证所有权
-    const existing = await prisma.jobDemand.findUnique({
+    const existing = await prisma.job_demands.findUnique({
       where: { id },
       select: { userId: true },
     });
@@ -57,7 +57,7 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "无权操作" }, { status: 403 });
     }
 
-    const demand = await prisma.jobDemand.update({
+    const demand = await prisma.job_demands.update({
       where: { id },
       data: {
         title: body.title,
@@ -94,7 +94,7 @@ export async function DELETE(request: Request) {
     }
 
     // 验证所有权
-    const existing = await prisma.jobDemand.findUnique({
+    const existing = await prisma.job_demands.findUnique({
       where: { id },
       select: { userId: true },
     });
@@ -103,7 +103,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: "无权操作" }, { status: 403 });
     }
 
-    await prisma.jobDemand.delete({
+    await prisma.job_demands.delete({
       where: { id },
     });
 

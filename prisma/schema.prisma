@@ -17,6 +17,22 @@ model keyword_to_page {
   @@map("_keyword_to_page")
 }
 
+model achievements {
+  id                String              @id @default(uuid())
+  code              String              @unique
+  name              String
+  description       String
+  icon              String              @default("🏆")
+  category          AchievementCategory @default(BASIC)
+  expReward         Int                 @default(50)
+  coinReward        Int                 @default(20)
+  condition         Json
+  isHidden          Boolean             @default(false)
+  sortOrder         Int                 @default(0)
+  createdAt         DateTime            @default(now())
+  user_achievements user_achievements[]
+}
+
 model ad_positions {
   id          String   @id @default(uuid())
   name        String   @unique
@@ -27,7 +43,7 @@ model ad_positions {
   maxAds      Int      @default(1)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt  DateTime @updatedAt
   ads         ads[]
 }
 
@@ -45,7 +61,7 @@ model ads {
   clickCount   Int          @default(0)
   viewCount    Int          @default(0)
   createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  updatedAt  DateTime @updatedAt
   positionId   String
   authorId     String
   users        users        @relation(fields: [authorId], references: [id])
@@ -66,6 +82,31 @@ model balance_transactions {
 
   @@index([type])
   @@index([userId, createdAt])
+}
+
+model career_stories {
+  id               String             @id @default(uuid())
+  title            String
+  content          String
+  type             StoryType          @default(EXPERIENCE)
+  timeline         Json?
+  authorId         String
+  companyId        String?
+  viewCount        Int                @default(0)
+  resonanceCount   Int                @default(0)
+  isFeatured       Boolean            @default(false)
+  createdAt        DateTime           @default(now())
+  updatedAt  DateTime @updatedAt
+  users            users              @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  companies        companies?         @relation(fields: [companyId], references: [id])
+  story_bookmarks  story_bookmarks[]
+  story_comments   story_comments[]
+  story_resonances story_resonances[]
+
+  @@index([authorId, createdAt])
+  @@index([companyId, type, createdAt])
+  @@index([isFeatured, createdAt])
+  @@index([type, createdAt])
 }
 
 model commission_adjustments {
@@ -96,7 +137,7 @@ model commission_records {
   availableAt            DateTime?
   settledAt              DateTime?
   createdAt              DateTime                 @default(now())
-  updatedAt              DateTime                 @updatedAt
+  updatedAt  DateTime @updatedAt
   commission_adjustments commission_adjustments[]
   promoter_links         promoter_links           @relation(fields: [linkId], references: [id], onDelete: Cascade)
   contact_unlock_orders  contact_unlock_orders    @relation(fields: [orderId], references: [id])
@@ -107,40 +148,53 @@ model commission_records {
 }
 
 model companies {
-  id                 String              @id @default(uuid())
-  name               String
-  slug               String              @unique
-  logo               String?
-  website            String?
-  description        String?
-  industry           String?
-  size               String?
-  location           String?
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  metaTitle          String?
-  metaDescription    String?
-  businessLicense    String?
-  contactEmail       String?
-  contactPhone       String?
-  creditCode         String?             @unique
-  legalPersonName    String?
-  rejectionReason    String?
-  verificationStatus CompanyStatus       @default(PENDING)
-  verifiedAt         DateTime?
-  verifiedBy         String?
-  descriptionEn      String?
-  metaDescriptionEn  String?
-  metaTitleEn        String?
-  nameEn             String?
-  cultureTags        String[]            @default([])
-  careerStories      CareerStory[]
-  CompanyCultureTag  CompanyCultureTag[]
-  company_members    company_members[]
-  jobs               jobs[]
+  id                   String                 @id @default(uuid())
+  name                 String
+  slug                 String                 @unique
+  logo                 String?
+  website              String?
+  description          String?
+  industry             String?
+  size                 String?
+  location             String?
+  createdAt            DateTime               @default(now())
+  updatedAt  DateTime @updatedAt
+  metaTitle            String?
+  metaDescription      String?
+  businessLicense      String?
+  contactEmail         String?
+  contactPhone         String?
+  creditCode           String?                @unique
+  legalPersonName      String?
+  rejectionReason      String?
+  verificationStatus   CompanyStatus          @default(PENDING)
+  verifiedAt           DateTime?
+  verifiedBy           String?
+  descriptionEn        String?
+  metaDescriptionEn    String?
+  metaTitleEn          String?
+  nameEn               String?
+  cultureTags          String[]               @default([])
+  career_stories       career_stories[]
+  company_culture_tags company_culture_tags[]
+  company_members      company_members[]
+  jobs                 jobs[]
 
-  @@index([verificationStatus])
   @@index([slug, verificationStatus])
+  @@index([verificationStatus])
+}
+
+model company_culture_tags {
+  id        String    @id @default(uuid())
+  companyId String
+  tagName   String
+  voteCount Int       @default(1)
+  createdAt DateTime  @default(now())
+  updatedAt  DateTime @updatedAt
+  companies companies @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([companyId, tagName])
+  @@index([companyId, voteCount])
 }
 
 model company_members {
@@ -149,7 +203,7 @@ model company_members {
   userId    String
   role      CompanyMemberRole @default(ADMIN)
   createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
+  updatedAt  DateTime @updatedAt
   companies companies         @relation(fields: [companyId], references: [id], onDelete: Cascade)
   users     users             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -165,7 +219,7 @@ model contact_unlock_orders {
   status               OrderStatus           @default(PENDING)
   paidAt               DateTime?
   createdAt            DateTime              @default(now())
-  updatedAt            DateTime              @updatedAt
+  updatedAt  DateTime @updatedAt
   balance_transactions balance_transactions?
   commission_records   commission_records?
   jobs                 jobs                  @relation(fields: [jobId], references: [id])
@@ -174,6 +228,32 @@ model contact_unlock_orders {
   @@index([jobId])
   @@index([status, createdAt])
   @@index([userId, status])
+}
+
+model daily_checkins {
+  id                 String             @id @default(uuid())
+  profileId          String
+  checkinDate        DateTime           @db.Date
+  expReward          Int                @default(10)
+  coinReward         Int                @default(10)
+  isConsecutive      Boolean            @default(false)
+  createdAt          DateTime           @default(now())
+  user_game_profiles user_game_profiles @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, checkinDate])
+}
+
+model exp_logs {
+  id                 String             @id @default(uuid())
+  profileId          String
+  amount             Int
+  type               ExpType
+  description        String
+  relatedId          String?
+  createdAt          DateTime           @default(now())
+  user_game_profiles user_game_profiles @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId, createdAt])
 }
 
 model favorites {
@@ -209,10 +289,88 @@ model job_applications {
   resumes      resumes?          @relation(fields: [resumeId], references: [id])
   users        users?            @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([jobId, status])
-  @@index([userId, status])
-  @@index([status])
   @@index([guestEmail])
+  @@index([jobId, status])
+  @@index([status])
+  @@index([userId, status])
+}
+
+model job_demand_contacts {
+  id          String      @id @default(uuid())
+  demandId    String
+  companyId   String
+  message     String?
+  status      String      @default("PENDING")
+  createdAt   DateTime    @default(now())
+  updatedAt  DateTime @updatedAt
+  users       users       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  job_demands job_demands @relation(fields: [demandId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, createdAt])
+  @@index([demandId, status])
+}
+
+model job_demands {
+  id                  String                @id @default(uuid())
+  userId              String
+  resumeId            String?
+  title               String
+  salaryMin           Int?
+  salaryMax           Int?
+  currency            String                @default("CNY")
+  location            String?
+  tags                String[]
+  bio                 String?
+  status              String                @default("OPEN")
+  isFeatured          Boolean               @default(false)
+  viewCount           Int                   @default(0)
+  createdAt           DateTime              @default(now())
+  updatedAt  DateTime @updatedAt
+  job_demand_contacts job_demand_contacts[]
+  users               users                 @relation(fields: [userId], references: [id])
+
+  @@index([isFeatured, status])
+  @@index([status, createdAt(sort: Desc)])
+  @@index([userId, status])
+}
+
+model job_recommendations {
+  id                                          String               @id @default(uuid())
+  senderId                                    String
+  receiverId                                  String
+  jobId                                       String
+  storyId                                     String?
+  status                                      RecommendationStatus @default(PENDING)
+  message                                     String?
+  createdAt                                   DateTime             @default(now())
+  updatedAt  DateTime @updatedAt
+  respondedAt                                 DateTime?
+  jobs                                        jobs                 @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  users_job_recommendations_receiverIdTousers users                @relation("job_recommendations_receiverIdTousers", fields: [receiverId], references: [id], onDelete: Cascade)
+  users_job_recommendations_senderIdTousers   users                @relation("job_recommendations_senderIdTousers", fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId, jobId])
+  @@index([receiverId, status])
+  @@index([senderId, createdAt])
+}
+
+model job_seeking_status {
+  id             String               @id @default(uuid())
+  userId         String               @unique
+  status         JobSeekingStatusEnum @default(CLOSED)
+  expectTags     String[]             @default([])
+  expectSalary   String?
+  bio            String?
+  privacy        JobSeekingPrivacy    @default(CIRCLES)
+  viewCount      Int                  @default(0)
+  recommendCount Int                  @default(0)
+  lastActiveAt   DateTime             @default(now())
+  createdAt      DateTime             @default(now())
+  updatedAt  DateTime @updatedAt
+  users          users                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status, privacy])
+  @@index([userId])
 }
 
 model jobs {
@@ -246,7 +404,7 @@ model jobs {
   schemaOrganizationName String?
   schemaOrganizationLogo String?
   createdAt              DateTime                @default(now())
-  updatedAt              DateTime                @updatedAt
+  updatedAt  DateTime @updatedAt
   companyId              String
   authorId               String
   benefitsEn             String?
@@ -258,17 +416,17 @@ model jobs {
   contact_unlock_orders  contact_unlock_orders[]
   favorites              favorites[]
   job_applications       job_applications[]
-  jobRecommendations     JobRecommendation[]
+  job_recommendations    job_recommendations[]
   users                  users                   @relation(fields: [authorId], references: [id], onDelete: Cascade)
   companies              companies               @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
   @@index([city, status])
+  @@index([companyId, status])
+  @@index([country, status])
   @@index([employmentType, status])
   @@index([isFeatured, status])
-  @@index([status, datePosted])
   @@index([status, createdAt])
-  @@index([country, status])
-  @@index([companyId, status])
+  @@index([status, datePosted])
 }
 
 model keyword_archives {
@@ -339,9 +497,9 @@ model page_views {
   city      String?
   userId    String?
   sessionId String
-  duration  Int? // 页面停留时长（秒）
-  eventType String? // page_view / click / search / scroll
-  eventData Json? // 事件详情 {target, keyword, depth, ...}
+  duration  Int?
+  eventType String?
+  eventData Json?
   createdAt DateTime @default(now())
 
   @@index([createdAt])
@@ -362,7 +520,7 @@ model pages {
   keywords          String[]
   featuredImage     String?
   createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
+  updatedAt  DateTime @updatedAt
   authorId          String
   viewCount         Int                @default(0)
   contentEn         String?
@@ -373,10 +531,10 @@ model pages {
   users             users              @relation(fields: [authorId], references: [id])
   keyword_monitors  keyword_monitors[] @relation("KeywordToPage")
 
-  @@index([slug, status])
-  @@index([type, status])
-  @@index([status, createdAt])
   @@index([authorId, createdAt])
+  @@index([slug, status])
+  @@index([status, createdAt])
+  @@index([type, status])
 }
 
 model promoter_links {
@@ -392,7 +550,7 @@ model promoter_links {
   gmv                Decimal              @default(0.0) @db.Decimal(18, 8)
   status             LinkStatus           @default(ACTIVE)
   createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
+  updatedAt  DateTime @updatedAt
   commission_records commission_records[]
   promoters          promoters            @relation(fields: [promoterId], references: [id], onDelete: Cascade)
   user_referrals     user_referrals[]
@@ -415,7 +573,7 @@ model promoters {
   withdrawnBalance       Decimal                  @default(0.0) @db.Decimal(18, 8)
   totalEarnings          Decimal                  @default(0.0) @db.Decimal(18, 8)
   createdAt              DateTime                 @default(now())
-  updatedAt              DateTime                 @updatedAt
+  updatedAt  DateTime @updatedAt
   commission_adjustments commission_adjustments[]
   commission_records     commission_records[]
   promoter_links         promoter_links[]
@@ -443,7 +601,7 @@ model search_queries {
   count        Int      @default(1)
   lastSearched DateTime @default(now())
   createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  updatedAt  DateTime @updatedAt
 
   @@index([count])
   @@index([lastSearched])
@@ -477,11 +635,11 @@ model seo_plans {
 }
 
 model seo_settings {
-  id          String   @id @default(cuid())
+  id          String   @id @default(uuid())
   key         String   @unique
   value       String
   description String?
-  updatedAt   DateTime @updatedAt
+  updatedAt  DateTime @updatedAt
 
   @@index([key])
 }
@@ -494,6 +652,123 @@ model sessions {
   users        users    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model story_bookmarks {
+  id             String         @id @default(uuid())
+  storyId        String
+  userId         String
+  createdAt      DateTime       @default(now())
+  career_stories career_stories @relation(fields: [storyId], references: [id], onDelete: Cascade)
+
+  @@unique([storyId, userId])
+  @@index([storyId])
+  @@index([userId, createdAt])
+}
+
+model story_comments {
+  id             String         @id @default(uuid())
+  storyId        String
+  authorId       String
+  content        String
+  createdAt      DateTime       @default(now())
+  updatedAt  DateTime @updatedAt
+  users          users          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  career_stories career_stories @relation(fields: [storyId], references: [id], onDelete: Cascade)
+
+  @@index([authorId])
+  @@index([storyId, createdAt])
+}
+
+model story_resonances {
+  id             String         @id @default(uuid())
+  storyId        String
+  userId         String
+  createdAt      DateTime       @default(now())
+  career_stories career_stories @relation(fields: [storyId], references: [id], onDelete: Cascade)
+
+  @@unique([storyId, userId])
+  @@index([storyId])
+  @@index([userId])
+}
+
+model task_definitions {
+  id            String          @id @default(uuid())
+  code          String          @unique
+  name          String
+  description   String
+  category      TaskCategory    @default(MAIN)
+  type          String
+  condition     Json
+  expReward     Int             @default(10)
+  coinReward    Int             @default(5)
+  sortOrder     Int             @default(0)
+  isActive      Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+  task_progress task_progress[]
+}
+
+model task_progress {
+  id                 String             @id @default(uuid())
+  profileId          String
+  taskId             String
+  status             TaskStatus         @default(PENDING)
+  progress           Int                @default(0)
+  target             Int                @default(1)
+  startedAt          DateTime           @default(now())
+  completedAt        DateTime?
+  user_game_profiles user_game_profiles @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  task_definitions   task_definitions   @relation(fields: [taskId], references: [id])
+
+  @@unique([profileId, taskId])
+}
+
+model user_achievements {
+  id                 String             @id @default(uuid())
+  profileId          String
+  achievementId      String
+  unlockedAt         DateTime           @default(now())
+  achievements       achievements       @relation(fields: [achievementId], references: [id])
+  user_game_profiles user_game_profiles @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, achievementId])
+}
+
+model user_game_profiles {
+  id                String              @id @default(uuid())
+  userId            String              @unique
+  level             Int                 @default(1)
+  exp               Int                 @default(0)
+  nextLevelExp      Int                 @default(100)
+  coins             Int                 @default(100)
+  title             String              @default("求职新人")
+  stats             Json                @default("{\"offers\": 0, \"interviews\": 0, \"jobsViewed\": 0, \"jobsApplied\": 0}")
+  createdAt         DateTime            @default(now())
+  updatedAt  DateTime @updatedAt
+  lastLoginAt       DateTime            @default(now())
+  loginStreak       Int                 @default(0)
+  daily_checkins    daily_checkins[]
+  exp_logs          exp_logs[]
+  task_progress     task_progress[]
+  user_achievements user_achievements[]
+  users             users               @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model user_job_preferences {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  cultureTags      String[]
+  salaryMin        Int?
+  salaryMax        Int?
+  employmentTypes  String[]
+  locations        String[]
+  remotePreference String?
+  experienceLevel  String?
+  updatedAt  DateTime @updatedAt
+  createdAt        DateTime @default(now())
+  users            users    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
 model user_profiles {
   id             String    @id @default(uuid())
   userId         String    @unique
@@ -504,7 +779,7 @@ model user_profiles {
   education      Json?
   skills         String[]
   bio            String?
-  updatedAt      DateTime  @updatedAt
+  updatedAt  DateTime @updatedAt
   users          users     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
@@ -524,45 +799,45 @@ model user_referrals {
 }
 
 model users {
-  id                      String                  @id @default(uuid())
-  email                   String                  @unique
-  name                    String
-  password                String
-  role                    UserRole                @default(USER)
-  avatar                  String?
-  createdAt               DateTime                @default(now())
-  updatedAt               DateTime                @updatedAt
-  phone                   String?
-  status                  UserStatus              @default(ACTIVE)
-  balance                 Decimal                 @default(0.0) @db.Decimal(18, 8)
-  ads                     ads[]
-  balance_transactions    balance_transactions[]
-  careerStories           CareerStory[]
-  company_members         company_members[]
-  contact_unlock_orders   contact_unlock_orders[]
-  favorites               favorites[]
-  job_applications        job_applications[]
-  recommendationsReceived JobRecommendation[]     @relation("RecommendationsReceived")
-  recommendationsSent     JobRecommendation[]     @relation("RecommendationsSent")
-  jobSeekingStatus        JobSeekingStatus?
-  jobs                    jobs[]
-  notifications           notifications[]
-  pages                   pages[]
-  promoters               promoters?
-  resumes                 resumes[]
-  sessions                sessions[]
-  storyComments           StoryComment[]
-  gameProfile             UserGameProfile?
-  UserJobPreferences      UserJobPreferences?
-  user_profiles           user_profiles?
-  user_referrals          user_referrals?
-  notificationEmail       Boolean?                @default(true)
-  notificationSms         Boolean?                @default(false)
-  notificationPush        Boolean?                @default(false)
-  resetToken              String?                 @unique
-  resetTokenExpires       DateTime?
-  job_demands             JobDemand[]
-  JobDemandContact        JobDemandContact[]
+  id                                                        String                  @id @default(uuid())
+  email                                                     String                  @unique
+  name                                                      String
+  password                                                  String
+  role                                                      UserRole                @default(USER)
+  avatar                                                    String?
+  createdAt                                                 DateTime                @default(now())
+  updatedAt  DateTime @updatedAt
+  phone                                                     String?
+  status                                                    UserStatus              @default(ACTIVE)
+  balance                                                   Decimal                 @default(0.0) @db.Decimal(18, 8)
+  notificationEmail                                         Boolean?                @default(true)
+  notificationSms                                           Boolean?                @default(false)
+  notificationPush                                          Boolean?                @default(false)
+  resetToken                                                String?                 @unique
+  resetTokenExpires                                         DateTime?
+  ads                                                       ads[]
+  balance_transactions                                      balance_transactions[]
+  career_stories                                            career_stories[]
+  company_members                                           company_members[]
+  contact_unlock_orders                                     contact_unlock_orders[]
+  favorites                                                 favorites[]
+  job_applications                                          job_applications[]
+  job_demand_contacts                                       job_demand_contacts[]
+  job_demands                                               job_demands[]
+  job_recommendations_job_recommendations_receiverIdTousers job_recommendations[]   @relation("job_recommendations_receiverIdTousers")
+  job_recommendations_job_recommendations_senderIdTousers   job_recommendations[]   @relation("job_recommendations_senderIdTousers")
+  job_seeking_status                                        job_seeking_status?
+  jobs                                                      jobs[]
+  notifications                                             notifications[]
+  pages                                                     pages[]
+  promoters                                                 promoters?
+  resumes                                                   resumes[]
+  sessions                                                  sessions[]
+  story_comments                                            story_comments[]
+  user_game_profiles                                        user_game_profiles?
+  user_job_preferences                                      user_job_preferences?
+  user_profiles                                             user_profiles?
+  user_referrals                                            user_referrals?
 
   @@index([email])
 }
@@ -584,312 +859,12 @@ model withdrawal_records {
   @@index([status, requestedAt])
 }
 
-model CareerStory {
-  id             String           @id @default(cuid())
-  title          String
-  content        String
-  type           StoryType        @default(EXPERIENCE)
-  timeline       Json?
-  authorId       String
-  companyId      String?
-  viewCount      Int              @default(0)
-  resonanceCount Int              @default(0)
-  isFeatured     Boolean          @default(false)
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  author         users            @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  company        companies?       @relation(fields: [companyId], references: [id])
-  storyComments  StoryComment[]
-  resonances     StoryResonance[]
-  bookmarks      StoryBookmark[]
-
-  @@index([authorId, createdAt])
-  @@index([type, createdAt])
-  @@index([isFeatured, createdAt])
-  @@index([companyId, type, createdAt])
-  @@map("career_stories")
-}
-
-model StoryResonance {
-  id        String      @id @default(cuid())
-  storyId   String
-  userId    String
-  createdAt DateTime    @default(now())
-  story     CareerStory @relation(fields: [storyId], references: [id], onDelete: Cascade)
-
-  @@unique([storyId, userId])
-  @@index([storyId])
-  @@index([userId])
-  @@map("story_resonances")
-}
-
-model StoryBookmark {
-  id        String      @id @default(cuid())
-  storyId   String
-  userId    String
-  createdAt DateTime    @default(now())
-  story     CareerStory @relation(fields: [storyId], references: [id], onDelete: Cascade)
-
-  @@unique([storyId, userId])
-  @@index([storyId])
-  @@index([userId, createdAt])
-  @@map("story_bookmarks")
-}
-
-model UserGameProfile {
-  id            String            @id @default(cuid())
-  userId        String            @unique
-  level         Int               @default(1)
-  exp           Int               @default(0)
-  nextLevelExp  Int               @default(100)
-  coins         Int               @default(100)
-  title         String            @default("求职新人")
-  stats         Json              @default("{\"offers\": 0, \"interviews\": 0, \"jobsViewed\": 0, \"jobsApplied\": 0}")
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-  lastLoginAt   DateTime          @default(now())
-  loginStreak   Int               @default(0)
-  dailyCheckins DailyCheckin[]
-  expLogs       ExpLog[]
-  taskProgress  TaskProgress[]
-  achievements  UserAchievement[]
-  user          users             @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("user_game_profiles")
-}
-
-model Achievement {
-  id               String              @id @default(cuid())
-  code             String              @unique
-  name             String
-  description      String
-  icon             String              @default("🏆")
-  category         AchievementCategory @default(BASIC)
-  expReward        Int                 @default(50)
-  coinReward       Int                 @default(20)
-  condition        Json
-  isHidden         Boolean             @default(false)
-  sortOrder        Int                 @default(0)
-  createdAt        DateTime            @default(now())
-  userAchievements UserAchievement[]
-
-  @@map("achievements")
-}
-
-model UserAchievement {
-  id            String          @id @default(cuid())
-  profileId     String
-  achievementId String
-  unlockedAt    DateTime        @default(now())
-  achievement   Achievement     @relation(fields: [achievementId], references: [id])
-  profile       UserGameProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-
-  @@unique([profileId, achievementId])
-  @@map("user_achievements")
-}
-
-model DailyCheckin {
-  id            String          @id @default(cuid())
-  profileId     String
-  checkinDate   DateTime        @db.Date
-  expReward     Int             @default(10)
-  coinReward    Int             @default(10)
-  isConsecutive Boolean         @default(false)
-  createdAt     DateTime        @default(now())
-  profile       UserGameProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-
-  @@unique([profileId, checkinDate])
-  @@map("daily_checkins")
-}
-
-model TaskDefinition {
-  id           String         @id @default(cuid())
-  code         String         @unique
-  name         String
-  description  String
-  category     TaskCategory   @default(MAIN)
-  type         String
-  condition    Json
-  expReward    Int            @default(10)
-  coinReward   Int            @default(5)
-  sortOrder    Int            @default(0)
-  isActive     Boolean        @default(true)
-  createdAt    DateTime       @default(now())
-  taskProgress TaskProgress[]
-
-  @@map("task_definitions")
-}
-
-model TaskProgress {
-  id          String          @id @default(cuid())
-  profileId   String
-  taskId      String
-  status      TaskStatus      @default(PENDING)
-  progress    Int             @default(0)
-  target      Int             @default(1)
-  startedAt   DateTime        @default(now())
-  completedAt DateTime?
-  profile     UserGameProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  task        TaskDefinition  @relation(fields: [taskId], references: [id])
-
-  @@unique([profileId, taskId])
-  @@map("task_progress")
-}
-
-model ExpLog {
-  id          String          @id @default(cuid())
-  profileId   String
-  amount      Int
-  type        ExpType
-  description String
-  relatedId   String?
-  createdAt   DateTime        @default(now())
-  profile     UserGameProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-
-  @@index([profileId, createdAt])
-  @@map("exp_logs")
-}
-
-model CompanyCultureTag {
-  id        String    @id @default(cuid())
-  companyId String
-  tagName   String
-  voteCount Int       @default(1)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  company   companies @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  @@unique([companyId, tagName])
-  @@index([companyId, voteCount])
-  @@map("company_culture_tags")
-}
-
-model UserJobPreferences {
-  id               String   @id @default(cuid())
-  userId           String   @unique
-  cultureTags      String[]
-  salaryMin        Int?
-  salaryMax        Int?
-  employmentTypes  String[]
-  locations        String[]
-  remotePreference String?
-  experienceLevel  String?
-  updatedAt        DateTime @updatedAt
-  createdAt        DateTime @default(now())
-  user             users    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@map("user_job_preferences")
-}
-
-model JobSeekingStatus {
-  id             String               @id @default(cuid())
-  userId         String               @unique
-  status         JobSeekingStatusEnum @default(CLOSED)
-  expectTags     String[]             @default([])
-  expectSalary   String?
-  bio            String?
-  privacy        JobSeekingPrivacy    @default(CIRCLES)
-  viewCount      Int                  @default(0)
-  recommendCount Int                  @default(0)
-  lastActiveAt   DateTime             @default(now())
-  createdAt      DateTime             @default(now())
-  updatedAt      DateTime             @updatedAt
-  user           users                @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([status, privacy])
-  @@map("job_seeking_status")
-}
-
-model JobRecommendation {
-  id          String               @id @default(cuid())
-  senderId    String
-  receiverId  String
-  jobId       String
-  storyId     String?
-  status      RecommendationStatus @default(PENDING)
-  message     String?
-  createdAt   DateTime             @default(now())
-  updatedAt   DateTime             @updatedAt
-  respondedAt DateTime?
-  job         jobs                 @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  receiver    users                @relation("RecommendationsReceived", fields: [receiverId], references: [id], onDelete: Cascade)
-  sender      users                @relation("RecommendationsSent", fields: [senderId], references: [id], onDelete: Cascade)
-
-  @@unique([senderId, receiverId, jobId])
-  @@index([receiverId, status])
-  @@index([senderId, createdAt])
-  @@map("job_recommendations")
-}
-
-model StoryComment {
-  id        String      @id @default(cuid())
-  storyId   String
-  authorId  String
-  content   String
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  author    users       @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  story     CareerStory @relation(fields: [storyId], references: [id], onDelete: Cascade)
-
-  @@index([storyId, createdAt])
-  @@index([authorId])
-  @@map("story_comments")
-}
-
-// 求职需求模型 (反向招聘)
-model JobDemand {
-  id         String   @id @default(cuid())
-  userId     String // 关联用户 ID
-  user       users    @relation(fields: [userId], references: [id])
-  resumeId   String? // 关联默认简历 ID
-  title      String // 求职意向标题 (如：资深产品经理求职)
-  salaryMin  Int? // 期望最低薪资
-  salaryMax  Int? // 期望最高薪资
-  currency   String   @default("CNY")
-  location   String? // 期望工作地点
-  tags       String[] // 技能标签 ["React", "Node.js"]
-  bio        String? // 个人优势介绍
-  status     String   @default("OPEN") // OPEN(求职中) / CLOSED(已入职)
-  isFeatured Boolean  @default(false) // 是否置顶
-  viewCount  Int      @default(0) // 浏览次数
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  // 关联的联系记录
-  contacts JobDemandContact[]
-
-  @@index([userId, status])
-  @@index([status, createdAt(sort: Desc)])
-  @@index([isFeatured, status])
-  @@map("job_demands")
-}
-
-// 企业联系求职者记录
-model JobDemandContact {
-  id        String   @id @default(cuid())
-  demandId  String
-  companyId String
-  message   String?
-  status    String   @default("PENDING") // PENDING/READ/REPLIED
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  demand  JobDemand @relation(fields: [demandId], references: [id], onDelete: Cascade)
-  company users     @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  @@index([demandId, status])
-  @@index([companyId, createdAt])
-  @@map("job_demand_contacts")
-}
-
-enum StoryType {
-  EXPERIENCE
-  TRANSITION
-  MILESTONE
-  CHALLENGE
-  INSIGHT
+enum AchievementCategory {
+  BASIC
+  JOB
+  INTERVIEW
+  SOCIAL
+  LEARNING
 }
 
 enum AdStatus {
@@ -947,11 +922,38 @@ enum EmploymentType {
   FREELANCE
 }
 
+enum ExpType {
+  VIEW_JOB
+  APPLY_JOB
+  LOGIN
+  COMPLETE_PROFILE
+  POST_TOPIC
+  REPLY_TOPIC
+  GET_LIKE
+  READ_ARTICLE
+  COMPLETE_TASK
+  CHECKIN
+  ACHIEVEMENT
+}
+
 enum ExperienceLevel {
   ENTRY
   MID
   SENIOR
   EXECUTIVE
+}
+
+enum JobSeekingPrivacy {
+  PUBLIC
+  FOLLOWERS
+  CIRCLES
+  PRIVATE
+}
+
+enum JobSeekingStatusEnum {
+  OPEN
+  PASSIVE
+  CLOSED
 }
 
 enum JobStatus {
@@ -972,7 +974,7 @@ enum NotificationType {
   JOB_ALERT
   INTERVIEW_INVITE
   OFFER_RECEIVED
-  JOB_INTEREST // 企业对求职者感兴趣
+  JOB_INTEREST
 }
 
 enum OrderStatus {
@@ -1001,6 +1003,34 @@ enum PromoterStatus {
   SUSPENDED
 }
 
+enum RecommendationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  COMPLETED
+}
+
+enum StoryType {
+  EXPERIENCE
+  TRANSITION
+  MILESTONE
+  CHALLENGE
+  INSIGHT
+}
+
+enum TaskCategory {
+  MAIN
+  DAILY
+  ACHIEVEMENT
+  GUIDE
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
 enum TransactionType {
   RECHARGE
   DEDUCTION
@@ -1025,59 +1055,4 @@ enum WithdrawalStatus {
   TRANSFERRING
   COMPLETED
   REJECTED
-}
-
-enum AchievementCategory {
-  BASIC
-  JOB
-  INTERVIEW
-  SOCIAL
-  LEARNING
-}
-
-enum TaskCategory {
-  MAIN
-  DAILY
-  ACHIEVEMENT
-  GUIDE
-}
-
-enum TaskStatus {
-  PENDING
-  IN_PROGRESS
-  COMPLETED
-}
-
-enum ExpType {
-  VIEW_JOB
-  APPLY_JOB
-  LOGIN
-  COMPLETE_PROFILE
-  POST_TOPIC
-  REPLY_TOPIC
-  GET_LIKE
-  READ_ARTICLE
-  COMPLETE_TASK
-  CHECKIN
-  ACHIEVEMENT
-}
-
-enum JobSeekingStatusEnum {
-  OPEN
-  PASSIVE
-  CLOSED
-}
-
-enum JobSeekingPrivacy {
-  PUBLIC
-  FOLLOWERS
-  CIRCLES
-  PRIVATE
-}
-
-enum RecommendationStatus {
-  PENDING
-  ACCEPTED
-  REJECTED
-  COMPLETED
 }

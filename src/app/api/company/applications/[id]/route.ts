@@ -186,6 +186,7 @@ export async function PATCH(
     if (application.userId) {
       await prisma.notifications.create({
         data: {
+          id: crypto.randomUUID(),
           userId: application.userId,
           type: "APPLICATION_UPDATE",
           title: "申请状态更新",
@@ -265,6 +266,7 @@ export async function POST(
     if (application.userId) {
       await prisma.notifications.create({
         data: {
+          id: crypto.randomUUID(),
           userId: application.userId,
           type: "INTERVIEW_INVITE",
           title: `${application.jobs.companies.name} 给您发送了消息`,

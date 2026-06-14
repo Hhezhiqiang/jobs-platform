@@ -49,7 +49,7 @@ export async function GET(
     }
 
     // 获取公司文化标签
-    const companyTags = await prisma.companyCultureTag.findMany({
+    const companyTags = await prisma.company_culture_tags.findMany({
       where: { companyId: job.companyId },
       select: {
         tagName: true,
@@ -70,7 +70,7 @@ export async function GET(
     }
 
     // 获取用户求职偏好
-    const preferences = await prisma.userJobPreferences.findUnique({
+    const preferences = await prisma.user_job_preferences.findUnique({
       where: { userId },
     });
 

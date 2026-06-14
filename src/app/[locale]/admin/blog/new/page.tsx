@@ -47,6 +47,7 @@ export default async function NewBlogPage({ params }: { params: Promise<{ locale
 
       await prisma.pages.create({
         data: {
+          id: crypto.randomUUID(),
           title,
           slug,
           excerpt,
@@ -56,6 +57,7 @@ export default async function NewBlogPage({ params }: { params: Promise<{ locale
           featuredImage: featuredImage || null,
           keywords,
           authorId: session!.user!.id,
+          updatedAt: new Date(),
         },
       });
     } catch (error) {

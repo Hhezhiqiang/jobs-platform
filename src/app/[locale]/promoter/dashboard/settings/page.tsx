@@ -37,8 +37,8 @@ export default function PromoterSettingsPage() {
       }
       setProfile(json.promoter);
       setFormData({
-        phone: json.promoter.phone || "",
-        walletAddress: json.promoter.walletAddress || "",
+        phone: json.promoters.phone || "",
+        walletAddress: json.promoters.walletAddress || "",
       });
     } finally {
       setLoading(false);

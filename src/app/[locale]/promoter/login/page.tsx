@@ -73,7 +73,7 @@ export default function PromoterLoginPage() {
 
       if (!res.ok || !data.promoter) {
         setError(data.error || "该账号未注册推广者");
-      } else if (data.promoter.status !== "ACTIVE") {
+      } else if (data.promoters.status !== "ACTIVE") {
         setError("账号审核中或已被封禁，请联系客服");
       } else {
         router.push(`/${locale}/promoter/dashboard`);

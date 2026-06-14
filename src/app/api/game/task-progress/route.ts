@@ -19,7 +19,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const taskCode = searchParams.get("taskCode");
 
-    const profile = await prisma.userGameProfile.findUnique({
+    const profile = await prisma.user_game_profiles.findUnique({
       where: { userId: session.user.id },
     });
 
@@ -29,7 +29,7 @@ export async function GET(request: Request) {
 
     // 如果指定了任务代码，返回单个任务进度
     if (taskCode) {
-      const taskDef = await prisma.taskDefinition.findUnique({
+      const taskDef = await prisma.task_definitions.findUnique({
         where: { code: taskCode },
       });
 
@@ -37,7 +37,7 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: "任务不存在" }, { status: 404 });
       }
 
-      const progress = await prisma.taskProgress.findUnique({
+      const progress = await prisma.task_progress.findUnique({
         where: {
           profileId_taskId: {
             profileId: profile.id,
@@ -58,15 +58,15 @@ export async function GET(request: Request) {
     }
 
     // 否则返回所有任务进度
-    const taskProgress = await prisma.taskProgress.findMany({
+    const taskProgress = await prisma.task_progress.findMany({
       where: { profileId: profile.id },
-      include: { task: true },
+      include: { task_definitions: true },
     });
 
     const tasks = {
-      guide: taskProgress.filter((t) => t.task.category === "GUIDE"),
-      daily: taskProgress.filter((t) => t.task.category === "DAILY"),
-      achievement: taskProgress.filter((t) => t.task.category === "ACHIEVEMENT"),
+      guide: taskProgress.filter((t) => t.task_definitions.category === "GUIDE"),
+      daily: taskProgress.filter((t) => t.task_definitions.category === "DAILY"),
+      achievement: taskProgress.filter((t) => t.task_definitions.category === "ACHIEVEMENT"),
     };
 
     return NextResponse.json({
@@ -95,7 +95,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { taskCode, progress } = body;
 
-    const profile = await prisma.userGameProfile.findUnique({
+    const profile = await prisma.user_game_profiles.findUnique({
       where: { userId: session.user.id },
     });
 
@@ -103,7 +103,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "游戏档案不存在" }, { status: 404 });
     }
 
-    const taskDef = await prisma.taskDefinition.findUnique({
+    const taskDef = await prisma.task_definitions.findUnique({
       where: { code: taskCode },
     });
 
@@ -112,7 +112,7 @@ export async function POST(request: Request) {
     }
 
     // 获取当前进度
-    let taskProgress = await prisma.taskProgress.findUnique({
+    let taskProgress = await prisma.task_progress.findUnique({
       where: {
         profileId_taskId: {
           profileId: profile.id,
@@ -123,8 +123,9 @@ export async function POST(request: Request) {
 
     // 如果不存在，创建新进度
     if (!taskProgress) {
-      taskProgress = await prisma.taskProgress.create({
+      taskProgress = await prisma.task_progress.create({
         data: {
+          id: crypto.randomUUID(),
           profileId: profile.id,
           taskId: taskDef.id,
           status: "IN_PROGRESS",
@@ -148,7 +149,7 @@ export async function POST(request: Request) {
     const isCompleted = newProgress >= taskProgress.target;
 
     // 更新进度
-    const updated = await prisma.taskProgress.update({
+    const updated = await prisma.task_progress.update({
       where: { id: taskProgress.id },
       data: {
         progress: newProgress,
