@@ -1,9 +1,14 @@
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
-import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
-import { ChevronLeft, ChevronRight, Eye, Edit, Search, Trash2, Filter, Archive } from "lucide-react";
+import { Rocket, 
+   prisma } from "@/lib/prisma";
+import { Rocket, 
+   redirect } from "next/navigation";
+import { Rocket, 
+   getServerSession } from "next-auth/next";
+import { Rocket, 
+   authOptions } from "@/lib/auth";
+import { Rocket, 
+   ChevronLeft, ChevronRight, Eye, Edit, Search, Trash2, Filter, Archive } from "lucide-react";
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -13,6 +18,16 @@ interface PageProps {
 const ITEMS_PER_PAGE = 15;
 
 export const dynamic = "force-dynamic";
+
+async function publishAllDrafts() {
+  "use server";
+  const session = await getServerSession(authOptions);
+  if (!session || session.user?.role !== "ADMIN") return;
+  await prisma.pages.updateMany({
+    where: { type: "BLOG", status: "DRAFT" },
+    data: { status: "PUBLISHED" },
+  });
+}
 export default async function AdminBlogPage({ params, searchParams }: PageProps) {
   const { locale } = await params;
   const sp = await searchParams;
@@ -86,7 +101,7 @@ export default async function AdminBlogPage({ params, searchParams }: PageProps)
         </div>
         <Link
           href={`/${locale}/admin/blog/new`}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center gap-2"
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center gap-2">\n          <span className="text-lg">+</span> 新建博客\n        </Link>\n        <form action={publishAllDrafts}>\n          <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-medium flex items-center gap-2">\n            <Rocket className="w-4 h-4" />\n            一键发布全部草稿\n          </button>\n        </form>
         >
           <span className="text-lg">+</span> 新建博客
         </Link>
