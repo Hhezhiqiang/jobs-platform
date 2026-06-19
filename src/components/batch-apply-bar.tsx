@@ -25,7 +25,7 @@ export function BatchApplyBar({ selectedIds, onClear, onSuccess }: BatchApplyBar
     if (!session && !email) { setError("请填写邮箱"); return; }
     setLoading(true); setError("");
     try {
-      const res = await fetch("/api/applications/batch", {
+      const res = await fetch("/api/jobs/batch-apply", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ jobIds: selectedIds, coverLetter, email: email || undefined, name: name || undefined }),
       });
