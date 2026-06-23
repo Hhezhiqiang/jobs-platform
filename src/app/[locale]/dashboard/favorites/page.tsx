@@ -233,6 +233,7 @@ function FavoriteJobCard({
   favorite: FavoriteWithJob;
   onToggle: (jobId: string, isFavorited: boolean) => void;
 }) {
+  const locale = useLocale();
   const { jobs: job } = favorite;
   const typeMap: Record<string, string> = { FULL_TIME: "全职", PART_TIME: "兼职", CONTRACT: "合同", INTERNSHIP: "实习", FREELANCE: "自由职业" };
   const salaryText = formatSalary(job.salaryMin, job.salaryMax);
