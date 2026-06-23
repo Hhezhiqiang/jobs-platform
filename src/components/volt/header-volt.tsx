@@ -66,7 +66,7 @@ export function HeaderVolt({ locale = "zh" }: { locale?: string }) {
               ⌘K
             </kbd>
           </button>
-          <Link href={`/${locale}/auth/signin`} className="volt-btn text-sm">
+          <Link href={`/${locale}/auth/login`} className="volt-btn text-sm">
             Sign in
             <span aria-hidden>→</span>
           </Link>

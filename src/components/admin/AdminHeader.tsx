@@ -44,6 +44,7 @@ function getBreadcrumbs(pathname: string): { label: string; href?: string }[] {
  */
 export function AdminHeader({ onMenuToggle, collapsed }: AdminHeaderProps) {
   const pathname = usePathname() ?? "";
+  const locale = pathname.startsWith("/en") ? "en" : "zh";
   const breadcrumbs = getBreadcrumbs(pathname);
   const cleanPath = pathname.replace(/^\/(zh|en)/, "");
   const currentTitle = routeTitles[cleanPath] || breadcrumbs[breadcrumbs.length - 1]?.label || "管理后台";
@@ -77,14 +78,14 @@ export function AdminHeader({ onMenuToggle, collapsed }: AdminHeaderProps) {
       </div>
       <div className="flex items-center gap-2">
         <Link
-          href={`/zh/dashboard/notifications`}
+          href={`/${locale}/dashboard/notifications`}
           className="relative rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
           aria-label="通知"
         >
           <Bell className="h-5 w-5" />
           <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500" />
         </Link>
-        <Link href="/zh" className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900">
+        <Link href={`/${locale}`} className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900">
           <ArrowLeft className="h-4 w-4" />
           <span className="hidden sm:inline">返回前台</span>
         </Link>

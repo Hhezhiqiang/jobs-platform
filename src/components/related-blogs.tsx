@@ -3,11 +3,14 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { RelatedBlogsProps, BlogPost } from "./types";
 import { useTranslations } from "next-intl";
 import { logger } from '@/lib/logger';
 
 export function RelatedBlogs({ currentSlug, keywords, limit = 4 }: RelatedBlogsProps) {
+  const pathname = usePathname() || "/";
+  const locale = pathname.startsWith("/en") ? "en" : "zh";
   const [relatedBlogs, setRelatedBlogs] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const t = useTranslations();
@@ -63,7 +66,7 @@ export function RelatedBlogs({ currentSlug, keywords, limit = 4 }: RelatedBlogsP
         {relatedBlogs.map((blog) => (
           <Link
             key={blog.id}
-            href={`/blog/${encodeURIComponent(blog.slug)}`}
+            href={`/${locale}/blog/${encodeURIComponent(blog.slug)}`}
             className="group bg-white rounded-lg shadow hover:shadow-lg transition-all duration-300 overflow-hidden"
           >
             <div className="relative h-40 overflow-hidden">

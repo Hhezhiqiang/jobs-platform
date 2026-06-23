@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { TrendingUp, Eye } from "lucide-react";
 import { logger } from '@/lib/logger';
 
@@ -15,6 +16,9 @@ interface HotBlog {
 }
 
 export function HotBlogsSidebar() {
+  const pathname = usePathname() || "/";
+  const locale = pathname.startsWith("/en") ? "en" : "zh";
+  const isEn = locale === "en";
   const [hotBlogs, setHotBlogs] = useState<HotBlog[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -41,7 +45,7 @@ export function HotBlogsSidebar() {
       <div className="bg-white rounded-lg shadow-md p-4">
         <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
           <TrendingUp className="w-5 h-5 text-red-500" />
-          热门文章
+          {isEn ? "Hot articles" : "热门文章"}
         </h3>
         <div className="space-y-3">
           {[1, 2, 3, 4, 5].map((i) => (
@@ -66,13 +70,13 @@ export function HotBlogsSidebar() {
     <div className="bg-white rounded-lg shadow-md p-4">
       <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
         <TrendingUp className="w-5 h-5 text-red-500" />
-        热门文章
+        {isEn ? "Hot articles" : "热门文章"}
       </h3>
       <div className="space-y-4">
         {hotBlogs.map((blog, index) => (
           <Link
             key={blog.id}
-            href={`/blog/${encodeURIComponent(blog.slug)}`}
+            href={`/${locale}/blog/${encodeURIComponent(blog.slug)}`}
             className="flex gap-3 group hover:bg-gray-50 p-2 -mx-2 rounded-lg transition-colors"
           >
             <div className="relative w-16 h-16 flex-shrink-0 rounded overflow-hidden">
@@ -95,7 +99,7 @@ export function HotBlogsSidebar() {
               </h4>
               <div className="flex items-center gap-1 mt-1 text-xs text-gray-500">
                 <Eye className="w-3 h-3" />
-                <span>{blog.viewCount} 阅读</span>
+                <span>{blog.viewCount} {isEn ? "views" : "阅读"}</span>
               </div>
             </div>
           </Link>

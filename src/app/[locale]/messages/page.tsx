@@ -103,7 +103,7 @@ export default function MessagesPage() {
       <div className="p-10 text-center">
         <p className="text-gray-700 mb-3">{isEn ? "Please sign in to view messages." : "请先登录查看消息"}</p>
         <Link
-          href={`/${locale}/auth/signin?callbackUrl=/${locale}/messages`}
+          href={`/${locale}/auth/login?callbackUrl=/${locale}/messages`}
           className="inline-flex items-center px-4 py-2 rounded-lg bg-blue-600 text-white text-sm"
         >
           {isEn ? "Sign in" : "登录"}

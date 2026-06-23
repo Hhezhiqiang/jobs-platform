@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { logger } from '@/lib/logger';
 
 const VIEW_STORAGE_KEY = "blog_view_tracker";
@@ -37,6 +38,8 @@ function markTracked(slug: string): void {
 }
 
 export function ViewCounter({ slug, initialCount }: ViewCounterProps) {
+  const pathname = usePathname() || "/";
+  const isEn = pathname.startsWith("/en");
   const [count, setCount] = useState(initialCount);
 
   useEffect(() => {
@@ -63,5 +66,5 @@ export function ViewCounter({ slug, initialCount }: ViewCounterProps) {
     trackView();
   }, [slug]);
 
-  return <span className="text-gray-500">{count.toLocaleString("zh-CN")} 次阅读</span>;
+  return <span className="text-gray-500">{count.toLocaleString(isEn ? "en-US" : "zh-CN")} {isEn ? "views" : "次阅读"}</span>;
 }

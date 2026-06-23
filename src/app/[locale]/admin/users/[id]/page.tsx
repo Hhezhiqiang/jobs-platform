@@ -271,7 +271,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
                     <div key={app.id} className="p-4 flex items-center justify-between">
                       <div>
                         <p className="font-medium">{app.jobs.title}</p>
-                        <p className="text-sm text-gray-500">{app.jobs.companies.name}</p>
+                        <p className="text-sm text-gray-500">{app.jobs.companies?.name || "-"}</p>
                         <p className="text-xs text-gray-400">
                           申请时间: {app.appliedAt.toLocaleDateString("zh-CN")}
                         </p>
@@ -327,7 +327,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
                     <div key={job.id} className="p-4 flex items-center justify-between">
                       <div>
                         <p className="font-medium">{job.title}</p>
-                        <p className="text-sm text-gray-500">{job.companies.name}</p>
+                        <p className="text-sm text-gray-500">{job.companies?.name || "-"}</p>
                       </div>
                       <span
                         className={`px-3 py-1 rounded-full text-sm ${

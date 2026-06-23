@@ -134,7 +134,7 @@ export async function POST(request: NextRequest) {
             recommendationId: recommendation.id,
             jobId,
             jobTitle: job.title,
-            companyName: job.companies.name,
+            companyName: job.companies?.name ?? "",
             senderId: recommenderId,
           },
         },

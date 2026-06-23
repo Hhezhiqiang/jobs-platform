@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { logger } from '@/lib/logger';
 
 export default function AdminError({
@@ -12,6 +12,8 @@ export default function AdminError({
   reset: () => void;
 }) {
   const router = useRouter();
+  const pathname = usePathname() || "/";
+  const locale = pathname.startsWith("/en") ? "en" : "zh";
   const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
@@ -77,7 +79,7 @@ export default function AdminError({
             重试
           </button>
           <button
-            onClick={() => router.push("/zh/auth/login/admin")}
+            onClick={() => router.push(`/${locale}/auth/login/admin`)}
             className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
           >
             返回登录

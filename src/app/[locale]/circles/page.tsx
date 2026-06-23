@@ -28,7 +28,7 @@ const COPY = {
     headline: ["精准推荐", "藏在朋友圈的好工作"],
     sub: "把一个职位 1:1 推给圈内正在找工作的朋友，对方收到时附带你的留言。比群发链接体面，比内推快十倍。",
     cta1: "申请加入圈子",
-    cta2: "查看推荐 API 文档",
+    cta2: "浏览职位 →",
     statRoles: "正在等推荐的职位",
     statSeekers: "圈内求职者",
     statHit: "首推命中率",
@@ -65,7 +65,7 @@ const COPY = {
     headline: ["Quietly forward", "the right role"],
     sub: "Recommend one open role to one person in your network with a short note. Classier than spamming a group chat, faster than a referral form.",
     cta1: "Request access",
-    cta2: "Read the recommendation API",
+    cta2: "Browse open roles →",
     statRoles: "Open roles awaiting a forward",
     statSeekers: "Active seekers in your reach",
     statHit: "First-shot match rate",
@@ -151,14 +151,14 @@ export default async function CirclesPage({
 
         <div className="mt-8 flex flex-wrap items-center gap-3">
           <Link
-            href={`/${locale}/auth/signin?callbackUrl=/${locale}/circles`}
+            href={`/${locale}/auth/login?callbackUrl=/${locale}/circles`}
             className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold"
             style={{ background: "#B6FF3D", color: "#0a0a0a" }}
           >
             {t.cta1} <span aria-hidden>→</span>
           </Link>
-          <a
-            href="/api/circles/recommend-jobs"
+          <Link
+            href={`/${locale}/jobs`}
             className="inline-flex items-center gap-2 rounded-full border px-5 py-2.5 text-sm"
             style={{
               borderColor: "rgba(255,255,255,0.14)",
@@ -166,7 +166,7 @@ export default async function CirclesPage({
             }}
           >
             {t.cta2}
-          </a>
+          </Link>
         </div>
 
         {/* Stats strip */}
