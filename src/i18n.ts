@@ -6,9 +6,12 @@ import enDashboard from "../messages/en/dashboard.json";
 import zhDashboard from "../messages/zh/dashboard.json";
 
 // Merge namespaced message files into a single tree so `useTranslations("dashboard")` works.
+// The double-cast through `unknown` is necessary because home.popularSearches /
+// locations are string[] (next-intl AbstractIntlMessages disallows arrays at
+// type level, even though it accepts them at runtime as positional sub-trees).
 const messages: Record<string, AbstractIntlMessages> = {
-  en: { ...en, dashboard: enDashboard } as AbstractIntlMessages,
-  zh: { ...zh, dashboard: zhDashboard } as AbstractIntlMessages,
+  en: { ...en, dashboard: enDashboard } as unknown as AbstractIntlMessages,
+  zh: { ...zh, dashboard: zhDashboard } as unknown as AbstractIntlMessages,
 };
 
 const LOCALES = ["zh", "en"] as const;
