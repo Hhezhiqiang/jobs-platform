@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { logger } from '@/lib/logger';
 
+export const dynamic = "force-dynamic";
+
 const CLEANUP_SECRET = process.env.CLEANUP_SECRET;
 
 // 一次性数据清理 API

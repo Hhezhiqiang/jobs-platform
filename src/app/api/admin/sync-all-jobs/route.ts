@@ -5,6 +5,8 @@ import { syncAllJobs } from '@/lib/job-api-aggregator';
 import { fetchAdzunaJobs } from '@/lib/adzuna-api';
 import { logger } from '@/lib/logger';
 
+export const dynamic = "force-dynamic";
+
 // POST /api/admin/sync-all-jobs
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);

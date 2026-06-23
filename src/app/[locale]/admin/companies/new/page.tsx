@@ -61,7 +61,7 @@ export default function NewCompanyPage() {
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center gap-4">
-            <Link href="/admin/companies" className="text-blue-600 hover:text-blue-800">
+            <Link href={`/${locale}/admin/companies`} className="text-blue-600 hover:text-blue-800">
               ← 返回公司列表
             </Link>
             <h1 className="text-2xl font-bold">添加公司</h1>
@@ -242,7 +242,7 @@ export default function NewCompanyPage() {
                 {loading ? "保存中..." : "保存公司"}
               </button>
               <Link
-                href="/admin/companies"
+                href={`/${locale}/admin/companies`}
                 className="px-6 py-3 border rounded-lg hover:bg-gray-50"
               >
                 取消

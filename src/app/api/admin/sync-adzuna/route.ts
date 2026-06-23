@@ -4,6 +4,8 @@ import { authOptions } from '@/lib/auth';
 import { fetchAdzunaJobs, fetchAdzunaBulkJobs, type ProgressCallback } from '@/lib/adzuna-api';
 import { logger } from '@/lib/logger';
 
+export const dynamic = "force-dynamic";
+
 // POST /api/admin/sync-adzuna
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);

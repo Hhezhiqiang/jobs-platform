@@ -78,7 +78,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link href="/admin/users" className="text-blue-600 hover:text-blue-800">
+              <Link href={`/${locale}/admin/users`} className="text-blue-600 hover:text-blue-800">
                 ← 返回用户列表
               </Link>
               <h1 className="text-2xl font-bold">用户详情</h1>

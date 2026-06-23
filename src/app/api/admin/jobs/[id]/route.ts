@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { logger } from '@/lib/logger';
 
+export const dynamic = "force-dynamic";
+
 // GET /api/admin/jobs/[id] - 获取单个职位详情
 export async function GET(
   req: NextRequest,

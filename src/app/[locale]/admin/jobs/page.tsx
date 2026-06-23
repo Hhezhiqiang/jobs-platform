@@ -244,7 +244,7 @@ export default function AdminJobsPage({ params }: { params: { locale: string } }
           ) : (
             <Link
               key="edit"
-              href={`/admin/jobs/edit/${row.id}`}
+              href={`/${params.locale}/admin/jobs/edit/${row.id}`}
               className="p-1.5 text-indigo-600 hover:text-indigo-700"
               title="编辑"
             />

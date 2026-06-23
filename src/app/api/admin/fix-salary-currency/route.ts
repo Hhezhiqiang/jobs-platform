@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { logger } from '@/lib/logger';
 
+export const dynamic = "force-dynamic";
+
 /**
  * 修复薪资货币符号 API
  * 访问此接口以在服务器端修复历史数据

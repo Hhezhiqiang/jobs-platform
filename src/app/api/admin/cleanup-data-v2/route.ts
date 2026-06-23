@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { logger } from '@/lib/logger';
 
+export const dynamic = "force-dynamic";
+
 const CLEANUP_SECRET = process.env.CLEANUP_SECRET;
 
 // 第二次数据清理：将 4/10 的职位日期推到最近 7 天

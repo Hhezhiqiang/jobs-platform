@@ -44,7 +44,7 @@ export default async function EditJobPage({ params }: PageProps) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link
-                href="/admin/jobs"
+                href={`/${locale}/admin/jobs`}
                 className="flex items-center gap-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 px-3 py-2 rounded-xl transition-all"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -327,7 +327,7 @@ export default async function EditJobPage({ params }: PageProps) {
           {/* 操作按钮 */}
           <div className="p-6 bg-gray-50 flex items-center justify-between">
             <Link
-              href="/admin/jobs"
+              href={`/${locale}/admin/jobs`}
               className="px-6 py-2.5 text-gray-700 hover:text-gray-900 hover:bg-gray-200 rounded-xl font-medium transition-all"
             >
               取消

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { logger } from '@/lib/logger';
 
 interface KeywordItem {
@@ -60,6 +61,8 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function AdminKeywordsPage() {
+  const pathname = usePathname() || "/";
+  const locale = pathname.startsWith("/en") ? "en" : "zh";
   const [tab, setTab] = useState<"keywords" | "plans">("keywords");
   const [keywords, setKeywords] = useState<KeywordItem[]>([]);
   const [plans, setPlans] = useState<SEOPlanItem[]>([]);
@@ -231,7 +234,7 @@ export default function AdminKeywordsPage() {
     <div className="space-y-6">
       {/* Collect Button Bar */}
       <div className="flex items-center justify-between">
-        <Link href="/admin" className="text-gray-500 hover:text-gray-700 text-sm">← 返回概览</Link>
+        <Link href={`/${locale}/admin`} className="text-gray-500 hover:text-gray-700 text-sm">← 返回概览</Link>
         <button
           onClick={triggerCollect}
           disabled={collecting}

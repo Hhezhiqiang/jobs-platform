@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import {
   TrendingUp,
@@ -159,6 +159,8 @@ function StatCard({ title, value, icon: Icon, color, subtitle, trend }: StatCard
 
 export default function AnalyticsClient({ data }: AnalyticsClientProps) {
   const router = useRouter();
+  const pathname = usePathname() || "/";
+  const locale = pathname.startsWith("/en") ? "en" : "zh";
   const [timeRange, setTimeRange] = useState<7 | 30 | 90>(30);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -240,7 +242,7 @@ export default function AnalyticsClient({ data }: AnalyticsClientProps) {
 
       {/* Geo Analytics Link */}
       <Link
-        href="/admin/analytics/geo"
+        href={`/${locale}/admin/analytics/geo`}
         className="block bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl shadow-sm p-6 hover:shadow-lg transition-all group"
       >
         <div className="flex items-center justify-between">
@@ -425,7 +427,7 @@ export default function AnalyticsClient({ data }: AnalyticsClientProps) {
             </h2>
             <p className="text-gray-500 text-sm mt-1">申请量最多的职位 TOP10</p>
           </div>
-          <Link href="/admin/jobs" className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1">
+          <Link href={`/${locale}/admin/jobs`} className="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center gap-1">
             查看全部 <ChevronRight className="w-4 h-4" />
           </Link>
         </div>

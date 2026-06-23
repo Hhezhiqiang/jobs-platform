@@ -34,7 +34,7 @@ export default function AdminAdsPage() {
     fetch("/api/admin/ads")
       .then(async (res) => {
         if (res.status === 401 || res.status === 403) {
-          router.push("/zh/auth/login/admin");
+          router.push(`/${locale}/auth/login/admin`);
           return;
         }
         if (!res.ok) {
@@ -50,7 +50,7 @@ export default function AdminAdsPage() {
         setError(err.message);
       })
       .finally(() => setLoading(false));
-  }, [router]);
+  }, [router, locale]);
 
   const statusMap: Record<string, { label: string; color: string }> = {
     ACTIVE: { label: "投放中", color: "bg-green-100 text-green-700" },
