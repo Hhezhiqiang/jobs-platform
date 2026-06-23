@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { MapPin, X, ExternalLink, Building, DollarSign, Calendar } from "lucide-react";
+import { MapPin, X, ExternalLink, Building, DollarSign, Calendar, Briefcase } from "lucide-react";
 import { DataTable, AdminBadge, type Column } from "@/components/admin";
 import { formatSalary } from "@/lib/utils";
 import { logger } from '@/lib/logger';
@@ -255,7 +255,27 @@ export default function AdminJobsPage({ params }: { params: { locale: string } }
             title="删除职位"
           />,
         ]}
-        emptyState="暂无职位"
+        emptyState={
+          <div className="flex flex-col items-center gap-3 py-8 text-gray-500">
+            <Briefcase className="w-12 h-12 text-gray-300" />
+            <div className="text-base font-medium text-gray-700">
+              {query || statusFilter ? "没有找到匹配的职位" : "暂无职位"}
+            </div>
+            <div className="text-sm">
+              {query || statusFilter
+                ? "试试调整搜索关键词或状态筛选。"
+                : "还没有发布任何职位。"}
+            </div>
+            {!query && !statusFilter && (
+              <Link
+                href={`/${params.locale}/admin/jobs/new`}
+                className="mt-2 inline-flex items-center gap-1 rounded-lg bg-[#6366f1] px-4 py-2 text-sm font-medium text-white hover:bg-[#4f46e5]"
+              >
+                发布第一个职位
+              </Link>
+            )}
+          </div>
+        }
       />
 
       {/* 分页 */}

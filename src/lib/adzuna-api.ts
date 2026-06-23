@@ -268,11 +268,30 @@ function retry<T>(fn: () => Promise<T>, maxRetries: number = SYNC_CONFIG.maxRetr
   })(0);
 }
 
+// 标题标准化：折叠各种破折号、小写、压缩空白、去标点
+function normalizeTitleForDedup(title: string): string {
+  return (title || '')
+    .toLowerCase()
+    // em-dash, en-dash, minus, figure dash, horizontal bar → 普通连字符
+    .replace(/[\u2010-\u2015\u2212]/g, '-')
+    // 中文/全角破折号、波浪号也归一
+    .replace(/[—–―~～]/g, '-')
+    .replace(/[^\w\s-]/g, ' ')
+    .replace(/[-\s]+/g, ' ')
+    .trim();
+}
+
 function deduplicateJobs(jobs: AdzunaJob[]): AdzunaJob[] {
-  const seen = new Set<string>();
+  const seenIds = new Set<string>();
+  const seenKeys = new Set<string>();
   return jobs.filter((j) => {
-    if (seen.has(j.id)) return false;
-    seen.add(j.id);
+    if (seenIds.has(j.id)) return false;
+    const company = (j.company?.display_name || '').toLowerCase().trim();
+    const city = (j.location?.display_name || '').toLowerCase().trim();
+    const key = `${company}|${city}|${normalizeTitleForDedup(j.title)}`;
+    if (seenKeys.has(key)) return false;
+    seenIds.add(j.id);
+    seenKeys.add(key);
     return true;
   });
 }
