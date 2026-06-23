@@ -31,7 +31,7 @@ export default function MessagesPage() {
   const pathname = usePathname() || "/";
   const locale = pathname.startsWith("/en") ? "en" : "zh";
   const search = useSearchParams();
-  const initialId = search.get("c");
+  const initialId = search?.get("c") || null;
 
   const [side, setSide] = useState<"USER" | "COMPANY">("USER");
   const [convs, setConvs] = useState<ConvSummary[]>([]);
