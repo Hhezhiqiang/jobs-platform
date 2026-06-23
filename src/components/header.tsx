@@ -8,16 +8,24 @@ import { useSession, signOut } from "next-auth/react";
 
 const NAV = [
   { href: "jobs", zh: "职位", en: "Jobs" },
-  { href: "companies", zh: "公司", en: "Companies" },
-  { href: "salary-insights", zh: "薪资", en: "Salary" },
+  { href: "circles", zh: "圈子", en: "Circles" },
   { href: "career-trail", zh: "成长", en: "Trail" },
   { href: "blog", zh: "博客", en: "Notes" },
+];
+
+const MORE = [
+  { href: "companies", zh: "公司", en: "Companies" },
+  { href: "salary-insights", zh: "薪资", en: "Salary" },
+  { href: "topics", zh: "话题", en: "Topics" },
+  { href: "aggregated-jobs", zh: "聚合职位", en: "Aggregated" },
+  { href: "faq", zh: "常见问题", en: "FAQ" },
 ];
 
 export function Header({ transparent }: { transparent?: boolean }) {
   const pathname = usePathname() || "/";
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const { data: session, status } = useSession();
 
   const locale = pathname.startsWith("/en") ? "en" : "zh";
@@ -32,10 +40,10 @@ export function Header({ transparent }: { transparent?: boolean }) {
   }, []);
 
   useEffect(() => {
-    const close = () => setMenuOpen(false);
-    if (menuOpen) document.addEventListener("click", close);
+    const close = () => { setMenuOpen(false); setMoreOpen(false); };
+    if (menuOpen || moreOpen) document.addEventListener("click", close);
     return () => document.removeEventListener("click", close);
-  }, [menuOpen]);
+  }, [menuOpen, moreOpen]);
 
   if (pathname.includes("/admin")) return null;
 
@@ -81,6 +89,59 @@ export function Header({ transparent }: { transparent?: boolean }) {
               </Link>
             );
           })}
+
+          <div className="relative" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setMoreOpen((v) => !v)}
+              className="inline-flex items-center gap-1 transition-colors"
+              style={{
+                color: MORE.some((m) => pathname.startsWith(`/${locale}/${m.href}`))
+                  ? "#B6FF3D"
+                  : "rgba(245,245,245,0.62)",
+              }}
+            >
+              {locale === "zh" ? "更多" : "More"}
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                style={{
+                  transform: moreOpen ? "rotate(180deg)" : "rotate(0deg)",
+                  transition: "transform 0.15s ease",
+                }}
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+            {moreOpen && (
+              <div
+                className="absolute left-1/2 -translate-x-1/2 mt-3 w-56 overflow-hidden rounded-xl border shadow-2xl"
+                style={{
+                  background: "#111111",
+                  borderColor: "rgba(255,255,255,0.14)",
+                }}
+              >
+                {MORE.map((m) => {
+                  const active = pathname.startsWith(`/${locale}/${m.href}`);
+                  return (
+                    <Link
+                      key={m.href}
+                      href={`/${locale}/${m.href}`}
+                      className="block px-4 py-2.5 text-sm transition-colors hover:text-white"
+                      style={{
+                        color: active ? "#B6FF3D" : "rgba(245,245,245,0.7)",
+                      }}
+                    >
+                      {locale === "zh" ? m.zh : m.en}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </nav>
 
         <div className="flex items-center gap-3">

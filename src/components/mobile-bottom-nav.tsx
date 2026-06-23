@@ -16,22 +16,25 @@ const ITEMS = [
     ),
   },
   {
-    href: "companies",
-    zh: "公司",
-    en: "Co.",
+    href: "circles",
+    zh: "圈子",
+    en: "Circles",
     icon: (
       <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6">
-        <path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M13 9h.01M9 13h.01M13 13h.01M9 17h.01M13 17h.01" />
+        <circle cx="9" cy="9" r="4" />
+        <circle cx="17" cy="13" r="3" />
+        <circle cx="7" cy="17" r="3" />
       </svg>
     ),
   },
   {
-    href: "salary-insights",
-    zh: "薪资",
-    en: "Pay",
+    href: "career-trail",
+    zh: "成长",
+    en: "Trail",
     icon: (
       <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6">
-        <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+        <path d="M3 17l4-4 4 4 4-6 6 6" />
+        <path d="M14 7h7v7" />
       </svg>
     ),
   },
