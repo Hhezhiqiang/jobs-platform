@@ -1,28 +1,28 @@
+// Production process config for PM2.
+// Secrets are loaded from .env.production (Next.js auto-loads it when NODE_ENV=production).
+// Do NOT add secrets here — keep this file safe to commit.
 module.exports = {
   apps: [
     {
       name: "jobquip",
+      cwd: "/opt/jobs-platform",
       script: "node_modules/.bin/next",
       args: "start -p 3000",
-      cwd: "/home/admin/openclaw/workspace/jobs-platform",
+      instances: 1,
+      exec_mode: "fork",
+      autorestart: true,
+      watch: false,
+      max_memory_restart: "1G",
+      // Signal hardening: avoid the rapid restart storms we saw when PM2 wrapped npm.
+      kill_timeout: 5000,
+      wait_ready: false,
+      min_uptime: "30s",
+      max_restarts: 5,
+      restart_delay: 2000,
       env: {
         NODE_ENV: "production",
         PORT: "3000",
-        DATABASE_URL: "postgresql://jobquip:JQdb2024%21secure@localhost:5433/jobquip",
-        JWT_SECRET: "your-jwt-secret-key-for-production-12345",
-        KIMI_API_KEY: "sk-yBaN30XiLcyh4ZkVd7aLMukglXD6P9RSwC9nXCPhjQq3h3Ke",
-        NEXTAUTH_SECRET: "your-nextauth-secret-key-for-production-12345",
-        NEXTAUTH_URL: "https://jobquip.com",
-        NEXT_PUBLIC_SITE_URL: "https://jobquip.com",
-        ADZUNA_APP_ID: "2899dccd",
-        ADZUNA_APP_KEY: "86ffc0dcf27cad6c95088854de203aed",
-        CRON_SECRET: "26b8d084f251ae27be7c1083ec6251e6932e46c66230d39ed4f047f92db5480f",
       },
-      instances: 1,
-      exec_mode: "fork",
-      max_memory_restart: "1G",
-      autorestart: true,
-      watch: false,
     },
   ],
 };
