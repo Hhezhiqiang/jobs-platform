@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Noto_Sans_SC } from "next/font/google";
+import { Inter, Noto_Sans_SC, Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import { generateWebsiteSchema } from "@/lib/schema";
 import { safeJsonLdStringify } from "@/lib/utils";
@@ -21,6 +21,23 @@ const notoSansSC = Noto_Sans_SC({
   subsets: ["latin"],
   variable: "--font-noto-sans-sc",
   preload: false,
+});
+const geistSans = Geist({
+  subsets: ["latin"],
+  variable: "--font-geist-sans",
+  display: "swap",
+});
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-geist-mono",
+  display: "swap",
+});
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  variable: "--font-instrument-serif",
+  weight: "400",
+  style: ["normal", "italic"],
+  display: "swap",
 });
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
@@ -171,7 +188,7 @@ export default async function RootLayout({
         {/* 预加载关键资源 */}
         <link rel="preload" href="/logo.png" as="image" />
       </head>
-      <body className={`${inter.className} ${notoSansSC.variable} font-sans pb-32 md:pb-0`}>
+      <body className={`${inter.className} ${notoSansSC.variable} ${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} font-sans pb-32 md:pb-0`}>
         <NextIntlClientProvider messages={messages} locale={locale}>
           <Providers>
             {/* 移动端顶部语言切换 */}
