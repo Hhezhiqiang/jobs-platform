@@ -80,7 +80,7 @@ export async function collectKeywords(): Promise<{
             trendScore: Math.max(exists.trendScore, item.trendScore || 0),
             source: item.source || exists.source,
             sourceUrl: item.sourceUrl || exists.sourceUrl,
-            metadata: item.metadata || exists.metadata,
+            metadata: (item.metadata ?? exists.metadata ?? undefined) as any,
           },
         });
         duplicates++;
