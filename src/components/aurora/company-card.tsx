@@ -11,7 +11,7 @@ interface CompanyCardProps {
 }
 
 export async function AuroraCompanyCard({ company, variant = "default", locale = "zh" }: CompanyCardProps) {
-  const t = await getTranslations(locale);
+  const t = await getTranslations({ locale });
   const jobCount = company._count?.jobs || 0;
   const isEn = locale === "en";
   

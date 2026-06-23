@@ -191,6 +191,53 @@ button.bg-blue-600:hover, a.bg-blue-600:hover { filter: brightness(1.1); }
   /* leave the structure but the from/via/to overrides above make them dark */
 }
 
+/* === 6b. Arbitrary-value gradients — Tailwind `from-[#hex]` classes === */
+/* Heroes & cards in the wild use literal hex Tailwind classes like
+   `from-[#1e1b4b]`, `from-[#6366f1]` which the named-color selectors above
+   never matched. Kill all indigo/purple/violet/cyan hex stops. */
+[class*="from-[#1e1b4b]"], [class*="from-[#312e81]"], [class*="from-[#3730a3]"],
+[class*="from-[#4338ca]"], [class*="from-[#4f46e5]"], [class*="from-[#6366f1]"],
+[class*="from-[#818cf8]"], [class*="from-[#a5b4fc]"],
+[class*="from-[#7c3aed]"], [class*="from-[#8b5cf6]"], [class*="from-[#a78bfa]"],
+[class*="from-[#9333ea]"], [class*="from-[#a855f7]"], [class*="from-[#c084fc]"],
+[class*="from-[#581c87]"], [class*="from-[#6b21a8]"],
+[class*="from-[#0ea5e9]"], [class*="from-[#06b6d4]"], [class*="from-[#0891b2]"] {
+  --tw-gradient-from: #0a0a0a var(--tw-gradient-from-position, 0%) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(10,10,10,0)) !important;
+}
+[class*="via-[#1e1b4b]"], [class*="via-[#312e81]"], [class*="via-[#3730a3]"],
+[class*="via-[#4338ca]"], [class*="via-[#4f46e5]"], [class*="via-[#6366f1]"],
+[class*="via-[#7c3aed]"], [class*="via-[#8b5cf6]"], [class*="via-[#a78bfa]"],
+[class*="via-[#9333ea]"], [class*="via-[#a855f7]"], [class*="via-[#c084fc]"],
+[class*="via-[#0ea5e9]"], [class*="via-[#06b6d4]"], [class*="via-[#0891b2]"] {
+  --tw-gradient-stops: var(--tw-gradient-from), #111111 var(--tw-gradient-via-position, 50%), var(--tw-gradient-to, rgba(17,17,17,0)) !important;
+}
+[class*="to-[#1e1b4b]"], [class*="to-[#312e81]"], [class*="to-[#3730a3]"],
+[class*="to-[#4338ca]"], [class*="to-[#4f46e5]"], [class*="to-[#6366f1]"],
+[class*="to-[#7c3aed]"], [class*="to-[#8b5cf6]"], [class*="to-[#a78bfa]"],
+[class*="to-[#9333ea]"], [class*="to-[#a855f7]"], [class*="to-[#c084fc]"],
+[class*="to-[#0ea5e9]"], [class*="to-[#06b6d4]"], [class*="to-[#0891b2]"] {
+  --tw-gradient-to: #1a1a1a var(--tw-gradient-to-position, 100%) !important;
+}
+
+/* Decorative accent stripes (h-1 / h-2 gradient bars) → solid volt accent.
+   These are visual rim accents; making them dark would erase them. */
+.h-1.bg-gradient-to-r, .h-2.bg-gradient-to-r,
+.h-1.bg-gradient-to-l, .h-2.bg-gradient-to-l {
+  background-image: none !important;
+  background-color: var(--volt-accent) !important;
+}
+
+/* Brand-letter avatar squares (e.g. company cards): replace purple gradient
+   with a soft accent-tinted dark tile so the initial stays legible. */
+.w-12.h-12[class*="bg-gradient-to-"], .w-14.h-14[class*="bg-gradient-to-"],
+.w-16.h-16[class*="bg-gradient-to-"], .w-20.h-20[class*="bg-gradient-to-"] {
+  background-image: none !important;
+  background-color: var(--volt-ink-3) !important;
+  color: var(--volt-accent) !important;
+  border: 1px solid var(--volt-line-2) !important;
+}
+
 /* === 7. Text === */
 .text-gray-900, .text-slate-900, .text-black { color: var(--volt-fg) !important; }
 .text-gray-800, .text-slate-800 { color: var(--volt-fg) !important; }
