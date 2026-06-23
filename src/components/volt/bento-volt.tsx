@@ -1,12 +1,5 @@
 "use client";
 
-const STATS = [
-  { k: "Live jobs", v: "898", note: "+34 this week" },
-  { k: "Companies", v: "412", note: "Web3 · AI · SaaS" },
-  { k: "Avg. salary", v: "$148k", note: "senior eng, remote" },
-  { k: "Response", v: "11h", note: "median to first reply" },
-];
-
 const SALARY_BUCKETS = [
   { range: "60–80k", h: 22 },
   { range: "80–100k", h: 38 },
@@ -17,7 +10,21 @@ const SALARY_BUCKETS = [
   { range: "250k+", h: 30 },
 ];
 
-export function BentoVolt() {
+export function BentoVolt({
+  jobCount = 898,
+  companyCount = 412,
+  dailyNewJobs = 34,
+}: {
+  jobCount?: number;
+  companyCount?: number;
+  dailyNewJobs?: number;
+}) {
+  const STATS = [
+    { k: "Live jobs", v: jobCount.toLocaleString(), note: `+${dailyNewJobs} this week` },
+    { k: "Companies", v: companyCount.toLocaleString(), note: "Web3 · AI · SaaS" },
+    { k: "Avg. salary", v: "$148k", note: "senior eng, remote" },
+    { k: "Response", v: "11h", note: "median to first reply" },
+  ];
   return (
     <section className="mx-auto max-w-7xl px-6 py-20">
       <div className="mb-10 flex items-end justify-between">

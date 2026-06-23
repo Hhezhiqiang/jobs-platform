@@ -8,7 +8,13 @@ const TICKER = [
   "Vue", "Solana", "Cosmos", "ZK", "Cairo", "Polkadot",
 ];
 
-export function HeroVolt({ locale = "zh" }: { locale?: string }) {
+export function HeroVolt({
+  locale = "zh",
+  jobCount = 898,
+}: {
+  locale?: string;
+  jobCount?: number;
+}) {
   return (
     <section className="volt-grain relative overflow-hidden">
       {/* Glow */}
@@ -27,7 +33,7 @@ export function HeroVolt({ locale = "zh" }: { locale?: string }) {
             style={{ background: "var(--volt)", boxShadow: "0 0 12px var(--volt)" }}
           />
           <span className="font-mono text-xs" style={{ color: "var(--fg-dim)" }}>
-            898 live roles · refreshed {new Date().toLocaleDateString("en-US", {
+            {jobCount.toLocaleString()} live roles · refreshed {new Date().toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",
             })}
@@ -52,7 +58,7 @@ export function HeroVolt({ locale = "zh" }: { locale?: string }) {
 
         <div className="volt-rise-3 mt-10 flex flex-wrap items-center gap-4">
           <Link href={`/${locale}/jobs`} className="volt-btn">
-            Browse 898 jobs <span aria-hidden>→</span>
+            Browse {jobCount.toLocaleString()} jobs <span aria-hidden>→</span>
           </Link>
           <Link href={`/${locale}/salary-insights`} className="volt-btn-ghost">
             Salary intel

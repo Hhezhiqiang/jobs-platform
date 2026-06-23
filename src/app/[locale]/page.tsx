@@ -1,24 +1,22 @@
 import Link from "next/link";
-import Image from "next/image";
 import { getHomePageData } from "@/lib/optimized-queries";
 import { generateHomeMetadata } from "@/lib/metadata";
 import { generateFAQSchema } from "@/lib/schema";
 import { safeJsonLdStringify } from "@/lib/utils";
 import { Metadata } from "next";
-import { HeroSection } from "@/components/aurora/hero-section";
-import { AuroraStatsSection as StatsSection } from "@/components/aurora/stats-section";
-import { FeaturesSection } from "@/components/features-section";
-import { JobCardV2 } from "@/components/aurora/job-card";
-import { HomeCheckinWrapper } from "@/components/game/home-checkin-wrapper";
-import { KeywordCloud } from "@/components/aurora/keyword-cloud";
-import { HomeCTA } from "@/components/home-cta";
+import { HeroVolt } from "@/components/volt/hero-volt";
+import { BentoVolt } from "@/components/volt/bento-volt";
+import { JobCardVolt, type VoltJob } from "@/components/volt/job-card-volt";
 import { getTranslations } from "next-intl/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
+import "@/styles/volt.css";
 
 export const revalidate = 60;
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
   const { locale } = await params;
   return generateHomeMetadata(locale);
 }
@@ -33,16 +31,47 @@ async function getHomeFAQ(locale: string) {
   ];
 }
 
-export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
+function toVoltJob(job: any, idx: number): VoltJob {
+  const company =
+    typeof job.company === "string"
+      ? job.company
+      : job.company?.name || job.companyName || "—";
+  const tags: string[] =
+    (Array.isArray(job.tags) ? job.tags : null) ||
+    (Array.isArray(job.skills) ? job.skills : null) ||
+    (typeof job.category === "string" ? [job.category] : []);
+  const posted = job.publishedAt || job.postedAt || job.createdAt;
+  const days = posted
+    ? Math.max(
+        0,
+        Math.floor((Date.now() - new Date(posted).getTime()) / 86400000)
+      )
+    : idx;
+  return {
+    id: job.id || job.slug || String(idx),
+    title: job.title || "Untitled role",
+    company,
+    location: job.location || (job.remote ? "Remote" : "—"),
+    salaryMin: job.salaryMin ?? undefined,
+    salaryMax: job.salaryMax ?? undefined,
+    tags: tags.slice(0, 3).map((t) => String(t)),
+    match: 70 + ((idx * 13) % 28),
+    remote:
+      !!job.remote ||
+      /remote|远程/i.test(String(job.location || "") + String(job.title || "")),
+    postedDays: days,
+  };
+}
+
+export default async function HomePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "home" });
-  
-  const session = await getServerSession(authOptions);
-  const isLoggedIn = !!session?.user;
 
-  // Fetch ONLY featured jobs.
-  // Note: If getHomePageData returns "latestJobs", we will IGNORE them here.
-  const { featuredJobs, hotCompanies, stats } = await getHomePageData();
+  const { featuredJobs, stats } = await getHomePageData();
   const homeFAQ = await getHomeFAQ(locale);
 
   const displayStats = {
@@ -51,122 +80,137 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     dailyNewJobs: Math.max(stats.dailyNewJobs, 0),
   };
 
+  const voltJobs = featuredJobs.slice(0, 6).map((j: any, i: number) =>
+    toVoltJob(j, i)
+  );
+
   return (
-    <div className="min-h-screen bg-white">
-      <HomeCheckinWrapper />
+    <div className="volt-scope">
+      <HeroVolt locale={locale} jobCount={displayStats.jobCount} />
 
-      {/* 1. Hero Section */}
-      <HeroSection jobCount={displayStats.jobCount} companyCount={displayStats.companyCount} />
-      
-      {/* 2. Stats Section */}
-      <StatsSection jobCount={displayStats.jobCount} companyCount={displayStats.companyCount} dailyNewJobs={displayStats.dailyNewJobs} />
+      <BentoVolt
+        jobCount={displayStats.jobCount}
+        companyCount={displayStats.companyCount}
+        dailyNewJobs={displayStats.dailyNewJobs}
+      />
 
-      {/* 3. Hot Jobs Section (The ONLY job section on homepage) */}
-      {featuredJobs.length > 0 && (
-        <section className="py-12 md:py-20 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="flex items-center justify-between mb-8 md:mb-10">
-              <div>
-                <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">{t("hotJobs")}</h2>
-                <p className="text-gray-600">{t("hotJobsSub")}</p>
+      {/* Featured jobs */}
+      {voltJobs.length > 0 && (
+        <section className="mx-auto max-w-7xl px-6 py-20">
+          <div className="mb-10 flex items-end justify-between">
+            <div>
+              <div
+                className="font-mono text-xs uppercase tracking-widest"
+                style={{ color: "var(--fg-mute)" }}
+              >
+                02 / Featured
               </div>
-              <Link
-                href={`/${locale}/jobs`}
-                className="hidden md:inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 font-medium rounded-xl border border-blue-200 hover:border-blue-400 hover:shadow-lg transition-all"
-              >
-                {t("viewAll")}
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
+              <h2 className="mt-2 text-4xl font-semibold tracking-tight">
+                {t("hotJobs")} <span className="volt-serif">·</span>
+              </h2>
+              <p className="mt-2 text-sm" style={{ color: "var(--fg-dim)" }}>
+                {t("hotJobsSub")}
+              </p>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
-              {featuredJobs.slice(0, 6).map((job) => (
-                <JobCardV2 key={job.id} job={job} variant="featured" locale={locale} />
-              ))}
-            </div>
-
-            <div className="mt-8 text-center md:hidden">
-              <Link
-                href={`/${locale}/jobs`}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-all"
-              >
-                {t("viewAllJobs")}
-              </Link>
-            </div>
+            <Link
+              href={`/${locale}/jobs`}
+              className="volt-btn-ghost hidden md:inline-flex text-sm"
+            >
+              {t("viewAll")} →
+            </Link>
           </div>
-        </section>
-      )}
 
-      {/* 4. Features Section */}
-      <FeaturesSection />
-
-      {/* 6. Blog Section */}
-      {stats.blogCount > 0 && (
-        <section className="py-12 md:py-20 bg-blue-600">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="text-center mb-8 md:mb-12">
-              <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">{t("blogSection")}</h2>
-              <p className="text-blue-100 text-lg">{t("blogSectionSub", { count: stats.blogCount })}</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[
-                { icon: "🎯", titleKey: "blogTips.title", descKey: "blogTips.desc" },
-                { icon: "💼", titleKey: "blogCareer.title", descKey: "blogCareer.desc" },
-                { icon: "📊", titleKey: "blogSalary.title", descKey: "blogSalary.desc" },
-              ].map((item) => (
-                <Link
-                  key={item.titleKey}
-                  href={`/${locale}/blog`}
-                  className="group bg-white/10 backdrop-blur-sm rounded-2xl p-8 hover:bg-white/20 transition-all"
-                >
-                  <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">{item.icon}</div>
-                  <h3 className="text-xl font-bold text-white mb-2">{t(item.titleKey)}</h3>
-                  <p className="text-blue-100">{t(item.descKey)}</p>
-                </Link>
-              ))}
-            </div>
-
-            <div className="mt-10 text-center">
-              <Link
-                href={`/${locale}/blog`}
-                className="inline-flex items-center gap-2 px-8 py-4 bg-white text-blue-600 font-semibold rounded-xl hover:bg-blue-50 transition-all"
-              >
-                {t("readMore")}
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </Link>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* 7. Keyword Cloud */}
-      {stats.blogCount > 0 && (
-        <KeywordCloud locale={locale} />
-      )}
-
-      {/* 8. Dynamic CTA Section (Login Aware) */}
-      <HomeCTA isLoggedIn={isLoggedIn} />
-
-      {/* 9. FAQ Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">{t("faq.title")}</h2>
-          <div className="space-y-4">
-            {homeFAQ.map((faq) => (
-              <details
-                key={faq.question}
-                className="group bg-white rounded-xl shadow-sm border border-gray-100 p-6 [&_summary]:cursor-pointer [&_summary]:font-semibold [&_summary]:text-gray-900 [&_summary]:list-none [&_summary]:relative [&_summary]:pr-8 [&_summary::after]:content-['+'] [&_summary::after]:absolute [&_summary::after]:right-0 [&_summary::after]:text-xl [&_summary::after]:text-blue-600 [&_summary]:text-gray-900 [&_details[open]_summary::after]:content-['−']"
-              >
-                <summary>{faq.question}</summary>
-                <p className="mt-3 text-gray-600 leading-relaxed">{faq.answer}</p>
-              </details>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {voltJobs.map((j) => (
+              <JobCardVolt key={j.id} job={j} locale={locale} />
             ))}
           </div>
+
+          <div className="mt-8 text-center md:hidden">
+            <Link href={`/${locale}/jobs`} className="volt-btn">
+              {t("viewAllJobs")}
+            </Link>
+          </div>
+        </section>
+      )}
+
+      {/* Closing CTA */}
+      <section
+        className="volt-grain relative mx-auto max-w-7xl overflow-hidden rounded-3xl border px-6 py-24 my-20"
+        style={{ borderColor: "var(--line)" }}
+      >
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(60% 80% at 50% 100%, rgba(182,255,61,0.10), transparent 70%)",
+          }}
+        />
+        <div className="relative z-10 text-center">
+          <h2 className="text-[clamp(2rem,5vw,4rem)] font-semibold leading-tight tracking-tight">
+            Ship the application.
+            <br />
+            <span className="volt-serif" style={{ color: "var(--volt)" }}>
+              Not the cover letter.
+            </span>
+          </h2>
+          <p
+            className="mx-auto mt-6 max-w-xl text-base"
+            style={{ color: "var(--fg-dim)" }}
+          >
+            {t("hotJobsSub")}
+          </p>
+          <div className="mt-8 flex justify-center gap-3">
+            <Link href={`/${locale}/jobs`} className="volt-btn">
+              {t("viewAllJobs")} <span aria-hidden>→</span>
+            </Link>
+            <Link href={`/${locale}/about`} className="volt-btn-ghost">
+              {t("viewAll")}
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="mx-auto max-w-4xl px-6 pb-24">
+        <div className="mb-10">
+          <div
+            className="font-mono text-xs uppercase tracking-widest"
+            style={{ color: "var(--fg-mute)" }}
+          >
+            03 / Questions
+          </div>
+          <h2 className="mt-2 text-3xl font-semibold tracking-tight">
+            {t("faq.title")}
+          </h2>
+        </div>
+        <div className="space-y-3">
+          {homeFAQ.map((faq) => (
+            <details
+              key={faq.question}
+              className="volt-card group"
+              style={{ padding: 0 }}
+            >
+              <summary
+                className="cursor-pointer list-none px-6 py-5 font-medium flex items-center justify-between"
+              >
+                <span>{faq.question}</span>
+                <span
+                  className="volt-serif text-xl transition-transform group-open:rotate-45"
+                  style={{ color: "var(--volt)" }}
+                >
+                  +
+                </span>
+              </summary>
+              <div
+                className="px-6 pb-5 text-sm leading-relaxed"
+                style={{ color: "var(--fg-dim)" }}
+              >
+                {faq.answer}
+              </div>
+            </details>
+          ))}
         </div>
       </section>
 
