@@ -60,6 +60,10 @@ export function Header({ transparent = false }: HeaderProps) {
            pathWithoutLocale.startsWith(hrefWithoutLocale + "/");
   };
 
+  // Hide public header in admin area — admin has its own chrome
+  const pathWithoutLocale = pathname?.substring(locale.length + 1) || "";
+  if (pathWithoutLocale.startsWith("/admin")) return null;
+
   return (
     <header
       className={`sticky top-0 z-50 transition-all duration-300 hidden md:block ${

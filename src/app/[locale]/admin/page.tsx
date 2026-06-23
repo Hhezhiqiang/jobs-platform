@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminPage() {
   const [jobCount, companyCount, blogCount, totalViews, userCount] = await Promise.all([
     prisma.jobs.count(),
-    prisma.companies.count(),
+    prisma.companies.count({ where: { verificationStatus: "APPROVED" } }),
     prisma.pages.count({ where: { type: "BLOG" } }),
     prisma.pages.aggregate({
       where: { type: "BLOG" },
@@ -29,7 +29,7 @@ export default async function AdminPage() {
     }),
     prisma.pages.findMany({
       where: { type: "BLOG" },
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ status: "asc" }, { createdAt: "desc" }],
       take: 5,
       include: { users: true },
     }),

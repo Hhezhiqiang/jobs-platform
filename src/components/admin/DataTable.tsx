@@ -16,7 +16,7 @@ export interface DataTableProps<T = any> {
   columns: Column<T>[];
   data: T[];
   actions?: (row: T) => React.ReactNode[];
-  emptyState?: string;
+  emptyState?: React.ReactNode;
   selectable?: boolean;
   selectedKeys?: Set<string | number>;
   onSelectionChange?: (keys: Set<string | number>) => void;

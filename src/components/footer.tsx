@@ -43,6 +43,10 @@ export function Footer() {
     },
   ];
 
+  // Hide public footer in admin area
+  const pathWithoutLocale = pathname?.substring(locale.length + 1) || "";
+  if (pathWithoutLocale.startsWith("/admin")) return null;
+
   return (
     <footer className="bg-gradient-to-b from-gray-50 to-white border-t border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">

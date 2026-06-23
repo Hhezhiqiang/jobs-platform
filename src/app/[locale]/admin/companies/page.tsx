@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Eye } from "lucide-react";
+import { Eye, Building2 } from "lucide-react";
 import { DataTable, AdminBadge, AdminPagination, type Column } from "@/components/admin";
 
 type Company = {
@@ -39,7 +39,7 @@ export default function AdminCompaniesPage({ params }: { params: { locale: strin
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [statusFilter, setStatusFilter] = useState(searchParams?.get("status") || "PENDING");
+  const [statusFilter, setStatusFilter] = useState(searchParams?.get("status") ?? "");
 
   useEffect(() => {
     fetch(`/api/admin/companies?status=${statusFilter}`)
@@ -166,7 +166,19 @@ export default function AdminCompaniesPage({ params }: { params: { locale: strin
             </span>
           ) : null,
         ]}
-        emptyState="暂无企业数据"
+        emptyState={
+          <div className="flex flex-col items-center gap-3 py-8 text-gray-500">
+            <Building2 className="w-12 h-12 text-gray-300" />
+            <div className="text-base font-medium text-gray-700">暂无企业数据</div>
+            <div className="text-sm">
+              {statusFilter === "PENDING"
+                ? "目前没有待审核的企业。新企业注册后会出现在这里。"
+                : statusFilter
+                ? "当前筛选条件下没有数据，试试切换状态或清空筛选。"
+                : "尚未有企业入驻平台。"}
+            </div>
+          </div>
+        }
       />
     </div>
   );

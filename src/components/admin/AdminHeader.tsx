@@ -60,7 +60,7 @@ export function AdminHeader({ onMenuToggle, collapsed }: AdminHeaderProps) {
           <Menu className="h-5 w-5" />
         </button>
         <div>
-          <h1 className="text-lg font-semibold text-gray-900">{currentTitle}</h1>
+          <div className="text-lg font-semibold text-gray-900">{currentTitle}</div>
           <nav aria-label="面包屑导航" className="hidden items-center gap-1 text-xs text-gray-400 sm:flex">
             {breadcrumbs.map((crumb, i) => (
               <span key={i} className="flex items-center gap-1">

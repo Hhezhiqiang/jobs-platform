@@ -15,7 +15,10 @@ export const revalidate = 3600;
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug, locale } = await params;
-  const job = await prisma.jobs.findUnique({ where: { slug }, include: { companies: true } });
+  const job = await prisma.jobs.findFirst({
+    where: { OR: [{ slug }, { id: slug }] },
+    include: { companies: true },
+  });
   if (!job) return { title: "职位未找到" };
   return generateJobMetadata(job, locale);
 }
@@ -26,7 +29,10 @@ export default async function JobDetailPage({ params }: PageProps) {
 
   let job;
   try {
-    job = await prisma.jobs.findUnique({ where: { slug }, include: { companies: true } });
+    job = await prisma.jobs.findFirst({
+      where: { OR: [{ slug }, { id: slug }] },
+      include: { companies: true },
+    });
   } catch {
     return (
       <div className="min-h-screen bg-[#f8f7fc] flex items-center justify-center">

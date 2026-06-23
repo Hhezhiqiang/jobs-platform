@@ -18,8 +18,21 @@ export async function GET(request: NextRequest) {
     const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
     const limit = 15;
     const skip = (page - 1) * limit;
+    const q = (searchParams.get("q") || "").trim();
+    const status = (searchParams.get("status") || "").trim();
 
     const where: any = {};
+    if (status) {
+      where.status = status;
+    }
+    if (q) {
+      where.OR = [
+        { title: { contains: q, mode: "insensitive" } },
+        { city: { contains: q, mode: "insensitive" } },
+        { location: { contains: q, mode: "insensitive" } },
+        { companies: { is: { name: { contains: q, mode: "insensitive" } } } },
+      ];
+    }
 
     const [jobs, total] = await Promise.all([
       prisma.jobs.findMany({

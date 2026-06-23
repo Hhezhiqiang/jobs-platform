@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useLocale } from "next-intl";
+import { Megaphone, ImagePlus } from "lucide-react";
 
 type Ad = {
   id: string;
@@ -82,7 +83,13 @@ export default function AdminAdsPage() {
       </div>
 
       {positions.length === 0 ? (
-        <div className="p-12 bg-white rounded-xl shadow-sm border text-center text-gray-500">暂无广告位数据</div>
+        <div className="p-12 bg-white rounded-xl shadow-sm border flex flex-col items-center gap-3 text-gray-500">
+          <Megaphone className="w-12 h-12 text-gray-300" />
+          <div className="text-base font-medium text-gray-700">暂无广告位</div>
+          <p className="text-sm text-center max-w-sm">
+            还没有配置任何广告位。广告位用于划分前台不同的广告展示区域，请先创建广告位再投放广告。
+          </p>
+        </div>
       ) : (
         positions.map((pos) => (
           <div key={pos.id} className="bg-white rounded-xl shadow-sm border overflow-hidden">
@@ -98,7 +105,16 @@ export default function AdminAdsPage() {
 
             <div className="divide-y">
               {pos.ads.length === 0 ? (
-                <div className="p-6 text-center text-gray-400 text-sm">暂无广告</div>
+                <div className="p-6 text-center text-gray-400 text-sm flex flex-col items-center gap-2">
+                  <ImagePlus className="w-8 h-8 text-gray-300" />
+                  <span>此广告位下还没有广告</span>
+                  <Link
+                    href={`/${locale}/admin/ads/new?positionId=${pos.id}`}
+                    className="text-blue-600 hover:underline text-xs"
+                  >
+                    立即投放
+                  </Link>
+                </div>
               ) : (
                 pos.ads.map((ad) => {
                   const statusInfo = statusMap[ad.status] || { label: ad.status, color: "bg-gray-100 text-gray-600" };
