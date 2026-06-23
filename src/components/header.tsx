@@ -9,13 +9,13 @@ import { useSession, signOut } from "next-auth/react";
 const NAV = [
   { href: "jobs", zh: "职位", en: "Jobs" },
   { href: "circles", zh: "圈子", en: "Circles" },
-  { href: "career-trail", zh: "成长", en: "Trail" },
   { href: "blog", zh: "博客", en: "Notes" },
 ];
 
 const MORE = [
   { href: "companies", zh: "公司", en: "Companies" },
   { href: "salary-insights", zh: "薪资", en: "Salary" },
+  { href: "career-trail", zh: "成长", en: "Trail" },
   { href: "topics", zh: "话题", en: "Topics" },
   { href: "aggregated-jobs", zh: "聚合职位", en: "Aggregated" },
   { href: "faq", zh: "常见问题", en: "FAQ" },

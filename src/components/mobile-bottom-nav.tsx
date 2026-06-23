@@ -28,17 +28,6 @@ const ITEMS = [
     ),
   },
   {
-    href: "career-trail",
-    zh: "成长",
-    en: "Trail",
-    icon: (
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6">
-        <path d="M3 17l4-4 4 4 4-6 6 6" />
-        <path d="M14 7h7v7" />
-      </svg>
-    ),
-  },
-  {
     href: "blog",
     zh: "博客",
     en: "Blog",
@@ -70,7 +59,7 @@ export function MobileBottomNav() {
 
   return (
     <nav
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 grid grid-cols-5 backdrop-blur-xl"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 grid grid-cols-4 backdrop-blur-xl"
       style={{
         background: "rgba(10,10,10,0.85)",
         borderTop: "1px solid rgba(255,255,255,0.08)",
