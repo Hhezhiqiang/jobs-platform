@@ -29,13 +29,16 @@
     "balance": "账户余额",
     "recharge": "去充值",
     "resumes": "我的简历",
-    "manageResume": "管理简历"
+    "manageResume": "管理简历",
+    "jobDemand": "求职需求",
+    "publishDemand": "发布需求"
   },
   "quickAction": {
     "title": "开始寻找新机会",
     "subtitle": "浏览最新职位，发现适合您的工作",
     "browseJobs": "浏览职位",
-    "updateProfile": "完善简历"
+    "updateProfile": "完善简历",
+    "publishJobDemand": "发布求职需求"
   },
   "recentApplications": {
     "title": "最近申请",
@@ -44,5 +47,13 @@
     "emptySubtitle": "开始探索职位，迈出求职第一步",
     "browseJobs": "浏览职位",
     "withdraw": "撤回"
+  },
+  "applicationStatus": {
+    "PENDING": "待处理",
+    "VIEWED": "已查看",
+    "INTERVIEW": "面试邀请",
+    "REJECTED": "已拒绝",
+    "OFFER": "已录用",
+    "WITHDRAWN": "已撤回"
   }
 }

@@ -29,13 +29,16 @@
     "balance": "Account Balance",
     "recharge": "Recharge",
     "resumes": "My Resumes",
-    "manageResume": "Manage Resume"
+    "manageResume": "Manage Resume",
+    "jobDemand": "Job Needs",
+    "publishDemand": "Post a Need"
   },
   "quickAction": {
     "title": "Start Your Next Opportunity Search",
     "subtitle": "Browse the latest jobs and discover positions that fit you",
     "browseJobs": "Browse Jobs",
-    "updateProfile": "Update Profile"
+    "updateProfile": "Update Profile",
+    "publishJobDemand": "Post Job Need"
   },
   "recentApplications": {
     "title": "Recent Applications",
@@ -44,5 +47,13 @@
     "emptySubtitle": "Start exploring jobs and take the first step in your job search",
     "browseJobs": "Browse Jobs",
     "withdraw": "Withdraw"
+  },
+  "applicationStatus": {
+    "PENDING": "Pending",
+    "VIEWED": "Viewed",
+    "INTERVIEW": "Interview",
+    "REJECTED": "Rejected",
+    "OFFER": "Offer",
+    "WITHDRAWN": "Withdrawn"
   }
 }

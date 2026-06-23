@@ -21,37 +21,48 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
 
     const where: any = {};
     if (status) {
       where.verificationStatus = status;
     }
 
-    const companies = await prisma.companies.findMany({
-      where,
-      take: 200,
-      include: {
-        company_members: {
-          include: {
-            users: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
+    const [companies, total] = await Promise.all([
+      prisma.companies.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        include: {
+          company_members: {
+            include: {
+              users: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                },
               },
             },
           },
-        },
-        _count: {
-          select: {
-            jobs: true,
+          _count: {
+            select: {
+              jobs: true,
+            },
           },
         },
-      },
-      orderBy: { createdAt: "desc" },
-    });
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.companies.count({ where }),
+    ]);
 
-    return NextResponse.json({ companies });
+    return NextResponse.json({
+      companies,
+      total,
+      page,
+      totalPages: Math.max(1, Math.ceil(total / limit)),
+    });
   } catch (error) {
     logger.error("Get admin companies error:", error);
     return NextResponse.json({ error: "获取企业列表失败" }, { status: 500 });

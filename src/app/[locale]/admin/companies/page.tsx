@@ -40,9 +40,17 @@ export default function AdminCompaniesPage({ params }: { params: { locale: strin
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [statusFilter, setStatusFilter] = useState(searchParams?.get("status") ?? "");
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const currentPage = Math.max(1, parseInt(searchParams?.get("page") ?? "1", 10));
 
   useEffect(() => {
-    fetch(`/api/admin/companies?status=${statusFilter}`)
+    const qs = new URLSearchParams();
+    qs.set("page", String(currentPage));
+    qs.set("limit", "20");
+    if (statusFilter) qs.set("status", statusFilter);
+    setLoading(true);
+    fetch(`/api/admin/companies?${qs.toString()}`)
       .then(async (res) => {
         if (res.status === 401) {
           router.push(`/${params.locale}/auth/login/admin`);
@@ -55,7 +63,11 @@ export default function AdminCompaniesPage({ params }: { params: { locale: strin
         return res.json();
       })
       .then((data) => {
-        if (data) setCompanies(data.companies || []);
+        if (data) {
+          setCompanies(data.companies || []);
+          setTotal(data.total ?? 0);
+          setTotalPages(data.totalPages ?? 1);
+        }
       })
       .catch((err) => {
         setError(err.message);
@@ -63,7 +75,15 @@ export default function AdminCompaniesPage({ params }: { params: { locale: strin
       .finally(() => {
         setLoading(false);
       });
-  }, [statusFilter, params.locale, router]);
+  }, [statusFilter, currentPage, params.locale, router]);
+
+  const handleStatusChange = (value: string) => {
+    setStatusFilter(value);
+    // Reset to first page on filter change
+    const qs = new URLSearchParams();
+    if (value) qs.set("status", value);
+    router.replace(`/${params.locale}/admin/companies${qs.toString() ? `?${qs}` : ""}`);
+  };
 
   const columns: Column<Company>[] = [
     {
@@ -139,11 +159,11 @@ export default function AdminCompaniesPage({ params }: { params: { locale: strin
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">企业管理</h1>
-          <p className="text-sm text-gray-500">共 {companies.length} 家企业</p>
+          <p className="text-sm text-gray-500">共 {total} 家企业 · 第 {currentPage} / {totalPages} 页</p>
         </div>
         <select
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
+          onChange={(e) => handleStatusChange(e.target.value)}
           className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
         >
           {statusOptions.map((opt) => (
@@ -185,6 +205,15 @@ export default function AdminCompaniesPage({ params }: { params: { locale: strin
           </div>
         }
       />
+
+      {totalPages > 1 && (
+        <AdminPagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          baseUrl={`/${params.locale}/admin/companies`}
+          params={{ status: statusFilter || undefined }}
+        />
+      )}
     </div>
   );
 }
