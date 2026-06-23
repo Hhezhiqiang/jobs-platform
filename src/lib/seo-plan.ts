@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { aiChat, aiChatJSON, isAIConfigured } from "@/lib/ai-client";
-import type { ClassificationResult } from "./keyword-monitor";
+import type { ClassificationResult } from "./classification-types";
 import { logger } from '@/lib/logger';
 
 export interface SEOPlanPayload {
