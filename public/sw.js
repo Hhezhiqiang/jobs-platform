@@ -1,12 +1,12 @@
 // Service Worker for JobQuip PWA
-const CACHE_NAME = 'jobquip-v1';
+const CACHE_NAME = 'jobquip-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/zh',
   '/en',
   '/logo.png',
-  '/icon-192.png',
-  '/icon-512.png',
+  '/icon-192x192.png',
+  '/icon-512x512.png',
 ];
 
 // Install event - cache assets
@@ -62,8 +62,8 @@ self.addEventListener('push', (event) => {
   const data = event.data?.json() || {};
   const options = {
     body: data.body || '新消息',
-    icon: '/icon-192.png',
-    badge: '/icon-192.png',
+    icon: '/icon-192x192.png',
+    badge: '/icon-192x192.png',
     data: data.url || '/',
     actions: [
       { action: 'view', title: '查看' },

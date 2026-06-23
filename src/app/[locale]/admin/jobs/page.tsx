@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { MapPin, X, ExternalLink, Building, DollarSign, Calendar, Briefcase } from "lucide-react";
+import { MapPin, X, ExternalLink, Building, DollarSign, Calendar, Briefcase, Eye, Pencil, Trash2 } from "lucide-react";
 import { DataTable, AdminBadge, type Column } from "@/components/admin";
 import { formatSalary } from "@/lib/utils";
 import { logger } from '@/lib/logger';
@@ -112,6 +112,28 @@ export default function AdminJobsPage({ params }: { params: { locale: string } }
       }
     } catch (error) {
       logger.error('Failed to fetch job details:', error);
+    }
+  };
+
+  const handleDeleteJob = async (jobId: string, jobTitle: string) => {
+    if (!confirm(`确定删除职位「${jobTitle}」？此操作不可恢复。`)) return;
+    try {
+      const fd = new FormData();
+      fd.set("jobId", jobId);
+      const res = await fetch(`/api/admin/jobs/delete`, {
+        method: "POST",
+        body: fd,
+        redirect: "manual",
+      });
+      if (res.ok || res.status === 0 || res.type === "opaqueredirect") {
+        await fetchJobs(currentPage, query, statusFilter);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || "删除失败");
+      }
+    } catch (err) {
+      logger.error("Delete job error:", err);
+      alert("删除失败，请重试");
     }
   };
 
@@ -230,16 +252,21 @@ export default function AdminJobsPage({ params }: { params: { locale: string } }
             onClick={() => handleViewJob(row.id)}
             className="p-1.5 text-blue-600 hover:text-blue-700"
             title="查看职位详情"
-          />,
+          >
+            <Eye className="w-4 h-4" />
+          </button>,
           <Link
             key="preview"
             href={`/${params.locale}/jobs/${row.slug || row.id}`}
             target="_blank"
             className="p-1.5 text-gray-600 hover:text-gray-700"
             title="打开前台页面"
-          />,
+          >
+            <ExternalLink className="w-4 h-4" />
+          </Link>,
           row.title.startsWith('adzuna-') || row.title.includes('Adzuna') ? (
             <span key="edit-disabled" className="p-1.5 text-gray-300 cursor-not-allowed" title="API 同步职位不可编辑">
+              <Pencil className="w-4 h-4" />
             </span>
           ) : (
             <Link
@@ -247,13 +274,18 @@ export default function AdminJobsPage({ params }: { params: { locale: string } }
               href={`/${params.locale}/admin/jobs/edit/${row.id}`}
               className="p-1.5 text-indigo-600 hover:text-indigo-700"
               title="编辑"
-            />
+            >
+              <Pencil className="w-4 h-4" />
+            </Link>
           ),
           <button
             key="delete"
+            onClick={() => handleDeleteJob(row.id, row.title)}
             className="p-1.5 text-red-600 hover:text-red-700"
             title="删除职位"
-          />,
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>,
         ]}
         emptyState={
           <div className="flex flex-col items-center gap-3 py-8 text-gray-500">

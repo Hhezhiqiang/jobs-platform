@@ -157,9 +157,14 @@ export default function AdminCompaniesPage({ params }: { params: { locale: strin
         columns={columns}
         data={companies}
         actions={(row) => [
-          <button key="view" className="p-2 hover:bg-gray-100 rounded-lg" title="查看">
+          <Link
+            key="view"
+            href={`/${params.locale}/admin/companies/edit/${row.id}`}
+            className="p-2 hover:bg-gray-100 rounded-lg inline-flex items-center"
+            title="查看 / 编辑"
+          >
             <Eye className="w-5 h-5 text-gray-500" />
-          </button>,
+          </Link>,
           row.rejectionReason ? (
             <span key="reason" className="text-xs text-red-600 max-w-[200px] truncate" title={row.rejectionReason}>
               {row.rejectionReason}

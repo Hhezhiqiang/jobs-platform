@@ -17,6 +17,7 @@ const routeTitles: Record<string, string> = {
   "/admin/keywords": "关键词监控",
   "/admin/analytics": "数据分析",
   "/admin/analytics/geo": "地理位置",
+  "/admin/reports": "报表",
   "/admin/reports/cps": "CPS 报表",
 };
 
