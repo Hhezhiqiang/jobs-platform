@@ -1,16 +1,25 @@
 import { Metadata } from "next";
 import { getServerSession } from "next-auth/next";
+import { getTranslations } from "next-intl/server";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "我的成就 | JobQuip",
-  description: "查看你在JobQuip获得的成就徽章",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: { locale: string };
+}): Promise<Metadata> {
+  const t = await getTranslations({ locale: params.locale, namespace: "dashboard.achievementsPage.meta" });
+  return {
+    title: t("title"),
+    description: t("description"),
+  };
+}
 
 export default async function AchievementsPage({ params }: { params: { locale: string } }) {
   const { locale } = params;
+  const t = await getTranslations({ locale, namespace: "dashboard.achievementsPage" });
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     redirect(`/${locale}/auth/login`);
@@ -36,7 +45,7 @@ export default async function AchievementsPage({ params }: { params: { locale: s
   });
 
   const unlockedIds = new Set(profile.user_achievements.map(a => a.achievementId));
-  
+
   const achievements = allAchievements.map(achievement => ({
     ...achievement,
     unlocked: unlockedIds.has(achievement.id),
@@ -49,17 +58,17 @@ export default async function AchievementsPage({ params }: { params: { locale: s
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      {/* 头部 */}
+      {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">我的成就</h1>
-        <p className="text-gray-600">完成各种挑战，收集成就徽章</p>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">{t("title")}</h1>
+        <p className="text-gray-600">{t("subtitle")}</p>
       </div>
 
-      {/* 进度概览 */}
+      {/* Progress overview */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p className="text-sm text-gray-500">成就收集进度</p>
+            <p className="text-sm text-gray-500">{t("progressLabel")}</p>
             <p className="text-3xl font-bold text-gray-900">
               {unlockedCount} / {totalCount}
             </p>
@@ -76,7 +85,7 @@ export default async function AchievementsPage({ params }: { params: { locale: s
         </div>
       </div>
 
-      {/* 成就列表 */}
+      {/* Achievements list */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {achievements.map((achievement) => (
           <div
@@ -95,7 +104,7 @@ export default async function AchievementsPage({ params }: { params: { locale: s
               >
                 {achievement.icon}
               </div>
-              
+
               <div className="flex-1">
                 <h3 className="font-bold text-gray-900 mb-1">
                   {achievement.name}
@@ -103,11 +112,11 @@ export default async function AchievementsPage({ params }: { params: { locale: s
                 <p className="text-sm text-gray-500 mb-3">
                   {achievement.description}
                 </p>
-                
+
                 <div className="flex items-center gap-3 text-xs">
                   {achievement.unlocked ? (
                     <>
-                      <span className="text-green-600 font-medium">✓ 已解锁</span>
+                      <span className="text-green-600 font-medium">{t("unlocked")}</span>
                       {achievement.unlockedAt && (
                         <span className="text-gray-400">
                           {new Date(achievement.unlockedAt).toLocaleDateString()}
@@ -115,17 +124,17 @@ export default async function AchievementsPage({ params }: { params: { locale: s
                       )}
                     </>
                   ) : (
-                    <span className="text-gray-400">未解锁</span>
+                    <span className="text-gray-400">{t("locked")}</span>
                   )}
                 </div>
-                
+
                 {achievement.unlocked && (
                   <div className="mt-3 flex gap-2">
                     <span className="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded">
-                      +{achievement.expReward} EXP
+                      {t("expReward", { exp: achievement.expReward })}
                     </span>
                     <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded">
-                      +{achievement.coinReward} 金币
+                      {t("coinReward", { coin: achievement.coinReward })}
                     </span>
                   </div>
                 )}

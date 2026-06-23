@@ -4,12 +4,12 @@ import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Briefcase, MapPin, DollarSign, Tag, Send, CheckCircle, AlertCircle } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 export default function DashboardJobDemandPage() {
   const router = useRouter();
-  const pathname = usePathname() || "/";
-  const locale = pathname.startsWith("/en") ? "en" : "zh";
+  const locale = useLocale();
+  const t = useTranslations("dashboard.jobDemandPage");
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [published, setPublished] = useState(false);
@@ -40,10 +40,10 @@ export default function DashboardJobDemandPage() {
           router.push(`/${locale}/job-demands`);
         }, 2000);
       } else {
-        alert(result.error || "发布失败");
+        alert(result.error || t("errors.publishFailed"));
       }
     } catch {
-      alert("网络错误");
+      alert(t("errors.networkError"));
     } finally {
       setLoading(false);
     }
@@ -52,55 +52,55 @@ export default function DashboardJobDemandPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-3xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">发布求职需求</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-6">{t("title")}</h1>
 
         {published ? (
           <div className="bg-green-50 border border-green-200 rounded-2xl p-8 text-center">
             <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-green-800 mb-2">发布成功！</h2>
-            <p className="text-green-600 mb-4">您的求职需求已发布到广场，企业 HR 可以看到您的信息</p>
-            <p className="text-sm text-green-500">正在跳转到求职广场...</p>
+            <h2 className="text-xl font-bold text-green-800 mb-2">{t("successTitle")}</h2>
+            <p className="text-green-600 mb-4">{t("successMessage")}</p>
+            <p className="text-sm text-green-500">{t("redirecting")}</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* 智能提示 */}
+            {/* Smart tip */}
             <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
               <div className="flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <h3 className="font-semibold text-blue-900 mb-1">智能填充</h3>
+                  <h3 className="font-semibold text-blue-900 mb-1">{t("smartTip.title")}</h3>
                   <p className="text-sm text-blue-700">
-                    我们将自动从您的简历和个人资料中填充技能和介绍，您只需要填写期望薪资和地点。
+                    {t("smartTip.content")}
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* 求职意向 */}
+            {/* Job intent */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Briefcase className="w-4 h-4 inline mr-1" />
-                求职意向 *
+                {t("form.intent")}
               </label>
               <input
                 type="text"
-                placeholder="例如：高级前端开发求职"
+                placeholder={t("form.intentPlaceholder")}
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               />
             </div>
 
-            {/* 期望薪资 */}
+            {/* Salary */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   <DollarSign className="w-4 h-4 inline mr-1" />
-                  最低薪资 (K)
+                  {t("form.salaryMin")}
                 </label>
                 <input
                   type="number"
-                  placeholder="20"
+                  placeholder={t("form.salaryMinPlaceholder")}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   value={formData.salaryMin}
                   onChange={(e) => setFormData({ ...formData, salaryMin: e.target.value })}
@@ -108,67 +108,67 @@ export default function DashboardJobDemandPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  最高薪资 (K)
+                  {t("form.salaryMax")}
                 </label>
                 <input
                   type="number"
-                  placeholder="30"
+                  placeholder={t("form.salaryMaxPlaceholder")}
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   value={formData.salaryMax}
                   onChange={(e) => setFormData({ ...formData, salaryMax: e.target.value })}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">币种</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">{t("form.currency")}</label>
                 <select
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   value={formData.currency}
                   onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
                 >
-                  <option value="CNY">人民币 (¥)</option>
-                  <option value="USD">美元 ($)</option>
-                  <option value="EUR">欧元 (€)</option>
-                  <option value="GBP">英镑 (£)</option>
-                  <option value="JPY">日元 (¥)</option>
+                  <option value="CNY">{t("form.currencyOptions.CNY")}</option>
+                  <option value="USD">{t("form.currencyOptions.USD")}</option>
+                  <option value="EUR">{t("form.currencyOptions.EUR")}</option>
+                  <option value="GBP">{t("form.currencyOptions.GBP")}</option>
+                  <option value="JPY">{t("form.currencyOptions.JPY")}</option>
                 </select>
               </div>
             </div>
 
-            {/* 期望地点 */}
+            {/* Location */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <MapPin className="w-4 h-4 inline mr-1" />
-                期望工作地点
+                {t("form.location")}
               </label>
               <input
                 type="text"
-                placeholder="例如：北京、上海、Remote"
+                placeholder={t("form.locationPlaceholder")}
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 value={formData.location}
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
               />
             </div>
 
-            {/* 技能标签（自动填充） */}
+            {/* Skill tags */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Tag className="w-4 h-4 inline mr-1" />
-                技能标签
+                {t("form.skills")}
               </label>
-              <p className="text-xs text-gray-500 mb-2">从您的个人资料自动获取</p>
+              <p className="text-xs text-gray-500 mb-2">{t("form.skillsHint")}</p>
               <div className="flex flex-wrap gap-2 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                <span className="text-sm text-gray-500">系统将自动从您的资料中提取技能标签...</span>
+                <span className="text-sm text-gray-500">{t("form.skillsPlaceholder")}</span>
               </div>
             </div>
 
-            {/* 提交按钮 */}
+            {/* Submit */}
             <button
               type="submit"
               disabled={loading}
               className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold text-lg hover:from-blue-700 hover:to-indigo-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
               <Send className="w-5 h-5" />
-              {loading ? "发布中..." : "立即发布到求职广场"}
+              {loading ? t("form.submitting") : t("form.submit")}
             </button>
           </form>
         )}

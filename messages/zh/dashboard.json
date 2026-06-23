@@ -55,5 +55,531 @@
     "REJECTED": "已拒绝",
     "OFFER": "已录用",
     "WITHDRAWN": "已撤回"
+  },
+  "common": {
+    "loading": "加载中...",
+    "save": "保存",
+    "saving": "保存中...",
+    "edit": "编辑",
+    "delete": "删除",
+    "cancel": "取消",
+    "confirm": "确定",
+    "submit": "提交",
+    "back": "返回",
+    "backHome": "返回首页",
+    "welcomeUser": "欢迎，{name}",
+    "logout": "退出登录"
+  },
+  "leaderboardPage": {
+    "meta": {
+      "title": "排行榜 | 求职平台",
+      "description": "查看全站求职者排名，与大家一起竞技成长"
+    }
+  },
+  "achievementsPage": {
+    "meta": {
+      "title": "我的成就 | JobQuip",
+      "description": "查看你在JobQuip获得的成就徽章"
+    },
+    "title": "我的成就",
+    "subtitle": "完成各种挑战，收集成就徽章",
+    "progressLabel": "成就收集进度",
+    "unlocked": "✓ 已解锁",
+    "locked": "未解锁",
+    "expReward": "+{exp} EXP",
+    "coinReward": "+{coin} 金币"
+  },
+  "questsPage": {
+    "meta": {
+      "title": "我的任务 | JobQuip",
+      "description": "完成每日任务和新手引导"
+    },
+    "title": "我的任务",
+    "subtitle": "完成任务获取经验值和金币奖励",
+    "guide": {
+      "title": "🎯 新手引导",
+      "subtitle": "完成引导任务，快速上手平台"
+    },
+    "daily": {
+      "title": "📅 每日任务",
+      "subtitle": "每天完成任务获取额外奖励"
+    },
+    "progressLabel": "进度",
+    "status": {
+      "completed": "已完成",
+      "inProgress": "进行中",
+      "notStarted": "未开始"
+    },
+    "dailyDoneTitle": "今日任务已全部完成！🎉",
+    "dailyDoneSubtitle": "明天再来获取新的每日任务",
+    "expReward": "+{exp} EXP",
+    "coinReward": "+{coin} 金币"
+  },
+  "recommendedPage": {
+    "title": "推荐职位",
+    "personalized": "个性化推荐",
+    "subtitlePersonalized": "基于你的个人资料、偏好和活动推荐",
+    "subtitleDefault": "热门职位推荐",
+    "empty": {
+      "title": "暂无推荐",
+      "subtitle": "完善个人资料和偏好以获得个性化推荐",
+      "cta": "设置求职偏好"
+    },
+    "fullTime": "全职"
+  },
+  "favoritesPage": {
+    "title": "我的收藏",
+    "countLabel": "共 {total} 个收藏职位",
+    "empty": {
+      "title": "暂无收藏职位",
+      "subtitle": "浏览职位并点击心形图标，将感兴趣的职位添加到收藏夹",
+      "cta": "浏览职位"
+    },
+    "pagination": {
+      "prev": "上一页",
+      "next": "下一页"
+    },
+    "remote": "🏠 远程办公",
+    "favoritedAt": "❤️ 收藏于 {date}",
+    "applyJob": "申请职位",
+    "employmentType": {
+      "FULL_TIME": "全职",
+      "PART_TIME": "兼职",
+      "CONTRACT": "合同",
+      "INTERNSHIP": "实习",
+      "FREELANCE": "自由职业"
+    }
+  },
+  "jobProgressPage": {
+    "title": "投递进度看板",
+    "subtitle": "一站式追踪你的所有职位申请",
+    "loading": "加载中...",
+    "empty": {
+      "title": "还没有投递记录",
+      "subtitle": "开始投递职位来追踪进度吧",
+      "cta": "浏览职位"
+    },
+    "appliedOn": "投递于",
+    "status": {
+      "PENDING": "已投递",
+      "VIEWED": "已查看",
+      "INTERVIEW": "面试中",
+      "OFFER": "Offer",
+      "REJECTED": "已拒绝",
+      "WITHDRAWN": "已撤回"
+    }
+  },
+  "jobDemandPage": {
+    "title": "发布求职需求",
+    "successTitle": "发布成功！",
+    "successMessage": "您的求职需求已发布到广场，企业 HR 可以看到您的信息",
+    "redirecting": "正在跳转到求职广场...",
+    "smartTip": {
+      "title": "智能填充",
+      "content": "我们将自动从您的简历和个人资料中填充技能和介绍，您只需要填写期望薪资和地点。"
+    },
+    "form": {
+      "intent": "求职意向 *",
+      "intentPlaceholder": "例如：高级前端开发求职",
+      "salaryMin": "最低薪资 (K)",
+      "salaryMinPlaceholder": "20",
+      "salaryMax": "最高薪资 (K)",
+      "salaryMaxPlaceholder": "30",
+      "currency": "币种",
+      "currencyOptions": {
+        "CNY": "人民币 (¥)",
+        "USD": "美元 ($)",
+        "EUR": "欧元 (€)",
+        "GBP": "英镑 (£)",
+        "JPY": "日元 (¥)"
+      },
+      "location": "期望工作地点",
+      "locationPlaceholder": "例如：北京、上海、Remote",
+      "skills": "技能标签",
+      "skillsHint": "从您的个人资料自动获取",
+      "skillsPlaceholder": "系统将自动从您的资料中提取技能标签...",
+      "submit": "立即发布到求职广场",
+      "submitting": "发布中..."
+    },
+    "errors": {
+      "publishFailed": "发布失败",
+      "networkError": "网络错误"
+    }
+  },
+  "jobDemandAnalyticsPage": {
+    "title": "求职需求数据分析",
+    "loading": "加载中...",
+    "stats": {
+      "totalViews": "总浏览量",
+      "totalContacts": "被联系次数",
+      "activeDemands": "活跃需求"
+    },
+    "listTitle": "我的求职需求",
+    "empty": {
+      "subtitle": "暂无求职需求",
+      "cta": "发布求职需求"
+    },
+    "demandStatus": {
+      "OPEN": "求职中",
+      "CLOSED": "已关闭",
+      "PAUSED": "暂停"
+    },
+    "featuredBadge": "置顶",
+    "viewsLabel": "{count} 浏览",
+    "contactsLabel": "{count} 联系",
+    "actions": {
+      "pause": "暂停",
+      "resume": "恢复",
+      "delete": "删除",
+      "featureSevenDays": "置顶 7 天"
+    },
+    "alerts": {
+      "fetchFailed": "获取数据失败",
+      "operationFailed": "操作失败",
+      "deleteConfirm": "确定要删除这个求职需求吗？",
+      "deleteFailed": "删除失败",
+      "featureDev": "置顶功能开发中！预计 {days} 天，价格：¥{price}"
+    }
+  },
+  "salaryPage": {
+    "title": "薪资对比",
+    "subtitle": "对比不同城市和岗位的薪资水平",
+    "role": "岗位",
+    "city": "城市",
+    "kPerMonth": "(K/月)",
+    "junior": "初级",
+    "mid": "中级",
+    "senior": "高级",
+    "allCitiesComparison": "各城市对比",
+    "roles": {
+      "frontend": "前端工程师",
+      "backend": "后端工程师",
+      "fullstack": "全栈工程师",
+      "pm": "产品经理",
+      "data": "数据工程师"
+    },
+    "cities": {
+      "beijing": "北京",
+      "shanghai": "上海",
+      "shenzhen": "深圳",
+      "hangzhou": "杭州",
+      "chengdu": "成都",
+      "remote": "远程"
+    }
+  },
+  "preferencesPage": {
+    "title": "求职偏好",
+    "subtitle": "设置你的偏好以获得个性化推荐",
+    "savedSuccess": "保存成功！",
+    "savedFailed": "保存失败",
+    "loading": "加载中...",
+    "sections": {
+      "culture": "期望公司文化",
+      "salary": "期望薪资 (K/月)",
+      "employmentType": "工作类型",
+      "location": "期望工作地点",
+      "remote": "远程偏好",
+      "experience": "经验级别"
+    },
+    "salary": {
+      "min": "最低",
+      "max": "最高"
+    },
+    "remote": {
+      "FULL_REMOTE": "完全远程",
+      "HYBRID": "混合办公",
+      "ONSITE": "坐班"
+    }
+  },
+  "resumesPage": {
+    "title": "我的简历",
+    "subtitle": "上传和管理你的简历",
+    "loading": "加载中...",
+    "uploading": "上传中...",
+    "upload": "上传简历",
+    "uploadShort": "上传",
+    "uploadFailed": "上传失败",
+    "deleteFailed": "删除失败",
+    "saveFailed": "保存失败",
+    "setDefaultFailed": "设置失败",
+    "deleteConfirm": "确定删除这份简历吗？",
+    "empty": {
+      "title": "还没有简历",
+      "subtitle": "上传简历开始投递职位吧"
+    },
+    "defaultBadge": "默认",
+    "actions": {
+      "setDefault": "设为默认",
+      "rename": "重命名",
+      "delete": "删除",
+      "save": "保存"
+    }
+  },
+  "profilePage": {
+    "title": "个人资料",
+    "subtitle": "完善资料以获得更好的职位推荐",
+    "completenessLabel": "资料完整度",
+    "loading": "加载中...",
+    "sections": {
+      "basic": "基本信息",
+      "skills": "技能",
+      "quickActions": "快捷操作"
+    },
+    "fields": {
+      "gender": "性别",
+      "genderPlaceholder": "请选择",
+      "male": "男",
+      "female": "女",
+      "other": "其他",
+      "location": "所在城市",
+      "locationPlaceholder": "例如：北京",
+      "birthday": "生日",
+      "bio": "个人简介",
+      "bioPlaceholder": "介绍一下自己..."
+    },
+    "skills": {
+      "placeholder": "添加技能...",
+      "add": "添加",
+      "empty": "还没有添加技能"
+    },
+    "actions": {
+      "edit": "编辑",
+      "save": "保存",
+      "saving": "保存中..."
+    },
+    "links": {
+      "resumes": "简历管理",
+      "preferences": "求职偏好",
+      "recommended": "推荐职位",
+      "progress": "投递进度"
+    }
+  },
+  "notificationsPage": {
+    "back": "返回个人中心",
+    "title": "通知中心",
+    "unreadCount": "您有 {count} 条未读通知",
+    "filter": {
+      "all": "全部",
+      "unread": "未读"
+    },
+    "markAllRead": "全部已读",
+    "empty": {
+      "unreadTitle": "没有未读通知",
+      "unreadSubtitle": "所有通知已读",
+      "allTitle": "暂无通知",
+      "allSubtitle": "有新的消息会在这里显示",
+      "viewAll": "查看全部通知"
+    },
+    "typeLabels": {
+      "APPLICATION_UPDATE": "申请更新",
+      "INTERVIEW_INVITE": "面试邀请",
+      "OFFER_RECEIVED": "录用通知",
+      "JOB_ALERT": "职位提醒",
+      "SYSTEM": "系统通知",
+      "DEFAULT": "通知"
+    },
+    "viewApplication": "查看申请详情 →",
+    "viewJob": "查看职位详情 →",
+    "actions": {
+      "markRead": "标记已读",
+      "delete": "删除"
+    },
+    "pagination": {
+      "prev": "上一页",
+      "next": "下一页",
+      "summary": "第 {page} 页，共 {total} 页"
+    },
+    "time": {
+      "justNow": "刚刚",
+      "minutesAgo": "{n}分钟前",
+      "hoursAgo": "{n}小时前",
+      "daysAgo": "{n}天前"
+    }
+  },
+  "applicationsPage": {
+    "backHome": "← 返回首页",
+    "title": "我的申请",
+    "welcomeUser": "欢迎，{name}",
+    "logout": "退出登录",
+    "nav": {
+      "overview": "📊 概览",
+      "profile": "📄 我的简历",
+      "applications": "📋 我的申请",
+      "settings": "⚙️ 账号设置"
+    },
+    "filter": {
+      "label": "筛选状态：",
+      "all": "全部",
+      "PENDING": "待处理",
+      "VIEWED": "已查看",
+      "INTERVIEW": "面试邀请",
+      "REJECTED": "已拒绝",
+      "OFFER": "已录用",
+      "WITHDRAWN": "已撤回"
+    },
+    "browseJobs": "浏览职位",
+    "empty": {
+      "title": "暂无申请记录",
+      "cta": "去浏览职位 →"
+    },
+    "timeline": {
+      "appliedAt": "申请时间",
+      "viewedAt": "HR查看",
+      "respondedAt": "HR回复",
+      "withdrewAt": "撤回时间",
+      "hrResponse": "HR回复",
+      "coverLetter": "我的求职信"
+    },
+    "actions": {
+      "withdraw": "撤回申请",
+      "withdrawing": "撤回中...",
+      "deleteRecord": "删除记录",
+      "viewJob": "查看职位详情 →"
+    },
+    "status": {
+      "PENDING": "待处理",
+      "VIEWED": "已查看",
+      "INTERVIEW": "面试邀请",
+      "REJECTED": "已拒绝",
+      "OFFER": "已录用",
+      "WITHDRAWN": "已撤回"
+    },
+    "messages": {
+      "fetchFailed": "获取申请列表失败",
+      "withdrawConfirm": "确定要撤回该申请吗？",
+      "withdrawSuccess": "申请已撤回",
+      "withdrawFailed": "撤回失败",
+      "withdrawRetry": "撤回失败，请稍后重试",
+      "deleteConfirm": "确定要删除该申请记录吗？此操作不可恢复。",
+      "deleteSuccess": "申请记录已删除",
+      "deleteFailed": "删除失败",
+      "deleteRetry": "删除失败，请稍后重试"
+    }
+  },
+  "settingsPage": {
+    "backHome": "← 返回首页",
+    "title": "账号设置",
+    "welcomeUser": "欢迎，{name}",
+    "logout": "退出登录",
+    "nav": {
+      "overview": "📊 概览",
+      "profile": "📄 我的简历",
+      "applications": "📋 我的申请",
+      "settings": "⚙️ 账号设置"
+    },
+    "tabs": {
+      "password": "修改密码",
+      "notifications": "通知设置",
+      "danger": "危险操作"
+    },
+    "password": {
+      "current": "当前密码",
+      "new": "新密码",
+      "newHint": "密码至少8位，需包含字母和数字",
+      "confirm": "确认新密码",
+      "submit": "修改密码",
+      "submitting": "修改中..."
+    },
+    "passwordMessages": {
+      "mismatch": "两次输入的新密码不一致",
+      "tooShort": "新密码至少8位",
+      "needLetterNumber": "新密码需包含字母和数字",
+      "changeSuccess": "密码修改成功",
+      "changeFailed": "修改密码失败",
+      "changeRetry": "修改密码失败，请稍后重试"
+    },
+    "notifications": {
+      "emailTitle": "邮件通知",
+      "emailDesc": "接收重要的账号和申请相关邮件",
+      "jobAlertsTitle": "职位推荐",
+      "jobAlertsDesc": "根据您的偏好推荐相关职位",
+      "appUpdatesTitle": "申请状态更新",
+      "appUpdatesDesc": "当您的申请状态发生变化时通知您",
+      "marketingTitle": "营销邮件",
+      "marketingDesc": "接收产品更新、促销活动等信息",
+      "save": "保存设置",
+      "saveSuccess": "通知设置已保存"
+    },
+    "danger": {
+      "title": "删除账号",
+      "intro": "删除账号将永久清除您的所有数据，包括：",
+      "items": {
+        "profile": "个人资料和简历",
+        "applications": "所有职位申请记录",
+        "favorites": "收藏和浏览历史",
+        "account": "账号相关信息"
+      },
+      "warning": "此操作不可恢复，请谨慎操作。",
+      "submit": "删除我的账号",
+      "submitting": "处理中..."
+    },
+    "deleteMessages": {
+      "warning": "警告：删除账号将永久清除您的所有数据，包括申请记录、简历等。\n\n此操作不可恢复，确定要继续吗？",
+      "prompt": "请输入 \"DELETE\" 确认删除账号：",
+      "cancelled": "删除操作已取消",
+      "failed": "删除账号失败"
+    }
+  },
+  "jobStatusPage": {
+    "title": "求职状态设置",
+    "subtitle": "管理你的求职状态，让机会找到你",
+    "statsLine": "被浏览 {views} 次 · 收到 {recommends} 个推荐",
+    "sectionTitles": {
+      "currentStatus": "当前求职状态",
+      "expectTags": "期望团队/方向（最多10个）",
+      "expectSalary": "期望薪资范围（可选）",
+      "bio": "求职宣言（可选）",
+      "privacy": "可见范围"
+    },
+    "tags": {
+      "empty": "选择标签让推荐更精准...",
+      "customPlaceholder": "添加自定义标签"
+    },
+    "salary": {
+      "placeholder": "例如：30k-50k / 面议"
+    },
+    "bio": {
+      "placeholder": "写下你的求职期望、个人亮点或职业目标，让别人更好地了解你..."
+    },
+    "save": "保存设置",
+    "saving": "保存中...",
+    "savedSuccess": "求职状态已保存",
+    "errors": {
+      "loadFailed": "加载求职状态失败，请刷新重试",
+      "saveFailed": "保存失败，请重试",
+      "saveStatusFailed": "保存求职状态失败"
+    },
+    "statusConfig": {
+      "OPEN": {
+        "label": "积极求职",
+        "description": "正在积极寻找新机会，欢迎推荐"
+      },
+      "PASSIVE": {
+        "label": "看看机会",
+        "description": "有合适的可以考虑，保持关注"
+      },
+      "CLOSED": {
+        "label": "暂不看机会",
+        "description": "当前不看新机会"
+      }
+    },
+    "privacyConfig": {
+      "PUBLIC": {
+        "label": "公开",
+        "description": "所有人都可以看到我的求职状态"
+      },
+      "FOLLOWERS": {
+        "label": "仅关注者",
+        "description": "只有关注我的人可以看到"
+      },
+      "CIRCLES": {
+        "label": "仅圈内成员",
+        "description": "只有同圈子的人可以看到"
+      },
+      "PRIVATE": {
+        "label": "仅自己",
+        "description": "仅自己可见（开启求职状态后自动设为此项）"
+      }
+    }
   }
 }

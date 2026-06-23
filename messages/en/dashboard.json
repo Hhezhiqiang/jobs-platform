@@ -55,5 +55,531 @@
     "REJECTED": "Rejected",
     "OFFER": "Offer",
     "WITHDRAWN": "Withdrawn"
+  },
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "saving": "Saving...",
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "submit": "Submit",
+    "back": "Back",
+    "backHome": "Back to Home",
+    "welcomeUser": "Welcome, {name}",
+    "logout": "Log out"
+  },
+  "leaderboardPage": {
+    "meta": {
+      "title": "Leaderboard | JobQuip",
+      "description": "See site-wide job seeker rankings and grow together"
+    }
+  },
+  "achievementsPage": {
+    "meta": {
+      "title": "My Achievements | JobQuip",
+      "description": "View the achievement badges you have earned on JobQuip"
+    },
+    "title": "My Achievements",
+    "subtitle": "Complete various challenges and collect achievement badges",
+    "progressLabel": "Achievement Progress",
+    "unlocked": "✓ Unlocked",
+    "locked": "Locked",
+    "expReward": "+{exp} EXP",
+    "coinReward": "+{coin} Coins"
+  },
+  "questsPage": {
+    "meta": {
+      "title": "My Quests | JobQuip",
+      "description": "Complete daily quests and the onboarding guide"
+    },
+    "title": "My Quests",
+    "subtitle": "Complete quests to earn EXP and coin rewards",
+    "guide": {
+      "title": "🎯 Onboarding",
+      "subtitle": "Complete the onboarding tasks to quickly get up to speed"
+    },
+    "daily": {
+      "title": "📅 Daily Quests",
+      "subtitle": "Complete daily quests to earn extra rewards"
+    },
+    "progressLabel": "Progress",
+    "status": {
+      "completed": "Completed",
+      "inProgress": "In Progress",
+      "notStarted": "Not Started"
+    },
+    "dailyDoneTitle": "All daily quests completed! 🎉",
+    "dailyDoneSubtitle": "Come back tomorrow for new daily quests",
+    "expReward": "+{exp} EXP",
+    "coinReward": "+{coin} Coins"
+  },
+  "recommendedPage": {
+    "title": "Recommended Jobs",
+    "personalized": "Personalized",
+    "subtitlePersonalized": "Based on your profile, preferences, and activity",
+    "subtitleDefault": "Popular jobs for you",
+    "empty": {
+      "title": "No recommendations yet",
+      "subtitle": "Complete your profile and preferences to get personalized recommendations",
+      "cta": "Set Preferences"
+    },
+    "fullTime": "Full-time"
+  },
+  "favoritesPage": {
+    "title": "My Favorites",
+    "countLabel": "{total} favorite jobs",
+    "empty": {
+      "title": "No favorites yet",
+      "subtitle": "Browse jobs and tap the heart icon to add jobs you like to your favorites",
+      "cta": "Browse Jobs"
+    },
+    "pagination": {
+      "prev": "Previous",
+      "next": "Next"
+    },
+    "remote": "🏠 Remote",
+    "favoritedAt": "❤️ Favorited on {date}",
+    "applyJob": "Apply",
+    "employmentType": {
+      "FULL_TIME": "Full-time",
+      "PART_TIME": "Part-time",
+      "CONTRACT": "Contract",
+      "INTERNSHIP": "Internship",
+      "FREELANCE": "Freelance"
+    }
+  },
+  "jobProgressPage": {
+    "title": "Application Progress",
+    "subtitle": "Track all your job applications in one place",
+    "loading": "Loading...",
+    "empty": {
+      "title": "No applications yet",
+      "subtitle": "Start applying for jobs to track your progress",
+      "cta": "Browse Jobs"
+    },
+    "appliedOn": "Applied",
+    "status": {
+      "PENDING": "Applied",
+      "VIEWED": "Viewed",
+      "INTERVIEW": "Interviewing",
+      "OFFER": "Offer",
+      "REJECTED": "Rejected",
+      "WITHDRAWN": "Withdrawn"
+    }
+  },
+  "jobDemandPage": {
+    "title": "Post Job Demand",
+    "successTitle": "Posted Successfully!",
+    "successMessage": "Your job demand has been posted to the board, and HRs can now see your info",
+    "redirecting": "Redirecting to the job demand board...",
+    "smartTip": {
+      "title": "Smart Fill",
+      "content": "We'll automatically populate skills and intro from your resume and profile — you just need to fill in expected salary and location."
+    },
+    "form": {
+      "intent": "Job Intent *",
+      "intentPlaceholder": "e.g. Senior Frontend Developer Search",
+      "salaryMin": "Min Salary (K)",
+      "salaryMinPlaceholder": "20",
+      "salaryMax": "Max Salary (K)",
+      "salaryMaxPlaceholder": "30",
+      "currency": "Currency",
+      "currencyOptions": {
+        "CNY": "CNY (¥)",
+        "USD": "USD ($)",
+        "EUR": "EUR (€)",
+        "GBP": "GBP (£)",
+        "JPY": "JPY (¥)"
+      },
+      "location": "Preferred Location",
+      "locationPlaceholder": "e.g. Beijing, Shanghai, Remote",
+      "skills": "Skill Tags",
+      "skillsHint": "Auto-filled from your profile",
+      "skillsPlaceholder": "The system will automatically extract skill tags from your profile...",
+      "submit": "Post to Job Board",
+      "submitting": "Posting..."
+    },
+    "errors": {
+      "publishFailed": "Failed to publish",
+      "networkError": "Network error"
+    }
+  },
+  "jobDemandAnalyticsPage": {
+    "title": "Job Demand Analytics",
+    "loading": "Loading...",
+    "stats": {
+      "totalViews": "Total Views",
+      "totalContacts": "Contacts Received",
+      "activeDemands": "Active Demands"
+    },
+    "listTitle": "My Job Demands",
+    "empty": {
+      "subtitle": "No job demands yet",
+      "cta": "Post Job Demand"
+    },
+    "demandStatus": {
+      "OPEN": "Open",
+      "CLOSED": "Closed",
+      "PAUSED": "Paused"
+    },
+    "featuredBadge": "Featured",
+    "viewsLabel": "{count} views",
+    "contactsLabel": "{count} contacts",
+    "actions": {
+      "pause": "Pause",
+      "resume": "Resume",
+      "delete": "Delete",
+      "featureSevenDays": "Feature for 7 days"
+    },
+    "alerts": {
+      "fetchFailed": "Failed to fetch data",
+      "operationFailed": "Operation failed",
+      "deleteConfirm": "Are you sure you want to delete this job demand?",
+      "deleteFailed": "Delete failed",
+      "featureDev": "Featured listing is under development! Estimated {days} days, price: ¥{price}"
+    }
+  },
+  "salaryPage": {
+    "title": "Salary Comparison",
+    "subtitle": "Compare salaries across cities and roles",
+    "role": "Role",
+    "city": "City",
+    "kPerMonth": "(K/month)",
+    "junior": "Junior",
+    "mid": "Mid",
+    "senior": "Senior",
+    "allCitiesComparison": "All Cities Comparison",
+    "roles": {
+      "frontend": "Frontend Engineer",
+      "backend": "Backend Engineer",
+      "fullstack": "Full-stack Engineer",
+      "pm": "Product Manager",
+      "data": "Data Engineer"
+    },
+    "cities": {
+      "beijing": "Beijing",
+      "shanghai": "Shanghai",
+      "shenzhen": "Shenzhen",
+      "hangzhou": "Hangzhou",
+      "chengdu": "Chengdu",
+      "remote": "Remote"
+    }
+  },
+  "preferencesPage": {
+    "title": "Job Preferences",
+    "subtitle": "Set your preferences to get personalized recommendations",
+    "savedSuccess": "Saved successfully!",
+    "savedFailed": "Save failed",
+    "loading": "Loading...",
+    "sections": {
+      "culture": "Preferred Company Culture",
+      "salary": "Expected Salary (K/month)",
+      "employmentType": "Employment Type",
+      "location": "Preferred Location",
+      "remote": "Remote Preference",
+      "experience": "Experience Level"
+    },
+    "salary": {
+      "min": "Min",
+      "max": "Max"
+    },
+    "remote": {
+      "FULL_REMOTE": "Full Remote",
+      "HYBRID": "Hybrid",
+      "ONSITE": "On-site"
+    }
+  },
+  "resumesPage": {
+    "title": "My Resumes",
+    "subtitle": "Upload and manage your resumes",
+    "loading": "Loading...",
+    "uploading": "Uploading...",
+    "upload": "Upload Resume",
+    "uploadShort": "Upload",
+    "uploadFailed": "Upload failed",
+    "deleteFailed": "Delete failed",
+    "saveFailed": "Save failed",
+    "setDefaultFailed": "Set default failed",
+    "deleteConfirm": "Delete this resume?",
+    "empty": {
+      "title": "No resumes yet",
+      "subtitle": "Upload your resume to start applying for jobs"
+    },
+    "defaultBadge": "Default",
+    "actions": {
+      "setDefault": "Set as default",
+      "rename": "Rename",
+      "delete": "Delete",
+      "save": "Save"
+    }
+  },
+  "profilePage": {
+    "title": "My Profile",
+    "subtitle": "Complete your profile to get better job recommendations",
+    "completenessLabel": "Profile Completeness",
+    "loading": "Loading...",
+    "sections": {
+      "basic": "Basic Info",
+      "skills": "Skills",
+      "quickActions": "Quick Actions"
+    },
+    "fields": {
+      "gender": "Gender",
+      "genderPlaceholder": "Select",
+      "male": "Male",
+      "female": "Female",
+      "other": "Other",
+      "location": "Location",
+      "locationPlaceholder": "e.g. Beijing",
+      "birthday": "Birthday",
+      "bio": "Bio",
+      "bioPlaceholder": "Introduce yourself..."
+    },
+    "skills": {
+      "placeholder": "Add a skill...",
+      "add": "Add",
+      "empty": "No skills added yet"
+    },
+    "actions": {
+      "edit": "Edit",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "links": {
+      "resumes": "Resumes",
+      "preferences": "Preferences",
+      "recommended": "Recommended",
+      "progress": "Progress"
+    }
+  },
+  "notificationsPage": {
+    "back": "Back to Dashboard",
+    "title": "Notification Center",
+    "unreadCount": "You have {count} unread notifications",
+    "filter": {
+      "all": "All",
+      "unread": "Unread"
+    },
+    "markAllRead": "Mark All Read",
+    "empty": {
+      "unreadTitle": "No unread notifications",
+      "unreadSubtitle": "All notifications have been read",
+      "allTitle": "No notifications yet",
+      "allSubtitle": "New messages will appear here",
+      "viewAll": "View all notifications"
+    },
+    "typeLabels": {
+      "APPLICATION_UPDATE": "Application Update",
+      "INTERVIEW_INVITE": "Interview Invite",
+      "OFFER_RECEIVED": "Offer Received",
+      "JOB_ALERT": "Job Alert",
+      "SYSTEM": "System",
+      "DEFAULT": "Notification"
+    },
+    "viewApplication": "View application details →",
+    "viewJob": "View job details →",
+    "actions": {
+      "markRead": "Mark as read",
+      "delete": "Delete"
+    },
+    "pagination": {
+      "prev": "Previous",
+      "next": "Next",
+      "summary": "Page {page} of {total}"
+    },
+    "time": {
+      "justNow": "just now",
+      "minutesAgo": "{n} min ago",
+      "hoursAgo": "{n} hr ago",
+      "daysAgo": "{n} day ago"
+    }
+  },
+  "applicationsPage": {
+    "backHome": "← Back to Home",
+    "title": "My Applications",
+    "welcomeUser": "Welcome, {name}",
+    "logout": "Log out",
+    "nav": {
+      "overview": "📊 Overview",
+      "profile": "📄 My Profile",
+      "applications": "📋 My Applications",
+      "settings": "⚙️ Account Settings"
+    },
+    "filter": {
+      "label": "Filter Status:",
+      "all": "All",
+      "PENDING": "Pending",
+      "VIEWED": "Viewed",
+      "INTERVIEW": "Interview",
+      "REJECTED": "Rejected",
+      "OFFER": "Offer",
+      "WITHDRAWN": "Withdrawn"
+    },
+    "browseJobs": "Browse Jobs",
+    "empty": {
+      "title": "No applications yet",
+      "cta": "Browse jobs →"
+    },
+    "timeline": {
+      "appliedAt": "Applied At",
+      "viewedAt": "HR Viewed",
+      "respondedAt": "HR Responded",
+      "withdrewAt": "Withdrawn At",
+      "hrResponse": "HR Response",
+      "coverLetter": "My Cover Letter"
+    },
+    "actions": {
+      "withdraw": "Withdraw Application",
+      "withdrawing": "Withdrawing...",
+      "deleteRecord": "Delete Record",
+      "viewJob": "View job details →"
+    },
+    "status": {
+      "PENDING": "Pending",
+      "VIEWED": "Viewed",
+      "INTERVIEW": "Interview",
+      "REJECTED": "Rejected",
+      "OFFER": "Offer",
+      "WITHDRAWN": "Withdrawn"
+    },
+    "messages": {
+      "fetchFailed": "Failed to fetch applications",
+      "withdrawConfirm": "Are you sure you want to withdraw this application?",
+      "withdrawSuccess": "Application withdrawn",
+      "withdrawFailed": "Withdraw failed",
+      "withdrawRetry": "Withdraw failed, please try again later",
+      "deleteConfirm": "Are you sure you want to delete this application record? This cannot be undone.",
+      "deleteSuccess": "Application record deleted",
+      "deleteFailed": "Delete failed",
+      "deleteRetry": "Delete failed, please try again later"
+    }
+  },
+  "settingsPage": {
+    "backHome": "← Back to Home",
+    "title": "Account Settings",
+    "welcomeUser": "Welcome, {name}",
+    "logout": "Log out",
+    "nav": {
+      "overview": "📊 Overview",
+      "profile": "📄 My Profile",
+      "applications": "📋 My Applications",
+      "settings": "⚙️ Account Settings"
+    },
+    "tabs": {
+      "password": "Change Password",
+      "notifications": "Notifications",
+      "danger": "Danger Zone"
+    },
+    "password": {
+      "current": "Current Password",
+      "new": "New Password",
+      "newHint": "Password must be at least 8 characters and contain letters and numbers",
+      "confirm": "Confirm New Password",
+      "submit": "Change Password",
+      "submitting": "Changing..."
+    },
+    "passwordMessages": {
+      "mismatch": "The new passwords do not match",
+      "tooShort": "New password must be at least 8 characters",
+      "needLetterNumber": "New password must include letters and numbers",
+      "changeSuccess": "Password changed successfully",
+      "changeFailed": "Failed to change password",
+      "changeRetry": "Failed to change password, please try again later"
+    },
+    "notifications": {
+      "emailTitle": "Email Notifications",
+      "emailDesc": "Receive important account and application emails",
+      "jobAlertsTitle": "Job Recommendations",
+      "jobAlertsDesc": "Recommend relevant jobs based on your preferences",
+      "appUpdatesTitle": "Application Status Updates",
+      "appUpdatesDesc": "Notify you when your application status changes",
+      "marketingTitle": "Marketing Emails",
+      "marketingDesc": "Receive product updates, promotions, and more",
+      "save": "Save Settings",
+      "saveSuccess": "Notification settings saved"
+    },
+    "danger": {
+      "title": "Delete Account",
+      "intro": "Deleting your account will permanently erase all your data, including:",
+      "items": {
+        "profile": "Profile and resumes",
+        "applications": "All job application records",
+        "favorites": "Favorites and browsing history",
+        "account": "Account-related information"
+      },
+      "warning": "This operation cannot be undone, please proceed with caution.",
+      "submit": "Delete My Account",
+      "submitting": "Processing..."
+    },
+    "deleteMessages": {
+      "warning": "Warning: Deleting your account will permanently erase all your data, including application records, resumes, etc.\n\nThis cannot be undone. Are you sure you want to continue?",
+      "prompt": "Type \"DELETE\" to confirm account deletion:",
+      "cancelled": "Delete operation cancelled",
+      "failed": "Failed to delete account"
+    }
+  },
+  "jobStatusPage": {
+    "title": "Job Status Settings",
+    "subtitle": "Manage your job-seeking status so opportunities find you",
+    "statsLine": "{views} views · {recommends} recommendations received",
+    "sectionTitles": {
+      "currentStatus": "Current Job Status",
+      "expectTags": "Desired Teams/Directions (up to 10)",
+      "expectSalary": "Expected Salary Range (optional)",
+      "bio": "Job Seeking Statement (optional)",
+      "privacy": "Visibility"
+    },
+    "tags": {
+      "empty": "Select tags to make recommendations more accurate...",
+      "customPlaceholder": "Add a custom tag"
+    },
+    "salary": {
+      "placeholder": "e.g. 30k-50k / Negotiable"
+    },
+    "bio": {
+      "placeholder": "Write down your expectations, highlights, or career goals so others can get to know you..."
+    },
+    "save": "Save Settings",
+    "saving": "Saving...",
+    "savedSuccess": "Job status saved",
+    "errors": {
+      "loadFailed": "Failed to load job status, please refresh",
+      "saveFailed": "Save failed, please try again",
+      "saveStatusFailed": "Failed to save job status"
+    },
+    "statusConfig": {
+      "OPEN": {
+        "label": "Actively Looking",
+        "description": "Actively seeking new opportunities, recommendations welcome"
+      },
+      "PASSIVE": {
+        "label": "Open to Offers",
+        "description": "Considering the right opportunity, staying alert"
+      },
+      "CLOSED": {
+        "label": "Not Looking",
+        "description": "Not looking at new opportunities right now"
+      }
+    },
+    "privacyConfig": {
+      "PUBLIC": {
+        "label": "Public",
+        "description": "Anyone can see my job-seeking status"
+      },
+      "FOLLOWERS": {
+        "label": "Followers Only",
+        "description": "Only people who follow me can see it"
+      },
+      "CIRCLES": {
+        "label": "Circle Members Only",
+        "description": "Only people in the same circle can see it"
+      },
+      "PRIVATE": {
+        "label": "Only Me",
+        "description": "Only visible to me (set automatically when status is closed)"
+      }
+    }
   }
 }

@@ -1,5 +1,5 @@
 "use client"
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
@@ -33,6 +33,7 @@ interface FavoriteWithJob {
 
 export default function FavoritesPage() {
   const locale = useLocale();
+  const t = useTranslations("dashboard.favoritesPage");
   const { status } = useSession();
   const router = useRouter();
   const [favorites, setFavorites] = useState<FavoriteWithJob[]>([]);
@@ -43,14 +44,14 @@ export default function FavoritesPage() {
 
   const isAuthenticated = status === "authenticated";
 
-  // 未登录重定向
+  // Unauthenticated redirect
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push(`/${locale}/auth/login?callbackUrl=/dashboard/favorites`);
     }
   }, [status, router]);
 
-  // 获取收藏列表
+  // Fetch favorites list
   useEffect(() => {
     if (!isAuthenticated) return;
 
@@ -65,7 +66,7 @@ export default function FavoritesPage() {
           setTotal(data.total);
         }
       } catch (error) {
-        logger.error("获取收藏列表失败:", error);
+        logger.error("Failed to fetch favorites:", error);
       } finally {
         setIsLoading(false);
       }
@@ -76,7 +77,6 @@ export default function FavoritesPage() {
 
   const handleFavoriteToggle = (jobId: string, isFavorited: boolean) => {
     if (!isFavorited) {
-      // 取消收藏后从列表中移除
       setFavorites((prev) => prev.filter((f) => f.jobs.id !== jobId));
       setTotal((prev) => prev - 1);
     }
@@ -110,8 +110,8 @@ export default function FavoritesPage() {
               </svg>
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">我的收藏</h1>
-              <p className="text-gray-500">共 {total} 个收藏职位</p>
+              <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
+              <p className="text-gray-500">{t("countLabel", { total })}</p>
             </div>
           </div>
         </div>
@@ -160,10 +160,10 @@ export default function FavoritesPage() {
               </svg>
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              暂无收藏职位
+              {t("empty.title")}
             </h3>
             <p className="text-gray-500 mb-6">
-              浏览职位并点击心形图标，将感兴趣的职位添加到收藏夹
+              {t("empty.subtitle")}
             </p>
             <Link
               href={`/${locale}/jobs`}
@@ -182,7 +182,7 @@ export default function FavoritesPage() {
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                 />
               </svg>
-              浏览职位
+              {t("empty.cta")}
             </Link>
           </div>
         ) : (
@@ -204,7 +204,7 @@ export default function FavoritesPage() {
                   disabled={page === 1}
                   className="px-4 py-2 rounded-lg border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                 >
-                  上一页
+                  {t("pagination.prev")}
                 </button>
                 <span className="px-4 py-2 text-gray-600">
                   {page} / {totalPages}
@@ -214,7 +214,7 @@ export default function FavoritesPage() {
                   disabled={page === totalPages}
                   className="px-4 py-2 rounded-lg border border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
                 >
-                  下一页
+                  {t("pagination.next")}
                 </button>
               </div>
             )}
@@ -225,7 +225,7 @@ export default function FavoritesPage() {
   );
 }
 
-// 收藏职位卡片组件
+// Favorite job card component
 function FavoriteJobCard({
   favorite,
   onToggle,
@@ -234,10 +234,17 @@ function FavoriteJobCard({
   onToggle: (jobId: string, isFavorited: boolean) => void;
 }) {
   const locale = useLocale();
+  const t = useTranslations("dashboard.favoritesPage");
   const { jobs: job } = favorite;
-  const typeMap: Record<string, string> = { FULL_TIME: "全职", PART_TIME: "兼职", CONTRACT: "合同", INTERNSHIP: "实习", FREELANCE: "自由职业" };
   const salaryText = formatSalary(job.salaryMin, job.salaryMax);
   const timeAgo = formatDistanceToNow(new Date(job.datePosted));
+  const employmentLabel = (() => {
+    try {
+      return t(`employmentType.${job.employmentType}` as any);
+    } catch {
+      return job.employmentType;
+    }
+  })();
 
   return (
     <div className="group bg-white rounded-xl border border-gray-100 p-5 hover:border-blue-200 hover:shadow-lg transition-all duration-300">
@@ -248,7 +255,7 @@ function FavoriteJobCard({
             <div className="w-14 h-14 rounded-xl overflow-hidden ring-2 ring-gray-100 group-hover:ring-blue-200 transition-all">
               <Image
                 src={job.companies.logo}
-                alt={`${job.companies.name} 公司Logo`}
+                alt={`${job.companies.name} logo`}
                 width={56}
                 height={56}
                 className="w-full h-full object-cover"
@@ -282,11 +289,11 @@ function FavoriteJobCard({
               📍 {job.location}
             </span>
             <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-50 text-gray-600 text-sm rounded-lg">
-              💼 {typeMap[job.employmentType] || job.employmentType}
+              💼 {employmentLabel}
             </span>
             {job.isRemote && (
               <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-50 text-green-600 text-sm rounded-lg">
-                🏠 远程办公
+                {t("remote")}
               </span>
             )}
           </div>
@@ -294,7 +301,7 @@ function FavoriteJobCard({
           <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-50">
             <div className="flex items-center gap-4 text-sm text-gray-400">
               <span>⏱️ {timeAgo}</span>
-              <span>❤️ 收藏于 {new Date(favorite.createdAt).toLocaleDateString(locale === "en" ? "en-US" : "zh-CN")}</span>
+              <span>{t("favoritedAt", { date: new Date(favorite.createdAt).toLocaleDateString(locale === "en" ? "en-US" : "zh-CN") })}</span>
             </div>
             <div className="flex items-center gap-3">
               <HeartButton
@@ -307,7 +314,7 @@ function FavoriteJobCard({
                 href={`/${locale}/jobs/${job.slug}`}
                 className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
               >
-                申请职位
+                {t("applyJob")}
               </Link>
             </div>
           </div>

@@ -2,27 +2,27 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { Briefcase, MapPin, DollarSign, Eye, Clock, CheckCircle, XCircle, Send, ChevronRight } from "lucide-react";
 import { logger } from '@/lib/logger';
 
-const STATUS_MAP: Record<string, { icon: any; label: string; labelEn: string; color: string; bg: string }> = {
-  PENDING: { icon: Send, label: "已投递", labelEn: "Applied", color: "text-blue-700", bg: "bg-blue-100" },
-  VIEWED: { icon: Eye, label: "已查看", labelEn: "Viewed", color: "text-yellow-700", bg: "bg-yellow-100" },
-  INTERVIEW: { icon: Clock, label: "面试中", labelEn: "Interviewing", color: "text-purple-700", bg: "bg-purple-100" },
-  OFFER: { icon: CheckCircle, label: "Offer", labelEn: "Offer", color: "text-green-700", bg: "bg-green-100" },
-  REJECTED: { icon: XCircle, label: "已拒绝", labelEn: "Rejected", color: "text-gray-500", bg: "bg-gray-100" },
-  WITHDRAWN: { icon: XCircle, label: "已撤回", labelEn: "Withdrawn", color: "text-gray-500", bg: "bg-gray-100" },
+const STATUS_CONFIG: Record<string, { icon: any; color: string; bg: string }> = {
+  PENDING: { icon: Send, color: "text-blue-700", bg: "bg-blue-100" },
+  VIEWED: { icon: Eye, color: "text-yellow-700", bg: "bg-yellow-100" },
+  INTERVIEW: { icon: Clock, color: "text-purple-700", bg: "bg-purple-100" },
+  OFFER: { icon: CheckCircle, color: "text-green-700", bg: "bg-green-100" },
+  REJECTED: { icon: XCircle, color: "text-gray-500", bg: "bg-gray-100" },
+  WITHDRAWN: { icon: XCircle, color: "text-gray-500", bg: "bg-gray-100" },
 };
 
-export default function JobProgressPage({ params }: { params: { locale: string } }) {
+export default function JobProgressPage() {
+  const locale = useLocale();
+  const t = useTranslations("dashboard.jobProgressPage");
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  const [locale, setLocale] = useState("zh");
 
   useEffect(() => {
-    setLocale(params.locale);
     fetchApplications();
   }, []);
 
@@ -40,9 +40,7 @@ export default function JobProgressPage({ params }: { params: { locale: string }
     }
   };
 
-  const isEn = locale === "en";
-
-  // 按状态统计
+  // Count by status
   const statusCount: Record<string, number> = {};
   applications.forEach(app => {
     statusCount[app.status] = (statusCount[app.status] || 0) + 1;
@@ -52,40 +50,40 @@ export default function JobProgressPage({ params }: { params: { locale: string }
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">{isEn ? "Application Progress" : "投递进度看板"}</h1>
-          <p className="text-gray-500 mt-1">{isEn ? "Track all your job applications in one place" : "一站式追踪你的所有职位申请"}</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
+          <p className="text-gray-500 mt-1">{t("subtitle")}</p>
         </div>
 
-        {/* 状态统计卡片 */}
+        {/* Status stat cards */}
         <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 mb-8">
-          {Object.entries(STATUS_MAP).map(([status, config]) => {
+          {Object.entries(STATUS_CONFIG).map(([status, config]) => {
             const Icon = config.icon;
             return (
               <div key={status} className={`${config.bg} rounded-xl p-4 text-center`}>
                 <Icon className={`w-5 h-5 mx-auto mb-1 ${config.color}`} />
                 <div className={`text-xl font-bold ${config.color}`}>{statusCount[status] || 0}</div>
-                <div className={`text-xs ${config.color} opacity-80`}>{isEn ? config.labelEn : config.label}</div>
+                <div className={`text-xs ${config.color} opacity-80`}>{t(`status.${status}` as any)}</div>
               </div>
             );
           })}
         </div>
 
-        {/* 投递列表 */}
+        {/* Application list */}
         {loading ? (
-          <div className="text-center py-12 text-gray-500">{isEn ? "Loading..." : "加载中..."}</div>
+          <div className="text-center py-12 text-gray-500">{t("loading")}</div>
         ) : applications.length === 0 ? (
           <div className="bg-white rounded-xl p-12 text-center shadow-sm">
             <Briefcase className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">{isEn ? "No applications yet" : "还没有投递记录"}</h3>
-            <p className="text-gray-500 mb-6">{isEn ? "Start applying for jobs to track your progress" : "开始投递职位来追踪进度吧"}</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">{t("empty.title")}</h3>
+            <p className="text-gray-500 mb-6">{t("empty.subtitle")}</p>
             <Link href={`/${locale}/jobs`} className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
-              {isEn ? "Browse Jobs" : "浏览职位"}
+              {t("empty.cta")}
             </Link>
           </div>
         ) : (
           <div className="space-y-3">
             {applications.map(app => {
-              const config = STATUS_MAP[app.status] || STATUS_MAP.PENDING;
+              const config = STATUS_CONFIG[app.status] || STATUS_CONFIG.PENDING;
               const Icon = config.icon;
               return (
                 <Link href={`/${locale}/jobs/${app.jobs?.slug}`} key={app.id} className="block bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:border-blue-200 hover:shadow-md transition group">
@@ -97,7 +95,7 @@ export default function JobProgressPage({ params }: { params: { locale: string }
                       <div className="flex items-center justify-between mb-1">
                         <h3 className="font-semibold text-gray-900 truncate group-hover:text-blue-600 transition">{app.jobs?.title}</h3>
                         <span className={`${config.bg} ${config.color} text-xs px-2.5 py-1 rounded-full flex-shrink-0 ml-2`}>
-                          {isEn ? config.labelEn : config.label}
+                          {t(`status.${app.status}` as any)}
                         </span>
                       </div>
                       <p className="text-sm text-gray-500">{app.jobs?.companies?.name}</p>
@@ -106,7 +104,7 @@ export default function JobProgressPage({ params }: { params: { locale: string }
                         {app.jobs?.salaryMin && app.jobs?.salaryMax && (
                           <span className="flex items-center gap-1"><DollarSign className="w-3 h-3" />{app.jobs.salaryMin}-{app.jobs.salaryMax}K</span>
                         )}
-                        <span>{isEn ? "Applied" : "投递于"} {new Date(app.appliedAt).toLocaleDateString("zh-CN")}</span>
+                        <span>{t("appliedOn")} {new Date(app.appliedAt).toLocaleDateString(locale === "en" ? "en-US" : "zh-CN")}</span>
                       </div>
                     </div>
                     <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-blue-600 transition flex-shrink-0" />

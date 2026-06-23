@@ -2,19 +2,19 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
 import { Briefcase, MapPin, DollarSign, Star, ChevronRight, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { logger } from '@/lib/logger';
 
-export default function RecommendedJobsPage({ params }: { params: { locale: string } }) {
+export default function RecommendedJobsPage() {
+  const locale = useLocale();
+  const t = useTranslations("dashboard.recommendedPage");
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPersonalized, setIsPersonalized] = useState(false);
-  
-  const [locale, setLocale] = useState("zh");
 
   useEffect(() => {
-    setLocale(params.locale);
     fetchRecommended();
   }, []);
 
@@ -33,26 +33,22 @@ export default function RecommendedJobsPage({ params }: { params: { locale: stri
     }
   };
 
-  const isEn = locale === "en";
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-2xl font-bold text-gray-900">{isEn ? "Recommended Jobs" : "推荐职位"}</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
             {isPersonalized && (
               <span className="flex items-center gap-1 bg-purple-100 text-purple-700 text-xs px-2 py-1 rounded-full">
                 <Sparkles className="w-3 h-3" />
-                {isEn ? "Personalized" : "个性化推荐"}
+                {t("personalized")}
               </span>
             )}
           </div>
           <p className="text-gray-500">
-            {isPersonalized
-              ? (isEn ? "Based on your profile, preferences, and activity" : "基于你的个人资料、偏好和活动推荐")
-              : (isEn ? "Popular jobs for you" : "热门职位推荐")}
+            {isPersonalized ? t("subtitlePersonalized") : t("subtitleDefault")}
           </p>
         </div>
 
@@ -73,10 +69,10 @@ export default function RecommendedJobsPage({ params }: { params: { locale: stri
         ) : jobs.length === 0 ? (
           <div className="bg-white rounded-xl p-12 text-center shadow-sm">
             <Briefcase className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">{isEn ? "No recommendations yet" : "暂无推荐"}</h3>
-            <p className="text-gray-500 mb-6">{isEn ? "Complete your profile and preferences to get personalized recommendations" : "完善个人资料和偏好以获得个性化推荐"}</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">{t("empty.title")}</h3>
+            <p className="text-gray-500 mb-6">{t("empty.subtitle")}</p>
             <Link href={`/${locale}/dashboard/preferences`} className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-              {isEn ? "Set Preferences" : "设置求职偏好"}
+              {t("empty.cta")}
             </Link>
           </div>
         ) : (
@@ -97,7 +93,7 @@ export default function RecommendedJobsPage({ params }: { params: { locale: stri
                       {job.salaryMin && job.salaryMax && (
                         <span className="flex items-center gap-1"><DollarSign className="w-3.5 h-3.5" />{job.salaryMin}-{job.salaryMax}K</span>
                       )}
-                      <span className="flex items-center gap-1"><Briefcase className="w-3.5 h-3.5" />{job.employmentType === "FULL_TIME" ? (isEn ? "Full-time" : "全职") : job.employmentType}</span>
+                      <span className="flex items-center gap-1"><Briefcase className="w-3.5 h-3.5" />{job.employmentType === "FULL_TIME" ? t("fullTime") : job.employmentType}</span>
                     </div>
                     {job.matchReasons && job.matchReasons.length > 0 && (
                       <div className="mt-3 flex flex-wrap gap-1.5">

@@ -1,17 +1,26 @@
 import { Metadata } from "next";
 import { getServerSession } from "next-auth/next";
+import { getTranslations } from "next-intl/server";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { CheckCircle, Circle, Clock } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "我的任务 | JobQuip",
-  description: "完成每日任务和新手引导",
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: { locale: string };
+}): Promise<Metadata> {
+  const t = await getTranslations({ locale: params.locale, namespace: "dashboard.questsPage.meta" });
+  return {
+    title: t("title"),
+    description: t("description"),
+  };
+}
 
 export default async function QuestsPage({ params }: { params: { locale: string } }) {
   const { locale } = params;
+  const t = await getTranslations({ locale, namespace: "dashboard.questsPage" });
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     redirect(`/${locale}/auth/login`);
@@ -58,27 +67,27 @@ export default async function QuestsPage({ params }: { params: { locale: string 
   const getStatusText = (status: string) => {
     switch (status) {
       case "COMPLETED":
-        return "已完成";
+        return t("status.completed");
       case "IN_PROGRESS":
-        return "进行中";
+        return t("status.inProgress");
       default:
-        return "未开始";
+        return t("status.notStarted");
     }
   };
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      {/* 头部 */}
+      {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">我的任务</h1>
-        <p className="text-gray-600">完成任务获取经验值和金币奖励</p>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">{t("title")}</h1>
+        <p className="text-gray-600">{t("subtitle")}</p>
       </div>
 
-      {/* 新手引导任务 */}
+      {/* Guide tasks */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
         <div className="p-6 border-b border-gray-100">
-          <h2 className="text-lg font-bold text-gray-900">🎯 新手引导</h2>
-          <p className="text-sm text-gray-500 mt-1">完成引导任务，快速上手平台</p>
+          <h2 className="text-lg font-bold text-gray-900">{t("guide.title")}</h2>
+          <p className="text-sm text-gray-500 mt-1">{t("guide.subtitle")}</p>
         </div>
 
         <div className="divide-y divide-gray-100">
@@ -100,7 +109,7 @@ export default async function QuestsPage({ params }: { params: { locale: string 
                 {task.status === "IN_PROGRESS" && (
                   <div className="mt-3">
                     <div className="flex justify-between text-xs text-gray-500 mb-1">
-                      <span>进度</span>
+                      <span>{t("progressLabel")}</span>
                       <span>
                         {task.progress} / {task.target}
                       </span>
@@ -130,8 +139,8 @@ export default async function QuestsPage({ params }: { params: { locale: string 
                   {getStatusText(task.status)}
                 </span>
                 <div className="flex gap-2 mt-2 text-xs">
-                  <span className="text-blue-600">+{task.task_definitions.expReward} EXP</span>
-                  <span className="text-amber-600">+{task.task_definitions.coinReward} 金币</span>
+                  <span className="text-blue-600">{t("expReward", { exp: task.task_definitions.expReward })}</span>
+                  <span className="text-amber-600">{t("coinReward", { coin: task.task_definitions.coinReward })}</span>
                 </div>
               </div>
             </div>
@@ -139,11 +148,11 @@ export default async function QuestsPage({ params }: { params: { locale: string 
         </div>
       </div>
 
-      {/* 每日任务 */}
+      {/* Daily tasks */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="p-6 border-b border-gray-100">
-          <h2 className="text-lg font-bold text-gray-900">📅 每日任务</h2>
-          <p className="text-sm text-gray-500 mt-1">每天完成任务获取额外奖励</p>
+          <h2 className="text-lg font-bold text-gray-900">{t("daily.title")}</h2>
+          <p className="text-sm text-gray-500 mt-1">{t("daily.subtitle")}</p>
         </div>
 
         <div className="divide-y divide-gray-100">
@@ -166,7 +175,7 @@ export default async function QuestsPage({ params }: { params: { locale: string 
                   {task.status === "IN_PROGRESS" && (
                     <div className="mt-3">
                       <div className="flex justify-between text-xs text-gray-500 mb-1">
-                        <span>进度</span>
+                        <span>{t("progressLabel")}</span>
                         <span>
                           {task.progress} / {task.target}
                         </span>
@@ -199,16 +208,16 @@ export default async function QuestsPage({ params }: { params: { locale: string 
                     {getStatusText(task.status)}
                   </span>
                   <div className="flex gap-2 mt-2 text-xs">
-                    <span className="text-blue-600">+{task.task_definitions.expReward} EXP</span>
-                    <span className="text-amber-600">+{task.task_definitions.coinReward} 金币</span>
+                    <span className="text-blue-600">{t("expReward", { exp: task.task_definitions.expReward })}</span>
+                    <span className="text-amber-600">{t("coinReward", { coin: task.task_definitions.coinReward })}</span>
                   </div>
                 </div>
               </div>
             ))
           ) : (
             <div className="p-12 text-center text-gray-500">
-              <p>今日任务已全部完成！🎉</p>
-              <p className="text-sm mt-2">明天再来获取新的每日任务</p>
+              <p>{t("dailyDoneTitle")}</p>
+              <p className="text-sm mt-2">{t("dailyDoneSubtitle")}</p>
             </div>
           )}
         </div>
