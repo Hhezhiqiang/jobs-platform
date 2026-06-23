@@ -98,7 +98,7 @@ export async function collectKeywords(): Promise<{
             status: "PENDING",
             firstSeenAt: new Date(),
             lastSeenAt: new Date(),
-            metadata: item.metadata || {},
+            metadata: (item.metadata ?? {}) as any,
           },
         });
         newIds.push(created.id);
