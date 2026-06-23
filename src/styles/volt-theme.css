@@ -174,11 +174,10 @@ button.bg-blue-600:hover, a.bg-blue-600:hover { filter: brightness(1.1); }
 [class*="from-indigo-"], [class*="from-purple-"], [class*="from-violet-"],
 [class*="from-blue-6"], [class*="from-blue-7"], [class*="from-blue-8"], [class*="from-blue-9"] {
   --tw-gradient-from: #0a0a0a !important;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, transparent) !important;
 }
 [class*="via-indigo-"], [class*="via-purple-"], [class*="via-violet-"],
 [class*="via-blue-6"], [class*="via-blue-7"] {
-  --tw-gradient-stops: var(--tw-gradient-from), #111111, var(--tw-gradient-to, transparent) !important;
+  --tw-gradient-via: #111111 !important;
 }
 [class*="to-indigo-"], [class*="to-purple-"], [class*="to-violet-"], [class*="to-pink-"],
 [class*="to-blue-6"], [class*="to-blue-7"], [class*="to-cyan-"] {
@@ -202,22 +201,21 @@ button.bg-blue-600:hover, a.bg-blue-600:hover { filter: brightness(1.1); }
 [class*="from-[#9333ea]"], [class*="from-[#a855f7]"], [class*="from-[#c084fc]"],
 [class*="from-[#581c87]"], [class*="from-[#6b21a8]"],
 [class*="from-[#0ea5e9]"], [class*="from-[#06b6d4]"], [class*="from-[#0891b2]"] {
-  --tw-gradient-from: #0a0a0a var(--tw-gradient-from-position, 0%) !important;
-  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, rgba(10,10,10,0)) !important;
+  --tw-gradient-from: #0a0a0a !important;
 }
 [class*="via-[#1e1b4b]"], [class*="via-[#312e81]"], [class*="via-[#3730a3]"],
 [class*="via-[#4338ca]"], [class*="via-[#4f46e5]"], [class*="via-[#6366f1]"],
 [class*="via-[#7c3aed]"], [class*="via-[#8b5cf6]"], [class*="via-[#a78bfa]"],
 [class*="via-[#9333ea]"], [class*="via-[#a855f7]"], [class*="via-[#c084fc]"],
 [class*="via-[#0ea5e9]"], [class*="via-[#06b6d4]"], [class*="via-[#0891b2]"] {
-  --tw-gradient-stops: var(--tw-gradient-from), #111111 var(--tw-gradient-via-position, 50%), var(--tw-gradient-to, rgba(17,17,17,0)) !important;
+  --tw-gradient-via: #111111 !important;
 }
 [class*="to-[#1e1b4b]"], [class*="to-[#312e81]"], [class*="to-[#3730a3]"],
 [class*="to-[#4338ca]"], [class*="to-[#4f46e5]"], [class*="to-[#6366f1]"],
 [class*="to-[#7c3aed]"], [class*="to-[#8b5cf6]"], [class*="to-[#a78bfa]"],
 [class*="to-[#9333ea]"], [class*="to-[#a855f7]"], [class*="to-[#c084fc]"],
 [class*="to-[#0ea5e9]"], [class*="to-[#06b6d4]"], [class*="to-[#0891b2]"] {
-  --tw-gradient-to: #1a1a1a var(--tw-gradient-to-position, 100%) !important;
+  --tw-gradient-to: #1a1a1a !important;
 }
 
 /* Decorative accent stripes (h-1 / h-2 gradient bars) → solid volt accent.
