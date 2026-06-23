@@ -34,11 +34,15 @@
 }
 
 /* ============================================================
- * Force LIGHT color scheme inside admin & dashboard sections.
+ * Force LIGHT color scheme inside admin & all app shells.
  * iOS Safari would otherwise auto-invert the page background to
  * black while Tailwind `bg-white` cards stay white — causing
  * inherited text colors (#ededed from dark mode) to render
  * white-on-white and become invisible on stat cards and tables.
+ *
+ * `data-app-root` is the canonical marker for any authenticated
+ * app shell that should always render in light mode (dashboard,
+ * company portal, promoter portal, user account, etc).
  *
  * Additionally, volt-theme.css (imported by the public header)
  * sets --color-gray-* (Tailwind v4) to dark/translucent values
@@ -49,7 +53,7 @@
  * :root because we use [attr] (0,1,0) loaded after globals.css.
  * ============================================================ */
 html [data-admin-root="true"],
-html [data-dashboard-root="true"] {
+html [data-app-root="true"] {
   color-scheme: light only !important;
   color: #111827; /* gray-900 baseline so descendants inherit dark text */
   background-color: #f9fafb; /* gray-50 to neutralize body bg */
@@ -86,7 +90,7 @@ html [data-dashboard-root="true"] {
   --foreground: #111827;
 }
 html [data-admin-root="true"] *,
-html [data-dashboard-root="true"] * {
+html [data-app-root="true"] * {
   color-scheme: light only;
 }
 
@@ -155,154 +159,154 @@ input[type="radio"] {
  * ============================================================ */
 
 /* --- Text colors --- */
-html [data-admin-root="true"] .text-gray-900, html [data-dashboard-root="true"] .text-gray-900,
-html [data-admin-root="true"] .text-slate-900, html [data-dashboard-root="true"] .text-slate-900,
-html [data-admin-root="true"] .text-black,     html [data-dashboard-root="true"] .text-black { color: #111827 !important; }
+html [data-admin-root="true"] .text-gray-900, html [data-app-root="true"] .text-gray-900,
+html [data-admin-root="true"] .text-slate-900, html [data-app-root="true"] .text-slate-900,
+html [data-admin-root="true"] .text-black,     html [data-app-root="true"] .text-black { color: #111827 !important; }
 
-html [data-admin-root="true"] .text-gray-800, html [data-dashboard-root="true"] .text-gray-800,
-html [data-admin-root="true"] .text-slate-800, html [data-dashboard-root="true"] .text-slate-800 { color: #1f2937 !important; }
+html [data-admin-root="true"] .text-gray-800, html [data-app-root="true"] .text-gray-800,
+html [data-admin-root="true"] .text-slate-800, html [data-app-root="true"] .text-slate-800 { color: #1f2937 !important; }
 
-html [data-admin-root="true"] .text-gray-700, html [data-dashboard-root="true"] .text-gray-700,
-html [data-admin-root="true"] .text-slate-700, html [data-dashboard-root="true"] .text-slate-700 { color: #374151 !important; }
+html [data-admin-root="true"] .text-gray-700, html [data-app-root="true"] .text-gray-700,
+html [data-admin-root="true"] .text-slate-700, html [data-app-root="true"] .text-slate-700 { color: #374151 !important; }
 
-html [data-admin-root="true"] .text-gray-600, html [data-dashboard-root="true"] .text-gray-600,
-html [data-admin-root="true"] .text-slate-600, html [data-dashboard-root="true"] .text-slate-600 { color: #4b5563 !important; }
+html [data-admin-root="true"] .text-gray-600, html [data-app-root="true"] .text-gray-600,
+html [data-admin-root="true"] .text-slate-600, html [data-app-root="true"] .text-slate-600 { color: #4b5563 !important; }
 
-html [data-admin-root="true"] .text-gray-500, html [data-dashboard-root="true"] .text-gray-500,
-html [data-admin-root="true"] .text-slate-500, html [data-dashboard-root="true"] .text-slate-500 { color: #6b7280 !important; }
+html [data-admin-root="true"] .text-gray-500, html [data-app-root="true"] .text-gray-500,
+html [data-admin-root="true"] .text-slate-500, html [data-app-root="true"] .text-slate-500 { color: #6b7280 !important; }
 
-html [data-admin-root="true"] .text-gray-400, html [data-dashboard-root="true"] .text-gray-400,
-html [data-admin-root="true"] .text-slate-400, html [data-dashboard-root="true"] .text-slate-400 { color: #9ca3af !important; }
+html [data-admin-root="true"] .text-gray-400, html [data-app-root="true"] .text-gray-400,
+html [data-admin-root="true"] .text-slate-400, html [data-app-root="true"] .text-slate-400 { color: #9ca3af !important; }
 
 /* Keep brand text colors (blue/indigo/purple) instead of volt accent green */
-html [data-admin-root="true"] .text-blue-700,   html [data-dashboard-root="true"] .text-blue-700,
-html [data-admin-root="true"] .text-indigo-700, html [data-dashboard-root="true"] .text-indigo-700,
-html [data-admin-root="true"] .text-purple-700, html [data-dashboard-root="true"] .text-purple-700 { color: #4338ca !important; }
+html [data-admin-root="true"] .text-blue-700,   html [data-app-root="true"] .text-blue-700,
+html [data-admin-root="true"] .text-indigo-700, html [data-app-root="true"] .text-indigo-700,
+html [data-admin-root="true"] .text-purple-700, html [data-app-root="true"] .text-purple-700 { color: #4338ca !important; }
 
-html [data-admin-root="true"] .text-blue-600,   html [data-dashboard-root="true"] .text-blue-600,
-html [data-admin-root="true"] .text-indigo-600, html [data-dashboard-root="true"] .text-indigo-600,
-html [data-admin-root="true"] .text-purple-600, html [data-dashboard-root="true"] .text-purple-600,
-html [data-admin-root="true"] .text-violet-600, html [data-dashboard-root="true"] .text-violet-600 { color: #4f46e5 !important; }
+html [data-admin-root="true"] .text-blue-600,   html [data-app-root="true"] .text-blue-600,
+html [data-admin-root="true"] .text-indigo-600, html [data-app-root="true"] .text-indigo-600,
+html [data-admin-root="true"] .text-purple-600, html [data-app-root="true"] .text-purple-600,
+html [data-admin-root="true"] .text-violet-600, html [data-app-root="true"] .text-violet-600 { color: #4f46e5 !important; }
 
-html [data-admin-root="true"] .text-blue-500,   html [data-dashboard-root="true"] .text-blue-500,
-html [data-admin-root="true"] .text-indigo-500, html [data-dashboard-root="true"] .text-indigo-500,
-html [data-admin-root="true"] .text-purple-500, html [data-dashboard-root="true"] .text-purple-500 { color: #6366f1 !important; }
+html [data-admin-root="true"] .text-blue-500,   html [data-app-root="true"] .text-blue-500,
+html [data-admin-root="true"] .text-indigo-500, html [data-app-root="true"] .text-indigo-500,
+html [data-admin-root="true"] .text-purple-500, html [data-app-root="true"] .text-purple-500 { color: #6366f1 !important; }
 
 /* --- Backgrounds: cards stay white, page tints stay light --- */
-html [data-admin-root="true"] .bg-white,    html [data-dashboard-root="true"] .bg-white,
-html [data-admin-root="true"] .bg-slate-50, html [data-dashboard-root="true"] .bg-slate-50,
-html [data-admin-root="true"] .bg-gray-50,  html [data-dashboard-root="true"] .bg-gray-50 { background-color: #f9fafb !important; }
+html [data-admin-root="true"] .bg-white,    html [data-app-root="true"] .bg-white,
+html [data-admin-root="true"] .bg-slate-50, html [data-app-root="true"] .bg-slate-50,
+html [data-admin-root="true"] .bg-gray-50,  html [data-app-root="true"] .bg-gray-50 { background-color: #f9fafb !important; }
 
 /* .bg-white specifically should be pure white (override the rule above) */
-html [data-admin-root="true"] .bg-white, html [data-dashboard-root="true"] .bg-white { background-color: #ffffff !important; }
+html [data-admin-root="true"] .bg-white, html [data-app-root="true"] .bg-white { background-color: #ffffff !important; }
 
-html [data-admin-root="true"] .bg-gray-100,  html [data-dashboard-root="true"] .bg-gray-100,
-html [data-admin-root="true"] .bg-slate-100, html [data-dashboard-root="true"] .bg-slate-100 { background-color: #f3f4f6 !important; }
+html [data-admin-root="true"] .bg-gray-100,  html [data-app-root="true"] .bg-gray-100,
+html [data-admin-root="true"] .bg-slate-100, html [data-app-root="true"] .bg-slate-100 { background-color: #f3f4f6 !important; }
 
-html [data-admin-root="true"] .bg-gray-200,  html [data-dashboard-root="true"] .bg-gray-200,
-html [data-admin-root="true"] .bg-slate-200, html [data-dashboard-root="true"] .bg-slate-200 { background-color: #e5e7eb !important; }
+html [data-admin-root="true"] .bg-gray-200,  html [data-app-root="true"] .bg-gray-200,
+html [data-admin-root="true"] .bg-slate-200, html [data-app-root="true"] .bg-slate-200 { background-color: #e5e7eb !important; }
 
-html [data-admin-root="true"] .bg-gray-300,  html [data-dashboard-root="true"] .bg-gray-300,
-html [data-admin-root="true"] .bg-slate-300, html [data-dashboard-root="true"] .bg-slate-300 { background-color: #d1d5db !important; }
+html [data-admin-root="true"] .bg-gray-300,  html [data-app-root="true"] .bg-gray-300,
+html [data-admin-root="true"] .bg-slate-300, html [data-app-root="true"] .bg-slate-300 { background-color: #d1d5db !important; }
 
 /* Soft tinted card backgrounds — keep their pastel rather than going dark */
-html [data-admin-root="true"] .bg-blue-50,    html [data-dashboard-root="true"] .bg-blue-50    { background-color: #eff6ff !important; }
-html [data-admin-root="true"] .bg-indigo-50,  html [data-dashboard-root="true"] .bg-indigo-50  { background-color: #eef2ff !important; }
-html [data-admin-root="true"] .bg-purple-50,  html [data-dashboard-root="true"] .bg-purple-50  { background-color: #faf5ff !important; }
-html [data-admin-root="true"] .bg-green-50,   html [data-dashboard-root="true"] .bg-green-50   { background-color: #f0fdf4 !important; }
-html [data-admin-root="true"] .bg-emerald-50, html [data-dashboard-root="true"] .bg-emerald-50 { background-color: #ecfdf5 !important; }
-html [data-admin-root="true"] .bg-teal-50,    html [data-dashboard-root="true"] .bg-teal-50    { background-color: #f0fdfa !important; }
-html [data-admin-root="true"] .bg-red-50,     html [data-dashboard-root="true"] .bg-red-50     { background-color: #fef2f2 !important; }
-html [data-admin-root="true"] .bg-orange-50,  html [data-dashboard-root="true"] .bg-orange-50  { background-color: #fff7ed !important; }
-html [data-admin-root="true"] .bg-yellow-50,  html [data-dashboard-root="true"] .bg-yellow-50  { background-color: #fefce8 !important; }
-html [data-admin-root="true"] .bg-pink-50,    html [data-dashboard-root="true"] .bg-pink-50    { background-color: #fdf2f8 !important; }
-html [data-admin-root="true"] .bg-cyan-50,    html [data-dashboard-root="true"] .bg-cyan-50    { background-color: #ecfeff !important; }
+html [data-admin-root="true"] .bg-blue-50,    html [data-app-root="true"] .bg-blue-50    { background-color: #eff6ff !important; }
+html [data-admin-root="true"] .bg-indigo-50,  html [data-app-root="true"] .bg-indigo-50  { background-color: #eef2ff !important; }
+html [data-admin-root="true"] .bg-purple-50,  html [data-app-root="true"] .bg-purple-50  { background-color: #faf5ff !important; }
+html [data-admin-root="true"] .bg-green-50,   html [data-app-root="true"] .bg-green-50   { background-color: #f0fdf4 !important; }
+html [data-admin-root="true"] .bg-emerald-50, html [data-app-root="true"] .bg-emerald-50 { background-color: #ecfdf5 !important; }
+html [data-admin-root="true"] .bg-teal-50,    html [data-app-root="true"] .bg-teal-50    { background-color: #f0fdfa !important; }
+html [data-admin-root="true"] .bg-red-50,     html [data-app-root="true"] .bg-red-50     { background-color: #fef2f2 !important; }
+html [data-admin-root="true"] .bg-orange-50,  html [data-app-root="true"] .bg-orange-50  { background-color: #fff7ed !important; }
+html [data-admin-root="true"] .bg-yellow-50,  html [data-app-root="true"] .bg-yellow-50  { background-color: #fefce8 !important; }
+html [data-admin-root="true"] .bg-pink-50,    html [data-app-root="true"] .bg-pink-50    { background-color: #fdf2f8 !important; }
+html [data-admin-root="true"] .bg-cyan-50,    html [data-app-root="true"] .bg-cyan-50    { background-color: #ecfeff !important; }
 
 /* hover states */
-html [data-admin-root="true"] .hover\:bg-white:hover,    html [data-dashboard-root="true"] .hover\:bg-white:hover    { background-color: #f9fafb !important; }
-html [data-admin-root="true"] .hover\:bg-gray-50:hover,  html [data-dashboard-root="true"] .hover\:bg-gray-50:hover  { background-color: #f3f4f6 !important; }
-html [data-admin-root="true"] .hover\:bg-gray-100:hover, html [data-dashboard-root="true"] .hover\:bg-gray-100:hover { background-color: #e5e7eb !important; }
+html [data-admin-root="true"] .hover\:bg-white:hover,    html [data-app-root="true"] .hover\:bg-white:hover    { background-color: #f9fafb !important; }
+html [data-admin-root="true"] .hover\:bg-gray-50:hover,  html [data-app-root="true"] .hover\:bg-gray-50:hover  { background-color: #f3f4f6 !important; }
+html [data-admin-root="true"] .hover\:bg-gray-100:hover, html [data-app-root="true"] .hover\:bg-gray-100:hover { background-color: #e5e7eb !important; }
 
 /* Solid brand button backgrounds — keep their original color, not volt green */
-html [data-admin-root="true"] button.bg-blue-600,   html [data-dashboard-root="true"] button.bg-blue-600,
-html [data-admin-root="true"] a.bg-blue-600,        html [data-dashboard-root="true"] a.bg-blue-600 { background: #2563eb !important; color: #ffffff !important; border: 0 !important; }
+html [data-admin-root="true"] button.bg-blue-600,   html [data-app-root="true"] button.bg-blue-600,
+html [data-admin-root="true"] a.bg-blue-600,        html [data-app-root="true"] a.bg-blue-600 { background: #2563eb !important; color: #ffffff !important; border: 0 !important; }
 
-html [data-admin-root="true"] button.bg-indigo-600, html [data-dashboard-root="true"] button.bg-indigo-600,
-html [data-admin-root="true"] a.bg-indigo-600,      html [data-dashboard-root="true"] a.bg-indigo-600 { background: #4f46e5 !important; color: #ffffff !important; border: 0 !important; }
+html [data-admin-root="true"] button.bg-indigo-600, html [data-app-root="true"] button.bg-indigo-600,
+html [data-admin-root="true"] a.bg-indigo-600,      html [data-app-root="true"] a.bg-indigo-600 { background: #4f46e5 !important; color: #ffffff !important; border: 0 !important; }
 
-html [data-admin-root="true"] button.bg-purple-600, html [data-dashboard-root="true"] button.bg-purple-600,
-html [data-admin-root="true"] a.bg-purple-600,      html [data-dashboard-root="true"] a.bg-purple-600 { background: #9333ea !important; color: #ffffff !important; border: 0 !important; }
+html [data-admin-root="true"] button.bg-purple-600, html [data-app-root="true"] button.bg-purple-600,
+html [data-admin-root="true"] a.bg-purple-600,      html [data-app-root="true"] a.bg-purple-600 { background: #9333ea !important; color: #ffffff !important; border: 0 !important; }
 
-html [data-admin-root="true"] .bg-blue-500,   html [data-dashboard-root="true"] .bg-blue-500,
-html [data-admin-root="true"] .bg-blue-600,   html [data-dashboard-root="true"] .bg-blue-600,
-html [data-admin-root="true"] .bg-blue-700,   html [data-dashboard-root="true"] .bg-blue-700 { background-color: #2563eb !important; color: #ffffff !important; border: 0 !important; }
+html [data-admin-root="true"] .bg-blue-500,   html [data-app-root="true"] .bg-blue-500,
+html [data-admin-root="true"] .bg-blue-600,   html [data-app-root="true"] .bg-blue-600,
+html [data-admin-root="true"] .bg-blue-700,   html [data-app-root="true"] .bg-blue-700 { background-color: #2563eb !important; color: #ffffff !important; border: 0 !important; }
 
-html [data-admin-root="true"] .bg-indigo-500, html [data-dashboard-root="true"] .bg-indigo-500,
-html [data-admin-root="true"] .bg-indigo-600, html [data-dashboard-root="true"] .bg-indigo-600,
-html [data-admin-root="true"] .bg-indigo-700, html [data-dashboard-root="true"] .bg-indigo-700 { background-color: #4f46e5 !important; color: #ffffff !important; border: 0 !important; }
+html [data-admin-root="true"] .bg-indigo-500, html [data-app-root="true"] .bg-indigo-500,
+html [data-admin-root="true"] .bg-indigo-600, html [data-app-root="true"] .bg-indigo-600,
+html [data-admin-root="true"] .bg-indigo-700, html [data-app-root="true"] .bg-indigo-700 { background-color: #4f46e5 !important; color: #ffffff !important; border: 0 !important; }
 
-html [data-admin-root="true"] .bg-purple-500, html [data-dashboard-root="true"] .bg-purple-500,
-html [data-admin-root="true"] .bg-purple-600, html [data-dashboard-root="true"] .bg-purple-600,
-html [data-admin-root="true"] .bg-purple-700, html [data-dashboard-root="true"] .bg-purple-700 { background-color: #9333ea !important; color: #ffffff !important; border: 0 !important; }
+html [data-admin-root="true"] .bg-purple-500, html [data-app-root="true"] .bg-purple-500,
+html [data-admin-root="true"] .bg-purple-600, html [data-app-root="true"] .bg-purple-600,
+html [data-admin-root="true"] .bg-purple-700, html [data-app-root="true"] .bg-purple-700 { background-color: #9333ea !important; color: #ffffff !important; border: 0 !important; }
 
 /* --- Borders --- */
-html [data-admin-root="true"] .border,    html [data-dashboard-root="true"] .border,
-html [data-admin-root="true"] .border-t,  html [data-dashboard-root="true"] .border-t,
-html [data-admin-root="true"] .border-b,  html [data-dashboard-root="true"] .border-b,
-html [data-admin-root="true"] .border-l,  html [data-dashboard-root="true"] .border-l,
-html [data-admin-root="true"] .border-r,  html [data-dashboard-root="true"] .border-r,
-html [data-admin-root="true"] .border-x,  html [data-dashboard-root="true"] .border-x,
-html [data-admin-root="true"] .border-y,  html [data-dashboard-root="true"] .border-y { border-color: #e5e7eb !important; }
+html [data-admin-root="true"] .border,    html [data-app-root="true"] .border,
+html [data-admin-root="true"] .border-t,  html [data-app-root="true"] .border-t,
+html [data-admin-root="true"] .border-b,  html [data-app-root="true"] .border-b,
+html [data-admin-root="true"] .border-l,  html [data-app-root="true"] .border-l,
+html [data-admin-root="true"] .border-r,  html [data-app-root="true"] .border-r,
+html [data-admin-root="true"] .border-x,  html [data-app-root="true"] .border-x,
+html [data-admin-root="true"] .border-y,  html [data-app-root="true"] .border-y { border-color: #e5e7eb !important; }
 
-html [data-admin-root="true"] .border-gray-100, html [data-dashboard-root="true"] .border-gray-100,
-html [data-admin-root="true"] .border-gray-200, html [data-dashboard-root="true"] .border-gray-200,
-html [data-admin-root="true"] .border-slate-100, html [data-dashboard-root="true"] .border-slate-100,
-html [data-admin-root="true"] .border-slate-200, html [data-dashboard-root="true"] .border-slate-200 { border-color: #e5e7eb !important; }
+html [data-admin-root="true"] .border-gray-100, html [data-app-root="true"] .border-gray-100,
+html [data-admin-root="true"] .border-gray-200, html [data-app-root="true"] .border-gray-200,
+html [data-admin-root="true"] .border-slate-100, html [data-app-root="true"] .border-slate-100,
+html [data-admin-root="true"] .border-slate-200, html [data-app-root="true"] .border-slate-200 { border-color: #e5e7eb !important; }
 
-html [data-admin-root="true"] .border-gray-300,  html [data-dashboard-root="true"] .border-gray-300,
-html [data-admin-root="true"] .border-gray-400,  html [data-dashboard-root="true"] .border-gray-400,
-html [data-admin-root="true"] .border-slate-300, html [data-dashboard-root="true"] .border-slate-300,
-html [data-admin-root="true"] .border-slate-400, html [data-dashboard-root="true"] .border-slate-400 { border-color: #d1d5db !important; }
+html [data-admin-root="true"] .border-gray-300,  html [data-app-root="true"] .border-gray-300,
+html [data-admin-root="true"] .border-gray-400,  html [data-app-root="true"] .border-gray-400,
+html [data-admin-root="true"] .border-slate-300, html [data-app-root="true"] .border-slate-300,
+html [data-admin-root="true"] .border-slate-400, html [data-app-root="true"] .border-slate-400 { border-color: #d1d5db !important; }
 
 /* --- Shadows: restore subtle light-mode shadows (volt makes them invisible) --- */
-html [data-admin-root="true"] .shadow,    html [data-dashboard-root="true"] .shadow,
-html [data-admin-root="true"] .shadow-sm, html [data-dashboard-root="true"] .shadow-sm,
-html [data-admin-root="true"] .shadow-md, html [data-dashboard-root="true"] .shadow-md {
+html [data-admin-root="true"] .shadow,    html [data-app-root="true"] .shadow,
+html [data-admin-root="true"] .shadow-sm, html [data-app-root="true"] .shadow-sm,
+html [data-admin-root="true"] .shadow-md, html [data-app-root="true"] .shadow-md {
   box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1) !important;
 }
-html [data-admin-root="true"] .shadow-lg,  html [data-dashboard-root="true"] .shadow-lg,
-html [data-admin-root="true"] .shadow-xl,  html [data-dashboard-root="true"] .shadow-xl,
-html [data-admin-root="true"] .shadow-2xl, html [data-dashboard-root="true"] .shadow-2xl {
+html [data-admin-root="true"] .shadow-lg,  html [data-app-root="true"] .shadow-lg,
+html [data-admin-root="true"] .shadow-xl,  html [data-app-root="true"] .shadow-xl,
+html [data-admin-root="true"] .shadow-2xl, html [data-app-root="true"] .shadow-2xl {
   box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1) !important;
 }
 
 /* --- Forms (inputs / textareas / selects) --- */
-html [data-admin-root="true"] input,    html [data-dashboard-root="true"] input,
-html [data-admin-root="true"] textarea, html [data-dashboard-root="true"] textarea,
-html [data-admin-root="true"] select,   html [data-dashboard-root="true"] select {
+html [data-admin-root="true"] input,    html [data-app-root="true"] input,
+html [data-admin-root="true"] textarea, html [data-app-root="true"] textarea,
+html [data-admin-root="true"] select,   html [data-app-root="true"] select {
   background-color: #ffffff !important;
   color: #111827 !important;
   border-color: #d1d5db !important;
 }
-html [data-admin-root="true"] input::placeholder,    html [data-dashboard-root="true"] input::placeholder,
-html [data-admin-root="true"] textarea::placeholder, html [data-dashboard-root="true"] textarea::placeholder { color: #9ca3af !important; }
+html [data-admin-root="true"] input::placeholder,    html [data-app-root="true"] input::placeholder,
+html [data-admin-root="true"] textarea::placeholder, html [data-app-root="true"] textarea::placeholder { color: #9ca3af !important; }
 
 /* --- Aurora card override (volt makes them dark) --- */
-html [data-admin-root="true"] .aurora-card, html [data-dashboard-root="true"] .aurora-card {
+html [data-admin-root="true"] .aurora-card, html [data-app-root="true"] .aurora-card {
   background: #ffffff !important;
   border-color: rgba(99, 102, 241, 0.08) !important;
   color: #111827 !important;
 }
 
 /* --- Arbitrary-value light backgrounds (page wrappers) --- */
-html [data-admin-root="true"] [class*="bg-[#f8f7fc]"], html [data-dashboard-root="true"] [class*="bg-[#f8f7fc]"],
-html [data-admin-root="true"] [class*="bg-[#f8fafc]"], html [data-dashboard-root="true"] [class*="bg-[#f8fafc]"],
-html [data-admin-root="true"] [class*="bg-[#f9fafb]"], html [data-dashboard-root="true"] [class*="bg-[#f9fafb]"],
-html [data-admin-root="true"] [class*="bg-[#fafafa]"], html [data-dashboard-root="true"] [class*="bg-[#fafafa]"],
-html [data-admin-root="true"] [class*="bg-[#f5f5f5]"], html [data-dashboard-root="true"] [class*="bg-[#f5f5f5]"],
-html [data-admin-root="true"] [class*="bg-[#f3f4f6]"], html [data-dashboard-root="true"] [class*="bg-[#f3f4f6]"],
-html [data-admin-root="true"] [class*="bg-[#fff]"],    html [data-dashboard-root="true"] [class*="bg-[#fff]"],
-html [data-admin-root="true"] [class*="bg-[#ffffff]"], html [data-dashboard-root="true"] [class*="bg-[#ffffff]"] {
+html [data-admin-root="true"] [class*="bg-[#f8f7fc]"], html [data-app-root="true"] [class*="bg-[#f8f7fc]"],
+html [data-admin-root="true"] [class*="bg-[#f8fafc]"], html [data-app-root="true"] [class*="bg-[#f8fafc]"],
+html [data-admin-root="true"] [class*="bg-[#f9fafb]"], html [data-app-root="true"] [class*="bg-[#f9fafb]"],
+html [data-admin-root="true"] [class*="bg-[#fafafa]"], html [data-app-root="true"] [class*="bg-[#fafafa]"],
+html [data-admin-root="true"] [class*="bg-[#f5f5f5]"], html [data-app-root="true"] [class*="bg-[#f5f5f5]"],
+html [data-admin-root="true"] [class*="bg-[#f3f4f6]"], html [data-app-root="true"] [class*="bg-[#f3f4f6]"],
+html [data-admin-root="true"] [class*="bg-[#fff]"],    html [data-app-root="true"] [class*="bg-[#fff]"],
+html [data-admin-root="true"] [class*="bg-[#ffffff]"], html [data-app-root="true"] [class*="bg-[#ffffff]"] {
   background-color: #ffffff !important;
 }
 

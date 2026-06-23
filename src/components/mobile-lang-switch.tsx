@@ -9,7 +9,7 @@ export function MobileLangSwitch() {
   const altLocale = locale === "zh" ? "en" : "zh";
   const altPath = pathname.replace(/^\/(zh|en)/, `/${altLocale}`);
 
-  if (pathname.includes("/admin")) return null;
+  if (pathname.includes("/admin") || pathname.includes("/dashboard")) return null;
 
   return (
     <header

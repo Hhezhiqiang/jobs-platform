@@ -12,7 +12,7 @@ export default function PrivateLayout({ children }: { children: React.ReactNode 
   return (
     <>
       <meta name="color-scheme" content="light only" />
-      <div data-dashboard-root="true" style={{ colorScheme: "light" }}>
+      <div data-app-root="true" data-dashboard-root="true" style={{ colorScheme: "light" }}>
         {children}
       </div>
       <DashboardEffects />

@@ -7,8 +7,8 @@ import { MessageCircle, X, Send } from "lucide-react";
 export function TelegramFloatButton() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname() ?? "";
-  // Hide on admin pages — no need for support widget in admin chrome
-  if (/^\/(zh|en)\/admin(\/|$)/.test(pathname)) return null;
+  // Hide on admin & dashboard pages — no need for support widget in app chrome
+  if (/^\/(zh|en)\/(admin|dashboard)(\/|$)/.test(pathname)) return null;
 
   return (
     <>

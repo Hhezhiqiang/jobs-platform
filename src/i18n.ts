@@ -10,11 +10,19 @@ const messages: Record<string, Record<string, unknown>> = {
   zh: { ...zh, dashboard: zhDashboard },
 };
 
+const LOCALES = ["zh", "en"] as const;
+const DEFAULT_LOCALE = "zh";
+
 export default getRequestConfig(async ({ requestLocale }) => {
-  const locale = await requestLocale;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // requestLocale can be `undefined` for static prerendering of locale-agnostic
+  // routes (sitemap.xml, opengraph-image, etc.) — fall back to default to
+  // avoid `MISSING_MESSAGE` / "No messages found" SSR errors.
+  let locale = await requestLocale;
+  if (!locale || !(LOCALES as readonly string[]).includes(locale)) {
+    locale = DEFAULT_LOCALE;
+  }
   return {
     locale,
-    messages: messages[locale as string] as any,
+    messages: messages[locale],
   };
 });

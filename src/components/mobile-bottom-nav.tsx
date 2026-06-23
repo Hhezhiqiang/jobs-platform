@@ -55,7 +55,7 @@ export function MobileBottomNav() {
   const pathname = usePathname() || "/";
   const locale = pathname.startsWith("/en") ? "en" : "zh";
 
-  if (pathname.includes("/admin")) return null;
+  if (pathname.includes("/admin") || pathname.includes("/dashboard")) return null;
 
   return (
     <nav

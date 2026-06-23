@@ -1,10 +1,19 @@
 "use client";
 
-import "@/styles/volt-theme.css";
+// NOTE: volt-theme.css is loaded via next/dynamic below so its 400-line
+// !important-heavy reskin is code-split OUT of the admin/dashboard CSS
+// bundles. Importing it at the top of this file (the previous behaviour)
+// caused it to ship to every route, breaking iOS dark-mode visibility on
+// admin pages. See src/components/volt-theme-loader.tsx for details.
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
+
+const VoltThemeLoader = dynamic(() => import("./volt-theme-loader"), {
+  ssr: true,
+});
 
 const NAV = [
   { href: "jobs", zh: "职位", en: "Jobs" },
@@ -45,11 +54,15 @@ export function Header({ transparent }: { transparent?: boolean }) {
     return () => document.removeEventListener("click", close);
   }, [menuOpen, moreOpen]);
 
-  if (pathname.includes("/admin")) return null;
+  if (pathname.includes("/admin") || pathname.includes("/dashboard")) return null;
 
   return (
-    <header
-      className="volt-site-header sticky top-0 z-40 hidden md:block backdrop-blur-xl"
+    <>
+      {/* Lazy-loaded side-effect: pulls volt-theme.css into a chunk that is
+          only fetched when the public-site Header actually renders. */}
+      <VoltThemeLoader />
+      <header
+        className="volt-site-header sticky top-0 z-40 hidden md:block backdrop-blur-xl"
       style={{
         background:
           scrolled || !transparent ? "rgba(10,10,10,0.78)" : "transparent",
@@ -234,5 +247,6 @@ export function Header({ transparent }: { transparent?: boolean }) {
         </div>
       </div>
     </header>
+    </>
   );
 }

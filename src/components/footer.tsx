@@ -43,7 +43,7 @@ export function Footer() {
   const altPath = pathname.replace(/^\/(zh|en)/, `/${altLocale}`);
   const year = new Date().getFullYear();
 
-  if (pathname.includes("/admin")) return null;
+  if (pathname.includes("/admin") || pathname.includes("/dashboard")) return null;
 
   return (
     <footer
