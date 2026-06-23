@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Noto_Sans_SC, Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import { Inter, Noto_Sans_SC, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import { generateWebsiteSchema } from "@/lib/schema";
 import { safeJsonLdStringify } from "@/lib/utils";
@@ -22,16 +22,8 @@ const notoSansSC = Noto_Sans_SC({
   variable: "--font-noto-sans-sc",
   preload: false,
 });
-const geistSans = Geist({
-  subsets: ["latin"],
-  variable: "--font-geist-sans",
-  display: "swap",
-});
-const geistMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-geist-mono",
-  display: "swap",
-});
+const geistSans = { variable: "" };
+const geistMono = { variable: "" };
 const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
   variable: "--font-instrument-serif",

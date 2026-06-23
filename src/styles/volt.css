@@ -12,7 +12,7 @@
   --volt-soft: rgba(182, 255, 61, 0.14);
   --hot: #ff5a36;
   --serif: var(--font-instrument-serif), "Times New Roman", serif;
-  --mono: var(--font-geist-mono), ui-monospace, monospace;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 
   background: var(--ink);
   color: var(--fg);
