@@ -1,69 +1,71 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { DollarSign, BarChart3, TrendingUp, MapPin, Briefcase } from "lucide-react";
 
-export default function SalaryComparePage({ params }: { params: { locale: string } }) {
-  const [loading, setLoading] = useState(true);
-  
-  const [locale, setLocale] = useState("zh");
-  const [selectedCity, setSelectedCity] = useState("北京");
-  const [selectedRole, setSelectedRole] = useState("前端工程师");
+type RoleKey = "frontend" | "backend" | "fullstack" | "pm" | "data";
+type CityKey = "beijing" | "shanghai" | "shenzhen" | "hangzhou" | "chengdu" | "remote";
+
+const ROLE_KEYS: RoleKey[] = ["frontend", "backend", "fullstack", "pm", "data"];
+const CITY_KEYS: CityKey[] = ["beijing", "shanghai", "shenzhen", "hangzhou", "chengdu", "remote"];
+
+const SALARY_DATA: Record<RoleKey, Record<CityKey, { min: number; mid: number; max: number }>> = {
+  frontend: {
+    beijing:   { min: 12, mid: 22, max: 40 },
+    shanghai:  { min: 11, mid: 20, max: 38 },
+    shenzhen:  { min: 11, mid: 21, max: 36 },
+    hangzhou:  { min: 10, mid: 18, max: 32 },
+    chengdu:   { min: 8,  mid: 14, max: 25 },
+    remote:    { min: 10, mid: 18, max: 35 },
+  },
+  backend: {
+    beijing:   { min: 14, mid: 24, max: 45 },
+    shanghai:  { min: 13, mid: 22, max: 42 },
+    shenzhen:  { min: 13, mid: 23, max: 40 },
+    hangzhou:  { min: 11, mid: 19, max: 35 },
+    chengdu:   { min: 9,  mid: 15, max: 28 },
+    remote:    { min: 11, mid: 19, max: 38 },
+  },
+  fullstack: {
+    beijing:   { min: 15, mid: 26, max: 48 },
+    shanghai:  { min: 14, mid: 24, max: 45 },
+    shenzhen:  { min: 14, mid: 25, max: 42 },
+    hangzhou:  { min: 12, mid: 21, max: 38 },
+    chengdu:   { min: 10, mid: 16, max: 30 },
+    remote:    { min: 12, mid: 21, max: 40 },
+  },
+  pm: {
+    beijing:   { min: 13, mid: 23, max: 42 },
+    shanghai:  { min: 12, mid: 21, max: 40 },
+    shenzhen:  { min: 12, mid: 22, max: 38 },
+    hangzhou:  { min: 11, mid: 19, max: 35 },
+    chengdu:   { min: 9,  mid: 15, max: 28 },
+    remote:    { min: 11, mid: 19, max: 36 },
+  },
+  data: {
+    beijing:   { min: 15, mid: 25, max: 50 },
+    shanghai:  { min: 14, mid: 23, max: 48 },
+    shenzhen:  { min: 14, mid: 24, max: 45 },
+    hangzhou:  { min: 12, mid: 20, max: 38 },
+    chengdu:   { min: 10, mid: 16, max: 30 },
+    remote:    { min: 12, mid: 20, max: 42 },
+  },
+};
+
+export default function SalaryComparePage() {
+  const t = useTranslations("dashboard.salaryPage");
+  const tRoles = useTranslations("dashboard.salaryPage.roles");
+  const tCities = useTranslations("dashboard.salaryPage.cities");
+
+  const [selectedCity, setSelectedCity] = useState<CityKey>("beijing");
+  const [selectedRole, setSelectedRole] = useState<RoleKey>("frontend");
 
   useEffect(() => {
-    setLoading(false);
+    // placeholder for future async load
   }, []);
 
-  const isEn = locale === "en";
-
-  // 模拟薪资数据（实际应从 API 获取）
-  const salaryData: Record<string, Record<string, { min: number; mid: number; max: number }>> = {
-    "前端工程师": {
-      "北京": { min: 12, mid: 22, max: 40 },
-      "上海": { min: 11, mid: 20, max: 38 },
-      "深圳": { min: 11, mid: 21, max: 36 },
-      "杭州": { min: 10, mid: 18, max: 32 },
-      "成都": { min: 8, mid: 14, max: 25 },
-      "远程": { min: 10, mid: 18, max: 35 },
-    },
-    "后端工程师": {
-      "北京": { min: 14, mid: 24, max: 45 },
-      "上海": { min: 13, mid: 22, max: 42 },
-      "深圳": { min: 13, mid: 23, max: 40 },
-      "杭州": { min: 11, mid: 19, max: 35 },
-      "成都": { min: 9, mid: 15, max: 28 },
-      "远程": { min: 11, mid: 19, max: 38 },
-    },
-    "全栈工程师": {
-      "北京": { min: 15, mid: 26, max: 48 },
-      "上海": { min: 14, mid: 24, max: 45 },
-      "深圳": { min: 14, mid: 25, max: 42 },
-      "杭州": { min: 12, mid: 21, max: 38 },
-      "成都": { min: 10, mid: 16, max: 30 },
-      "远程": { min: 12, mid: 21, max: 40 },
-    },
-    "产品经理": {
-      "北京": { min: 13, mid: 23, max: 42 },
-      "上海": { min: 12, mid: 21, max: 40 },
-      "深圳": { min: 12, mid: 22, max: 38 },
-      "杭州": { min: 11, mid: 19, max: 35 },
-      "成都": { min: 9, mid: 15, max: 28 },
-      "远程": { min: 11, mid: 19, max: 36 },
-    },
-    "数据工程师": {
-      "北京": { min: 15, mid: 25, max: 50 },
-      "上海": { min: 14, mid: 23, max: 48 },
-      "深圳": { min: 14, mid: 24, max: 45 },
-      "杭州": { min: 12, mid: 20, max: 38 },
-      "成都": { min: 10, mid: 16, max: 30 },
-      "远程": { min: 12, mid: 20, max: 42 },
-    },
-  };
-
-  const roles = Object.keys(salaryData);
-  const cities = ["北京", "上海", "深圳", "杭州", "成都", "远程"];
-  const data = salaryData[selectedRole]?.[selectedCity] || { min: 0, mid: 0, max: 0 };
+  const data = SALARY_DATA[selectedRole][selectedCity];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -72,9 +74,9 @@ export default function SalaryComparePage({ params }: { params: { locale: string
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <DollarSign className="w-7 h-7 text-green-600" />
-            {isEn ? "Salary Comparison" : "薪资对比"}
+            {t("title")}
           </h1>
-          <p className="text-gray-500 mt-1">{isEn ? "Compare salaries across cities and roles" : "对比不同城市和岗位的薪资水平"}</p>
+          <p className="text-gray-500 mt-1">{t("subtitle")}</p>
         </div>
 
         {/* Filters */}
@@ -83,12 +85,12 @@ export default function SalaryComparePage({ params }: { params: { locale: string
             <div>
               <label className="text-sm text-gray-500 mb-1 block flex items-center gap-1">
                 <Briefcase className="w-4 h-4" />
-                {isEn ? "Role" : "岗位"}
+                {t("role")}
               </label>
               <div className="flex flex-wrap gap-2">
-                {roles.map(role => (
+                {ROLE_KEYS.map(role => (
                   <button key={role} onClick={() => setSelectedRole(role)} className={`px-3 py-1.5 rounded-full text-sm transition ${selectedRole === role ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}>
-                    {role}
+                    {tRoles(role)}
                   </button>
                 ))}
               </div>
@@ -96,12 +98,12 @@ export default function SalaryComparePage({ params }: { params: { locale: string
             <div>
               <label className="text-sm text-gray-500 mb-1 block flex items-center gap-1">
                 <MapPin className="w-4 h-4" />
-                {isEn ? "City" : "城市"}
+                {t("city")}
               </label>
               <div className="flex flex-wrap gap-2">
-                {cities.map(city => (
+                {CITY_KEYS.map(city => (
                   <button key={city} onClick={() => setSelectedCity(city)} className={`px-3 py-1.5 rounded-full text-sm transition ${selectedCity === city ? "bg-green-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}>
-                    {city}
+                    {tCities(city)}
                   </button>
                 ))}
               </div>
@@ -112,28 +114,28 @@ export default function SalaryComparePage({ params }: { params: { locale: string
         {/* Salary Display */}
         <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            {selectedCity} · {selectedRole} {isEn ? "(K/month)" : "(K/月)"}
+            {tCities(selectedCity)} · {tRoles(selectedRole)} {t("kPerMonth")}
           </h3>
           <div className="grid grid-cols-3 gap-6">
             <div className="text-center">
-              <div className="text-sm text-gray-500 mb-1">{isEn ? "Junior" : "初级"}</div>
+              <div className="text-sm text-gray-500 mb-1">{t("junior")}</div>
               <div className="text-3xl font-bold text-blue-600">{data.min}K</div>
             </div>
             <div className="text-center">
-              <div className="text-sm text-gray-500 mb-1">{isEn ? "Mid" : "中级"}</div>
+              <div className="text-sm text-gray-500 mb-1">{t("mid")}</div>
               <div className="text-3xl font-bold text-green-600">{data.mid}K</div>
             </div>
             <div className="text-center">
-              <div className="text-sm text-gray-500 mb-1">{isEn ? "Senior" : "高级"}</div>
+              <div className="text-sm text-gray-500 mb-1">{t("senior")}</div>
               <div className="text-3xl font-bold text-purple-600">{data.max}K</div>
             </div>
           </div>
           {/* Bar chart */}
           <div className="mt-6 space-y-3">
             {[
-              { label: isEn ? "Junior" : "初级", value: data.min, color: "bg-blue-500" },
-              { label: isEn ? "Mid" : "中级", value: data.mid, color: "bg-green-500" },
-              { label: isEn ? "Senior" : "高级", value: data.max, color: "bg-purple-500" },
+              { label: t("junior"), value: data.min, color: "bg-blue-500" },
+              { label: t("mid"),    value: data.mid, color: "bg-green-500" },
+              { label: t("senior"), value: data.max, color: "bg-purple-500" },
             ].map(item => (
               <div key={item.label} className="flex items-center gap-3">
                 <span className="text-sm text-gray-500 w-12 text-right">{item.label}</span>
@@ -151,15 +153,14 @@ export default function SalaryComparePage({ params }: { params: { locale: string
         <div className="bg-white rounded-xl p-6 shadow-sm">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-orange-600" />
-            {isEn ? "All Cities Comparison" : "各城市对比"}
+            {t("allCitiesComparison")}
           </h3>
           <div className="space-y-2">
-            {cities.map(city => {
-              const d = salaryData[selectedRole]?.[city];
-              if (!d) return null;
+            {CITY_KEYS.map(city => {
+              const d = SALARY_DATA[selectedRole][city];
               return (
                 <div key={city} className={`flex items-center gap-4 p-3 rounded-lg ${city === selectedCity ? "bg-blue-50 border border-blue-200" : ""}`}>
-                  <span className="w-12 text-sm font-medium text-gray-900">{city}</span>
+                  <span className="w-12 text-sm font-medium text-gray-900">{tCities(city)}</span>
                   <div className="flex-1 grid grid-cols-3 gap-2 text-center text-sm">
                     <span className="text-blue-600">{d.min}K</span>
                     <span className="text-green-600">{d.mid}K</span>

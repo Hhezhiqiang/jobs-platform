@@ -1,5 +1,5 @@
-"use client"
-import { useLocale } from "next-intl";
+"use client";
+import { useLocale, useTranslations } from "next-intl";
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -34,17 +34,26 @@ interface Application {
   };
 }
 
-const statusMap: Record<string, { label: string; color: string }> = {
-  PENDING: { label: "待处理", color: "bg-yellow-100 text-yellow-800" },
-  VIEWED: { label: "已查看", color: "bg-blue-100 text-blue-800" },
-  INTERVIEW: { label: "面试邀请", color: "bg-green-100 text-green-800" },
-  REJECTED: { label: "已拒绝", color: "bg-red-100 text-red-800" },
-  OFFER: { label: "已录用", color: "bg-purple-100 text-purple-800" },
-  WITHDRAWN: { label: "已撤回", color: "bg-gray-100 text-gray-800" },
+const statusColor: Record<string, string> = {
+  PENDING: "bg-yellow-100 text-yellow-800",
+  VIEWED: "bg-blue-100 text-blue-800",
+  INTERVIEW: "bg-green-100 text-green-800",
+  REJECTED: "bg-red-100 text-red-800",
+  OFFER: "bg-purple-100 text-purple-800",
+  WITHDRAWN: "bg-gray-100 text-gray-800",
 };
 
 export default function ApplicationsPage() {
   const locale = useLocale();
+  const t = useTranslations("dashboard.applicationsPage");
+  const tNav = useTranslations("dashboard.applicationsPage.nav");
+  const tFilter = useTranslations("dashboard.applicationsPage.filter");
+  const tEmpty = useTranslations("dashboard.applicationsPage.empty");
+  const tTL = useTranslations("dashboard.applicationsPage.timeline");
+  const tActs = useTranslations("dashboard.applicationsPage.actions");
+  const tSt = useTranslations("dashboard.applicationsPage.status");
+  const tMsg = useTranslations("dashboard.applicationsPage.messages");
+
   const { data: session, status } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -58,7 +67,6 @@ export default function ApplicationsPage() {
       router.push(`/${locale}/auth/login`);
       return;
     }
-
     if (status === "authenticated") {
       fetchApplications();
     }
@@ -68,78 +76,63 @@ export default function ApplicationsPage() {
   const fetchApplications = async () => {
     try {
       setLoading(true);
-      const url = filter
-        ? `/api/applications?status=${filter}`
-        : "/api/applications";
+      const url = filter ? `/api/applications?status=${filter}` : "/api/applications";
       const res = await fetch(url);
       const data = await res.json();
-
       if (res.ok) {
         setApplications(data.applications);
       } else {
-        setMessage({ type: "error", text: data.error || "获取申请列表失败" });
+        setMessage({ type: "error", text: data.error || tMsg("fetchFailed") });
       }
     } catch (error) {
       logger.error("Failed to fetch applications:", error);
-      setMessage({ type: "error", text: "获取申请列表失败" });
+      setMessage({ type: "error", text: tMsg("fetchFailed") });
     } finally {
       setLoading(false);
     }
   };
 
   const withdrawApplication = async (applicationId: string) => {
-    if (!confirm("确定要撤回该申请吗？")) return;
-
+    if (!confirm(tMsg("withdrawConfirm"))) return;
     setWithdrawingId(applicationId);
     setMessage({ type: "", text: "" });
-
     try {
       const res = await fetch("/api/applications", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          applicationId,
-          status: "WITHDRAWN",
-        }),
+        body: JSON.stringify({ applicationId, status: "WITHDRAWN" }),
       });
-
       if (res.ok) {
-        setMessage({ type: "success", text: "申请已撤回" });
+        setMessage({ type: "success", text: tMsg("withdrawSuccess") });
         fetchApplications();
       } else {
         const data = await res.json();
-        setMessage({ type: "error", text: data.error || "撤回失败" });
+        setMessage({ type: "error", text: data.error || tMsg("withdrawFailed") });
       }
     } catch (error) {
-      setMessage({ type: "error", text: "撤回失败，请稍后重试" });
+      setMessage({ type: "error", text: tMsg("withdrawRetry") });
     } finally {
       setWithdrawingId(null);
     }
   };
 
   const deleteApplication = async (applicationId: string) => {
-    if (!confirm("确定要删除该申请记录吗？此操作不可恢复。")) return;
-
+    if (!confirm(tMsg("deleteConfirm"))) return;
     try {
-      const res = await fetch(`/api/applications?id=${applicationId}`, {
-        method: "DELETE",
-      });
-
+      const res = await fetch(`/api/applications?id=${applicationId}`, { method: "DELETE" });
       if (res.ok) {
-        setMessage({ type: "success", text: "申请记录已删除" });
+        setMessage({ type: "success", text: tMsg("deleteSuccess") });
         fetchApplications();
       } else {
         const data = await res.json();
-        setMessage({ type: "error", text: data.error || "删除失败" });
+        setMessage({ type: "error", text: data.error || tMsg("deleteFailed") });
       }
     } catch (error) {
-      setMessage({ type: "error", text: "删除失败，请稍后重试" });
+      setMessage({ type: "error", text: tMsg("deleteRetry") });
     }
   };
 
-  const getSalaryText = (app: Application) => {
-    return formatSalary(app.jobs.salaryMin, app.jobs.salaryMax);
-  };
+  const getSalaryText = (app: Application) => formatSalary(app.jobs.salaryMin, app.jobs.salaryMax);
 
   if (status === "loading" || loading) {
     return (
@@ -169,17 +162,17 @@ export default function ApplicationsPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link href={`/${locale}`} className="text-blue-600 hover:text-blue-800">
-                ← 返回首页
+                {t("backHome")}
               </Link>
-              <h1 className="text-2xl font-bold">我的申请</h1>
+              <h1 className="text-2xl font-bold">{t("title")}</h1>
             </div>
             <div className="flex items-center gap-4">
-              <span className="text-gray-600">欢迎，{session?.user?.name}</span>
+              <span className="text-gray-600">{t("welcomeUser", { name: session?.user?.name ?? "" })}</span>
               <button
                 onClick={() => signOut()}
                 className="text-sm text-gray-500 hover:text-gray-700"
               >
-                退出登录
+                {t("logout")}
               </button>
             </div>
           </div>
@@ -191,29 +184,17 @@ export default function ApplicationsPage() {
           {/* 侧边导航 */}
           <div className="md:col-span-1">
             <nav className="bg-white rounded-lg shadow p-4 space-y-2">
-              <Link
-                href={`/${locale}/dashboard`}
-                className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg"
-              >
-                📊 概览
+              <Link href={`/${locale}/dashboard`} className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg">
+                {tNav("overview")}
               </Link>
-              <Link
-                href={`/${locale}/dashboard/profile`}
-                className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg"
-              >
-                📄 我的简历
+              <Link href={`/${locale}/dashboard/profile`} className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg">
+                {tNav("profile")}
               </Link>
-              <Link
-                href={`/${locale}/dashboard/applications`}
-                className="block px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-medium"
-              >
-                📋 我的申请
+              <Link href={`/${locale}/dashboard/applications`} className="block px-4 py-2 bg-blue-50 text-blue-700 rounded-lg font-medium">
+                {tNav("applications")}
               </Link>
-              <Link
-                href={`/${locale}/dashboard/settings`}
-                className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg"
-              >
-                ⚙️ 账号设置
+              <Link href={`/${locale}/dashboard/settings`} className="block px-4 py-2 text-gray-700 hover:bg-gray-50 rounded-lg">
+                {tNav("settings")}
               </Link>
             </nav>
           </div>
@@ -221,13 +202,7 @@ export default function ApplicationsPage() {
           {/* 主内容区 */}
           <div className="md:col-span-3">
             {message.text && (
-              <div
-                className={`mb-4 p-4 rounded-lg ${
-                  message.type === "success"
-                    ? "bg-green-100 text-green-800"
-                    : "bg-red-100 text-red-800"
-                }`}
-              >
+              <div className={`mb-4 p-4 rounded-lg ${message.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
                 {message.text}
               </div>
             )}
@@ -235,25 +210,22 @@ export default function ApplicationsPage() {
             {/* 筛选器 */}
             <div className="bg-white rounded-lg shadow p-4 mb-6">
               <div className="flex items-center gap-4 flex-wrap">
-                <span className="text-gray-700 font-medium">筛选状态：</span>
+                <span className="text-gray-700 font-medium">{tFilter("label")}</span>
                 <select
                   value={filter}
-                  onChange={(e) => setFilter(e.target.value)}
+                  onChange={e => setFilter(e.target.value)}
                   className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">全部</option>
-                  <option value="PENDING">待处理</option>
-                  <option value="VIEWED">已查看</option>
-                  <option value="INTERVIEW">面试邀请</option>
-                  <option value="REJECTED">已拒绝</option>
-                  <option value="OFFER">已录用</option>
-                  <option value="WITHDRAWN">已撤回</option>
+                  <option value="">{tFilter("all")}</option>
+                  <option value="PENDING">{tFilter("PENDING")}</option>
+                  <option value="VIEWED">{tFilter("VIEWED")}</option>
+                  <option value="INTERVIEW">{tFilter("INTERVIEW")}</option>
+                  <option value="REJECTED">{tFilter("REJECTED")}</option>
+                  <option value="OFFER">{tFilter("OFFER")}</option>
+                  <option value="WITHDRAWN">{tFilter("WITHDRAWN")}</option>
                 </select>
-                <Link
-                  href={`/${locale}/jobs`}
-                  className="ml-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-                >
-                  浏览职位
+                <Link href={`/${locale}/jobs`} className="ml-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                  {t("browseJobs")}
                 </Link>
               </div>
             </div>
@@ -263,30 +235,21 @@ export default function ApplicationsPage() {
               {applications.length === 0 ? (
                 <div className="p-12 text-center">
                   <div className="text-6xl mb-4">📋</div>
-                  <p className="text-gray-600 mb-4">暂无申请记录</p>
-                  <Link
-                    href={`/${locale}/jobs`}
-                    className="text-blue-600 hover:text-blue-800"
-                  >
-                    去浏览职位 →
+                  <p className="text-gray-600 mb-4">{tEmpty("title")}</p>
+                  <Link href={`/${locale}/jobs`} className="text-blue-600 hover:text-blue-800">
+                    {tEmpty("cta")}
                   </Link>
                 </div>
               ) : (
                 <div className="divide-y">
-                  {applications.map((app) => (
+                  {applications.map(app => (
                     <div key={app.id} className="p-6">
                       <div className="flex items-start justify-between mb-4">
                         <div>
-                          <Link
-                            href={`/${locale}/jobs/${app.jobs.slug}`}
-                            className="text-lg font-semibold text-blue-600 hover:text-blue-800"
-                          >
+                          <Link href={`/${locale}/jobs/${app.jobs.slug}`} className="text-lg font-semibold text-blue-600 hover:text-blue-800">
                             {app.jobs.title}
                           </Link>
-                          <Link
-                            href={`/${locale}/companies/${app.jobs.companies.slug}`}
-                            className="block text-gray-600 hover:text-gray-800 mt-1"
-                          >
+                          <Link href={`/${locale}/companies/${app.jobs.companies.slug}`} className="block text-gray-600 hover:text-gray-800 mt-1">
                             {app.jobs.companies.name}
                           </Link>
                           <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
@@ -294,13 +257,11 @@ export default function ApplicationsPage() {
                             <span>💰 {getSalaryText(app)}</span>
                           </div>
                         </div>
-                        <span
-                          className={`px-3 py-1 rounded-full text-sm ${
-                            statusMap[app.status]?.color ||
-                            "bg-gray-100 text-gray-800"
-                          }`}
-                        >
-                          {statusMap[app.status]?.label || app.status}
+                        <span className={`px-3 py-1 rounded-full text-sm ${statusColor[app.status] || "bg-gray-100 text-gray-800"}`}>
+                          {(() => {
+                            const known = ["PENDING", "VIEWED", "INTERVIEW", "REJECTED", "OFFER", "WITHDRAWN"];
+                            return known.includes(app.status) ? tSt(app.status) : app.status;
+                          })()}
                         </span>
                       </div>
 
@@ -308,65 +269,52 @@ export default function ApplicationsPage() {
                       <div className="bg-gray-50 rounded-lg p-4 mb-4 overflow-x-auto">
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm min-w-[280px]">
                           <div>
-                            <p className="text-gray-500">申请时间</p>
+                            <p className="text-gray-500">{tTL("appliedAt")}</p>
                             <p className="font-medium">
-                              {new Date(app.appliedAt).toLocaleDateString(
-                                locale === "en" ? "en-US" : "zh-CN"
-                              )}
+                              {new Date(app.appliedAt).toLocaleDateString(locale === "en" ? "en-US" : "zh-CN")}
                             </p>
                           </div>
                           {app.viewedAt && (
                             <div>
-                              <p className="text-gray-500">HR查看</p>
+                              <p className="text-gray-500">{tTL("viewedAt")}</p>
                               <p className="font-medium">
-                                {new Date(app.viewedAt).toLocaleDateString(
-                                  locale === "en" ? "en-US" : "zh-CN"
-                                )}
+                                {new Date(app.viewedAt).toLocaleDateString(locale === "en" ? "en-US" : "zh-CN")}
                               </p>
                             </div>
                           )}
                           {app.respondedAt && (
                             <div>
-                              <p className="text-gray-500">HR回复</p>
+                              <p className="text-gray-500">{tTL("respondedAt")}</p>
                               <p className="font-medium">
-                                {new Date(app.respondedAt).toLocaleDateString(
-                                  locale === "en" ? "en-US" : "zh-CN"
-                                )}
+                                {new Date(app.respondedAt).toLocaleDateString(locale === "en" ? "en-US" : "zh-CN")}
                               </p>
                             </div>
                           )}
                           {app.withdrewAt && (
                             <div>
-                              <p className="text-gray-500">撤回时间</p>
+                              <p className="text-gray-500">{tTL("withdrewAt")}</p>
                               <p className="font-medium">
-                                {new Date(app.withdrewAt).toLocaleDateString(
-                                  locale === "en" ? "en-US" : "zh-CN"
-                                )}
+                                {new Date(app.withdrewAt).toLocaleDateString(locale === "en" ? "en-US" : "zh-CN")}
                               </p>
                             </div>
                           )}
                         </div>
 
-                        {/* 回复信息 */}
                         {app.responseNote && (
                           <div className="mt-4 pt-4 border-t">
-                            <p className="text-gray-500 mb-1">HR回复</p>
+                            <p className="text-gray-500 mb-1">{tTL("hrResponse")}</p>
                             <p className="text-gray-800">{app.responseNote}</p>
                           </div>
                         )}
 
-                        {/* 求职信 */}
                         {app.coverLetter && (
                           <div className="mt-4 pt-4 border-t">
-                            <p className="text-gray-500 mb-1">我的求职信</p>
-                            <p className="text-gray-800 whitespace-pre-wrap">
-                              {app.coverLetter}
-                            </p>
+                            <p className="text-gray-500 mb-1">{tTL("coverLetter")}</p>
+                            <p className="text-gray-800 whitespace-pre-wrap">{app.coverLetter}</p>
                           </div>
                         )}
                       </div>
 
-                      {/* 操作按钮 */}
                       <div className="flex items-center gap-4">
                         {app.status === "PENDING" && (
                           <button
@@ -374,7 +322,7 @@ export default function ApplicationsPage() {
                             disabled={withdrawingId === app.id}
                             className="text-red-600 hover:text-red-800 text-sm disabled:opacity-50"
                           >
-                            {withdrawingId === app.id ? "撤回中..." : "撤回申请"}
+                            {withdrawingId === app.id ? tActs("withdrawing") : tActs("withdraw")}
                           </button>
                         )}
                         {app.status === "WITHDRAWN" && (
@@ -382,14 +330,11 @@ export default function ApplicationsPage() {
                             onClick={() => deleteApplication(app.id)}
                             className="text-gray-500 hover:text-red-600 text-sm"
                           >
-                            删除记录
+                            {tActs("deleteRecord")}
                           </button>
                         )}
-                        <Link
-                          href={`/${locale}/jobs/${app.jobs.slug}`}
-                          className="text-blue-600 hover:text-blue-800 text-sm"
-                        >
-                          查看职位详情 →
+                        <Link href={`/${locale}/jobs/${app.jobs.slug}`} className="text-blue-600 hover:text-blue-800 text-sm">
+                          {tActs("viewJob")}
                         </Link>
                       </div>
                     </div>

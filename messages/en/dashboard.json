@@ -289,6 +289,19 @@
       "FULL_REMOTE": "Full Remote",
       "HYBRID": "Hybrid",
       "ONSITE": "On-site"
+    },
+    "employmentTypes": {
+      "FULL_TIME": "Full-time",
+      "PART_TIME": "Part-time",
+      "CONTRACT": "Contract",
+      "INTERNSHIP": "Internship",
+      "FREELANCE": "Freelance"
+    },
+    "experienceLevels": {
+      "ENTRY": "Entry / Junior",
+      "MID": "Mid",
+      "SENIOR": "Senior",
+      "EXECUTIVE": "Expert / Management"
     }
   },
   "resumesPage": {

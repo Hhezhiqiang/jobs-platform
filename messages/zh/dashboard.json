@@ -289,6 +289,19 @@
       "FULL_REMOTE": "完全远程",
       "HYBRID": "混合办公",
       "ONSITE": "坐班"
+    },
+    "employmentTypes": {
+      "FULL_TIME": "全职",
+      "PART_TIME": "兼职",
+      "CONTRACT": "合同工",
+      "INTERNSHIP": "实习",
+      "FREELANCE": "自由职业"
+    },
+    "experienceLevels": {
+      "ENTRY": "应届/初级",
+      "MID": "中级",
+      "SENIOR": "高级",
+      "EXECUTIVE": "专家/管理"
     }
   },
   "resumesPage": {

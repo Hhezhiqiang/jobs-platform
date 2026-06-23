@@ -3,15 +3,14 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { logger } from '@/lib/logger';
-import { 
-  Briefcase, 
-  Search, 
-  EyeOff, 
-  Users, 
-  Globe, 
+import {
+  Briefcase,
+  EyeOff,
+  Users,
+  Globe,
   Lock,
   Save,
   Loader2,
@@ -22,62 +21,26 @@ import {
   ArrowLeft
 } from "lucide-react";
 
-// 求职状态配置
-const statusConfig = {
-  OPEN: {
-    label: "积极求职",
-    description: "正在积极寻找新机会，欢迎推荐",
-    color: "bg-green-500",
-    icon: Briefcase,
-    bgColor: "bg-green-50",
-    textColor: "text-green-700",
-    borderColor: "border-green-200",
-  },
-  PASSIVE: {
-    label: "看看机会",
-    description: "有合适的可以考虑，保持关注",
-    color: "bg-yellow-500",
-    icon: EyeOff,
-    bgColor: "bg-yellow-50",
-    textColor: "text-yellow-700",
-    borderColor: "border-yellow-200",
-  },
-  CLOSED: {
-    label: "暂不看机会",
-    description: "当前不看新机会",
-    color: "bg-gray-400",
-    icon: Lock,
-    bgColor: "bg-gray-50",
-    textColor: "text-gray-600",
-    borderColor: "border-gray-200",
-  },
+type StatusKey = "OPEN" | "PASSIVE" | "CLOSED";
+type PrivacyKey = "PUBLIC" | "FOLLOWERS" | "CIRCLES" | "PRIVATE";
+
+const STATUS_KEYS: StatusKey[] = ["OPEN", "PASSIVE", "CLOSED"];
+const PRIVACY_KEYS: PrivacyKey[] = ["PUBLIC", "FOLLOWERS", "CIRCLES", "PRIVATE"];
+
+const statusStyle: Record<StatusKey, { color: string; icon: React.ElementType; bgColor: string; textColor: string; borderColor: string }> = {
+  OPEN:    { color: "bg-green-500",  icon: Briefcase, bgColor: "bg-green-50",  textColor: "text-green-700",  borderColor: "border-green-200" },
+  PASSIVE: { color: "bg-yellow-500", icon: EyeOff,    bgColor: "bg-yellow-50", textColor: "text-yellow-700", borderColor: "border-yellow-200" },
+  CLOSED:  { color: "bg-gray-400",   icon: Lock,      bgColor: "bg-gray-50",   textColor: "text-gray-600",   borderColor: "border-gray-200" },
 };
 
-// 隐私设置配置
-const privacyConfig = {
-  PUBLIC: {
-    label: "公开",
-    description: "所有人都可以看到我的求职状态",
-    icon: Globe,
-  },
-  FOLLOWERS: {
-    label: "仅关注者",
-    description: "只有关注我的人可以看到",
-    icon: Users,
-  },
-  CIRCLES: {
-    label: "仅圈内成员",
-    description: "只有同圈子的人可以看到",
-    icon: Briefcase,
-  },
-  PRIVATE: {
-    label: "仅自己",
-    description: "仅自己可见（开启求职状态后自动设为此项）",
-    icon: Lock,
-  },
+const privacyIcon: Record<PrivacyKey, React.ElementType> = {
+  PUBLIC: Globe,
+  FOLLOWERS: Users,
+  CIRCLES: Briefcase,
+  PRIVATE: Lock,
 };
 
-// 常用期望标签
+// 常用期望标签 — stored as values in DB; not translated.
 const commonTags = [
   "技术驱动", "创业氛围", "大厂平台", "远程办公",
   "弹性工作", "快速成长", "股票期权", "扁平管理",
@@ -89,15 +52,21 @@ export default function JobStatusPage() {
   const { data: session, status: sessionStatus } = useSession();
   const router = useRouter();
   const locale = useLocale();
-  
-  // 表单状态
-  const [status, setStatus] = useState<"OPEN" | "PASSIVE" | "CLOSED">("CLOSED");
+  const t = useTranslations("dashboard.jobStatusPage");
+  const tSec = useTranslations("dashboard.jobStatusPage.sectionTitles");
+  const tErr = useTranslations("dashboard.jobStatusPage.errors");
+  const tStatus = useTranslations("dashboard.jobStatusPage.statusConfig");
+  const tPrivacy = useTranslations("dashboard.jobStatusPage.privacyConfig");
+  const tTags = useTranslations("dashboard.jobStatusPage.tags");
+  const tSalary = useTranslations("dashboard.jobStatusPage.salary");
+  const tBio = useTranslations("dashboard.jobStatusPage.bio");
+
+  const [status, setStatus] = useState<StatusKey>("CLOSED");
   const [expectTags, setExpectTags] = useState<string[]>([]);
   const [expectSalary, setExpectSalary] = useState("");
   const [bio, setBio] = useState("");
-  const [privacy, setPrivacy] = useState<"PUBLIC" | "FOLLOWERS" | "CIRCLES" | "PRIVATE">("CIRCLES");
-  
-  // UI 状态
+  const [privacy, setPrivacy] = useState<PrivacyKey>("CIRCLES");
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -105,13 +74,11 @@ export default function JobStatusPage() {
   const [customTag, setCustomTag] = useState("");
   const [stats, setStats] = useState({ viewCount: 0, recommendCount: 0 });
 
-  // 加载当前状态
   useEffect(() => {
     if (sessionStatus === "unauthenticated") {
       router.push(`/${locale}/auth/login`);
       return;
     }
-
     if (sessionStatus === "authenticated") {
       fetchJobStatus();
     }
@@ -122,11 +89,10 @@ export default function JobStatusPage() {
       const response = await fetch("/api/user/job-status");
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        setError(errorData.error || "加载求职状态失败，请刷新重试");
+        setError(errorData.error || tErr("loadFailed"));
         return;
       }
       const data = await response.json();
-      
       setStatus(data.status);
       setExpectTags(data.expectTags || []);
       setExpectSalary(data.expectSalary || "");
@@ -138,7 +104,7 @@ export default function JobStatusPage() {
       });
     } catch (err) {
       logger.error("Error fetching job status:", err);
-      setError("加载求职状态失败，请刷新重试");
+      setError(tErr("loadFailed"));
     } finally {
       setLoading(false);
     }
@@ -148,7 +114,6 @@ export default function JobStatusPage() {
     setSaving(true);
     setError(null);
     setSuccess(false);
-
     try {
       const response = await fetch("/api/user/job-status", {
         method: "POST",
@@ -161,17 +126,15 @@ export default function JobStatusPage() {
           privacy: status === "CLOSED" ? "PRIVATE" : privacy,
         }),
       });
-
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        setError(errorData.error || "保存失败，请重试");
+        setError(errorData.error || tErr("saveFailed"));
         return;
       }
-
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err: any) {
-      setError(err.message || "保存求职状态失败");
+      setError(err.message || tErr("saveStatusFailed"));
     } finally {
       setSaving(false);
     }
@@ -184,7 +147,7 @@ export default function JobStatusPage() {
   };
 
   const removeTag = (tag: string) => {
-    setExpectTags(expectTags.filter((t) => t !== tag));
+    setExpectTags(expectTags.filter(x => x !== tag));
   };
 
   const addCustomTag = () => {
@@ -202,8 +165,8 @@ export default function JobStatusPage() {
     );
   }
 
-  const currentStatus = statusConfig[status];
-  const StatusIcon = currentStatus.icon;
+  const currentStyle = statusStyle[status];
+  const StatusIcon = currentStyle.icon;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -211,15 +174,12 @@ export default function JobStatusPage() {
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-3xl mx-auto px-4 py-6">
           <div className="flex items-center gap-4">
-            <Link
-              href={`/${locale}/dashboard`}
-              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all"
-            >
+            <Link href={`/${locale}/dashboard`} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-xl transition-all">
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">求职状态设置</h1>
-              <p className="text-gray-500">管理你的求职状态，让机会找到你</p>
+              <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
+              <p className="text-gray-500">{t("subtitle")}</p>
             </div>
           </div>
         </div>
@@ -227,24 +187,24 @@ export default function JobStatusPage() {
 
       <main className="max-w-3xl mx-auto px-4 py-8">
         {/* 状态概览卡片 */}
-        <div className={`rounded-2xl p-6 mb-8 ${currentStatus.bgColor} border ${currentStatus.borderColor}`}>
+        <div className={`rounded-2xl p-6 mb-8 ${currentStyle.bgColor} border ${currentStyle.borderColor}`}>
           <div className="flex items-start gap-4">
-            <div className={`w-14 h-14 rounded-2xl ${currentStatus.color} flex items-center justify-center`}>
+            <div className={`w-14 h-14 rounded-2xl ${currentStyle.color} flex items-center justify-center`}>
               <StatusIcon className="w-7 h-7 text-white" />
             </div>
             <div className="flex-1">
               <div className="flex items-center justify-between">
-                <h2 className={`text-lg font-bold ${currentStatus.textColor}`}>
-                  {currentStatus.label}
+                <h2 className={`text-lg font-bold ${currentStyle.textColor}`}>
+                  {tStatus(`${status}.label`)}
                 </h2>
                 {status !== "CLOSED" && (
                   <div className="text-sm text-gray-500">
-                    被浏览 {stats.viewCount} 次 · 收到 {stats.recommendCount} 个推荐
+                    {t("statsLine", { views: stats.viewCount, recommends: stats.recommendCount })}
                   </div>
                 )}
               </div>
-              <p className={`mt-1 ${currentStatus.textColor} opacity-80`}>
-                {currentStatus.description}
+              <p className={`mt-1 ${currentStyle.textColor} opacity-80`}>
+                {tStatus(`${status}.description`)}
               </p>
             </div>
           </div>
@@ -252,30 +212,25 @@ export default function JobStatusPage() {
 
         {/* 求职状态选择 */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
-          <h3 className="font-bold text-gray-900 mb-4">当前求职状态</h3>
+          <h3 className="font-bold text-gray-900 mb-4">{tSec("currentStatus")}</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {(Object.keys(statusConfig) as Array<keyof typeof statusConfig>).map((key) => {
-              const config = statusConfig[key];
-              const Icon = config.icon;
+            {STATUS_KEYS.map((key) => {
+              const style = statusStyle[key];
+              const Icon = style.icon;
               const isSelected = status === key;
-              
               return (
                 <button
                   key={key}
-                  onClick={() => setStatus(key as any)}
-                  className={`p-4 rounded-xl border-2 transition-all text-left ${
-                    isSelected
-                      ? `${config.borderColor} ${config.bgColor} ring-2 ring-offset-2 ring-blue-500`
-                      : "border-gray-200 hover:border-gray-300 bg-white"
-                  }`}
+                  onClick={() => setStatus(key)}
+                  className={`p-4 rounded-xl border-2 transition-all text-left ${isSelected ? `${style.borderColor} ${style.bgColor} ring-2 ring-offset-2 ring-blue-500` : "border-gray-200 hover:border-gray-300 bg-white"}`}
                 >
-                  <div className={`w-10 h-10 rounded-lg ${config.color} flex items-center justify-center mb-3`}>
+                  <div className={`w-10 h-10 rounded-lg ${style.color} flex items-center justify-center mb-3`}>
                     <Icon className="w-5 h-5 text-white" />
                   </div>
-                  <div className={`font-semibold ${isSelected ? config.textColor : "text-gray-900"}`}>
-                    {config.label}
+                  <div className={`font-semibold ${isSelected ? style.textColor : "text-gray-900"}`}>
+                    {tStatus(`${key}.label`)}
                   </div>
-                  <div className="text-sm text-gray-500 mt-1">{config.description}</div>
+                  <div className="text-sm text-gray-500 mt-1">{tStatus(`${key}.description`)}</div>
                 </button>
               );
             })}
@@ -285,37 +240,29 @@ export default function JobStatusPage() {
         {/* 期望标签 */}
         {status !== "CLOSED" && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
-            <h3 className="font-bold text-gray-900 mb-4">期望团队/方向（最多10个）</h3>
-            
-            {/* 已选标签 */}
+            <h3 className="font-bold text-gray-900 mb-4">{tSec("expectTags")}</h3>
+
             <div className="flex flex-wrap gap-2 mb-4">
-              {expectTags.map((tag) => (
-                <span
-                  key={tag}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium"
-                >
+              {expectTags.map(tag => (
+                <span key={tag} className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-sm font-medium">
                   {tag}
-                  <button
-                    onClick={() => removeTag(tag)}
-                    className="p-0.5 hover:bg-blue-100 rounded-full transition-colors"
-                  >
+                  <button onClick={() => removeTag(tag)} className="p-0.5 hover:bg-blue-100 rounded-full transition-colors">
                     <X className="w-3 h-3" />
                   </button>
                 </span>
               ))}
               {expectTags.length === 0 && (
-                <span className="text-gray-400 text-sm">选择标签让推荐更精准...</span>
+                <span className="text-gray-400 text-sm">{tTags("empty")}</span>
               )}
             </div>
 
-            {/* 自定义标签输入 */}
             <div className="flex gap-2 mb-4">
               <input
                 type="text"
                 value={customTag}
-                onChange={(e) => setCustomTag(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && addCustomTag()}
-                placeholder="添加自定义标签"
+                onChange={e => setCustomTag(e.target.value)}
+                onKeyPress={e => e.key === "Enter" && addCustomTag()}
+                placeholder={tTags("customPlaceholder")}
                 className="flex-1 px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 maxLength={20}
               />
@@ -328,18 +275,13 @@ export default function JobStatusPage() {
               </button>
             </div>
 
-            {/* 常用标签 */}
             <div className="flex flex-wrap gap-2">
-              {commonTags.map((tag) => (
+              {commonTags.map(tag => (
                 <button
                   key={tag}
                   onClick={() => addTag(tag)}
                   disabled={expectTags.includes(tag) || expectTags.length >= 10}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                    expectTags.includes(tag)
-                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                      : "bg-gray-100 text-gray-600 hover:bg-blue-50 hover:text-blue-600"
-                  }`}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${expectTags.includes(tag) ? "bg-gray-100 text-gray-400 cursor-not-allowed" : "bg-gray-100 text-gray-600 hover:bg-blue-50 hover:text-blue-600"}`}
                 >
                   {tag}
                 </button>
@@ -351,12 +293,12 @@ export default function JobStatusPage() {
         {/* 期望薪资 */}
         {status !== "CLOSED" && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
-            <h3 className="font-bold text-gray-900 mb-4">期望薪资范围（可选）</h3>
+            <h3 className="font-bold text-gray-900 mb-4">{tSec("expectSalary")}</h3>
             <input
               type="text"
               value={expectSalary}
-              onChange={(e) => setExpectSalary(e.target.value)}
-              placeholder="例如：30k-50k / 面议"
+              onChange={e => setExpectSalary(e.target.value)}
+              placeholder={tSalary("placeholder")}
               className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               maxLength={50}
             />
@@ -366,58 +308,48 @@ export default function JobStatusPage() {
         {/* 求职宣言 */}
         {status !== "CLOSED" && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
-            <h3 className="font-bold text-gray-900 mb-4">求职宣言（可选）</h3>
+            <h3 className="font-bold text-gray-900 mb-4">{tSec("bio")}</h3>
             <textarea
               value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              placeholder="写下你的求职期望、个人亮点或职业目标，让别人更好地了解你..."
+              onChange={e => setBio(e.target.value)}
+              placeholder={tBio("placeholder")}
               className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
               rows={4}
               maxLength={500}
             />
-            <div className="text-right text-sm text-gray-400 mt-2">
-              {bio.length}/500
-            </div>
+            <div className="text-right text-sm text-gray-400 mt-2">{bio.length}/500</div>
           </div>
         )}
 
         {/* 隐私设置 */}
         {status !== "CLOSED" && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
-            <h3 className="font-bold text-gray-900 mb-4">可见范围</h3>
+            <h3 className="font-bold text-gray-900 mb-4">{tSec("privacy")}</h3>
             <div className="space-y-3">
-              {(Object.keys(privacyConfig) as Array<keyof typeof privacyConfig>).map((key) => {
-                const config = privacyConfig[key];
-                const Icon = config.icon;
+              {PRIVACY_KEYS.map(key => {
+                const Icon = privacyIcon[key];
                 const isSelected = privacy === key;
-                
                 return (
                   <label
                     key={key}
-                    className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                      isSelected
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-200 hover:border-gray-300 bg-white"
-                    }`}
+                    className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${isSelected ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300 bg-white"}`}
                   >
                     <input
                       type="radio"
                       name="privacy"
                       value={key}
                       checked={isSelected}
-                      onChange={() => setPrivacy(key as any)}
+                      onChange={() => setPrivacy(key)}
                       className="sr-only"
                     />
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                      isSelected ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-500"
-                    }`}>
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isSelected ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-500"}`}>
                       <Icon className="w-5 h-5" />
                     </div>
                     <div className="flex-1">
                       <div className={`font-semibold ${isSelected ? "text-blue-900" : "text-gray-900"}`}>
-                        {config.label}
+                        {tPrivacy(`${key}.label`)}
                       </div>
-                      <div className="text-sm text-gray-500">{config.description}</div>
+                      <div className="text-sm text-gray-500">{tPrivacy(`${key}.description`)}</div>
                     </div>
                     {isSelected && (
                       <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center">
@@ -443,7 +375,7 @@ export default function JobStatusPage() {
         {success && (
           <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 flex items-center gap-3">
             <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-            <p className="text-green-700">求职状态已保存</p>
+            <p className="text-green-700">{t("savedSuccess")}</p>
           </div>
         )}
 
@@ -456,12 +388,12 @@ export default function JobStatusPage() {
           {saving ? (
             <>
               <Loader2 className="w-5 h-5 animate-spin" />
-              保存中...
+              {t("saving")}
             </>
           ) : (
             <>
               <Save className="w-5 h-5" />
-              保存设置
+              {t("save")}
             </>
           )}
         </button>

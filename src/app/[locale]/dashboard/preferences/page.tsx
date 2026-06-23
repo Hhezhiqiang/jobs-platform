@@ -1,31 +1,27 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Save, Briefcase, DollarSign, MapPin, Monitor } from "lucide-react";
 import { logger } from '@/lib/logger';
 
+// Culture tags / locations are stored as values in the DB and are intentionally
+// not translated (user data). Section labels and option labels are translated.
 const CULTURE_TAGS = ["扁平管理", "技术驱动", "远程办公", "弹性工作", "大牛带队", "期权激励", "海外机会", "培训预算", "开源文化", "结果导向"];
-const EMPLOYMENT_TYPES = [
-  { value: "FULL_TIME", label: "全职" },
-  { value: "PART_TIME", label: "兼职" },
-  { value: "CONTRACT", label: "合同工" },
-  { value: "INTERNSHIP", label: "实习" },
-  { value: "FREELANCE", label: "自由职业" },
-];
+const EMPLOYMENT_TYPE_KEYS = ["FULL_TIME", "PART_TIME", "CONTRACT", "INTERNSHIP", "FREELANCE"] as const;
 const LOCATIONS = ["北京", "上海", "深圳", "广州", "杭州", "成都", "南京", "武汉", "西安", "远程"];
-const EXPERIENCE_LEVELS = [
-  { value: "ENTRY", label: "应届/初级" },
-  { value: "MID", label: "中级" },
-  { value: "SENIOR", label: "高级" },
-  { value: "EXECUTIVE", label: "专家/管理" },
-];
+const EXPERIENCE_LEVEL_KEYS = ["ENTRY", "MID", "SENIOR", "EXECUTIVE"] as const;
+const REMOTE_KEYS = ["FULL_REMOTE", "HYBRID", "ONSITE"] as const;
 
-export default function PreferencesPage({ params }: { params: { locale: string } }) {
-  
+export default function PreferencesPage() {
+  const t = useTranslations("dashboard.preferencesPage");
+  const tCommon = useTranslations("dashboard.common");
+  const tEmp = useTranslations("dashboard.preferencesPage.employmentTypes");
+  const tExp = useTranslations("dashboard.preferencesPage.experienceLevels");
+  const tRemote = useTranslations("dashboard.preferencesPage.remote");
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [locale, setLocale] = useState("zh");
   const [form, setForm] = useState({
     cultureTags: [] as string[],
     salaryMin: "" as string,
@@ -37,7 +33,6 @@ export default function PreferencesPage({ params }: { params: { locale: string }
   });
 
   useEffect(() => {
-    setLocale(params.locale);
     fetchPreferences();
   }, []);
 
@@ -66,14 +61,14 @@ export default function PreferencesPage({ params }: { params: { locale: string }
   const toggleTag = (tag: string) => {
     setForm(prev => ({
       ...prev,
-      cultureTags: prev.cultureTags.includes(tag) ? prev.cultureTags.filter(t => t !== tag) : [...prev.cultureTags, tag],
+      cultureTags: prev.cultureTags.includes(tag) ? prev.cultureTags.filter(x => x !== tag) : [...prev.cultureTags, tag],
     }));
   };
 
   const toggleType = (type: string) => {
     setForm(prev => ({
       ...prev,
-      employmentTypes: prev.employmentTypes.includes(type) ? prev.employmentTypes.filter(t => t !== type) : [...prev.employmentTypes, type],
+      employmentTypes: prev.employmentTypes.includes(type) ? prev.employmentTypes.filter(x => x !== type) : [...prev.employmentTypes, type],
     }));
   };
 
@@ -101,20 +96,18 @@ export default function PreferencesPage({ params }: { params: { locale: string }
         }),
       });
       if (res.ok) {
-        alert(locale === "en" ? "Saved successfully!" : "保存成功！");
+        alert(t("savedSuccess"));
       } else {
-        alert("保存失败");
+        alert(t("savedFailed"));
       }
     } catch (e) {
-      alert("保存失败");
+      alert(t("savedFailed"));
     } finally {
       setSaving(false);
     }
   };
 
-  const isEn = locale === "en";
-
-  if (loading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="text-gray-500">{isEn ? "Loading..." : "加载中..."}</div></div>;
+  if (loading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="text-gray-500">{t("loading")}</div></div>;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -122,12 +115,12 @@ export default function PreferencesPage({ params }: { params: { locale: string }
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{isEn ? "Job Preferences" : "求职偏好"}</h1>
-            <p className="text-gray-500 mt-1">{isEn ? "Set your preferences to get personalized recommendations" : "设置你的偏好以获得个性化推荐"}</p>
+            <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
+            <p className="text-gray-500 mt-1">{t("subtitle")}</p>
           </div>
           <button onClick={handleSave} disabled={saving} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50">
             <Save className="w-4 h-4" />
-            {saving ? (isEn ? "Saving..." : "保存中...") : (isEn ? "Save" : "保存")}
+            {saving ? tCommon("saving") : tCommon("save")}
           </button>
         </div>
 
@@ -136,7 +129,7 @@ export default function PreferencesPage({ params }: { params: { locale: string }
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <Briefcase className="w-5 h-5 text-blue-600" />
-              {isEn ? "Preferred Company Culture" : "期望公司文化"}
+              {t("sections.culture")}
             </h2>
             <div className="flex flex-wrap gap-2">
               {CULTURE_TAGS.map(tag => (
@@ -151,22 +144,22 @@ export default function PreferencesPage({ params }: { params: { locale: string }
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <DollarSign className="w-5 h-5 text-green-600" />
-              {isEn ? "Expected Salary (K/month)" : "期望薪资 (K/月)"}
+              {t("sections.salary")}
             </h2>
             <div className="flex items-center gap-4">
-              <input type="number" value={form.salaryMin} onChange={e => setForm(prev => ({ ...prev, salaryMin: e.target.value }))} placeholder={isEn ? "Min" : "最低"} className="w-32 border rounded-lg px-3 py-2" />
+              <input type="number" value={form.salaryMin} onChange={e => setForm(prev => ({ ...prev, salaryMin: e.target.value }))} placeholder={t("salary.min")} className="w-32 border rounded-lg px-3 py-2" />
               <span className="text-gray-400">—</span>
-              <input type="number" value={form.salaryMax} onChange={e => setForm(prev => ({ ...prev, salaryMax: e.target.value }))} placeholder={isEn ? "Max" : "最高"} className="w-32 border rounded-lg px-3 py-2" />
+              <input type="number" value={form.salaryMax} onChange={e => setForm(prev => ({ ...prev, salaryMax: e.target.value }))} placeholder={t("salary.max")} className="w-32 border rounded-lg px-3 py-2" />
             </div>
           </div>
 
           {/* Employment Type */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">{isEn ? "Employment Type" : "工作类型"}</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">{t("sections.employmentType")}</h2>
             <div className="flex flex-wrap gap-2">
-              {EMPLOYMENT_TYPES.map(type => (
-                <button key={type.value} onClick={() => toggleType(type.value)} className={`px-3 py-1.5 rounded-full text-sm transition ${form.employmentTypes.includes(type.value) ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}>
-                  {type.label}
+              {EMPLOYMENT_TYPE_KEYS.map(typeKey => (
+                <button key={typeKey} onClick={() => toggleType(typeKey)} className={`px-3 py-1.5 rounded-full text-sm transition ${form.employmentTypes.includes(typeKey) ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}>
+                  {tEmp(typeKey)}
                 </button>
               ))}
             </div>
@@ -176,7 +169,7 @@ export default function PreferencesPage({ params }: { params: { locale: string }
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <MapPin className="w-5 h-5 text-red-600" />
-              {isEn ? "Preferred Location" : "期望工作地点"}
+              {t("sections.location")}
             </h2>
             <div className="flex flex-wrap gap-2">
               {LOCATIONS.map(loc => (
@@ -191,16 +184,12 @@ export default function PreferencesPage({ params }: { params: { locale: string }
           <div className="bg-white rounded-xl p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <Monitor className="w-5 h-5 text-purple-600" />
-              {isEn ? "Remote Preference" : "远程偏好"}
+              {t("sections.remote")}
             </h2>
             <div className="flex gap-3">
-              {[
-                { value: "FULL_REMOTE", label: isEn ? "Full Remote" : "完全远程" },
-                { value: "HYBRID", label: isEn ? "Hybrid" : "混合办公" },
-                { value: "ONSITE", label: isEn ? "On-site" : "坐班" },
-              ].map(opt => (
-                <button key={opt.value} onClick={() => setForm(prev => ({ ...prev, remotePreference: prev.remotePreference === opt.value ? "" : opt.value }))} className={`flex-1 py-2 rounded-lg text-sm transition ${form.remotePreference === opt.value ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}>
-                  {opt.label}
+              {REMOTE_KEYS.map(optKey => (
+                <button key={optKey} onClick={() => setForm(prev => ({ ...prev, remotePreference: prev.remotePreference === optKey ? "" : optKey }))} className={`flex-1 py-2 rounded-lg text-sm transition ${form.remotePreference === optKey ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}>
+                  {tRemote(optKey)}
                 </button>
               ))}
             </div>
@@ -208,11 +197,11 @@ export default function PreferencesPage({ params }: { params: { locale: string }
 
           {/* Experience Level */}
           <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">{isEn ? "Experience Level" : "经验级别"}</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">{t("sections.experience")}</h2>
             <div className="flex gap-3">
-              {EXPERIENCE_LEVELS.map(level => (
-                <button key={level.value} onClick={() => setForm(prev => ({ ...prev, experienceLevel: prev.experienceLevel === level.value ? "" : level.value }))} className={`flex-1 py-2 rounded-lg text-sm transition ${form.experienceLevel === level.value ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}>
-                  {level.label}
+              {EXPERIENCE_LEVEL_KEYS.map(levelKey => (
+                <button key={levelKey} onClick={() => setForm(prev => ({ ...prev, experienceLevel: prev.experienceLevel === levelKey ? "" : levelKey }))} className={`flex-1 py-2 rounded-lg text-sm transition ${form.experienceLevel === levelKey ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"}`}>
+                  {tExp(levelKey)}
                 </button>
               ))}
             </div>
