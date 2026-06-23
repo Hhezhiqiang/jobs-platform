@@ -2,59 +2,94 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useTranslations } from "next-intl";
-import { Briefcase, BookOpen, TrendingUp, User, Search } from "lucide-react";
+
+const ITEMS = [
+  {
+    href: "jobs",
+    zh: "职位",
+    en: "Jobs",
+    icon: (
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6">
+        <rect x="3" y="7" width="18" height="13" rx="2" />
+        <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+      </svg>
+    ),
+  },
+  {
+    href: "companies",
+    zh: "公司",
+    en: "Co.",
+    icon: (
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6">
+        <path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M13 9h.01M9 13h.01M13 13h.01M9 17h.01M13 17h.01" />
+      </svg>
+    ),
+  },
+  {
+    href: "salary-insights",
+    zh: "薪资",
+    en: "Pay",
+    icon: (
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6">
+        <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+      </svg>
+    ),
+  },
+  {
+    href: "blog",
+    zh: "博客",
+    en: "Blog",
+    icon: (
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14z" />
+        <path d="M4 19.5V21h16" />
+      </svg>
+    ),
+  },
+  {
+    href: "dashboard",
+    zh: "我的",
+    en: "Me",
+    icon: (
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6">
+        <circle cx="12" cy="8" r="4" />
+        <path d="M4 21a8 8 0 0 1 16 0" />
+      </svg>
+    ),
+  },
+];
 
 export function MobileBottomNav() {
-  const pathname = usePathname();
-  const locale = pathname?.split("/")[1] || "zh";
-  const t = useTranslations();
-  const isEn = locale === "en";
+  const pathname = usePathname() || "/";
+  const locale = pathname.startsWith("/en") ? "en" : "zh";
 
-  const navItems = [
-    { label: t("nav.jobs"), href: `/${locale}/jobs`, icon: Briefcase },
-    { label: isEn ? "Job Demands" : "求职需求", href: `/${locale}/job-demands`, icon: Search },
-    { label: t("nav.blog"), href: `/${locale}/blog`, icon: BookOpen },
-    { label: t("nav.careerTrail"), href: `/${locale}/career-trail`, icon: TrendingUp },
-    { label: t("nav.dashboard"), href: `/${locale}/dashboard`, icon: User },
-  ];
-
-  const isActive = (href: string) => {
-    const pathWithoutLocale = pathname?.substring(locale.length + 1) || "";
-    const hrefWithoutLocale = href.substring(locale.length + 1);
-    return pathWithoutLocale === hrefWithoutLocale || pathWithoutLocale.startsWith(hrefWithoutLocale + "/");
-  };
-
-  // Hide on admin pages — admin has its own navigation
-  const pathWithoutLocale = pathname?.substring(locale.length + 1) || "";
-  if (pathWithoutLocale.startsWith("/admin")) return null;
+  if (pathname.includes("/admin")) return null;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-gray-200/50 md:hidden">
-      <div className="max-w-[430px] mx-auto px-1 pb-[max(0.25rem,env(safe-area-inset-bottom))] pt-1">
-        <div className="flex justify-between items-center">
-          {navItems.map((item) => {
-            const active = isActive(item.href);
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex flex-col items-center justify-center flex-1 py-2 min-w-0 transition-all rounded-lg ${
-                  active ? "text-blue-600 bg-blue-50/50" : "text-gray-400"
-                }`}
-              >
-                <div className={`p-1.5 rounded-xl transition-all ${active ? "bg-blue-100" : ""}`}>
-                  <Icon className={`w-5 h-5 ${active ? "text-blue-600" : "text-gray-400"}`} />
-                </div>
-                <span className={`text-[10px] mt-0.5 truncate w-full text-center ${active ? "font-medium text-blue-600" : "text-gray-400"}`}>
-                  {item.label}
-                </span>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
+    <nav
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 grid grid-cols-5 backdrop-blur-xl"
+      style={{
+        background: "rgba(10,10,10,0.85)",
+        borderTop: "1px solid rgba(255,255,255,0.08)",
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
+      }}
+    >
+      {ITEMS.map((it) => {
+        const active = pathname.startsWith(`/${locale}/${it.href}`);
+        return (
+          <Link
+            key={it.href}
+            href={`/${locale}/${it.href}`}
+            className="flex flex-col items-center justify-center gap-1 py-3 text-[10px] font-mono uppercase tracking-widest"
+            style={{
+              color: active ? "#B6FF3D" : "rgba(245,245,245,0.45)",
+            }}
+          >
+            {it.icon}
+            <span>{locale === "zh" ? it.zh : it.en}</span>
+          </Link>
+        );
+      })}
     </nav>
   );
 }

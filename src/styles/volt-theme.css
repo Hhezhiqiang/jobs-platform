@@ -1,0 +1,201 @@
+/* ============================================================
+   Volt Theme — global dark reskin
+   Applied to entire site. Overrides common light-theme Tailwind
+   utilities to map onto the volt dark + electric-green palette.
+   ============================================================ */
+
+:root {
+  --volt-ink: #0a0a0a;
+  --volt-ink-2: #111111;
+  --volt-ink-3: #1a1a1a;
+  --volt-ink-4: #1f1f1f;
+  --volt-line: rgba(255, 255, 255, 0.08);
+  --volt-line-2: rgba(255, 255, 255, 0.14);
+  --volt-fg: #f5f5f5;
+  --volt-fg-dim: rgba(245, 245, 245, 0.72);
+  --volt-fg-mute: rgba(245, 245, 245, 0.45);
+  --volt-accent: #b6ff3d;
+  --volt-accent-soft: rgba(182, 255, 61, 0.14);
+}
+
+/* === Base canvas === */
+html, body {
+  background: var(--volt-ink) !important;
+  color: var(--volt-fg) !important;
+}
+
+/* Don't force the 44px min on the entire site (was breaking layouts) */
+body button, body a {
+  min-height: 0 !important;
+  min-width: 0 !important;
+}
+/* Keep tap target for actual touch UI */
+@media (pointer: coarse) {
+  body button:not(.volt-tight), body a:not(.volt-tight) {
+    min-height: 36px;
+  }
+}
+
+/* === Backgrounds === */
+.bg-white,
+.bg-slate-50, .bg-slate-100,
+.bg-gray-50, .bg-gray-100 { background-color: var(--volt-ink-2) !important; }
+
+.bg-gray-200, .bg-slate-200 { background-color: var(--volt-ink-3) !important; }
+.bg-gray-300, .bg-slate-300 { background-color: var(--volt-ink-4) !important; }
+
+.bg-blue-50, .bg-indigo-50, .bg-purple-50,
+.bg-green-50, .bg-emerald-50, .bg-teal-50,
+.bg-red-50, .bg-orange-50, .bg-yellow-50,
+.bg-pink-50, .bg-cyan-50 { background-color: var(--volt-ink-2) !important; }
+
+/* Hover utilities */
+.hover\:bg-white:hover,
+.hover\:bg-gray-50:hover,
+.hover\:bg-gray-100:hover { background-color: var(--volt-ink-3) !important; }
+
+/* Bold colored sections — convert to dark with accent ring */
+.bg-blue-600, .bg-blue-700, .bg-indigo-600, .bg-indigo-700,
+.bg-purple-600, .bg-purple-700 {
+  background-color: var(--volt-ink-2) !important;
+  border: 1px solid var(--volt-line-2);
+}
+
+/* === Text === */
+.text-gray-900, .text-slate-900, .text-black { color: var(--volt-fg) !important; }
+.text-gray-800, .text-slate-800 { color: var(--volt-fg) !important; }
+.text-gray-700, .text-slate-700 { color: var(--volt-fg-dim) !important; }
+.text-gray-600, .text-slate-600 { color: var(--volt-fg-dim) !important; }
+.text-gray-500, .text-slate-500 { color: var(--volt-fg-mute) !important; }
+.text-gray-400, .text-slate-400 { color: var(--volt-fg-mute) !important; }
+
+/* Bright blue/indigo text → volt accent for visibility */
+.text-blue-600, .text-blue-700, .text-indigo-600, .text-indigo-700 {
+  color: var(--volt-accent) !important;
+}
+.text-blue-500, .text-indigo-500 { color: var(--volt-accent) !important; }
+.text-blue-100, .text-blue-200, .text-indigo-100, .text-indigo-200 {
+  color: var(--volt-fg-dim) !important;
+}
+
+/* === Borders === */
+.border, .border-t, .border-b, .border-l, .border-r,
+.border-x, .border-y { border-color: var(--volt-line) !important; }
+
+.border-gray-100, .border-gray-200, .border-slate-100, .border-slate-200,
+.border-blue-100, .border-blue-200, .border-indigo-100, .border-indigo-200 {
+  border-color: var(--volt-line) !important;
+}
+.border-gray-300, .border-gray-400, .border-slate-300, .border-slate-400 {
+  border-color: var(--volt-line-2) !important;
+}
+.border-blue-400, .border-blue-500, .border-blue-600,
+.border-indigo-400, .border-indigo-500, .border-indigo-600 {
+  border-color: var(--volt-accent-soft) !important;
+}
+
+/* === Shadows — soften on dark === */
+.shadow, .shadow-sm, .shadow-md {
+  box-shadow: 0 1px 0 rgba(255,255,255,0.04), 0 8px 24px rgba(0,0,0,0.4) !important;
+}
+.shadow-lg, .shadow-xl, .shadow-2xl {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5), 0 18px 40px rgba(0,0,0,0.6) !important;
+}
+
+/* === Form inputs === */
+input, textarea, select {
+  background-color: var(--volt-ink-2) !important;
+  color: var(--volt-fg) !important;
+  border-color: var(--volt-line-2) !important;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--volt-accent) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px var(--volt-accent-soft) !important;
+}
+input::placeholder, textarea::placeholder { color: var(--volt-fg-mute) !important; }
+
+/* Checkbox / radio accent */
+input[type="checkbox"], input[type="radio"] { accent-color: var(--volt-accent); }
+
+/* === Brand CTAs — keep blue/green readable === */
+.bg-blue-500, .bg-blue-600.btn, .bg-indigo-500 {
+  background-color: var(--volt-accent) !important;
+  color: var(--volt-ink) !important;
+}
+.bg-green-500, .bg-emerald-500, .bg-green-600, .bg-emerald-600 {
+  background-color: var(--volt-accent) !important;
+  color: var(--volt-ink) !important;
+}
+
+.hover\:bg-blue-700:hover, .hover\:bg-indigo-700:hover,
+.hover\:bg-green-700:hover, .hover\:bg-emerald-700:hover {
+  filter: brightness(1.1);
+}
+
+/* === Tables === */
+table { background: var(--volt-ink-2) !important; color: var(--volt-fg) !important; }
+thead, th { background: var(--volt-ink-3) !important; color: var(--volt-fg-dim) !important; }
+tbody tr { border-color: var(--volt-line) !important; }
+tbody tr:hover { background: var(--volt-ink-3) !important; }
+
+/* === Code === */
+code, pre, kbd {
+  background: var(--volt-ink-3) !important;
+  color: var(--volt-fg) !important;
+  border-color: var(--volt-line) !important;
+}
+
+/* === Prose / Markdown content === */
+.prose, .prose * {
+  --tw-prose-body: var(--volt-fg-dim);
+  --tw-prose-headings: var(--volt-fg);
+  --tw-prose-lead: var(--volt-fg-dim);
+  --tw-prose-links: var(--volt-accent);
+  --tw-prose-bold: var(--volt-fg);
+  --tw-prose-counters: var(--volt-fg-mute);
+  --tw-prose-bullets: var(--volt-line-2);
+  --tw-prose-hr: var(--volt-line);
+  --tw-prose-quotes: var(--volt-fg);
+  --tw-prose-quote-borders: var(--volt-accent);
+  --tw-prose-captions: var(--volt-fg-mute);
+  --tw-prose-code: var(--volt-fg);
+  --tw-prose-pre-code: var(--volt-fg);
+  --tw-prose-pre-bg: var(--volt-ink-3);
+  --tw-prose-th-borders: var(--volt-line-2);
+  --tw-prose-td-borders: var(--volt-line);
+}
+
+/* === Backdrop blur cards on top of images keep some contrast === */
+.bg-white\/10, .bg-white\/20, .bg-white\/5 {
+  background-color: rgba(255,255,255,0.04) !important;
+}
+
+/* === Scrollbar === */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--volt-ink); }
+::-webkit-scrollbar-thumb {
+  background: var(--volt-line-2);
+  border-radius: 5px;
+  border: 2px solid var(--volt-ink);
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+
+/* === Selection === */
+::selection {
+  background: var(--volt-accent);
+  color: var(--volt-ink);
+}
+
+/* === Skeletons / loaders === */
+.animate-pulse { background-color: var(--volt-ink-3) !important; }
+
+/* === Admin pages opt-out (kept light for data dense screens) === */
+body:has([data-admin-root]) {
+  background: #f8fafc !important;
+  color: #111 !important;
+}
+body:has([data-admin-root]) .bg-white { background-color: #fff !important; }
+body:has([data-admin-root]) .text-gray-900 { color: #111 !important; }
+body:has([data-admin-root]) .text-gray-600 { color: #475569 !important; }
+body:has([data-admin-root]) .border-gray-100 { border-color: #e5e7eb !important; }

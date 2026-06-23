@@ -2,42 +2,48 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Globe } from "lucide-react";
 
 export function MobileLangSwitch() {
-  const pathname = usePathname();
-  const locale = pathname?.split("/")[1] || "zh";
-  const isEn = locale === "en";
+  const pathname = usePathname() || "/";
+  const locale = pathname.startsWith("/en") ? "en" : "zh";
+  const altLocale = locale === "zh" ? "en" : "zh";
+  const altPath = pathname.replace(/^\/(zh|en)/, `/${altLocale}`);
 
-  // 语言切换路径
-  const switchLocalePath = `/${isEn ? "zh" : "en"}${pathname?.substring(locale.length + 1) || ""}`;
-
-  // Hide on admin pages
-  const pathWithoutLocale = pathname?.substring(locale.length + 1) || "";
-  if (pathWithoutLocale.startsWith("/admin")) return null;
+  if (pathname.includes("/admin")) return null;
 
   return (
-    <header className="md:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-xl border-b border-gray-200/50 shadow-sm">
-      <div className="max-w-[430px] mx-auto px-4 py-3">
-        <div className="flex items-center justify-between">
-          {/* 左侧 Logo/站点 */}
-          <Link href={`/${locale}`} className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm shadow-md">
-              J
-            </div>
-            <span className="text-base font-bold text-gray-900">JobQuip</span>
-          </Link>
-
-          {/* 右侧语言切换按钮 */}
-          <Link
-            href={switchLocalePath}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg"
-          >
-            <Globe className="w-4 h-4" />
-            {isEn ? "中文" : "EN"}
-          </Link>
+    <header
+      className="md:hidden sticky top-0 z-40 flex items-center justify-between px-4 py-3 backdrop-blur-xl"
+      style={{
+        background: "rgba(10,10,10,0.85)",
+        borderBottom: "1px solid rgba(255,255,255,0.08)",
+      }}
+    >
+      <Link href={`/${locale}`} className="flex items-center gap-2">
+        <div
+          className="h-6 w-6 rounded-md grid place-items-center"
+          style={{ background: "#B6FF3D", color: "#0a0a0a" }}
+        >
+          <span className="font-bold text-xs">J</span>
         </div>
-      </div>
+        <span className="font-semibold tracking-tight text-white text-sm">
+          JobQuip
+        </span>
+      </Link>
+      <Link
+        href={altPath}
+        className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-mono uppercase tracking-widest"
+        style={{
+          borderColor: "rgba(255,255,255,0.14)",
+          color: "rgba(245,245,245,0.62)",
+        }}
+      >
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20" />
+        </svg>
+        {altLocale === "zh" ? "中" : "EN"}
+      </Link>
     </header>
   );
 }
