@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { MapPin, X, ExternalLink, Building, DollarSign, Calendar } from "lucide-react";
-import { DataTable, AdminBadge, AdminPagination, type Column } from "@/components/admin";
+import { DataTable, AdminBadge, type Column } from "@/components/admin";
 import { formatSalary } from "@/lib/utils";
 import { logger } from '@/lib/logger';
 
@@ -54,12 +54,19 @@ export default function AdminJobsPage({ params }: { params: { locale: string } }
   const [totalCount, setTotalCount] = useState(0);
   const [selectedJob, setSelectedJob] = useState<JobDetail | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchInput, setSearchInput] = useState("");
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
 
-  const totalPages = Math.ceil(totalCount / 20);
+  const totalPages = Math.ceil(totalCount / 15);
 
-  const fetchJobs = async (page: number = currentPage) => {
+  const fetchJobs = async (page: number = currentPage, q = query, status = statusFilter) => {
+    setLoading(true);
     try {
-      const res = await fetch(`/api/admin/jobs?page=${page}`);
+      const qs = new URLSearchParams({ page: String(page) });
+      if (q) qs.set("q", q);
+      if (status) qs.set("status", status);
+      const res = await fetch(`/api/admin/jobs?${qs.toString()}`);
       if (res.status === 401) {
         router.push(`/${params.locale}/auth/login/admin`);
         return;
@@ -81,12 +88,19 @@ export default function AdminJobsPage({ params }: { params: { locale: string } }
   };
 
   useEffect(() => {
-    fetchJobs(1);
-  }, [params.locale, router]);
+    fetchJobs(1, query, statusFilter);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.locale, query, statusFilter]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    fetchJobs(page);
+    fetchJobs(page, query, statusFilter);
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setCurrentPage(1);
+    setQuery(searchInput.trim());
   };
 
   const handleViewJob = async (jobId: string) => {
@@ -132,10 +146,35 @@ export default function AdminJobsPage({ params }: { params: { locale: string } }
           <h1 className="text-2xl font-bold text-gray-900">职位管理</h1>
           <p className="text-sm text-gray-500">共 {totalCount} 个职位</p>
         </div>
-        <Link href="/admin/jobs/new" className="bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] hover:shadow-lg hover:shadow-[#6366f1]/25 text-white px-5 py-2.5 rounded-xl font-medium transition-all">
+        <Link href={`/${params.locale}/admin/jobs/new`} className="bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] hover:shadow-lg hover:shadow-[#6366f1]/25 text-white px-5 py-2.5 rounded-xl font-medium transition-all">
           + 发布职位
         </Link>
       </div>
+
+      {/* 搜索 + 状态筛选 */}
+      <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
+        <input
+          type="search"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          placeholder="搜索职位标题、公司、城市..."
+          className="flex-1 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+        />
+        <select
+          value={statusFilter}
+          onChange={(e) => { setCurrentPage(1); setStatusFilter(e.target.value); }}
+          className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+        >
+          <option value="">全部状态</option>
+          <option value="ACTIVE">招聘中</option>
+          <option value="INACTIVE">已下架</option>
+          <option value="EXPIRED">已过期</option>
+          <option value="DRAFT">草稿</option>
+        </select>
+        <button type="submit" className="rounded-lg bg-gray-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-gray-700">
+          搜索
+        </button>
+      </form>
 
       {/* 数据表格 */}
       <DataTable
@@ -221,11 +260,25 @@ export default function AdminJobsPage({ params }: { params: { locale: string } }
 
       {/* 分页 */}
       {totalPages > 1 && (
-        <AdminPagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          baseUrl="/admin/jobs"
-        />
+        <div className="flex items-center justify-center gap-2">
+          <button
+            disabled={currentPage <= 1}
+            onClick={() => handlePageChange(currentPage - 1)}
+            className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 disabled:opacity-40 hover:bg-gray-50"
+          >
+            上一页
+          </button>
+          <span className="text-sm text-gray-600">
+            第 {currentPage} / {totalPages} 页
+          </span>
+          <button
+            disabled={currentPage >= totalPages}
+            onClick={() => handlePageChange(currentPage + 1)}
+            className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 disabled:opacity-40 hover:bg-gray-50"
+          >
+            下一页
+          </button>
+        </div>
       )}
 
       {/* Aurora 职位详情弹窗 */}
