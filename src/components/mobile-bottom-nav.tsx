@@ -25,6 +25,10 @@ export function MobileBottomNav() {
     return pathWithoutLocale === hrefWithoutLocale || pathWithoutLocale.startsWith(hrefWithoutLocale + "/");
   };
 
+  // Hide on admin pages — admin has its own navigation
+  const pathWithoutLocale = pathname?.substring(locale.length + 1) || "";
+  if (pathWithoutLocale.startsWith("/admin")) return null;
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-gray-200/50 md:hidden">
       <div className="max-w-[430px] mx-auto px-1 pb-[max(0.25rem,env(safe-area-inset-bottom))] pt-1">

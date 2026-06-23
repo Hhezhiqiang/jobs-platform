@@ -12,6 +12,10 @@ export function MobileLangSwitch() {
   // 语言切换路径
   const switchLocalePath = `/${isEn ? "zh" : "en"}${pathname?.substring(locale.length + 1) || ""}`;
 
+  // Hide on admin pages
+  const pathWithoutLocale = pathname?.substring(locale.length + 1) || "";
+  if (pathWithoutLocale.startsWith("/admin")) return null;
+
   return (
     <header className="md:hidden sticky top-0 z-40 bg-white/95 backdrop-blur-xl border-b border-gray-200/50 shadow-sm">
       <div className="max-w-[430px] mx-auto px-4 py-3">
