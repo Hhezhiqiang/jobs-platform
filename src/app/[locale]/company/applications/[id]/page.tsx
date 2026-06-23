@@ -2,7 +2,7 @@
 
 import type { job_applications, jobs, users } from "@prisma/client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import {
   ChevronLeft,
@@ -15,6 +15,7 @@ import {
   CheckCircle,
   XCircle,
   User,
+  MessageSquare,
 } from "lucide-react";
 
 const statusOptions = [
@@ -33,6 +34,8 @@ export default function ApplicationDetailPage({
   params: { id: string };
 }) {
   const router = useRouter();
+  const pathname = usePathname() || "/";
+  const locale = pathname.startsWith("/en") ? "en" : "zh";
   const [application, setApplication] = useState<ApplicationWithJobAndUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -295,6 +298,38 @@ export default function ApplicationDetailPage({
                 >
                   <Send className="w-4 h-4" />
                   <span>发送消息</span>
+                </button>
+
+                <button
+                  onClick={async () => {
+                    const app: any = application;
+                    const companyId = app?.job?.companies?.id || app?.jobs?.companies?.id;
+                    const userId = app?.user?.id;
+                    const jobId = app?.job?.id || app?.jobs?.id;
+                    if (!companyId || !userId) {
+                      alert("缺少会话所需信息");
+                      return;
+                    }
+                    try {
+                      const r = await fetch("/api/messages", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ companyId, userId, jobId }),
+                      });
+                      const d = await r.json();
+                      if (r.ok && d.conversation?.id) {
+                        router.push(`/${locale}/messages?c=${d.conversation.id}`);
+                      } else {
+                        alert(d.error || "无法打开会话");
+                      }
+                    } catch {
+                      alert("网络错误");
+                    }
+                  }}
+                  className="w-full flex items-center justify-center space-x-2 px-4 py-2 border rounded-lg hover:bg-gray-50"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  <span>打开会话</span>
                 </button>
 
                 {application?.user?.email && (

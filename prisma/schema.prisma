@@ -178,6 +178,7 @@ model companies {
   career_stories       career_stories[]
   company_culture_tags company_culture_tags[]
   company_members      company_members[]
+  conversations        conversations[]
   jobs                 jobs[]
 
   @@index([slug, verificationStatus])
@@ -417,8 +418,9 @@ model jobs {
   favorites              favorites[]
   job_applications       job_applications[]
   job_recommendations    job_recommendations[]
-  users                  users                   @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  companies              companies               @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  users                                                     users                   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  companies                                                 companies               @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  conversations                                             conversations[]
 
   @@index([city, status])
   @@index([companyId, status])
@@ -485,6 +487,39 @@ model notifications {
 
   @@index([userId, createdAt])
   @@index([userId, isRead])
+}
+
+model conversations {
+  id              String    @id @default(uuid())
+  userId          String
+  companyId       String
+  jobId           String?
+  lastMessageAt   DateTime  @default(now())
+  lastMessageText String?
+  unreadByUser    Int       @default(0)
+  unreadByCompany Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  users           users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companies       companies @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  jobs            jobs?     @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  messages        messages[]
+
+  @@unique([userId, companyId, jobId])
+  @@index([userId, lastMessageAt])
+  @@index([companyId, lastMessageAt])
+}
+
+model messages {
+  id             String        @id @default(uuid())
+  conversationId String
+  senderType     String        // "USER" | "COMPANY"
+  senderUserId   String        // candidate's userId, OR company_member.userId
+  body           String
+  createdAt      DateTime      @default(now())
+  conversations  conversations @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
 }
 
 model page_views {
@@ -820,6 +855,7 @@ model users {
   career_stories                                            career_stories[]
   company_members                                           company_members[]
   contact_unlock_orders                                     contact_unlock_orders[]
+  conversations                                             conversations[]
   favorites                                                 favorites[]
   job_applications                                          job_applications[]
   job_demand_contacts                                       job_demand_contacts[]

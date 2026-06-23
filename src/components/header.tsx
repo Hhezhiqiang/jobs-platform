@@ -194,6 +194,7 @@ export function Header({ transparent }: { transparent?: boolean }) {
                 >
                   {[
                     { href: `/${locale}/dashboard`, label: locale === "zh" ? "工作台" : "Dashboard" },
+                    { href: `/${locale}/messages`, label: locale === "zh" ? "站内信" : "Messages" },
                     { href: `/${locale}/user/favorites`, label: locale === "zh" ? "收藏" : "Favorites" },
                     { href: `/${locale}/user/applications`, label: locale === "zh" ? "申请记录" : "Applications" },
                     { href: `/${locale}/user/settings`, label: locale === "zh" ? "设置" : "Settings" },
