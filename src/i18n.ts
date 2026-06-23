@@ -1,13 +1,14 @@
 import { getRequestConfig } from "next-intl/server";
+import type { AbstractIntlMessages } from "next-intl";
 import en from "../messages/en.json";
 import zh from "../messages/zh.json";
 import enDashboard from "../messages/en/dashboard.json";
 import zhDashboard from "../messages/zh/dashboard.json";
 
 // Merge namespaced message files into a single tree so `useTranslations("dashboard")` works.
-const messages: Record<string, Record<string, unknown>> = {
-  en: { ...en, dashboard: enDashboard },
-  zh: { ...zh, dashboard: zhDashboard },
+const messages: Record<string, AbstractIntlMessages> = {
+  en: { ...en, dashboard: enDashboard } as AbstractIntlMessages,
+  zh: { ...zh, dashboard: zhDashboard } as AbstractIntlMessages,
 };
 
 const LOCALES = ["zh", "en"] as const;
