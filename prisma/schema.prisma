@@ -874,8 +874,46 @@ model users {
   user_job_preferences                                      user_job_preferences?
   user_profiles                                             user_profiles?
   user_referrals                                            user_referrals?
+  circle_posts                                              circle_posts[]
+  circle_post_comments                                      circle_post_comments[]
 
   @@index([email])
+}
+
+model circle_posts {
+  id           String                 @id @default(uuid())
+  authorId     String
+  content      String                 @db.Text
+  category     CircleCategory         @default(OTHER)
+  commentCount Int                    @default(0)
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+  users        users                  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments     circle_post_comments[]
+
+  @@index([createdAt])
+  @@index([category, createdAt])
+  @@index([authorId])
+}
+
+model circle_post_comments {
+  id           String       @id @default(uuid())
+  postId       String
+  authorId     String
+  content      String       @db.Text
+  createdAt    DateTime     @default(now())
+  circle_posts circle_posts @relation(fields: [postId], references: [id], onDelete: Cascade)
+  users        users        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([postId, createdAt])
+  @@index([authorId])
+}
+
+enum CircleCategory {
+  PARTNER     // 找合伙人
+  PROJECT     // 项目协作
+  SKILL       // 技能交换
+  OTHER       // 其他
 }
 
 model withdrawal_records {
