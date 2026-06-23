@@ -1,9 +1,8 @@
 /* ============================================================
-   Volt Theme — global dark reskin
-   Applied to entire site. Overrides common light-theme Tailwind
-   utilities to map onto the volt dark + electric-green palette.
+   Volt Theme — global dark reskin (v2: token + utility overrides)
    ============================================================ */
 
+/* === 1. Volt palette === */
 :root {
   --volt-ink: #0a0a0a;
   --volt-ink-2: #111111;
@@ -12,35 +11,134 @@
   --volt-line: rgba(255, 255, 255, 0.08);
   --volt-line-2: rgba(255, 255, 255, 0.14);
   --volt-fg: #f5f5f5;
-  --volt-fg-dim: rgba(245, 245, 245, 0.72);
-  --volt-fg-mute: rgba(245, 245, 245, 0.45);
+  --volt-fg-dim: rgba(245, 245, 245, 0.78);
+  --volt-fg-mute: rgba(245, 245, 245, 0.50);
   --volt-accent: #b6ff3d;
   --volt-accent-soft: rgba(182, 255, 61, 0.14);
 }
 
-/* === Base canvas === */
+/* === 2. Token rewrites — beats aurora.css + design-system.css === */
+:root,
+:root.dark,
+:root.light {
+  /* aurora.css tokens (used by .aurora-card, body, many components) */
+  --page-bg: var(--volt-ink) !important;
+  --card-bg: var(--volt-ink-2) !important;
+  --card-border: var(--volt-line) !important;
+  --text-primary: var(--volt-fg) !important;
+  --text-secondary: var(--volt-fg-dim) !important;
+  --text-muted: var(--volt-fg-mute) !important;
+
+  --background: var(--volt-ink) !important;
+  --foreground: var(--volt-fg) !important;
+
+  /* aurora gradient stops — recolor purple hero into dark + accent rim */
+  --aurora-50:  #1a1f0a;
+  --aurora-100: #232a10;
+  --aurora-200: #2c3413;
+  --aurora-300: #3b461a;
+  --aurora-400: #5a6b27;
+  --aurora-500: #b6ff3d;
+  --aurora-600: #a3e632;
+  --aurora-700: #8acb28;
+  --aurora-800: #1a1a1a;
+  --aurora-900: #111111;
+  --aurora-950: #0a0a0a;
+
+  /* design-system.css primary (blue) → volt accent */
+  --color-primary-50:  #14210a;
+  --color-primary-100: #1d2e10;
+  --color-primary-200: #28401a;
+  --color-primary-300: #3b5e26;
+  --color-primary-400: #7eba38;
+  --color-primary-500: #b6ff3d;
+  --color-primary-600: #a3e632;
+  --color-primary-700: #8acb28;
+  --color-primary-800: #6b9c1f;
+  --color-primary-900: #4d6f16;
+
+  /* design-system.css gray scale — invert for dark */
+  --color-gray-50:  #1a1a1a;
+  --color-gray-100: #1f1f1f;
+  --color-gray-200: #2a2a2a;
+  --color-gray-300: #3a3a3a;
+  --color-gray-400: rgba(245,245,245,0.45);
+  --color-gray-500: rgba(245,245,245,0.60);
+  --color-gray-600: rgba(245,245,245,0.70);
+  --color-gray-700: rgba(245,245,245,0.82);
+  --color-gray-800: rgba(245,245,245,0.92);
+  --color-gray-900: #f5f5f5;
+
+  /* aurora.css gray scale */
+  --gray-50:  #1a1a1a;
+  --gray-100: #1f1f1f;
+  --gray-200: #2a2a2a;
+  --gray-400: rgba(245,245,245,0.45);
+  --gray-500: rgba(245,245,245,0.60);
+  --gray-600: rgba(245,245,245,0.70);
+  --gray-700: rgba(245,245,245,0.82);
+  --gray-800: rgba(245,245,245,0.92);
+  --gray-900: #f5f5f5;
+
+  /* shadows — invisible on dark, make them faint glow */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.5);
+  --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.6);
+  --shadow-aurora: 0 4px 20px rgba(182,255,61,0.10);
+}
+
+/* === 3. Base canvas — wins over globals.css body rule === */
 html, body {
   background: var(--volt-ink) !important;
   color: var(--volt-fg) !important;
 }
 
-/* Don't force the 44px min on the entire site (was breaking layouts) */
-body button, body a {
+/* Cancel the over-aggressive 44px min on every button/anchor — was breaking layout */
+body button, body a, body input[type="checkbox"], body input[type="radio"] {
   min-height: 0 !important;
   min-width: 0 !important;
 }
-/* Keep tap target for actual touch UI */
-@media (pointer: coarse) {
-  body button:not(.volt-tight), body a:not(.volt-tight) {
-    min-height: 36px;
-  }
+
+/* === 4. Aurora overrides (force dark on classed cards & hero) === */
+.aurora-card {
+  background: var(--volt-ink-2) !important;
+  border-color: var(--volt-line) !important;
+  color: var(--volt-fg) !important;
+}
+.aurora-card:hover {
+  border-color: var(--volt-line-2) !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 0 1px var(--volt-accent-soft) !important;
 }
 
-/* === Backgrounds === */
+.aurora-gradient,
+.aurora-gradient-hero {
+  background: linear-gradient(135deg, #0a0a0a 0%, #111111 50%, #1a1a1a 100%) !important;
+  border-bottom: 1px solid var(--volt-line) !important;
+}
+.aurora-glow { box-shadow: 0 0 24px var(--volt-accent-soft) !important; }
+.text-aurora {
+  background: linear-gradient(135deg, var(--volt-accent), #e8ff8a) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+.aurora-border-glow {
+  box-shadow: 0 0 0 1px var(--volt-line), 0 4px 20px rgba(0,0,0,0.5) !important;
+}
+.glass { background: rgba(17,17,17,0.6) !important; }
+.glass-dark { background: rgba(0,0,0,0.7) !important; }
+.gradient-text {
+  background: linear-gradient(135deg, var(--volt-accent), #e8ff8a) !important;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* === 5. Tailwind utility overrides === */
 .bg-white,
 .bg-slate-50, .bg-slate-100,
 .bg-gray-50, .bg-gray-100 { background-color: var(--volt-ink-2) !important; }
-
 .bg-gray-200, .bg-slate-200 { background-color: var(--volt-ink-3) !important; }
 .bg-gray-300, .bg-slate-300 { background-color: var(--volt-ink-4) !important; }
 
@@ -49,19 +147,51 @@ body button, body a {
 .bg-red-50, .bg-orange-50, .bg-yellow-50,
 .bg-pink-50, .bg-cyan-50 { background-color: var(--volt-ink-2) !important; }
 
-/* Hover utilities */
 .hover\:bg-white:hover,
 .hover\:bg-gray-50:hover,
 .hover\:bg-gray-100:hover { background-color: var(--volt-ink-3) !important; }
 
-/* Bold colored sections — convert to dark with accent ring */
-.bg-blue-600, .bg-blue-700, .bg-indigo-600, .bg-indigo-700,
-.bg-purple-600, .bg-purple-700 {
+/* Bold colored sections → dark + accent border (was pure blue/purple) */
+.bg-blue-500, .bg-blue-600, .bg-blue-700,
+.bg-indigo-500, .bg-indigo-600, .bg-indigo-700,
+.bg-purple-500, .bg-purple-600, .bg-purple-700 {
   background-color: var(--volt-ink-2) !important;
-  border: 1px solid var(--volt-line-2);
+  border: 1px solid var(--volt-line-2) !important;
+  color: var(--volt-fg) !important;
 }
 
-/* === Text === */
+/* Solid-color CTA buttons → keep punchy by switching to volt accent */
+button.bg-blue-600, button.bg-indigo-600, button.bg-purple-600,
+a.bg-blue-600, a.bg-indigo-600, a.bg-purple-600,
+.btn-primary, .btn-blue {
+  background: var(--volt-accent) !important;
+  color: var(--volt-ink) !important;
+  border: none !important;
+}
+button.bg-blue-600:hover, a.bg-blue-600:hover { filter: brightness(1.1); }
+
+/* === 6. Gradient utilities — kill the purple/indigo hero gradients === */
+[class*="from-indigo-"], [class*="from-purple-"], [class*="from-violet-"],
+[class*="from-blue-6"], [class*="from-blue-7"], [class*="from-blue-8"], [class*="from-blue-9"] {
+  --tw-gradient-from: #0a0a0a !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to, transparent) !important;
+}
+[class*="via-indigo-"], [class*="via-purple-"], [class*="via-violet-"],
+[class*="via-blue-6"], [class*="via-blue-7"] {
+  --tw-gradient-stops: var(--tw-gradient-from), #111111, var(--tw-gradient-to, transparent) !important;
+}
+[class*="to-indigo-"], [class*="to-purple-"], [class*="to-violet-"], [class*="to-pink-"],
+[class*="to-blue-6"], [class*="to-blue-7"], [class*="to-cyan-"] {
+  --tw-gradient-to: #1a1a1a !important;
+}
+
+/* Section wrappers using bg-gradient-to-* on indigo/purple → dark */
+.bg-gradient-to-br, .bg-gradient-to-r, .bg-gradient-to-b, .bg-gradient-to-bl,
+.bg-gradient-to-t, .bg-gradient-to-tr, .bg-gradient-to-tl, .bg-gradient-to-l {
+  /* leave the structure but the from/via/to overrides above make them dark */
+}
+
+/* === 7. Text === */
 .text-gray-900, .text-slate-900, .text-black { color: var(--volt-fg) !important; }
 .text-gray-800, .text-slate-800 { color: var(--volt-fg) !important; }
 .text-gray-700, .text-slate-700 { color: var(--volt-fg-dim) !important; }
@@ -69,19 +199,16 @@ body button, body a {
 .text-gray-500, .text-slate-500 { color: var(--volt-fg-mute) !important; }
 .text-gray-400, .text-slate-400 { color: var(--volt-fg-mute) !important; }
 
-/* Bright blue/indigo text → volt accent for visibility */
-.text-blue-600, .text-blue-700, .text-indigo-600, .text-indigo-700 {
-  color: var(--volt-accent) !important;
-}
-.text-blue-500, .text-indigo-500 { color: var(--volt-accent) !important; }
-.text-blue-100, .text-blue-200, .text-indigo-100, .text-indigo-200 {
-  color: var(--volt-fg-dim) !important;
-}
+.text-blue-600, .text-blue-700, .text-indigo-600, .text-indigo-700,
+.text-purple-600, .text-purple-700, .text-violet-600 { color: var(--volt-accent) !important; }
+.text-blue-500, .text-indigo-500, .text-purple-500 { color: var(--volt-accent) !important; }
+.text-blue-100, .text-blue-200, .text-indigo-100, .text-indigo-200,
+.text-purple-100, .text-purple-200 { color: var(--volt-fg-dim) !important; }
 
-/* === Borders === */
-.border, .border-t, .border-b, .border-l, .border-r,
-.border-x, .border-y { border-color: var(--volt-line) !important; }
-
+/* === 8. Borders === */
+.border, .border-t, .border-b, .border-l, .border-r, .border-x, .border-y {
+  border-color: var(--volt-line) !important;
+}
 .border-gray-100, .border-gray-200, .border-slate-100, .border-slate-200,
 .border-blue-100, .border-blue-200, .border-indigo-100, .border-indigo-200 {
   border-color: var(--volt-line) !important;
@@ -90,19 +217,20 @@ body button, body a {
   border-color: var(--volt-line-2) !important;
 }
 .border-blue-400, .border-blue-500, .border-blue-600,
-.border-indigo-400, .border-indigo-500, .border-indigo-600 {
+.border-indigo-400, .border-indigo-500, .border-indigo-600,
+.border-purple-400, .border-purple-500, .border-purple-600 {
   border-color: var(--volt-accent-soft) !important;
 }
 
-/* === Shadows — soften on dark === */
+/* === 9. Shadows (faint glow on dark) === */
 .shadow, .shadow-sm, .shadow-md {
-  box-shadow: 0 1px 0 rgba(255,255,255,0.04), 0 8px 24px rgba(0,0,0,0.4) !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.04), 0 8px 24px rgba(0,0,0,0.45) !important;
 }
 .shadow-lg, .shadow-xl, .shadow-2xl {
   box-shadow: 0 4px 12px rgba(0,0,0,0.5), 0 18px 40px rgba(0,0,0,0.6) !important;
 }
 
-/* === Form inputs === */
+/* === 10. Forms === */
 input, textarea, select {
   background-color: var(--volt-ink-2) !important;
   color: var(--volt-fg) !important;
@@ -114,39 +242,22 @@ input:focus, textarea:focus, select:focus {
   box-shadow: 0 0 0 3px var(--volt-accent-soft) !important;
 }
 input::placeholder, textarea::placeholder { color: var(--volt-fg-mute) !important; }
-
-/* Checkbox / radio accent */
 input[type="checkbox"], input[type="radio"] { accent-color: var(--volt-accent); }
 
-/* === Brand CTAs — keep blue/green readable === */
-.bg-blue-500, .bg-blue-600.btn, .bg-indigo-500 {
-  background-color: var(--volt-accent) !important;
-  color: var(--volt-ink) !important;
-}
-.bg-green-500, .bg-emerald-500, .bg-green-600, .bg-emerald-600 {
-  background-color: var(--volt-accent) !important;
-  color: var(--volt-ink) !important;
-}
-
-.hover\:bg-blue-700:hover, .hover\:bg-indigo-700:hover,
-.hover\:bg-green-700:hover, .hover\:bg-emerald-700:hover {
-  filter: brightness(1.1);
-}
-
-/* === Tables === */
+/* === 11. Tables === */
 table { background: var(--volt-ink-2) !important; color: var(--volt-fg) !important; }
 thead, th { background: var(--volt-ink-3) !important; color: var(--volt-fg-dim) !important; }
 tbody tr { border-color: var(--volt-line) !important; }
 tbody tr:hover { background: var(--volt-ink-3) !important; }
 
-/* === Code === */
+/* === 12. Code === */
 code, pre, kbd {
   background: var(--volt-ink-3) !important;
   color: var(--volt-fg) !important;
   border-color: var(--volt-line) !important;
 }
 
-/* === Prose / Markdown content === */
+/* === 13. Prose / markdown === */
 .prose, .prose * {
   --tw-prose-body: var(--volt-fg-dim);
   --tw-prose-headings: var(--volt-fg);
@@ -165,13 +276,37 @@ code, pre, kbd {
   --tw-prose-th-borders: var(--volt-line-2);
   --tw-prose-td-borders: var(--volt-line);
 }
+.prose, .prose p, .prose li, .prose span:not([class*="text-"]) {
+  color: var(--volt-fg-dim) !important;
+}
+.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+  color: var(--volt-fg) !important;
+}
+.prose a { color: var(--volt-accent) !important; }
+.prose strong { color: var(--volt-fg) !important; }
+.prose blockquote {
+  color: var(--volt-fg) !important;
+  border-left-color: var(--volt-accent) !important;
+  background: var(--volt-ink-2) !important;
+  padding: 1rem 1.25rem !important;
+  border-radius: 0 0.5rem 0.5rem 0 !important;
+}
 
-/* === Backdrop blur cards on top of images keep some contrast === */
-.bg-white\/10, .bg-white\/20, .bg-white\/5 {
+/* === 14. White-translucent backgrounds → faint dark === */
+.bg-white\/10, .bg-white\/20, .bg-white\/5, .bg-white\/30, .bg-white\/40 {
   background-color: rgba(255,255,255,0.04) !important;
 }
 
-/* === Scrollbar === */
+/* === 15. Avatar / circle backgrounds === */
+.bg-purple-500, .bg-purple-400, .bg-purple-300,
+.bg-violet-500, .bg-violet-400, .bg-violet-300,
+.bg-indigo-500, .bg-indigo-400, .bg-indigo-300 {
+  background-color: var(--volt-ink-3) !important;
+  color: var(--volt-accent) !important;
+  border: 1px solid var(--volt-line-2);
+}
+
+/* === 16. Scrollbar === */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: var(--volt-ink); }
 ::-webkit-scrollbar-thumb {
@@ -181,19 +316,34 @@ code, pre, kbd {
 }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
 
-/* === Selection === */
+/* === 17. Selection === */
 ::selection {
-  background: var(--volt-accent);
-  color: var(--volt-ink);
+  background: var(--volt-accent) !important;
+  color: var(--volt-ink) !important;
 }
 
-/* === Skeletons / loaders === */
+/* === 18. Loaders === */
 .animate-pulse { background-color: var(--volt-ink-3) !important; }
 
-/* === Admin pages opt-out (kept light for data dense screens) === */
+/* === 19. Active states (mobile nav, tabs) === */
+.text-primary, .text-aurora-500, .text-aurora-600 { color: var(--volt-accent) !important; }
+.bg-primary, .bg-aurora-500, .bg-aurora-600 {
+  background-color: var(--volt-accent) !important;
+  color: var(--volt-ink) !important;
+}
+
+/* === 20. Admin pages opt-out (kept light for data-dense screens) === */
 body:has([data-admin-root]) {
   background: #f8fafc !important;
   color: #111 !important;
+}
+body:has([data-admin-root]) :root,
+body:has([data-admin-root]) {
+  --page-bg: #f8fafc !important;
+  --card-bg: #ffffff !important;
+  --text-primary: #111827 !important;
+  --text-secondary: #4b5563 !important;
+  --text-muted: #9ca3af !important;
 }
 body:has([data-admin-root]) .bg-white { background-color: #fff !important; }
 body:has([data-admin-root]) .text-gray-900 { color: #111 !important; }
