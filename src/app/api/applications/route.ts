@@ -169,7 +169,7 @@ export async function PATCH(request: NextRequest) {
 
     const updatedApplication = await prisma.job_applications.update({
       where: { id: applicationId },
-      data: { id: crypto.randomUUID(), status, ...(status === "WITHDRAWN" && { withdrewAt: new Date() }) },
+      data: { status, ...(status === "WITHDRAWN" && { withdrewAt: new Date() }) },
     });
 
     return NextResponse.json({ message: "操作成功", application: updatedApplication });

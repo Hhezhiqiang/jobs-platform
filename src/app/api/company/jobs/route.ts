@@ -44,17 +44,18 @@ export async function POST(request: NextRequest) {
     if (!membership && session.user.role !== "ADMIN") return NextResponse.json({ error: "请先注册企业" }, { status: 403 });
 
     const body = await request.json();
-    
-    let companyId = membership?.companyId || body.companyId || null;
-    
-    // 管理员没有企业成员记录时，取第一个企业
+
+    // Admins may pass an explicit companyId; non-admins are pinned to their membership company.
+    let companyId: string | null = membership?.companyId || null;
     if (!companyId && session.user.role === "ADMIN") {
-      const firstCompany = await prisma.companies.findFirst({ select: { id: true } });
-      if (firstCompany) {
-        companyId = firstCompany.id;
+      if (!body.companyId || typeof body.companyId !== "string") {
+        return NextResponse.json({ error: "管理员发布职位需指定 companyId" }, { status: 400 });
       }
+      const exists = await prisma.companies.findUnique({ where: { id: body.companyId }, select: { id: true } });
+      if (!exists) return NextResponse.json({ error: "指定的企业不存在" }, { status: 400 });
+      companyId = exists.id;
     }
-    
+
     if (!companyId) return NextResponse.json({ error: "请先注册企业" }, { status: 400 });
 
     // 自动生成 slug（从标题生成）

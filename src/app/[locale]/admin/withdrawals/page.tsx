@@ -149,7 +149,7 @@ export default async function AdminWithdrawalsPage({ params, searchParams }: Pag
                         <div className="text-xs text-gray-500">{row.promoters?.email}</div>
                       </td>
                       <td className="px-4 py-3">
-                        <span className="font-semibold">{row.amount.toNumber().toFixed(2)}</span>
+                        <span className="font-semibold">{Number(row.amount).toFixed(2)}</span>
                       </td>
                       <td className="px-4 py-3">
                         <span className="text-xs text-gray-500 font-mono">

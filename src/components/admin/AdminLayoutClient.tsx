@@ -7,11 +7,11 @@ export interface AdminLayoutClientProps { children: React.ReactNode; }
 export function AdminLayoutClient({ children }: AdminLayoutClientProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  return (<>
+  return (<div data-admin-root="true" className="contents">
     <AdminSidebar collapsed={collapsed} onCollapseChange={setCollapsed} mobileOpen={mobileOpen} onMobileClose={() => setMobileOpen(false)} />
     <div className={cn("flex flex-1 flex-col overflow-hidden transition-[margin] duration-300 md:ml-64", collapsed && "md:ml-20")}>
       <AdminHeader onMenuToggle={() => setMobileOpen(true)} collapsed={collapsed} />
       <main className="flex-1 overflow-y-auto p-4 md:p-6">{children}</main>
     </div>
-  </>);
+  </div>);
 }

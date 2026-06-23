@@ -51,6 +51,10 @@ const navGroups: NavGroup[] = [
   },
 ];
 
+function withLocale(href: string, locale: string): string {
+  return `/${locale}${href}`;
+}
+
 export interface AdminSidebarProps {
   mobileOpen?: boolean;
   onMobileClose?: () => void;
@@ -64,16 +68,17 @@ export interface AdminSidebarProps {
 export function AdminSidebar({ mobileOpen = false, onMobileClose, collapsed = false, onCollapseChange }: AdminSidebarProps) {
   const pathname = usePathname() ?? "";
   const { data: session } = useSession();
+  const locale = pathname.startsWith("/en") ? "en" : "zh";
 
   const isActive = (href: string) => {
-    if (href === "/admin") return pathname === "/admin" || pathname === "/zh/admin" || pathname === "/en/admin";
-    return pathname.startsWith(href);
+    if (href === "/admin") return pathname === `/${locale}/admin`;
+    return pathname.startsWith(`/${locale}${href}`);
   };
 
   const sidebarContent = (
     <div className="flex h-full flex-col bg-gray-900 text-white">
       <div className="flex h-16 shrink-0 items-center justify-between border-b border-gray-800 px-4">
-        <Link href="/admin" className={cn("flex items-center gap-3 text-lg font-bold", collapsed && "hidden md:flex")}>
+        <Link href={withLocale("/admin", locale)} className={cn("flex items-center gap-3 text-lg font-bold", collapsed && "hidden md:flex")}>
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600">
             <span className="text-sm font-bold">JQ</span>
           </div>
@@ -95,7 +100,7 @@ export function AdminSidebar({ mobileOpen = false, onMobileClose, collapsed = fa
               {group.items.map((item) => (
                 <li key={item.href}>
                   <Link
-                    href={item.href}
+                    href={withLocale(item.href, locale)}
                     className={cn("flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors", isActive(item.href) ? "bg-blue-600 text-white" : "text-gray-300 hover:bg-gray-800 hover:text-white")}
                     title={collapsed ? item.label : undefined}
                     onClick={() => onMobileClose?.()}
@@ -126,7 +131,7 @@ export function AdminSidebar({ mobileOpen = false, onMobileClose, collapsed = fa
                 <p className="truncate text-sm font-medium">{session?.user?.name || "管理员"}</p>
                 <p className="truncate text-xs text-gray-500">{session?.user?.email}</p>
               </div>
-              <button onClick={() => signOut({ callbackUrl: "/" })} className="shrink-0 rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-800 hover:text-white" aria-label="退出登录">
+              <button onClick={() => signOut({ callbackUrl: `/${locale}` })} className="shrink-0 rounded-lg p-1.5 text-gray-400 transition-colors hover:bg-gray-800 hover:text-white" aria-label="退出登录">
                 <LogOut className="h-4 w-4" />
               </button>
             </>

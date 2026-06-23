@@ -154,7 +154,7 @@ export default async function AdminPromotersPage({ params, searchParams }: PageP
                           <input
                             type="number"
                             name="defaultRate"
-                            defaultValue={row.defaultRate.toNumber()}
+                            defaultValue={Number(row.defaultRate)}
                             min={1}
                             max={98}
                             className="w-16 px-2 py-1 border rounded text-xs"

@@ -90,12 +90,10 @@ export default async function UsersPage({ params, searchParams }: PageProps) {
     const map: Record<string, string> = {
       ACTIVE: "bg-green-100 text-green-700",
       DISABLED: "bg-gray-100 text-gray-700",
-      SUSPENDED: "bg-red-100 text-red-700",
     };
     const labelMap: Record<string, string> = {
       ACTIVE: "正常",
       DISABLED: "禁用",
-      SUSPENDED: "暂停",
     };
     return <span className={`px-2 py-1 text-xs font-semibold rounded-full ${map[status] || "bg-gray-100 text-gray-700"}`}>{labelMap[status] || status}</span>;
   };
@@ -184,7 +182,7 @@ export default async function UsersPage({ params, searchParams }: PageProps) {
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Link
-                          href={`/admin/users/${row.id}`}
+                          href={`/${locale}/admin/users/${row.id}`}
                           className="p-1.5 text-gray-600 hover:text-indigo-600"
                           title="查看"
                         >
@@ -223,7 +221,7 @@ export default async function UsersPage({ params, searchParams }: PageProps) {
             <div className="flex gap-2">
               {currentPage > 1 && (
                 <Link
-                  href={`/admin/users?page=${currentPage - 1}`}
+                  href={`/${locale}/admin/users?page=${currentPage - 1}`}
                   className="flex items-center gap-1 px-3 py-1.5 text-sm bg-gray-100 rounded-lg hover:bg-gray-200"
                 >
                   <ChevronLeft className="w-4 h-4" />
@@ -239,7 +237,7 @@ export default async function UsersPage({ params, searchParams }: PageProps) {
                 return (
                   <Link
                     key={page}
-                    href={`/admin/users?page=${page}`}
+                    href={`/${locale}/admin/users?page=${page}`}
                     className={`px-3 py-1.5 text-sm rounded-lg ${
                       page === currentPage ? "bg-blue-600 text-white" : "bg-gray-100 hover:bg-gray-200"
                     }`}
@@ -250,7 +248,7 @@ export default async function UsersPage({ params, searchParams }: PageProps) {
               })}
               {currentPage < totalPages && (
                 <Link
-                  href={`/admin/users?page=${currentPage + 1}`}
+                  href={`/${locale}/admin/users?page=${currentPage + 1}`}
                   className="flex items-center gap-1 px-3 py-1.5 text-sm bg-gray-100 rounded-lg hover:bg-gray-200"
                 >
                   下一页

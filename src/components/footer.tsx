@@ -76,9 +76,9 @@ export function Footer() {
             </p>
             <div className="mt-6 flex items-center gap-3">
               {[
-                { label: "X", href: "https://twitter.com/jobsbro" },
+                { label: "X", href: "https://twitter.com/jobquip" },
                 { label: "TG", href: "https://t.me/jobquip" },
-                { label: "in", href: "https://linkedin.com/company/jobsbro" },
+                { label: "in", href: "https://linkedin.com/company/jobquip" },
               ].map((s) => (
                 <a
                   key={s.label}

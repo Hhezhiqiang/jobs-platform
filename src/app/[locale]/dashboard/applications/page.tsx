@@ -250,7 +250,7 @@ export default function ApplicationsPage() {
                   <option value="WITHDRAWN">已撤回</option>
                 </select>
                 <Link
-                  href="/jobs"
+                  href={`/${locale}/jobs`}
                   className="ml-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
                 >
                   浏览职位
@@ -265,7 +265,7 @@ export default function ApplicationsPage() {
                   <div className="text-6xl mb-4">📋</div>
                   <p className="text-gray-600 mb-4">暂无申请记录</p>
                   <Link
-                    href="/jobs"
+                    href={`/${locale}/jobs`}
                     className="text-blue-600 hover:text-blue-800"
                   >
                     去浏览职位 →

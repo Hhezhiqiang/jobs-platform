@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 
 const employmentTypes = [
@@ -21,6 +21,8 @@ const experienceLevels = [
 
 export default function EditJobPage({ params }: { params: { id: string } }) {
   const router = useRouter();
+  const pathname = usePathname() || "/";
+  const locale = pathname.startsWith("/en") ? "en" : "zh";
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true);
   const [error, setError] = useState("");
@@ -56,20 +58,20 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
       }
 
       setFormData({
-        title: data.jobs.title || "",
-        description: data.jobs.description || "",
-        requirements: data.jobs.requirements || "",
-        benefits: data.jobs.benefits || "",
-        employmentType: data.jobs.employmentType || "FULL_TIME",
-        experience: data.jobs.experience || "MID",
-        salaryMin: data.jobs.salaryMin?.toString() || "",
-        salaryMax: data.jobs.salaryMax?.toString() || "",
-        location: data.jobs.location || "",
-        city: data.jobs.city || "",
-        isRemote: data.jobs.isRemote || false,
-        isHybrid: data.jobs.isHybrid || false,
-        applyUrl: data.jobs.applyUrl || "",
-        status: data.jobs.status || "ACTIVE",
+        title: data.job.title || "",
+        description: data.job.description || "",
+        requirements: data.job.requirements || "",
+        benefits: data.job.benefits || "",
+        employmentType: data.job.employmentType || "FULL_TIME",
+        experience: data.job.experience || "MID",
+        salaryMin: data.job.salaryMin?.toString() || "",
+        salaryMax: data.job.salaryMax?.toString() || "",
+        location: data.job.location || "",
+        city: data.job.city || "",
+        isRemote: data.job.isRemote || false,
+        isHybrid: data.job.isHybrid || false,
+        applyUrl: data.job.applyUrl || "",
+        status: data.job.status || "ACTIVE",
       });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "操作失败");
@@ -96,7 +98,7 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
         throw new Error(data.error || "更新失败");
       }
 
-      router.push("/company/jobs");
+      router.push(`/${locale}/company/jobs`);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "操作失败");
     } finally {
@@ -121,7 +123,7 @@ export default function EditJobPage({ params }: { params: { id: string } }) {
         <div className="text-center">
           <p className="text-red-600 mb-4">{error}</p>
           <button
-            onClick={() => router.push("/company/jobs")}
+            onClick={() => router.push(`/${locale}/company/jobs`)}
             className="text-blue-600 hover:underline"
           >
             返回职位列表

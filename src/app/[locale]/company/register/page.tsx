@@ -79,7 +79,7 @@ export default function CompanyRegisterPage() {
           setError("账号注册成功！请手动登录进入企业后台。");
           // 清空密码，跳转到登录页
           setTimeout(() => {
-            router.push(`/auth/login/company?registered=true&email=${encodeURIComponent(formData.email)}`);
+            router.push(`/${locale}/auth/login/company?registered=true&email=${encodeURIComponent(formData.email)}`);
           }, 2000);
           return;
         }

@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Briefcase, MapPin, DollarSign, Tag, Send, CheckCircle, AlertCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 export default function DashboardJobDemandPage() {
   const router = useRouter();
+  const pathname = usePathname() || "/";
+  const locale = pathname.startsWith("/en") ? "en" : "zh";
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [published, setPublished] = useState(false);
@@ -35,7 +37,7 @@ export default function DashboardJobDemandPage() {
       if (res.ok) {
         setPublished(true);
         setTimeout(() => {
-          router.push("/zh/job-demands");
+          router.push(`/${locale}/job-demands`);
         }, 2000);
       } else {
         alert(result.error || "发布失败");

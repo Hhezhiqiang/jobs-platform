@@ -244,8 +244,8 @@ export default async function DashboardPage({ params }: { params: { locale: stri
                     <Wallet className="w-6 h-6 text-amber-600" />
                   </div>
                 </div>
-                <Link 
-                  href="/user/recharge" 
+                <Link
+                  href={`/${locale}/user/recharge`}
                   className="mt-4 text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
                 >
                   去充值 <ChevronRight className="w-4 h-4" />
@@ -299,7 +299,7 @@ export default async function DashboardPage({ params }: { params: { locale: stri
                 </div>
                 <div className="flex flex-wrap gap-3">
                   <Link
-                    href="/jobs"
+                    href={`/${locale}/jobs`}
                     className="px-6 py-3 bg-white text-blue-600 font-semibold rounded-xl hover:bg-blue-50 transition-all flex items-center gap-2"
                   >
                     <Briefcase className="w-5 h-5" />
@@ -344,7 +344,7 @@ export default async function DashboardPage({ params }: { params: { locale: stri
                     <p className="text-gray-900 font-medium mb-2">暂无申请记录</p>
                     <p className="text-gray-500 mb-6">开始探索职位，迈出求职第一步</p>
                     <Link
-                      href="/jobs"
+                      href={`/${locale}/jobs`}
                       className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all"
                     >
                       浏览职位

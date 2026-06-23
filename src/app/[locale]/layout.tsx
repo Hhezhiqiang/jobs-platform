@@ -144,8 +144,8 @@ export default async function RootLayout({
     url: SITE_URL,
     logo: `${SITE_URL}/logo.png`,
     sameAs: [
-      "https://twitter.com/jobsbro",
-      "https://linkedin.com/company/jobsbro",
+      "https://twitter.com/jobquip",
+      "https://linkedin.com/company/jobquip",
     ],
     contactPoint: {
       "@type": "ContactPoint",

@@ -64,8 +64,8 @@ export function BlogStructuredData({ posts, total }: BlogStructuredDataProps) {
     logo: `${baseUrl}/logo.png`,
     description: "专业的求职招聘平台，汇聚Web3、互联网、科技行业高薪职位",
     sameAs: [
-      "https://twitter.com/jobsbro",
-      "https://linkedin.com/company/jobsbro",
+      "https://twitter.com/jobquip",
+      "https://linkedin.com/company/jobquip",
     ],
   };
 

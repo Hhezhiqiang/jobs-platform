@@ -13,29 +13,34 @@ const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "JobQuip招聘平台";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 
 // 职位类型映射
-const JOB_TYPES: Record<string, { label: string; desc: string; icon: string }> = {
+const JOB_TYPES: Record<string, { label: string; labelEn: string; desc: string; icon: string }> = {
   FULL_TIME: {
     label: "全职",
+    labelEn: "Full-time",
     desc: "稳定全职岗位，提供完善福利保障，适合追求职业发展的求职者",
     icon: "💼",
   },
   PART_TIME: {
     label: "兼职",
+    labelEn: "Part-time",
     desc: "灵活兼职机会，时间自由安排，适合学生或想增加收入的职场人",
     icon: "⏰",
   },
   CONTRACT: {
     label: "合同工",
+    labelEn: "Contract",
     desc: "项目制合同岗位，期限明确报酬优厚，适合有专项技能的自由职业者",
     icon: "📝",
   },
   INTERNSHIP: {
     label: "实习生",
+    labelEn: "Internship",
     desc: "实习岗位，积累经验快速成长，适合在校大学生和应届毕业生",
     icon: "🎓",
   },
   FREELANCE: {
     label: "自由职业",
+    labelEn: "Freelance",
     desc: "远程自由职业，地点不限按项目结算，适合追求工作生活平衡的人才",
     icon: "🏠",
   },
@@ -58,12 +63,14 @@ const CITY_INTRO: Record<string, string> = {
 // 所有可能的城市（从数据库动态获取 + 兜底）
 const FALLBACK_CITIES = Object.keys(CITY_INTRO);
 
-function getTypeLabel(type: string): string {
-  return JOB_TYPES[type]?.label || type;
+function getTypeLabel(type: string, locale = "zh"): string {
+  const entry = JOB_TYPES[type];
+  if (!entry) return type;
+  return locale === "en" ? entry.labelEn : entry.label;
 }
 
 function generateTypeMetadata(city: string, type: string, locale = "zh"): Metadata {
-  const typeLabel = getTypeLabel(type);
+  const typeLabel = getTypeLabel(type, locale);
   const cityIntro = CITY_INTRO[city] || "";
   const isEn = locale === "en";
   const title = isEn
@@ -160,6 +167,8 @@ export default async function CityTypeJobsPage({ params }: PageProps) {
   if (!typeInfo) {
     notFound();
   }
+  const typeLabel = getTypeLabel(type, locale);
+  const isEn = locale === "en";
 
   const jobs = await prisma.jobs.findMany({
     where: {
@@ -177,13 +186,11 @@ export default async function CityTypeJobsPage({ params }: PageProps) {
 
   const jobSchemas = jobs.map((job) => generateJobPostingSchema(job, locale));
   const breadcrumbSchema = generateBreadcrumbSchema([
-    { name: "首页", url: `${SITE_URL}/${locale}` },
-    { name: "职位", url: `${SITE_URL}/${locale}/jobs` },
-    { name: `${city}招聘`, url: `${SITE_URL}/${locale}/jobs/city/${encodeURIComponent(city)}` },
-    { name: `${city}${typeInfo.label}招聘`, url: `${SITE_URL}/${locale}/jobs/city/${encodeURIComponent(city)}/${encodeURIComponent(type)}` },
+    { name: isEn ? "Home" : "首页", url: `${SITE_URL}/${locale}` },
+    { name: isEn ? "Jobs" : "职位", url: `${SITE_URL}/${locale}/jobs` },
+    { name: isEn ? `${city} Jobs` : `${city}招聘`, url: `${SITE_URL}/${locale}/jobs/city/${encodeURIComponent(city)}` },
+    { name: isEn ? `${city} ${typeLabel} Jobs` : `${city}${typeLabel}招聘`, url: `${SITE_URL}/${locale}/jobs/city/${encodeURIComponent(city)}/${encodeURIComponent(type)}` },
   ]);
-
-  const isEn = locale === "en";
 
   return (
     <>
@@ -203,20 +210,22 @@ export default async function CityTypeJobsPage({ params }: PageProps) {
             <div className="mb-4">
               <Breadcrumb
                 items={[
-                  { label: "职位列表", href: `/${locale}/jobs` },
-                  { label: `${city}招聘`, href: `/${locale}/jobs/city/${encodeURIComponent(city)}` },
-                  { label: `${city}${typeInfo.label}招聘` },
+                  { label: isEn ? "Jobs" : "职位列表", href: `/${locale}/jobs` },
+                  { label: isEn ? `${city} Jobs` : `${city}招聘`, href: `/${locale}/jobs/city/${encodeURIComponent(city)}` },
+                  { label: isEn ? `${city} ${typeLabel} Jobs` : `${city}${typeLabel}招聘` },
                 ]}
               />
             </div>
             <div className="flex items-center gap-3 mb-4">
               <span className="text-3xl">{typeInfo.icon}</span>
               <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-                {city}{typeInfo.label}招聘
+                {isEn ? `${city} ${typeLabel} Jobs` : `${city}${typeLabel}招聘`}
               </h1>
             </div>
             <p className="text-gray-600 max-w-3xl leading-relaxed">
-              {city}最新{typeInfo.label}岗位，{typeInfo.desc}。
+              {isEn
+                ? `Latest ${typeLabel} openings in ${city}.`
+                : `${city}最新${typeLabel}岗位，${typeInfo.desc}。`}
               {CITY_INTRO[city] && ` ${CITY_INTRO[city]}`}
             </p>
           </div>
@@ -226,7 +235,7 @@ export default async function CityTypeJobsPage({ params }: PageProps) {
           {/* 同一城市其他职位类型快捷入口 */}
           <div className="mb-8">
             <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">
-              {city}其他职位类型
+              {isEn ? `Other Job Types in ${city}` : `${city}其他职位类型`}
             </h2>
             <div className="flex flex-wrap gap-3">
               {Object.entries(JOB_TYPES).map(([key, info]) => (
@@ -240,7 +249,7 @@ export default async function CityTypeJobsPage({ params }: PageProps) {
                   }`}
                 >
                   <span>{info.icon}</span>
-                  {info.label}
+                  {isEn ? info.labelEn : info.label}
                 </Link>
               ))}
             </div>
@@ -249,10 +258,10 @@ export default async function CityTypeJobsPage({ params }: PageProps) {
           {jobs.length === 0 ? (
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
               <h3 className="text-xl font-bold text-gray-900 mb-2">
-                {isEn ? `No ${city} ${typeInfo.label} Jobs` : `暂无${city}${typeInfo.label}职位`}
+                {isEn ? `No ${city} ${typeLabel} Jobs` : `暂无${city}${typeLabel}职位`}
               </h3>
               <p className="text-gray-500 mb-6">
-                {isEn ? `No ${typeInfo.label} positions in ${city}. Check other types or all jobs.` : `该城市下暂时没有${typeInfo.label}岗位，看看其他类型或全部职位吧`}
+                {isEn ? `No ${typeLabel} positions in ${city}. Check other types or all jobs.` : `该城市下暂时没有${typeLabel}岗位，看看其他类型或全部职位吧`}
               </p>
               <Link
                 href={`/${locale}/jobs/city/${encodeURIComponent(city)}`}
@@ -265,11 +274,11 @@ export default async function CityTypeJobsPage({ params }: PageProps) {
             <>
               <div className="flex items-center justify-between mb-6">
                 <p className="text-gray-600">
-                  共{" "}
-                  <span className="font-semibold text-gray-900">
-                    {jobs.length}
-                  </span>{" "}
-                  个{city}{typeInfo.label}职位
+                  {isEn ? (
+                    <>Found <span className="font-semibold text-gray-900">{jobs.length}</span> {typeLabel} jobs in {city}</>
+                  ) : (
+                    <>共 <span className="font-semibold text-gray-900">{jobs.length}</span> 个{city}{typeLabel}职位</>
+                  )}
                 </p>
               </div>
 
@@ -284,7 +293,7 @@ export default async function CityTypeJobsPage({ params }: PageProps) {
                   href={`/${locale}/jobs?city=${encodeURIComponent(city)}&type=${type}`}
                   className="inline-flex items-center gap-2 px-6 py-3 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-all font-medium"
                 >
-                  查看更多{city}{typeInfo.label}职位
+                  {isEn ? `More ${city} ${typeLabel} jobs` : `查看更多${city}${typeLabel}职位`}
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>

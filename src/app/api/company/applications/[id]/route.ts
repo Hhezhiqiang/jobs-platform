@@ -195,7 +195,7 @@ export async function PATCH(
             applicationId: id,
             jobId: application.jobId,
             status,
-          },
+          } as any,
         },
       });
     }
@@ -274,7 +274,7 @@ export async function POST(
           metadata: {
             applicationId: id,
             jobId: application.jobId,
-          },
+          } as any,
         },
       });
     }
