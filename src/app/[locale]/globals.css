@@ -39,14 +39,34 @@
  * black while Tailwind `bg-white` cards stay white — causing
  * inherited text colors (#ededed from dark mode) to render
  * white-on-white and become invisible on stat cards and tables.
+ *
+ * Additionally, volt-theme.css (imported by the public header)
+ * sets --color-gray-* (Tailwind v4) to dark/translucent values
+ * on :root site-wide, which leaks into admin pages and renders
+ * `text-gray-500` as rgba(245,245,245,0.6) on white cards.
+ * We override BOTH --gray-* (design-system) and --color-gray-*
+ * (Tailwind v4) here. Selector specificity beats volt-theme's
+ * :root because we use [attr] (0,1,0) loaded after globals.css.
  * ============================================================ */
-[data-admin-root="true"],
-[data-dashboard-root="true"] {
-  color-scheme: light only;
+html [data-admin-root="true"],
+html [data-dashboard-root="true"] {
+  color-scheme: light only !important;
   color: #111827; /* gray-900 baseline so descendants inherit dark text */
   background-color: #f9fafb; /* gray-50 to neutralize body bg */
-  /* Pin design-system / aurora CSS variables to their LIGHT values so
-     aurora-card etc. don't render as dark purple under iOS dark mode. */
+
+  /* Tailwind v4 color tokens — overrule volt-theme.css :root */
+  --color-gray-50:  #f9fafb !important;
+  --color-gray-100: #f3f4f6 !important;
+  --color-gray-200: #e5e7eb !important;
+  --color-gray-300: #d1d5db !important;
+  --color-gray-400: #9ca3af !important;
+  --color-gray-500: #6b7280 !important;
+  --color-gray-600: #4b5563 !important;
+  --color-gray-700: #374151 !important;
+  --color-gray-800: #1f2937 !important;
+  --color-gray-900: #111827 !important;
+
+  /* design-system / aurora tokens */
   --gray-50: #f9fafb;
   --gray-100: #f3f4f6;
   --gray-200: #e5e7eb;
@@ -65,8 +85,8 @@
   --background: #ffffff;
   --foreground: #111827;
 }
-[data-admin-root="true"] *,
-[data-dashboard-root="true"] * {
+html [data-admin-root="true"] *,
+html [data-dashboard-root="true"] * {
   color-scheme: light only;
 }
 
