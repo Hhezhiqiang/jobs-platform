@@ -10,6 +10,7 @@ import { logger } from '@/lib/logger';
 
 type Job = {
   id: string;
+  slug: string | null;
   title: string;
   status: string;
   location: string;
@@ -193,7 +194,7 @@ export default function AdminJobsPage({ params }: { params: { locale: string } }
           />,
           <Link
             key="preview"
-            href={`/jobs/${row.title}`}
+            href={`/${params.locale}/jobs/${row.slug || row.id}`}
             target="_blank"
             className="p-1.5 text-gray-600 hover:text-gray-700"
             title="打开前台页面"

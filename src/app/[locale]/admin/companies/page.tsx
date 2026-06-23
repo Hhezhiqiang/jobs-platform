@@ -39,7 +39,7 @@ export default function AdminCompaniesPage({ params }: { params: { locale: strin
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [statusFilter, setStatusFilter] = useState(searchParams?.get("status") || "PENDING");
+  const [statusFilter, setStatusFilter] = useState(searchParams?.get("status") ?? "");
 
   useEffect(() => {
     fetch(`/api/admin/companies?status=${statusFilter}`)
