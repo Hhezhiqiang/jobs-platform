@@ -27,7 +27,11 @@ export default async function AdminLayout({
 
   return (
     <NextIntlClientProvider messages={messages}>
-      <div className="flex h-screen bg-gray-50">
+      {/* Tell iOS Safari to NEVER auto-dark this section.
+          color-scheme:light is enforced via globals.css using
+          the [data-admin-root] attribute below. */}
+      <meta name="color-scheme" content="light only" />
+      <div data-admin-root="true" className="flex h-screen bg-gray-50" style={{ colorScheme: "light" }}>
         <AdminLayoutClient>
           {children}
         </AdminLayoutClient>

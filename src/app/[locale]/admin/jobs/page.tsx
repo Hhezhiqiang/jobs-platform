@@ -205,9 +205,9 @@ export default function AdminJobsPage({ params }: { params: { locale: string } }
             key: "title",
             label: "职位",
             render: (_val, row) => (
-              <div>
-                <p className="font-semibold text-gray-900">{row.title}</p>
-                <p className="text-xs text-gray-500">
+              <div className="min-w-[160px] max-w-[260px]">
+                <p className="font-semibold text-gray-900 break-words leading-snug">{row.title}</p>
+                <p className="text-xs text-gray-500 mt-0.5">
                   {typeMap[row.employmentType]}
                   {row.salaryMin && row.salaryMax && ` · ${formatSalary(row.salaryMin, row.salaryMax)}`}
                 </p>
@@ -218,7 +218,7 @@ export default function AdminJobsPage({ params }: { params: { locale: string } }
             key: "companies.name",
             label: "公司",
             render: (_val, row) => (
-              <span className="text-sm text-gray-700">{row.companies?.name}</span>
+              <span className="text-sm text-gray-700 whitespace-nowrap">{row.companies?.name}</span>
             ),
           },
           {

@@ -33,6 +33,43 @@
   }
 }
 
+/* ============================================================
+ * Force LIGHT color scheme inside admin & dashboard sections.
+ * iOS Safari would otherwise auto-invert the page background to
+ * black while Tailwind `bg-white` cards stay white — causing
+ * inherited text colors (#ededed from dark mode) to render
+ * white-on-white and become invisible on stat cards and tables.
+ * ============================================================ */
+[data-admin-root="true"],
+[data-dashboard-root="true"] {
+  color-scheme: light only;
+  color: #111827; /* gray-900 baseline so descendants inherit dark text */
+  background-color: #f9fafb; /* gray-50 to neutralize body bg */
+  /* Pin design-system / aurora CSS variables to their LIGHT values so
+     aurora-card etc. don't render as dark purple under iOS dark mode. */
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+  --page-bg: #f9fafb;
+  --card-bg: #ffffff;
+  --card-border: rgba(0, 0, 0, 0.06);
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #6b7280;
+  --background: #ffffff;
+  --foreground: #111827;
+}
+[data-admin-root="true"] *,
+[data-dashboard-root="true"] * {
+  color-scheme: light only;
+}
+
 body {
   background: var(--page-bg, var(--background));
   color: var(--text-primary, var(--foreground));
