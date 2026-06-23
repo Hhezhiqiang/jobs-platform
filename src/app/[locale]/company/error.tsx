@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { AlertTriangle, RefreshCcw, Home } from "lucide-react";
 import { logger } from '@/lib/logger';
 
@@ -13,6 +13,8 @@ export default function CompanyError({
   reset: () => void;
 }) {
   const router = useRouter();
+  const pathname = usePathname() || "/";
+  const locale = pathname.startsWith("/en") ? "en" : "zh";
 
   useEffect(() => {
     logger.error("Company error:", error);
@@ -41,7 +43,7 @@ export default function CompanyError({
             重试
           </button>
           <button
-            onClick={() => router.push("/company/dashboard")}
+            onClick={() => router.push(`/${locale}/company/dashboard`)}
             className="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-all"
           >
             <Home className="w-4 h-4" />

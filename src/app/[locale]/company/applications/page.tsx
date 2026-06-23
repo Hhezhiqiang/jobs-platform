@@ -2,7 +2,7 @@
 
 import type { job_applications, jobs, users, ApplicationStatus } from "@prisma/client";
 import { useEffect, useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import Link from "next/link";
 import {
   Search,
@@ -37,6 +37,8 @@ export default function CompanyApplicationsPage() {
 function CompanyApplicationsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname() || "/";
+  const locale = pathname.startsWith("/en") ? "en" : "zh";
   const [applications, setApplications] = useState<(job_applications & { job: jobs; user: users })[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -153,7 +155,7 @@ function CompanyApplicationsContent() {
       电话: app.user?.phone || "",
       职位: app.job?.title || "",
       状态: app.status,
-      投递时间: new Date(app.appliedAt).toLocaleString("zh-CN"),
+      投递时间: new Date(app.appliedAt).toLocaleString(locale === "en" ? "en-US" : "zh-CN"),
     }));
     if (rows.length === 0) return;
     const headers = Object.keys(rows[0]);
@@ -312,7 +314,7 @@ function CompanyApplicationsContent() {
                     )}
                   </button>
 
-                  <Link href={`/company/applications/${app.id}`} className="flex-1 min-w-0">
+                  <Link href={`/${locale}/company/applications/${app.id}`} className="flex-1 min-w-0">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center space-x-3 mb-2">
@@ -348,7 +350,7 @@ function CompanyApplicationsContent() {
                           <span className="flex items-center space-x-1">
                             <Clock className="w-4 h-4" />
                             <span>
-                              {new Date(app.appliedAt).toLocaleDateString("zh-CN", {
+                              {new Date(app.appliedAt).toLocaleDateString(locale === "en" ? "en-US" : "zh-CN", {
                                 month: "short",
                                 day: "numeric",
                                 hour: "2-digit",

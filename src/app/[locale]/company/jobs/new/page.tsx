@@ -2,7 +2,7 @@
 import { useTranslations } from "next-intl";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 
 const employmentTypes = [
@@ -23,6 +23,8 @@ const experienceLevels = [
 export default function NewJobPage() {
   const t = useTranslations("company.jobs.new");
   const router = useRouter();
+  const pathname = usePathname() || "/";
+  const locale = pathname.startsWith("/en") ? "en" : "zh";
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -60,7 +62,7 @@ export default function NewJobPage() {
         throw new Error(data.error || t("publishFailed"));
       }
 
-      router.push("/company/jobs");
+      router.push(`/${locale}/company/jobs`);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : t("operationFailed"));
     } finally {

@@ -108,7 +108,7 @@ export default function CompanyRegisterPage() {
             ) : (
               <>
                 已有账户？{" "}
-                <Link href="/auth/login/company" className="font-medium text-blue-600 hover:text-blue-500">
+                <Link href={`/${locale}/auth/login/company`} className="font-medium text-blue-600 hover:text-blue-500">
                   立即登录
                 </Link>
               </>

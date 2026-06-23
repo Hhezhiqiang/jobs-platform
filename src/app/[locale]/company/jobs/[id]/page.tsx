@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
 
 interface PageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: string; locale: string }>;
 }
 
 export default async function CompanyJobDetailPage({ params }: PageProps) {
-  const { id } = await params;
-  redirect(`/company/jobs/${id}/edit`);
+  const { id, locale } = await params;
+  redirect(`/${locale}/company/jobs/${id}/edit`);
 }

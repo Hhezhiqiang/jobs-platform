@@ -138,7 +138,7 @@ export default function NotificationsPage() {
     if (minutes < 60) return `${minutes}分钟前`;
     if (hours < 24) return `${hours}小时前`;
     if (days < 7) return `${days}天前`;
-    return date.toLocaleDateString("zh-CN", {
+    return date.toLocaleDateString(locale === "en" ? "en-US" : "zh-CN", {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -292,7 +292,7 @@ export default function NotificationsPage() {
                       )}
                       {notification.metadata?.jobId && (
                         <Link
-                          href={`/jobs/${notification.metadata.jobId}`}
+                          href={`/${locale}/jobs/${notification.metadata.jobId}`}
                           className="inline-flex items-center gap-1 mt-3 text-sm text-blue-600 hover:text-blue-700"
                         >
                           查看职位详情 →

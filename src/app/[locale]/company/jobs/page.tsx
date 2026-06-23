@@ -2,7 +2,7 @@
 
 import type { jobs } from "@prisma/client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import {
   Plus,
@@ -24,6 +24,8 @@ const statusOptions = [
 
 export default function CompanyJobsPage() {
   const router = useRouter();
+  const pathname = usePathname() || "/";
+  const locale = pathname.startsWith("/en") ? "en" : "zh";
   const [jobs, setJobs] = useState<jobs[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -137,7 +139,7 @@ export default function CompanyJobsPage() {
               <h1 className="text-xl font-bold">职位管理</h1>
             </div>
             <Link
-              href="/company/jobs/new"
+              href={`/${locale}/company/jobs/new`}
               className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
               <Plus className="w-4 h-4" />
@@ -200,7 +202,7 @@ export default function CompanyJobsPage() {
               {searchQuery || statusFilter ? "没有找到匹配的职位" : "暂无发布的职位"}
               <div className="mt-4">
                 <Link
-                  href="/company/jobs/new"
+                  href={`/${locale}/company/jobs/new`}
                   className="text-blue-600 hover:underline"
                 >
                   立即发布第一个职位
@@ -231,7 +233,7 @@ export default function CompanyJobsPage() {
                         <span>·</span>
                         <span>
                           发布于{" "}
-                          {new Date(job.createdAt).toLocaleDateString("zh-CN")}
+                          {new Date(job.createdAt).toLocaleDateString(locale === "en" ? "en-US" : "zh-CN")}
                         </span>
                       </div>
 
@@ -247,7 +249,7 @@ export default function CompanyJobsPage() {
 
                     <div className="flex items-center space-x-2">
                       <Link
-                        href={`/jobs/${job.slug}`}
+                        href={`/${locale}/jobs/${job.slug}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="p-2 hover:bg-gray-100 rounded-lg"
@@ -257,7 +259,7 @@ export default function CompanyJobsPage() {
                       </Link>
 
                       <Link
-                        href={`/company/jobs/${job.id}/edit`}
+                        href={`/${locale}/company/jobs/${job.id}/edit`}
                         className="p-2 hover:bg-gray-100 rounded-lg"
                         title="编辑"
                       >

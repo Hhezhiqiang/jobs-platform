@@ -242,7 +242,7 @@ function FavoriteJobCard({
     <div className="group bg-white rounded-xl border border-gray-100 p-5 hover:border-blue-200 hover:shadow-lg transition-all duration-300">
       <div className="flex items-start gap-4">
         {/* Company Logo */}
-        <Link href={`/jobs/${job.slug}`} className="flex-shrink-0">
+        <Link href={`/${locale}/jobs/${job.slug}`} className="flex-shrink-0">
           {job.companies.logo ? (
             <div className="w-14 h-14 rounded-xl overflow-hidden ring-2 ring-gray-100 group-hover:ring-blue-200 transition-all">
               <Image
@@ -264,7 +264,7 @@ function FavoriteJobCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
-              <Link href={`/jobs/${job.slug}`}>
+              <Link href={`/${locale}/jobs/${job.slug}`}>
                 <h3 className="font-bold text-lg text-gray-900 group-hover:text-blue-600 transition-colors">
                   {job.title}
                 </h3>
@@ -293,7 +293,7 @@ function FavoriteJobCard({
           <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-50">
             <div className="flex items-center gap-4 text-sm text-gray-400">
               <span>⏱️ {timeAgo}</span>
-              <span>❤️ 收藏于 {new Date(favorite.createdAt).toLocaleDateString("zh-CN")}</span>
+              <span>❤️ 收藏于 {new Date(favorite.createdAt).toLocaleDateString(locale === "en" ? "en-US" : "zh-CN")}</span>
             </div>
             <div className="flex items-center gap-3">
               <HeartButton
@@ -303,7 +303,7 @@ function FavoriteJobCard({
                 onToggle={(isFav) => onToggle(job.id, isFav)}
               />
               <Link
-                href={`/jobs/${job.slug}`}
+                href={`/${locale}/jobs/${job.slug}`}
                 className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
               >
                 申请职位

@@ -302,7 +302,7 @@ export default function CompanyDashboardPage() {
                           申请职位: {app.job?.title || "-"}
                         </p>
                         <p className="text-xs text-gray-400 mt-1">
-                          {app.appliedAt ? new Date(app.appliedAt).toLocaleDateString("zh-CN") : "-"}
+                          {app.appliedAt ? new Date(app.appliedAt).toLocaleDateString(locale === "en" ? "en-US" : "zh-CN") : "-"}
                         </p>
                       </div>
                       <span
@@ -352,7 +352,7 @@ export default function CompanyDashboardPage() {
                         <p className="font-medium text-gray-900">{job.title}</p>
                         <p className="text-sm text-gray-500">{job.location || "-"}</p>
                         <p className="text-xs text-gray-400 mt-1">
-                          发布于 {job.createdAt ? new Date(job.createdAt).toLocaleDateString("zh-CN") : "-"}
+                          发布于 {job.createdAt ? new Date(job.createdAt).toLocaleDateString(locale === "en" ? "en-US" : "zh-CN") : "-"}
                         </p>
                       </div>
                       <span

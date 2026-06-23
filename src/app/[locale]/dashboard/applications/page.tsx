@@ -168,7 +168,7 @@ export default function ApplicationsPage() {
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link href="/" className="text-blue-600 hover:text-blue-800">
+              <Link href={`/${locale}`} className="text-blue-600 hover:text-blue-800">
                 ← 返回首页
               </Link>
               <h1 className="text-2xl font-bold">我的申请</h1>
@@ -278,13 +278,13 @@ export default function ApplicationsPage() {
                       <div className="flex items-start justify-between mb-4">
                         <div>
                           <Link
-                            href={`/jobs/${app.jobs.slug}`}
+                            href={`/${locale}/jobs/${app.jobs.slug}`}
                             className="text-lg font-semibold text-blue-600 hover:text-blue-800"
                           >
                             {app.jobs.title}
                           </Link>
                           <Link
-                            href={`/companies/${app.jobs.companies.slug}`}
+                            href={`/${locale}/companies/${app.jobs.companies.slug}`}
                             className="block text-gray-600 hover:text-gray-800 mt-1"
                           >
                             {app.jobs.companies.name}
@@ -311,7 +311,7 @@ export default function ApplicationsPage() {
                             <p className="text-gray-500">申请时间</p>
                             <p className="font-medium">
                               {new Date(app.appliedAt).toLocaleDateString(
-                                "zh-CN"
+                                locale === "en" ? "en-US" : "zh-CN"
                               )}
                             </p>
                           </div>
@@ -320,7 +320,7 @@ export default function ApplicationsPage() {
                               <p className="text-gray-500">HR查看</p>
                               <p className="font-medium">
                                 {new Date(app.viewedAt).toLocaleDateString(
-                                  "zh-CN"
+                                  locale === "en" ? "en-US" : "zh-CN"
                                 )}
                               </p>
                             </div>
@@ -330,7 +330,7 @@ export default function ApplicationsPage() {
                               <p className="text-gray-500">HR回复</p>
                               <p className="font-medium">
                                 {new Date(app.respondedAt).toLocaleDateString(
-                                  "zh-CN"
+                                  locale === "en" ? "en-US" : "zh-CN"
                                 )}
                               </p>
                             </div>
@@ -340,7 +340,7 @@ export default function ApplicationsPage() {
                               <p className="text-gray-500">撤回时间</p>
                               <p className="font-medium">
                                 {new Date(app.withdrewAt).toLocaleDateString(
-                                  "zh-CN"
+                                  locale === "en" ? "en-US" : "zh-CN"
                                 )}
                               </p>
                             </div>
@@ -386,7 +386,7 @@ export default function ApplicationsPage() {
                           </button>
                         )}
                         <Link
-                          href={`/jobs/${app.jobs.slug}`}
+                          href={`/${locale}/jobs/${app.jobs.slug}`}
                           className="text-blue-600 hover:text-blue-800 text-sm"
                         >
                           查看职位详情 →

@@ -236,7 +236,7 @@ export default function ApplicationDetailPage({
                     <p className="text-sm text-gray-500">申请时间</p>
                     <p>
                       {application?.appliedAt &&
-                        new Date(application.appliedAt).toLocaleString("zh-CN")}
+                        new Date(application.appliedAt).toLocaleString(locale === "en" ? "en-US" : "zh-CN")}
                     </p>
                   </div>
                 </div>
@@ -352,14 +352,14 @@ export default function ApplicationDetailPage({
                   <span className="text-gray-500">申请时间</span>
                   <span>
                     {application?.appliedAt &&
-                      new Date(application.appliedAt).toLocaleDateString("zh-CN")}
+                      new Date(application.appliedAt).toLocaleDateString(locale === "en" ? "en-US" : "zh-CN")}
                   </span>
                 </div>
                 {application?.viewedAt && (
                   <div className="flex justify-between">
                     <span className="text-gray-500">查看时间</span>
                     <span>
-                      {new Date(application.viewedAt).toLocaleDateString("zh-CN")}
+                      {new Date(application.viewedAt).toLocaleDateString(locale === "en" ? "en-US" : "zh-CN")}
                     </span>
                   </div>
                 )}
@@ -367,7 +367,7 @@ export default function ApplicationDetailPage({
                   <div className="flex justify-between">
                     <span className="text-gray-500">最后回复</span>
                     <span>
-                      {new Date(application.respondedAt).toLocaleDateString("zh-CN")}
+                      {new Date(application.respondedAt).toLocaleDateString(locale === "en" ? "en-US" : "zh-CN")}
                     </span>
                   </div>
                 )}

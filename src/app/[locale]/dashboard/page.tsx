@@ -370,7 +370,7 @@ export default async function DashboardPage({ params }: { params: { locale: stri
                           </div>
                           <div>
                             <Link 
-                              href={`/jobs/${app.jobs.slug}`}
+                              href={`/${locale}/jobs/${app.jobs.slug}`}
                               className="font-semibold text-gray-900 hover:text-blue-600 transition-colors"
                             >
                               {app.jobs.title}

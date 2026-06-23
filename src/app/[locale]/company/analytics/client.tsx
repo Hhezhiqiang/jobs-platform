@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Briefcase,
   Users,
@@ -50,6 +51,8 @@ export default function CompanyAnalyticsClient({
   topJobs,
 }: Props) {
   const mounted = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const pathname = usePathname() || "/";
+  const locale = pathname.startsWith("/en") ? "en" : "zh";
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -147,7 +150,7 @@ export default function CompanyAnalyticsClient({
               topJobs.map((job, idx) => (
                 <Link
                   key={job.id}
-                  href={`/company/jobs/${job.id}`}
+                  href={`/${locale}/company/jobs/${job.id}`}
                   className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex items-center gap-3">
