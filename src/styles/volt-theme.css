@@ -147,6 +147,14 @@ body button, body a, body input[type="checkbox"], body input[type="radio"] {
 .bg-red-50, .bg-orange-50, .bg-yellow-50,
 .bg-pink-50, .bg-cyan-50 { background-color: var(--volt-ink-2) !important; }
 
+/* Arbitrary-value light backgrounds (page wrappers, sections) */
+[class*="bg-[#f8f7fc]"], [class*="bg-[#f8fafc]"], [class*="bg-[#f9fafb]"],
+[class*="bg-[#fafafa]"], [class*="bg-[#f5f5f5]"], [class*="bg-[#fcfcfc]"],
+[class*="bg-[#f3f4f6]"], [class*="bg-[#e5e7eb]"],
+[class*="bg-[#fff]"], [class*="bg-[#ffffff]"] {
+  background-color: var(--volt-ink) !important;
+}
+
 .hover\:bg-white:hover,
 .hover\:bg-gray-50:hover,
 .hover\:bg-gray-100:hover { background-color: var(--volt-ink-3) !important; }
@@ -349,6 +357,20 @@ code, pre, kbd {
   background-color: var(--volt-ink-3) !important;
   color: var(--volt-accent) !important;
   border: 1px solid var(--volt-line-2);
+}
+
+/* === 15b. Gradient-clipped text — force volt accent gradient ===
+   Elements using `bg-clip-text text-transparent` rely on a colored
+   gradient to fill the glyphs. Our dark gradient overrides make those
+   glyphs invisible on dark backgrounds. Always re-paint clip-text
+   gradients with the volt accent so titles & salary chips stay legible. */
+.bg-clip-text.text-transparent,
+[class*="bg-clip-text"][class*="text-transparent"] {
+  background-image: linear-gradient(135deg, var(--volt-accent) 0%, #e8ff8a 60%, #ffffff 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
 }
 
 /* === 16. Scrollbar === */
