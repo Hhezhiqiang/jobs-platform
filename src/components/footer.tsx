@@ -47,7 +47,7 @@ export function Footer() {
 
   return (
     <footer
-      className="volt-site-footer mt-24 border-t pb-32 md:pb-0"
+      className="volt-site-footer mt-24 border-t"
       style={{
         background: "#0a0a0a",
         borderColor: "rgba(255,255,255,0.08)",
@@ -76,7 +76,7 @@ export function Footer() {
             </p>
             <div className="mt-6 flex items-center gap-3">
               {[
-                { label: "X", href: "https://twitter.com/jobquip" },
+                { label: "X", href: "https://x.com/memedaokol?s=11" },
                 { label: "TG", href: "https://t.me/jobquip" },
                 { label: "in", href: "https://linkedin.com/company/jobquip" },
               ].map((s) => (
