@@ -10,7 +10,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="zh">
+    // Fallback root layout. Locale-specific routes are wrapped by
+    // src/app/[locale]/layout.tsx which sets <html lang={locale}>.
+    // This shell only renders for locale-agnostic routes (sitemap, robots,
+    // opengraph-image, error fallbacks).
+    <html lang="en">
       <body>{children}</body>
     </html>
   );

@@ -228,3 +228,53 @@ export function generateJobsListMetadata(params?: { city?: string; type?: string
     },
   };
 }
+
+// 通用静态页面 Metadata（about / contact / faq / salary-insights / career-trail / affiliate ...）
+// 用法：generateStaticPageMetadata({
+//   path: "faq", locale, zh: { title, description, keywords }, en: { title, description, keywords }
+// })
+export function generateStaticPageMetadata(opts: {
+  path: string;
+  locale: string;
+  zh: { title: string; description: string; keywords?: string[] };
+  en: { title: string; description: string; keywords?: string[] };
+  noindex?: boolean;
+  image?: string;
+}): Metadata {
+  const isEn = opts.locale === "en";
+  const copy = isEn ? opts.en : opts.zh;
+  const cleanPath = opts.path.replace(/^\/+|\/+$/g, "");
+  const canonical = `${SITE_URL}/${opts.locale}/${cleanPath}`;
+  const imageUrl = opts.image || `${SITE_URL}/logo.png`;
+  return {
+    title: copy.title,
+    description: copy.description,
+    keywords: copy.keywords,
+    openGraph: {
+      title: copy.title,
+      description: copy.description,
+      url: canonical,
+      siteName: SITE_NAME,
+      type: "website",
+      locale: isEn ? "en_US" : "zh_CN",
+      images: [imageUrl],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: copy.title,
+      description: copy.description,
+      images: [imageUrl],
+    },
+    robots: opts.noindex
+      ? { index: false, follow: false }
+      : { index: true, follow: true },
+    alternates: {
+      canonical,
+      languages: {
+        "zh-CN": `${SITE_URL}/zh/${cleanPath}`,
+        "en": `${SITE_URL}/en/${cleanPath}`,
+        "x-default": `${SITE_URL}/zh/${cleanPath}`,
+      },
+    },
+  };
+}

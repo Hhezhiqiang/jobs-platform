@@ -2,16 +2,26 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Calendar, User, Clock, TrendingUp, BookOpen, MessageCircle } from "lucide-react";
+import { generateStaticPageMetadata } from "@/lib/metadata";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  const isEn = locale === "en";
-  return {
-    title: isEn ? "Career Stories - JobQuip" : "职迹 - JobQuip",
-    description: isEn ? "Share real career experiences and growth stories" : "分享真实职业经历和成长故事",
-  };
+  return generateStaticPageMetadata({
+    path: "career-trail",
+    locale,
+    zh: {
+      title: "职迹 - 真实职业经历与成长故事 | JobQuip",
+      description: "分享来自一线从业者的真实职业经历、转型故事和成长心得，帮助你少走弯路，看清行业全貌。",
+      keywords: ["职业经历", "成长故事", "职场分享", "转型经验", "职业发展", "工作感悟", "JobQuip"],
+    },
+    en: {
+      title: "Career Stories - Real Journeys & Growth Notes | JobQuip",
+      description: "Honest, first-person career stories and growth notes from working professionals. Learn from real journeys, not press releases.",
+      keywords: ["career stories", "career growth", "tech careers", "career change", "professional growth", "JobQuip"],
+    },
+  });
 }
 
 export const revalidate = 60;

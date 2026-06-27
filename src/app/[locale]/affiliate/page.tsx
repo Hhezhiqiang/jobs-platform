@@ -1,10 +1,24 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import { generateStaticPageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
-  title: "推广者计划 - 分享职位赚取佣金 | JobQuip CPS",
-  description: "加入JobQuip推广者计划，分享推广链接即可获得高额佣金。每次注册和订单都能获得分成，多劳多得，提现到TRC-20钱包。",
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  return generateStaticPageMetadata({
+    path: "affiliate",
+    locale,
+    zh: {
+      title: "推广者计划 - 分享职位赚取佣金 | JobQuip CPS",
+      description: "加入 JobQuip 推广者计划，分享推广链接即可获得高额佣金。每次注册和订单都能获得分成，多劳多得，提现到 TRC-20 钱包。",
+      keywords: ["JobQuip 推广", "招聘推广", "CPS", "联盟计划", "分销", "推广佣金", "TRC-20"],
+    },
+    en: {
+      title: "Affiliate Program - Share Jobs, Earn Commission | JobQuip CPS",
+      description: "Join the JobQuip affiliate program. Share your link, earn commission on every signup and order. Paid out to TRC-20.",
+      keywords: ["affiliate program", "JobQuip affiliate", "CPS", "referral program", "earn commission", "job referrals"],
+    },
+  });
+}
 
 export default async function AffiliatePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;

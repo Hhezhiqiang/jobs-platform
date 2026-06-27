@@ -16,14 +16,20 @@ export function generateJobPostingSchema(job: jobs & { companies: companies }, l
     ? new Date(job.validThrough).toISOString()
     : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
-  const baseSalary = job.salaryMin || job.salaryMax
+  // Only emit baseSalary when at least one of min/max is a positive number.
+  // Google for Jobs validator rejects MonetaryAmount with undefined values.
+  const minVal = Number(job.salaryMin);
+  const maxVal = Number(job.salaryMax);
+  const hasMin = Number.isFinite(minVal) && minVal > 0;
+  const hasMax = Number.isFinite(maxVal) && maxVal > 0;
+  const baseSalary = hasMin || hasMax
     ? {
         "@type": "MonetaryAmount" as const,
         currency: job.salaryCurrency || "CNY",
         value: {
           "@type": "QuantitativeValue" as const,
-          minValue: job.salaryMin || undefined,
-          maxValue: job.salaryMax || undefined,
+          ...(hasMin ? { minValue: minVal } : {}),
+          ...(hasMax ? { maxValue: maxVal } : {}),
           unitText: job.salaryPeriod === "YEAR" ? "YEAR" : "MONTH",
         },
       }
@@ -82,6 +88,15 @@ export function generateJobPostingSchema(job: jobs & { companies: companies }, l
 
 // Organization Schema 生成
 export function generateOrganizationSchema(company: companies) {
+  const ensureHttps = (u?: string | null) => {
+    if (!u) return undefined;
+    const trimmed = u.trim();
+    if (!trimmed) return undefined;
+    if (/^https:\/\//i.test(trimmed)) return trimmed;
+    if (/^http:\/\//i.test(trimmed)) return trimmed.replace(/^http:\/\//i, "https://");
+    if (/^\/\//.test(trimmed)) return `https:${trimmed}`;
+    return `https://${trimmed.replace(/^\/+/, "")}`;
+  };
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -89,7 +104,7 @@ export function generateOrganizationSchema(company: companies) {
     description: company.description || undefined,
     url: `${SITE_URL}/companies/${company.slug}`,
     logo: company.logo || undefined,
-    sameAs: company.website || undefined,
+    sameAs: ensureHttps(company.website),
   };
 }
 
@@ -204,6 +219,7 @@ export function generateArticleSchema(data: {
   dateModified: string;
   keywords?: string[];
   url: string;
+  inLanguage?: string;
 }) {
   return {
     "@context": "https://schema.org",
@@ -211,6 +227,7 @@ export function generateArticleSchema(data: {
     headline: data.headline,
     description: data.description,
     image: data.image,
+    inLanguage: data.inLanguage,
     author: {
       "@type": "Person",
       name: data.author.name,

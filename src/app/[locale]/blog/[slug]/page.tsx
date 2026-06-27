@@ -92,12 +92,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 // 生成 Article Schema
 function generateArticleSchema(post: BlogPostWithAuthor, locale: string) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
+  const isEn = locale === "en";
+  const url = `${siteUrl}/${locale}/blog/${post.slug}`;
   return {
     "@context": "https://schema.org",
     "@type": "Article",
-    headline: post.title,
-    description: post.excerpt,
+    headline: isEn && post.titleEn ? post.titleEn : post.title,
+    description: (isEn && post.excerptEn) || post.excerpt,
     image: post.featuredImage || `${siteUrl}/logo.png`,
+    inLanguage: isEn ? "en-US" : "zh-CN",
     datePublished: post.createdAt.toISOString(),
     dateModified: post.updatedAt.toISOString(),
     author: {
@@ -106,13 +109,17 @@ function generateArticleSchema(post: BlogPostWithAuthor, locale: string) {
     },
     publisher: {
       "@type": "Organization",
-      name: locale === "en" ? "JobQuip Blog" : "招聘平台",
+      name: isEn ? "JobQuip Blog" : "招聘平台",
       logo: {
         "@type": "ImageObject",
         url: `${siteUrl}/logo.png`,
       },
     },
-    url: `${siteUrl}/${locale}/blog/${post.slug}`,
+    url,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": url,
+    },
   };
 }
 

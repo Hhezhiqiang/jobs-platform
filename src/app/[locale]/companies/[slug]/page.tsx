@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { generateCompanyMetadata } from "@/lib/metadata";
-import { generateOrganizationSchema } from "@/lib/schema";
+import { generateOrganizationSchema, generateBreadcrumbSchema } from "@/lib/schema";
 import { JobCardV2 } from "@/components/aurora/job-card";
 import { Metadata } from "next";
 import { MapPin, Globe, Users, Building2, Briefcase, ChevronRight } from "lucide-react";
@@ -75,11 +75,17 @@ export default async function CompanyDetailPage({ params }: PageProps) {
   }
 
   const orgSchema = generateOrganizationSchema(company);
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: isEn ? "Home" : "首页", url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com"}/${locale}` },
+    { name: isEn ? "Companies" : "公司", url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com"}/${locale}/companies` },
+    { name: company.name, url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com"}/${locale}/companies/${company.slug}` },
+  ]);
   const validJobs = company.jobs.filter(job => job.slug);
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(orgSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(breadcrumbSchema) }} />
 
       <div className="min-h-screen bg-[#f8f7fc]">
 

@@ -3,9 +3,11 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Metadata } from "next";
 import { generateJobMetadata } from "@/lib/metadata";
-import { generateJobPostingSchema } from "@/lib/schema";
+import { generateJobPostingSchema, generateBreadcrumbSchema } from "@/lib/schema";
 import { safeJsonLdStringify } from "@/lib/utils";
 import JobDetailPageClient from "@/components/job-detail-client";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 
 interface PageProps {
   params: Promise<{ slug: string; locale: string }>;
@@ -49,11 +51,17 @@ export default async function JobDetailPage({ params }: PageProps) {
 
   if (!job) notFound();
 
-  const jobPostingSchema = generateJobPostingSchema(job);
+  const jobPostingSchema = generateJobPostingSchema(job, locale);
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: isEn ? "Home" : "首页", url: `${SITE_URL}/${locale}` },
+    { name: isEn ? "Jobs" : "职位", url: `${SITE_URL}/${locale}/jobs` },
+    { name: job.title, url: `${SITE_URL}/${locale}/jobs/${job.slug}` },
+  ]);
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(jobPostingSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(breadcrumbSchema) }} />
       <JobDetailPageClient job={job} locale={locale} />
     </>
   );
