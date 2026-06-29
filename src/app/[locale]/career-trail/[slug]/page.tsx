@@ -4,24 +4,55 @@ import { Metadata } from "next";
 import ReactMarkdown from "react-markdown";
 import Link from "next/link";
 import { Calendar, User, Clock, ArrowLeft, Share2, Heart, MessageCircle, Bookmark, TrendingUp } from "lucide-react";
+import { generateBreadcrumbSchema } from "@/lib/schema";
+import { safeJsonLdStringify } from "@/lib/utils";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://jobquip.com";
 
 interface PageProps {
   params: Promise<{ slug: string; locale: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params;
-  
+  const { slug, locale } = await params;
+
   const story = await prisma.pages.findUnique({
     where: { slug, type: 'CAREER_TRAIL' },
     select: { title: true, excerpt: true }
   });
-  
+
   if (!story) notFound();
-  
+
+  const isEn = locale === "en";
+  const desc = story.excerpt || story.title;
+  const canonical = `${SITE_URL}/${locale}/career-trail/${slug}`;
+
   return {
     title: `${story.title} - JobQuip`,
-    description: story.excerpt || story.title,
+    description: desc,
+    openGraph: {
+      title: `${story.title} - JobQuip`,
+      description: desc,
+      url: canonical,
+      siteName: "JobQuip",
+      type: "article",
+      locale: isEn ? "en_US" : "zh_CN",
+      images: [`${SITE_URL}/logo.png`],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${story.title} - JobQuip`,
+      description: desc,
+      images: [`${SITE_URL}/logo.png`],
+    },
+    alternates: {
+      canonical,
+      languages: {
+        "zh-CN": `${SITE_URL}/zh/career-trail/${slug}`,
+        "en": `${SITE_URL}/en/career-trail/${slug}`,
+        "x-default": `${SITE_URL}/zh/career-trail/${slug}`,
+      },
+    },
   };
 }
 
@@ -39,12 +70,19 @@ export default async function CareerStoryPage({ params }: PageProps) {
   });
   
   if (!story) notFound();
-  
+
   // 提取目录
   const headings = story.content?.match(/^#{2}\s+(.+)$/gm) || [];
-  
+
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: isEn ? "Home" : "首页", url: `${SITE_URL}/${locale}` },
+    { name: isEn ? "Career Trail" : "职迹", url: `${SITE_URL}/${locale}/career-trail` },
+    { name: story.title, url: `${SITE_URL}/${locale}/career-trail/${slug}` },
+  ]);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJsonLdStringify(breadcrumbSchema) }} />
       {/* 顶部横幅 */}
       <div className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500">
         <div className="absolute inset-0 opacity-20" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` }}></div>

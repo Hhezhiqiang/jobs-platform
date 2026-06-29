@@ -151,12 +151,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     take: 100,
   });
 
-  const storyEntries: MetadataRoute.Sitemap = stories.map((s) => ({
-    url: `${zh}/career-trail/${s.id}`,
-    lastModified: s.updatedAt,
-    priority: 0.5,
-    changeFrequency: "weekly" as const,
-  }));
+  const storyEntries: MetadataRoute.Sitemap = stories.flatMap((s) => [
+    {
+      url: `${zh}/career-trail/${s.id}`,
+      lastModified: s.updatedAt,
+      priority: 0.5,
+      changeFrequency: "weekly" as const,
+    },
+    {
+      url: `${baseUrl}/en/career-trail/${s.id}`,
+      lastModified: s.updatedAt,
+      priority: 0.45,
+      changeFrequency: "weekly" as const,
+    },
+  ]);
 
   // ── 7. 专题 PSEO 页面（核心 SEO 聚合页）──
   const TOPIC_SLUGS = [
