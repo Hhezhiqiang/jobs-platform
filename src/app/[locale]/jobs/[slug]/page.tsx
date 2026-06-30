@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { Metadata } from "next";
 import { generateJobMetadata } from "@/lib/metadata";

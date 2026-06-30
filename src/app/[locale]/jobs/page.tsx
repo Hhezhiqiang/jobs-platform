@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { generateJobsListMetadata } from "@/lib/metadata";
 import { JobsPageClient } from "@/components/aurora/jobs-page-client";
@@ -21,6 +20,12 @@ interface PageProps {
   }>;
 }
 
+type JobsListItem = Prisma.jobsGetPayload<{
+  include: {
+    companies: true;
+  };
+}>;
+
 // ISR 缓存：30 秒后重新生成
 export const revalidate = 30;
 
@@ -35,9 +40,10 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
 }
 
 export default async function JobsPage({ params, searchParams }: PageProps) {
+  await params;
   const sp = await searchParams;
 
-  let jobs: any[] = [];
+  let jobs: JobsListItem[] = [];
   let total = 0;
   let cities: { city: string | null }[] = [];
   let dbError = false;
@@ -94,15 +100,8 @@ export default async function JobsPage({ params, searchParams }: PageProps) {
   const [jobsData, totalData, citiesData] = await Promise.all([
     prisma.jobs.findMany({
       where,
-      include: { 
-        companies: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            logo: true,
-          },
-        },
+      include: {
+        companies: true,
       },
       orderBy: { datePosted: "desc" },
       skip,

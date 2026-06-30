@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Adzuna 全球岗位同步 - 慢速版，控制 rate limit"""
+import os
 import requests
 import time
 import json
@@ -7,12 +8,18 @@ import psycopg2
 import re
 from urllib.parse import quote_plus
 
-APP_ID = "2899dccd"
-APP_KEY = "86ffc0dcf27cad6c95088854de203aed"
-COMPANY_ID = "38416798-38f0-42ed-99fb-b35e4f76ee7f"
-AUTHOR_ID = "8df3fecd-5775-4361-ab3a-5c3b0f4a06a4"
+APP_ID = os.getenv("ADZUNA_APP_ID")
+APP_KEY = os.getenv("ADZUNA_APP_KEY")
+COMPANY_ID = os.getenv("ADZUNA_COMPANY_ID", "38416798-38f0-42ed-99fb-b35e4f76ee7f")
+AUTHOR_ID = os.getenv("ADZUNA_AUTHOR_ID", "8df3fecd-5775-4361-ab3a-5c3b0f4a06a4")
 
-DB = "postgresql://jobquip:JQdb2024%21secure@localhost:5433/jobquip"
+DB = os.getenv("DATABASE_URL")
+
+if not APP_ID or not APP_KEY:
+    raise SystemExit("ADZUNA_APP_ID and ADZUNA_APP_KEY must be set")
+
+if not DB:
+    raise SystemExit("DATABASE_URL must be set")
 
 COUNTRIES = {
     "gb": ["London", "Manchester", "Birmingham", "Edinburgh", "Bristol"],

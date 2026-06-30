@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Header } from "@/components/header";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { JobCardV2 } from "@/components/job-card-v2";
@@ -9,7 +9,6 @@ import { SearchBox } from "@/components/search-box";
 import { SearchFilters } from "@/components/search-filters";
 import { SearchHistory } from "@/components/search-history";
 import { HotSearches } from "@/components/hot-searches";
-import { HighlightedText } from "@/components/highlighted-text";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { logger } from '@/lib/logger';
 
@@ -28,7 +27,13 @@ interface Job {
   isRemote: boolean;
   isHybrid: boolean;
   datePosted: string;
-  company: {
+  companies: {
+    id: string;
+    name: string;
+    slug: string;
+    logo: string | null;
+  };
+  company?: {
     id: string;
     name: string;
     slug: string;
@@ -64,7 +69,6 @@ export function SearchPageClient({
 }: SearchPageClientProps) {
   const isEn = locale === "en";
   const router = useRouter();
-  const searchParams = useSearchParams();
   
   const [query, setQuery] = useState(initialQuery);
   const [filters, setFilters] = useState<SearchFilters>({
@@ -139,9 +143,9 @@ export function SearchPageClient({
     if (filters.maxSalary) params.set("maxSalary", filters.maxSalary);
     if (page > 1) params.set("page", page.toString());
 
-    const url = `/search${params.toString() ? `?${params.toString()}` : ""}`;
-    router.push(url, { scroll: false });
-  }, [query, filters, page, router]);
+    const url = `/${locale}/search${params.toString() ? `?${params.toString()}` : ""}`;
+    router.replace(url, { scroll: false });
+  }, [query, filters, page, router, locale]);
 
   const handleSearch = (newQuery: string) => {
     setQuery(newQuery);
@@ -268,19 +272,10 @@ export function SearchPageClient({
                   {jobs.map((job) => (
                     <JobCardV2
                       key={job.id}
-                      job={{
-                        ...job,
-                        description: (
-                          <HighlightedText
-                            text={job.description}
-                            highlight={query}
-                            maxLength={150}
-                          />
-                        ) as unknown as string,
-                      } as any}
-                      variant="compact"
-                      highlightQuery={query}
-                      locale={locale}
+                        job={job}
+                        variant="compact"
+                        highlightQuery={query}
+                        locale={locale}
                     />
                   ))}
                 </div>

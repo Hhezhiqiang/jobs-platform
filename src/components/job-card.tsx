@@ -16,7 +16,7 @@ const DEFAULT_VALID_THROUGH = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).to
 
 export function JobCard({ job, compact = false }: JobCardProps) {
   const locale = usePathname()?.split("/")[1] || "zh";
-  const salaryText = formatSalary(job.salaryMin, job.salaryMax);
+  const salaryText = formatSalary(job.salaryMin, job.salaryMax, job.salaryCurrency, locale);
 
   // JobPosting Schema 数据
   const jobSchema = {

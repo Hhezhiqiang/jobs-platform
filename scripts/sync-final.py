@@ -1,9 +1,19 @@
 #!/usr/bin/env python3
 """稳定版全球同步 - 每条独立连接，错误会打印出来"""
+import os
 import requests, time, psycopg2, sys
 
-APP_ID="2899dccd"; APP_KEY="86ffc0dcf27cad6c95088854de203aed"
-CID="6522fb87-5aa0-4621-b758-c8fe8478af8f"; AID="8df3fecd-5775-4361-ab3a-5c3b0f4a06a4"
+APP_ID = os.getenv("ADZUNA_APP_ID")
+APP_KEY = os.getenv("ADZUNA_APP_KEY")
+DATABASE_URL = os.getenv("DATABASE_URL")
+CID = os.getenv("ADZUNA_COMPANY_ID", "6522fb87-5aa0-4621-b758-c8fe8478af8f")
+AID = os.getenv("ADZUNA_AUTHOR_ID", "8df3fecd-5775-4361-ab3a-5c3b0f4a06a4")
+
+if not APP_ID or not APP_KEY:
+    raise SystemExit("ADZUNA_APP_ID and ADZUNA_APP_KEY must be set")
+
+if not DATABASE_URL:
+    raise SystemExit("DATABASE_URL must be set")
 
 COUNTRIES = {
     "us": ["New York", "San Francisco", "Seattle", "Austin", "Boston", "Los Angeles", "Chicago", "Denver", "Miami"],
@@ -52,7 +62,7 @@ for country, locations in COUNTRIES.items():
                 batch = 0
                 for j in jobs:
                     try:
-                        conn = psycopg2.connect("postgresql://jobquip:JQdb2024%21secure@localhost:5433/jobquip")
+                        conn = psycopg2.connect(DATABASE_URL)
                         cur = conn.cursor()
                         slug = f"adzuna-{country}-{j['id']}"
                         title = j.get("title","")
@@ -96,4 +106,3 @@ for country, locations in COUNTRIES.items():
         break
 
 print(f"\nDONE: fetched={fetched} inserted={inserted} errors={errors}")
-PYEOF

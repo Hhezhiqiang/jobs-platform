@@ -158,10 +158,10 @@ export default async function JobDetailPage({ params }: PageProps) {
                     </div>
                     <div>
                       <p className="font-semibold text-gray-900 group-hover:text-[#4f46e5] transition-colors">{job.companies.name}</p>
-                      <p className="text-sm text-gray-500">{job.companies.industry || isEn ? "Tech" : "互联网"}</p>
-                    </div>
-                  </Link>
-                </div>
+                    <p className="text-sm text-gray-500">{job.companies.industry || (isEn ? "Tech" : "互联网")}</p>
+                  </div>
+                </Link>
+              </div>
               )}
             </div>
           </div>

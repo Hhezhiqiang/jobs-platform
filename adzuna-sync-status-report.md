@@ -11,11 +11,11 @@
 
 | 变量 | 状态 | 值 |
 |------|------|-----|
-| `ADZUNA_APP_ID` | ✅ 已配置 | `2899dccd` |
-| `ADZUNA_APP_KEY` | ✅ 已配置 | `86ffc0dcf27cad6c95088854de203aed` |
+| `ADZUNA_APP_ID` | ✅ 已配置 | `REDACTED` |
+| `ADZUNA_APP_KEY` | ✅ 已配置 | `REDACTED` |
 | `ADZUNA_COMPANY_ID` | ✅ 已配置 | `38416798-38f0-42ed-99fb-b35e4f76ee7f` |
 | `ADZUNA_AUTHOR_ID` | ✅ 已配置 | `a474808e-cc1c-4536-b845-dc92ff89a090` |
-| `KIMI_API_KEY` | ✅ 已配置 | `sk-yBaN30XiLcyh4ZkVd7aLMukglXD6P9RSwC9nXCPhjQq3h3Ke` |
+| `KIMI_API_KEY` | ✅ 已配置 | `REDACTED` |
 
 **结论**: ✅ 所有必需的环境变量都已正确配置
 
@@ -27,7 +27,7 @@
 
 **测试 URL**:
 ```
-https://api.adzuna.com/v1/api/jobs/gb/search/1?app_id=2899dccd&app_key=86ffc0dcf27cad6c95088854de203aed&what=software%20engineer&where=London&results_per_page=5
+https://api.adzuna.com/v1/api/jobs/gb/search/1?app_id=REDACTED&app_key=REDACTED&what=software%20engineer&where=London&results_per_page=5
 ```
 
 **测试结果**:

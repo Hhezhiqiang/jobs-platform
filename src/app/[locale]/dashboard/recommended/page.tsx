@@ -1,16 +1,28 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Briefcase, MapPin, DollarSign, Star, ChevronRight, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { logger } from '@/lib/logger';
 
+interface RecommendedJob {
+  id: string;
+  slug: string;
+  title: string;
+  employmentType: string;
+  salaryMin: number | null;
+  salaryMax: number | null;
+  location: string | null;
+  isFeatured: boolean;
+  companies?: { name: string } | null;
+  matchReasons?: string[];
+}
+
 export default function RecommendedJobsPage() {
   const locale = useLocale();
   const t = useTranslations("dashboard.recommendedPage");
-  const [jobs, setJobs] = useState<any[]>([]);
+  const [jobs, setJobs] = useState<RecommendedJob[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPersonalized, setIsPersonalized] = useState(false);
 

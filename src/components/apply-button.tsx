@@ -12,10 +12,8 @@ interface ApplyButtonProps {
 
 export function ApplyButton({
   jobSlug,
-  jobTitle,
-  companyName,
 }: ApplyButtonProps) {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
   const locale = pathname?.split("/")[1] || "zh";

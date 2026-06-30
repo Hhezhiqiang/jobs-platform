@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
-import { useSearchParams, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { JobCardV3 } from "@/components/job-card-v3";
 import { FilterSidebarV2 } from "@/components/filter-sidebar-v2";
 import { Breadcrumb } from "@/components/breadcrumb";
@@ -12,11 +12,9 @@ import {
   getStoredPreferences,
   getCultureTag,
   type JobPreferences,
-  type CultureTag,
   calculateMatchScore,
-  CULTURE_TAGS,
 } from "@/components/job-preference-modal";
-import { ChevronLeft, ChevronRight, SlidersHorizontal, Settings, Sparkles } from "lucide-react";
+import { ChevronLeft, ChevronRight, Settings, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const ITEMS_PER_PAGE = 15;
@@ -86,6 +84,8 @@ export function JobsPageClient({ initialJobs, total, totalPages, currentPage, ci
     return getStoredPreferences();
   });
   const mounted = typeof window !== "undefined";
+  void ITEMS_PER_PAGE;
+  void total;
 
   // 重新加载偏好设置（当模态框关闭时）
   const handlePreferencesChange = useCallback(() => {
@@ -169,8 +169,6 @@ export function JobsPageClient({ initialJobs, total, totalPages, currentPage, ci
 
   // Use server-side pagination info directly
   const page = currentPage;
-  const limit = ITEMS_PER_PAGE;
-
   const buildPageUrl = (pageNum: number) => {
     const params = new URLSearchParams();
     if (currentParams.q) params.set("q", currentParams.q);
@@ -376,7 +374,7 @@ export function JobsPageClient({ initialJobs, total, totalPages, currentPage, ci
                   {filteredAndSortedJobs.map((job) => (
                     <JobCardV3
                       key={job.id}
-                      job={job as any}
+                      job={job}
                       variant="compact"
                       userCultureTags={preferences?.cultureTags || []}
                       showMatchScore={!!hasPreferences}

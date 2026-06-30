@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { JobCardV2 } from "@/components/aurora/job-card";
 import { Search, MapPin, Briefcase, DollarSign, Filter, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { jobs, companies } from "@prisma/client";
@@ -24,13 +25,15 @@ const typeOptions = [
   { value: "FREELANCE", label: "自由职业" },
 ];
 
-export function JobsPageClient({ initialJobs, total, totalPages, currentPage, cities, dbError, currentParams }: JobsPageClientProps) {
+export function JobsPageClient({ initialJobs, totalPages, currentPage, cities, dbError, currentParams }: JobsPageClientProps) {
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState(currentParams.q || "");
   const [selectedCity, setSelectedCity] = useState(currentParams.city || "");
   const [selectedType, setSelectedType] = useState(currentParams.type || "");
   const [minSalary, setMinSalary] = useState(currentParams.minSalary || "");
   const [maxSalary, setMaxSalary] = useState(currentParams.maxSalary || "");
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] || "zh";
 
   // Check if any filters are active
   const hasActiveFilters = searchQuery || selectedCity || selectedType || minSalary || maxSalary;
@@ -42,7 +45,7 @@ export function JobsPageClient({ initialJobs, total, totalPages, currentPage, ci
     if (selectedType) params.set("type", selectedType);
     if (minSalary) params.set("minSalary", minSalary);
     if (maxSalary) params.set("maxSalary", maxSalary);
-    window.location.href = `/zh/jobs${params.toString() ? "?" + params.toString() : ""}`;
+    window.location.href = `/${locale}/jobs${params.toString() ? "?" + params.toString() : ""}`;
   };
 
   const handleClearFilters = () => {
@@ -51,7 +54,7 @@ export function JobsPageClient({ initialJobs, total, totalPages, currentPage, ci
     setSelectedType("");
     setMinSalary("");
     setMaxSalary("");
-    window.location.href = "/zh/jobs";
+    window.location.href = `/${locale}/jobs`;
   };
 
   if (dbError) {
@@ -79,7 +82,7 @@ export function JobsPageClient({ initialJobs, total, totalPages, currentPage, ci
           {/* Breadcrumb */}
           <nav className="mb-6">
             <ol className="flex items-center gap-2 text-sm text-white/60">
-              <li><Link href="/zh" className="hover:text-white transition-colors">首页</Link></li>
+              <li><Link href={`/${locale}`} className="hover:text-white transition-colors">首页</Link></li>
               <li>/</li>
               <li className="text-white">职位列表</li>
             </ol>
@@ -208,7 +211,7 @@ export function JobsPageClient({ initialJobs, total, totalPages, currentPage, ci
         ) : (
           <div className="space-y-4">
             {initialJobs.map((job) => (
-              <JobCardV2 key={job.id} job={job} variant="default" locale="zh" />
+              <JobCardV2 key={job.id} job={job} variant="default" locale={locale} />
             ))}
           </div>
         )}

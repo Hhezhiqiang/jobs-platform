@@ -17,8 +17,14 @@ interface JobData {
   employmentType: string;
 }
 
+interface ResumeSummary {
+  id: string;
+  name: string;
+  isDefault: boolean;
+}
+
 export default function ApplyPage({ params }: { params: Promise<{ slug: string; locale: string }> }) {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
   const locale = pathname?.split("/")[1] || "zh";
@@ -29,7 +35,7 @@ export default function ApplyPage({ params }: { params: Promise<{ slug: string; 
   const [submitting, setSubmitting] = useState(false);
   const [coverLetter, setCoverLetter] = useState("");
   const [resumeId, setResumeId] = useState("");
-  const [resumes, setResumes] = useState<any[]>([]);
+  const [resumes, setResumes] = useState<ResumeSummary[]>([]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
@@ -43,15 +49,15 @@ export default function ApplyPage({ params }: { params: Promise<{ slug: string; 
     const loadJob = async () => {
       try {
         const { slug } = await params;
-        const jobsRes = await fetch(`/api/jobs?limit=100`);
+        const jobsRes = await fetch(`/api/jobs/${encodeURIComponent(slug)}`);
         const jobsData = await jobsRes.json();
-        const foundJob = jobsData.jobs?.find((j: any) => j.slug === slug);
-        
-        if (!foundJob) {
-          setError(isEn ? "Job not found" : "职位不存在");
+        if (!jobsRes.ok) {
+          setError(jobsData.error || (isEn ? "Job not found" : "职位不存在"));
           setLoading(false);
           return;
         }
+
+        const foundJob = jobsData.job;
 
         setJob({
           id: foundJob.id,
@@ -68,9 +74,10 @@ export default function ApplyPage({ params }: { params: Promise<{ slug: string; 
         const resumesRes = await fetch("/api/resumes");
         if (resumesRes.ok) {
           const resumesData = await resumesRes.json();
-          setResumes(resumesData.resumes || []);
-          if (resumesData.resumes?.length > 0) {
-            const defaultResume = resumesData.resumes.find((r: any) => r.isDefault) || resumesData.resumes[0];
+          const loadedResumes: ResumeSummary[] = resumesData.resumes || [];
+          setResumes(loadedResumes);
+          if (loadedResumes.length > 0) {
+            const defaultResume = loadedResumes.find((r) => r.isDefault) || loadedResumes[0];
             setResumeId(defaultResume.id);
           }
         }
@@ -225,7 +232,7 @@ export default function ApplyPage({ params }: { params: Promise<{ slug: string; 
                 onChange={(e) => setResumeId(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                {resumes.map((r: any) => (
+                {resumes.map((r) => (
                   <option key={r.id} value={r.id}>
                     {r.name} {r.isDefault ? "(默认)" : ""}
                   </option>

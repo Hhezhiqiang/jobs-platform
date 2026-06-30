@@ -1,13 +1,35 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import Image from "next/image";
-import { jobs, companies } from "@prisma/client";
 import { formatDistanceToNow, formatSalary } from "@/lib/utils";
 import { HeartButton } from "./heart-button";
 import { HighlightedText } from "./highlighted-text";
 import { MapPin, Briefcase, Clock, ArrowRight, Sparkles } from "lucide-react";
 
+interface JobCardCompany {
+  name: string;
+  logo: string | null;
+}
+
+interface JobCardData {
+  id: string;
+  slug?: string | null;
+  title: string;
+  employmentType: string;
+  salaryMin: number | null;
+  salaryMax: number | null;
+  salaryCurrency: string;
+  location: string;
+  datePosted: Date | string;
+  isRemote?: boolean;
+  isFeatured?: boolean;
+  imageUrl?: string | null;
+  schemaOrganizationName?: string | null;
+  companies?: JobCardCompany;
+  company?: JobCardCompany;
+}
+
 interface JobCardV2Props {
-  job: jobs & { companies: companies };
+  job: JobCardData;
   variant?: "default" | "compact" | "featured";
   showFavorite?: boolean;
   highlightQuery?: string;
@@ -18,13 +40,14 @@ function getI18n(locale?: string) {
   const isEn = locale === "en";
   const t: Record<string, string> = isEn
     ? { fullTime: "Full-time", partTime: "Part-time", contract: "Contract", internship: "Internship", freelance: "Freelance", remote: "Remote", remoteOffice: "Remote", hot: "Hot", viewDetail: "View Details" }
-    : { fullTime: "全职", partTime: "兼职", contract: "合同", internship: "实习", freelance: "自由职业", remote: "远程", remoteOffice: "远程办公", hot: "热招", viewDetail: "查看详情" };
+    : { fullTime: "鍏ㄨ亴", partTime: "鍏艰亴", contract: "鍚堝悓", internship: "瀹炰範", freelance: "鑷敱鑱屼笟", remote: "杩滅▼", remoteOffice: "杩滅▼鍔炲叕", hot: "鐑嫑", viewDetail: "鏌ョ湅璇︽儏" };
   return { isEn, t };
 }
 
 export function JobCardV2({ job, variant = "default", showFavorite = true, highlightQuery, locale }: JobCardV2Props) {
-  const { isEn, t } = getI18n(locale);
-  const salaryText = formatSalary(job.salaryMin, job.salaryMax);
+  const { t } = getI18n(locale);
+  const company = job.companies ?? job.company ?? { name: "", logo: null };
+  const salaryText = formatSalary(job.salaryMin, job.salaryMax, job.salaryCurrency, locale);
   const timeAgo = formatDistanceToNow(job.datePosted);
 
   const typeMap: Record<string, string> = {
@@ -36,7 +59,7 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
   };
   const displayType = typeMap[job.employmentType] || job.employmentType;
 
-  // 安全路由：如果 slug 丢失，回退到搜索页，避免 404
+  // 瀹夊叏璺敱锛氬鏋?slug 涓㈠け锛屽洖閫€鍒版悳绱㈤〉锛岄伩鍏?404
   const jobLink = job.slug 
     ? `/${locale}/jobs/${job.slug}` 
     : `/${locale}/search?q=${encodeURIComponent(job.title)}`;
@@ -48,11 +71,11 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
         className="group flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-md transition-all duration-300"
       >
         <div className="flex-shrink-0">
-          {job.companies.logo ? (
+          {company.logo ? (
             <div className="w-12 h-12 rounded-xl overflow-hidden ring-2 ring-gray-100 group-hover:ring-blue-200 transition-all">
               <Image
-                src={job.companies.logo}
-                alt={`${job.companies.name} Logo`}
+                src={company.logo}
+                alt={`${company.name} Logo`}
                 width={48}
                 height={48}
                 className="w-full h-full object-cover"
@@ -61,7 +84,7 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
             </div>
           ) : (
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-md">
-              {job.companies.name.charAt(0)}
+              {company.name.charAt(0)}
             </div>
           )}
         </div>
@@ -74,7 +97,7 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
               job.title
             )}
           </h3>
-          <p className="text-sm text-gray-500 truncate">{job.companies.name}</p>
+          <p className="text-sm text-gray-500 truncate">{company.name}</p>
           <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
             <span className="flex items-center gap-1">
               <MapPin className="w-3 h-3" />
@@ -132,11 +155,11 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
           </div>
 
           <div className="absolute -bottom-6 left-4">
-            {job.companies.logo ? (
+            {company.logo ? (
               <div className="w-14 h-14 rounded-xl overflow-hidden ring-4 ring-white shadow-lg">
                 <Image
-                  src={job.companies.logo}
-                  alt={job.companies.name}
+                  src={company.logo}
+                  alt={company.name}
                   width={56}
                   height={56}
                   className="w-full h-full object-cover"
@@ -145,14 +168,14 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
               </div>
             ) : (
               <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-lg ring-4 ring-white">
-                {job.companies.name.charAt(0)}
+                {company.name.charAt(0)}
               </div>
             )}
           </div>
         </div>
 
         <div className="p-5 pt-8 flex flex-col flex-1">
-          <p className="text-sm text-gray-500 mb-1">{job.companies.name}</p>
+          <p className="text-sm text-gray-500 mb-1">{company.name}</p>
           
           <h3 className="text-lg font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors line-clamp-2">
             {job.title}
@@ -198,11 +221,11 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
       <Link href={`${jobLink}`}>
         <div className="flex items-start gap-4">
           <div className="flex-shrink-0">
-            {job.companies.logo ? (
+            {company.logo ? (
               <div className="w-14 h-14 rounded-xl overflow-hidden ring-2 ring-gray-100 group-hover:ring-blue-200 transition-all">
                 <Image
-                  src={job.companies.logo}
-                  alt={job.companies.name}
+                  src={company.logo}
+                  alt={company.name}
                   width={56}
                   height={56}
                   className="w-full h-full object-cover"
@@ -211,7 +234,7 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
               </div>
             ) : (
               <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-md">
-                {job.companies.name.charAt(0)}
+                {company.name.charAt(0)}
               </div>
             )}
           </div>
@@ -222,7 +245,7 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
                 <h3 className="font-bold text-lg text-gray-900 group-hover:text-blue-600 transition-colors">
                   {job.title}
                 </h3>
-                <p className="text-gray-600 text-sm">{job.companies.name}</p>
+                <p className="text-gray-600 text-sm">{company.name}</p>
               </div>
               <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent flex-shrink-0">
                 {salaryText}
@@ -269,3 +292,5 @@ export function JobCardV2({ job, variant = "default", showFavorite = true, highl
     </div>
   );
 }
+
+

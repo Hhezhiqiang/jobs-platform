@@ -3,14 +3,39 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { jobs, companies } from "@prisma/client";
 import { formatDistanceToNow, formatSalary, cn } from "@/lib/utils";
 import { HeartButton } from "./heart-button";
 import { HighlightedText } from "./highlighted-text";
 import { CultureTag, CULTURE_TAGS, calculateMatchScore, getMatchingTags } from "./job-preference-modal";
 
+interface JobCardCompany {
+  id?: string;
+  name: string;
+  logo: string | null;
+  industry?: string | null;
+  cultureTags?: string[];
+}
+
+interface JobCardData {
+  id: string;
+  slug?: string | null;
+  title: string;
+  employmentType: string;
+  salaryMin: number | null;
+  salaryMax: number | null;
+  salaryCurrency: string;
+  location: string;
+  datePosted: Date | string;
+  isRemote?: boolean;
+  isFeatured?: boolean;
+  imageUrl?: string | null;
+  schemaOrganizationName?: string | null;
+  companies: JobCardCompany;
+  company?: JobCardCompany;
+}
+
 interface JobCardV3Props {
-  job: jobs & { companies: companies };
+  job: JobCardData & { matchScore?: number };
   variant?: "default" | "compact" | "featured";
   showFavorite?: boolean;
   highlightQuery?: string;
@@ -55,11 +80,11 @@ export function JobCardV3({
   showMatchScore = false,
 }: JobCardV3Props) {
   const locale = usePathname()?.split("/")[1] || "zh";
-  const salaryText = formatSalary(job.salaryMin, job.salaryMax);
+  const salaryText = formatSalary(job.salaryMin, job.salaryMax, job.salaryCurrency, locale);
   const timeAgo = formatDistanceToNow(job.datePosted);
   
   // 获取公司文化标签
-  const companyTags = (job.companies as any)?.cultureTags || [];
+  const companyTags = job.companies.cultureTags || [];
   
   // 计算匹配度
   const matchScore = showMatchScore && userCultureTags.length > 0

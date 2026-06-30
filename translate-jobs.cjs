@@ -1,8 +1,12 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-const KIMI_API_KEY = 'sk-yBaN30XiLcyh4ZkVd7aLMukglXD6P9RSwC9nXCPhjQq3h3Ke';
+const KIMI_API_KEY = process.env.KIMI_API_KEY;
 const KIMI_API_URL = 'https://api.moonshot.cn/v1/chat/completions';
+
+if (!KIMI_API_KEY) {
+  throw new Error('KIMI_API_KEY not set');
+}
 
 async function translateTitle(text) {
   const res = await fetch(KIMI_API_URL, {
