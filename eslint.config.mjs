@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "build/**",
     ".vercel/**",
     "next-env.d.ts",
+    "*.cjs",
+    "seed-data.js",
   ]),
   {
     plugins: {

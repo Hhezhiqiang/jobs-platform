@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Header } from "@/components/header";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { JobCardV2 } from "@/components/job-card-v2";
 import { SearchBox } from "@/components/search-box";
@@ -173,8 +172,6 @@ export function SearchPageClient({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
-
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="mb-4">
