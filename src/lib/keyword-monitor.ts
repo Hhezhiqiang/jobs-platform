@@ -1,18 +1,19 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { logger } from "@/lib/logger";
 import { normalizeKeyword, type RawKeywordItem } from "./keyword-sources";
 import { jobMarketAdapter } from "./keyword-sources/job-market";
 import { localHotTopicsAdapter } from "./keyword-sources/local-hot-topics";
-// 新增: 实时网络热点
 import { realTimeHotTopicsAdapter } from "./keyword-sources/realtime-hot-topics";
-import { logger } from '@/lib/logger';
 
 const ADAPTERS = [
-  jobMarketAdapter,          // 站内岗位数据（最可靠）
-  realTimeHotTopicsAdapter,  // 新增: 百度/知乎/微博实时热点
-  localHotTopicsAdapter,     // 高价值关键词库
+  jobMarketAdapter,
+  realTimeHotTopicsAdapter,
+  localHotTopicsAdapter,
 ];
 
-// 关键词超时 & 重试
+type KeywordMonitorMetadata = Prisma.InputJsonValue | Prisma.NullableJsonNullValueInput | undefined;
+
 async function fetchWithTimeout<T>(
   adapter: { name: string; fetch(): Promise<T> },
   timeoutMs: number
@@ -23,9 +24,32 @@ async function fetchWithTimeout<T>(
     });
     const data = await Promise.race([adapter.fetch(), timeoutPromise]);
     return { success: true, data, name: adapter.name };
-  } catch (err) {
-    return { success: false, error: (err as Error).message, name: adapter.name };
+  } catch (error: unknown) {
+    return { success: false, error: getErrorMessage(error), name: adapter.name };
   }
+}
+
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (typeof error === "string") return error;
+
+  try {
+    return JSON.stringify(error);
+  } catch {
+    return "Unknown error";
+  }
+}
+
+function toKeywordMonitorMetadata(
+  value: RawKeywordItem["metadata"] | KeywordMonitorMetadata
+): KeywordMonitorMetadata {
+  if (value === undefined) return undefined;
+  if (value === null) return Prisma.JsonNull;
+  return value as Prisma.InputJsonValue;
+}
+
+function isKnownPrismaError(error: unknown): error is Prisma.PrismaClientKnownRequestError {
+  return error instanceof Prisma.PrismaClientKnownRequestError;
 }
 
 export async function collectKeywords(): Promise<{
@@ -35,9 +59,7 @@ export async function collectKeywords(): Promise<{
   newIds: string[];
   stats: { adapter: string; count: number; status: string }[];
 }> {
-  const results = await Promise.all(
-    ADAPTERS.map(adapter => fetchWithTimeout(adapter, 15000))
-  );
+  const results = await Promise.all(ADAPTERS.map(adapter => fetchWithTimeout(adapter, 15000)));
 
   let allItems: RawKeywordItem[] = [];
   const adapterStats: { adapter: string; count: number; status: string }[] = [];
@@ -52,12 +74,13 @@ export async function collectKeywords(): Promise<{
     }
   }
 
-  // 去重
   const uniqueMap = new Map<string, RawKeywordItem>();
   for (const item of allItems) {
     const norm = normalizeKeyword(item.keyword);
     if (!norm || norm.length < 2) continue;
-    if (!uniqueMap.has(norm) || (item.trendScore || 0) > (uniqueMap.get(norm)!.trendScore || 0)) {
+
+    const current = uniqueMap.get(norm);
+    if (!current || (item.trendScore || 0) > (current.trendScore || 0)) {
       uniqueMap.set(norm, item);
     }
   }
@@ -67,8 +90,7 @@ export async function collectKeywords(): Promise<{
   let errors = 0;
   const newIds: string[] = [];
 
-  const entries = Array.from(uniqueMap.entries());
-  for (const [norm, item] of entries) {
+  for (const [norm, item] of uniqueMap.entries()) {
     try {
       const exists = await prisma.keyword_monitors.findFirst({ where: { normalized: norm } });
 
@@ -80,32 +102,39 @@ export async function collectKeywords(): Promise<{
             trendScore: Math.max(exists.trendScore, item.trendScore || 0),
             source: item.source || exists.source,
             sourceUrl: item.sourceUrl || exists.sourceUrl,
-            metadata: (item.metadata ?? exists.metadata ?? undefined) as any,
+            metadata: toKeywordMonitorMetadata(item.metadata ?? exists.metadata ?? undefined),
           },
         });
         duplicates++;
-      } else {
-        const created = await prisma.keyword_monitors.create({
-          data: {
-            keyword: item.keyword.substring(0, 100),
-            normalized: norm,
-            source: item.source || "unknown",
-            sourceUrl: item.sourceUrl,
-            trendScore: item.trendScore || 50,
-            hotLevel: (item.trendScore || 50) >= 80 ? 3 : (item.trendScore || 50) >= 60 ? 2 : 1,
-            category: "HOLD",
-            intent: "UNKNOWN",
-            status: "PENDING",
-            firstSeenAt: new Date(),
-            lastSeenAt: new Date(),
-            metadata: (item.metadata ?? {}) as any,
-          },
-        });
-        newIds.push(created.id);
-        inserted++;
+        continue;
       }
-    } catch (err: any) {
-      if (err.code === "P2002") { duplicates++; continue; }
+
+      const created = await prisma.keyword_monitors.create({
+        data: {
+          keyword: item.keyword.substring(0, 100),
+          normalized: norm,
+          source: item.source || "unknown",
+          sourceUrl: item.sourceUrl,
+          trendScore: item.trendScore || 50,
+          hotLevel: (item.trendScore || 50) >= 80 ? 3 : (item.trendScore || 50) >= 60 ? 2 : 1,
+          category: "HOLD",
+          intent: "UNKNOWN",
+          status: "PENDING",
+          firstSeenAt: new Date(),
+          lastSeenAt: new Date(),
+          metadata: toKeywordMonitorMetadata(item.metadata ?? {}),
+        },
+      });
+
+      newIds.push(created.id);
+      inserted++;
+    } catch (error: unknown) {
+      if (isKnownPrismaError(error) && error.code === "P2002") {
+        duplicates++;
+        continue;
+      }
+
+      logger.error("[keyword-monitor] collect error:", getErrorMessage(error));
       errors++;
     }
   }

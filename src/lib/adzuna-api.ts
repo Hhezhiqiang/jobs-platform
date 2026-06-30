@@ -1,3 +1,4 @@
+import { EmploymentType, ExperienceLevel, Prisma } from '@prisma/client';
 import { prisma } from './prisma';
 import { parseJobDescriptionsBatch, needsAIParsing } from './parse-job-description';
 import { getRegionTags } from './global-job-tags';
@@ -248,11 +249,12 @@ function extractCity(displayName: string): string {
   return displayName.split(',')[0]?.trim() || displayName;
 }
 
-function inferExperienceLevel(title: string): 'SENIOR' | 'MID' | 'JUNIOR' | 'LEAD' {
+function inferExperienceLevel(title: string): ExperienceLevel {
   const lower = title.toLowerCase();
-  if (/junior|jr\.|entry|graduate|intern|associate/.test(lower)) return 'JUNIOR';
-  if (/senior|sr\.|lead|principal|staff|head|director/.test(lower)) return 'SENIOR';
-  return 'MID';
+  if (/junior|jr\.|entry|graduate|intern|associate/.test(lower)) return ExperienceLevel.ENTRY;
+  if (/senior|sr\.|lead|principal|staff|head|director/.test(lower)) return ExperienceLevel.SENIOR;
+  if (/executive|vp|vice president|cto|cpo|ceo/.test(lower)) return ExperienceLevel.EXECUTIVE;
+  return ExperienceLevel.MID;
 }
 
 function retry<T>(fn: () => Promise<T>, maxRetries: number = SYNC_CONFIG.maxRetries): Promise<T> {
@@ -308,39 +310,67 @@ function normalizeCompanyName(name: string): string {
     .trim();
 }
 
+type CompanyMatchCandidate = {
+  id: string;
+  name: string;
+  nameEn: string | null;
+  normalizedName: string;
+  normalizedNameEn: string | null;
+};
+
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+function countUniqueDescriptions(items: Array<{ cleanedDescription: string }>): number {
+  return new Set(items.map((item) => item.cleanedDescription)).size;
+}
+
 // 按公司名称匹配现有公司（返回 companyId 或 null）
-async function matchCompanyByName(
+function matchCompanyByName(
   adzunaCompanyName: string,
-  country: string,
-): Promise<string | null> {
+  companies: CompanyMatchCandidate[],
+): string | null {
   if (!adzunaCompanyName || adzunaCompanyName === 'Adzuna Jobs') return null;
 
   const normalized = normalizeCompanyName(adzunaCompanyName);
+  if (!normalized) return null;
 
-  // 1. 精确匹配标准化名称
-  const companies = await prisma.companies.findMany({
-    select: { id: true, name: true, nameEn: true },
-  });
-
-  // 先按完全匹配（忽略大小写）
   const exactMatch = companies.find(
     (c) =>
-      normalizeCompanyName(c.name) === normalized ||
-      (c.nameEn && normalizeCompanyName(c.nameEn) === normalized) ||
+      c.normalizedName === normalized ||
+      c.normalizedNameEn === normalized ||
       c.name.toLowerCase() === adzunaCompanyName.toLowerCase(),
   );
   if (exactMatch) return exactMatch.id;
 
-  // 2. 包含匹配（Adzuna 公司名包含现有公司名，或反过来）
   const partialMatch = companies.find(
     (c) =>
-      c.name.toLowerCase().includes(normalized) ||
-      normalized.includes(c.name.toLowerCase()) ||
-      (c.nameEn && (c.nameEn.toLowerCase().includes(normalized) || normalized.includes(c.nameEn.toLowerCase()))),
+      c.normalizedName.includes(normalized) ||
+      normalized.includes(c.normalizedName) ||
+      (c.normalizedNameEn &&
+        (c.normalizedNameEn.includes(normalized) || normalized.includes(c.normalizedNameEn))),
   );
   if (partialMatch) return partialMatch.id;
 
   return null;
+}
+
+async function loadCompanyMatchCandidates(): Promise<CompanyMatchCandidate[]> {
+  try {
+    const companies = await prisma.companies.findMany({
+      select: { id: true, name: true, nameEn: true },
+    });
+
+    return companies.map((company) => ({
+      ...company,
+      normalizedName: normalizeCompanyName(company.name),
+      normalizedNameEn: company.nameEn ? normalizeCompanyName(company.nameEn) : null,
+    }));
+  } catch (error: unknown) {
+    logger.error('[adzuna] 预加载公司列表失败，将跳过公司匹配:', getErrorMessage(error));
+    return [];
+  }
 }
 
 async function fetchAdzunaPage(
@@ -450,7 +480,7 @@ function transformJob(
   country: string,
   companyId: string,
   authorId: string,
-) {
+): Prisma.jobsCreateManyInput {
   const fullLocation = job.location?.display_name || location || 'Remote';
   const city = extractCity(fullLocation);
   const globalTags = getRegionTags(country, fullLocation);
@@ -597,14 +627,14 @@ function transformJob(
     salaryCurrency,
     employmentType:
       job.contract_type === 'part_time'
-        ? 'PART_TIME'
+        ? EmploymentType.PART_TIME
         : job.contract_type === 'contract'
-          ? 'CONTRACT'
+          ? EmploymentType.CONTRACT
           : job.contract_type === 'internship'
-            ? 'INTERNSHIP'
+            ? EmploymentType.INTERNSHIP
             : job.contract_type === 'freelance'
-              ? 'FREELANCE'
-              : 'FULL_TIME',
+              ? EmploymentType.FREELANCE
+              : EmploymentType.FULL_TIME,
     // 从标题推断经验级别
     experience: inferExperienceLevel(job.title),
     applyUrl: directApplyUrl,
@@ -623,7 +653,7 @@ function transformJob(
 // ─── 批量插入 ────────────────────────────────────────────────
 
 async function batchInsertJobs(
-  jobData: Array<Record<string, unknown>>,
+  jobData: Prisma.jobsCreateManyInput[],
   onProgress?: ProgressCallback,
 ): Promise<{ inserted: number; skipped: number; failed: number }> {
   let inserted = 0;
@@ -635,7 +665,7 @@ async function batchInsertJobs(
 
     try {
       const result = await prisma.jobs.createMany({
-        data: batch as any,
+        data: batch,
         skipDuplicates: true,
       });
 
@@ -654,7 +684,7 @@ async function batchInsertJobs(
         message: `已写入 ${inserted + skipped} 条 (新增 ${inserted}, 跳过 ${skipped})`,
       });
     } catch (error: unknown) {
-      logger.error(`[adzuna] 批量插入失败 (batch ${i}):`, (error as Error).message);
+      logger.error(`[adzuna] 批量插入失败 (batch ${i}):`, getErrorMessage(error));
       failed += batch.length;
     }
   }
@@ -711,6 +741,8 @@ export async function fetchAdzunaBulkJobs(options?: FetchAdzunaBulkOptions): Pro
     countryLocations[country] = locs;
     totalLocs += locs.length;
   }
+
+  const companies = await loadCompanyMatchCandidates();
 
   const apiSemaphore = new Semaphore(SYNC_CONFIG.apiMaxConcurrent);
   const allJobs: AdzunaJob[] = [];
@@ -800,7 +832,7 @@ export async function fetchAdzunaBulkJobs(options?: FetchAdzunaBulkOptions): Pro
   }
 
   // ── Phase 3: 批量 AI 解析 ──
-  let aiCallCount = 0;
+  const aiCallCount = countUniqueDescriptions(needAI);
 
   if (needAI.length > 0) {
     onProgress?.({
@@ -823,8 +855,6 @@ export async function fetchAdzunaBulkJobs(options?: FetchAdzunaBulkOptions): Pro
     const parsedMap = await parseJobDescriptionsBatch(aiInputs, SYNC_CONFIG.aiConcurrency);
 
     // 估算 AI 调用次数（parseJobDescriptionsBatch 内部会去重）
-    aiCallCount = parsedMap.size - noNeedAI.length;
-
     for (const t of needAI) {
       const parsed = parsedMap.get(t.job.id);
       if (parsed) {
@@ -866,7 +896,7 @@ export async function fetchAdzunaBulkJobs(options?: FetchAdzunaBulkOptions): Pro
   for (const t of transformedJobs) {
     const adzunaName = t.job.company?.display_name;
     if (adzunaName && adzunaName !== 'Adzuna Jobs') {
-      const matchedId = await matchCompanyByName(adzunaName, t.job._country || 'gb');
+      const matchedId = matchCompanyByName(adzunaName, companies);
       if (matchedId) {
         t.data.companyId = matchedId;
         matchedCompanyCount++;
@@ -963,7 +993,7 @@ export async function fetchAdzunaJobs(
     const aiInputs = needAI
       .map((job) => ({ id: job.id, description: job.cleanedDescription }));
 
-    const parsedMap = await parseJobDescriptionsBatch(aiInputs, 5);
+    const parsedMap = await parseJobDescriptionsBatch(aiInputs, SYNC_CONFIG.aiConcurrency);
 
     for (let i = 0; i < cleanedResults.length; i++) {
       const job = cleanedResults[i];

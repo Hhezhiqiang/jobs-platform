@@ -3,6 +3,10 @@ import { logger } from '@/lib/logger';
 
 // ============ Jooble API ============
 
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
 interface JoobleJob {
   id: string;
   title: string;
@@ -69,16 +73,17 @@ export async function fetchJoobleJobs(
           }
         });
         savedCount++;
-      } catch (error: any) {
-        if (!error.message.includes('Unique constraint')) {
-          logger.error(`Failed to save Jooble job ${job.id}:`, error.message);
+      } catch (error: unknown) {
+        const message = getErrorMessage(error);
+        if (!message.includes('Unique constraint')) {
+          logger.error(`Failed to save Jooble job ${job.id}:`, message);
         }
       }
     }
 
     return savedCount;
-  } catch (error: any) {
-    logger.error('Jooble API error:', error.message);
+  } catch (error: unknown) {
+    logger.error('Jooble API error:', getErrorMessage(error));
     return 0;
   }
 }
@@ -161,16 +166,17 @@ export async function fetchMuseJobs(
           }
         });
         savedCount++;
-      } catch (error: any) {
-        if (!error.message.includes('Unique constraint')) {
-          logger.error(`Failed to save Muse job ${job.id}:`, error.message);
+      } catch (error: unknown) {
+        const message = getErrorMessage(error);
+        if (!message.includes('Unique constraint')) {
+          logger.error(`Failed to save Muse job ${job.id}:`, message);
         }
       }
     }
 
     return savedCount;
-  } catch (error: any) {
-    logger.error('The Muse API error:', error.message);
+  } catch (error: unknown) {
+    logger.error('The Muse API error:', getErrorMessage(error));
     return 0;
   }
 }
@@ -191,8 +197,8 @@ export async function syncAllJobs() {
         const count = await fetchJoobleJobs(keyword, location, 1);
         total += count;
         await sleep(1500); // 频率控制
-      } catch (error: any) {
-        logger.error(`Jooble ${keyword} ${location} failed:`, error.message);
+      } catch (error: unknown) {
+        logger.error(`Jooble ${keyword} ${location} failed:`, getErrorMessage(error));
       }
     }
   }
@@ -204,8 +210,8 @@ export async function syncAllJobs() {
         const count = await fetchMuseJobs(keyword, location, 1);
         total += count;
         await sleep(1500);
-      } catch (error: any) {
-        logger.error(`Muse ${keyword} ${location} failed:`, error.message);
+      } catch (error: unknown) {
+        logger.error(`Muse ${keyword} ${location} failed:`, getErrorMessage(error));
       }
     }
   }

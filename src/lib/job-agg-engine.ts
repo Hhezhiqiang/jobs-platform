@@ -130,7 +130,7 @@ export async function fetchCryptoJobsList(): Promise<AggregatedJob[]> {
       sourceUrl: item.url || item.applyUrl || '',
       title: item.title || item.position || '',
       company: item.company?.name || item.company || '',
-      location: item.location || item.remote ? 'Remote' : 'On-site',
+      location: item.remote ? 'Remote' : (item.location || 'On-site'),
       description: (item.description || '').slice(0, 2000),
       tags: ['web3', 'crypto', ...(item.tags || [])],
       datePosted: new Date(item.publishedAt || item.createdAt || Date.now()).toISOString(),
